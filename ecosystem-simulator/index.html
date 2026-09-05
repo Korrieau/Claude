@@ -2054,6 +2054,19 @@ const ERAS = [
    intro:"대분화가 일어났습니다. 화산재가 하늘을 덮습니다.",
    outro:"재가 가라앉았습니다. 땅은 오히려 기름집니다.",
    temp:-4, moist:1.05, light:0.76,
+   year:g=>{ const w=g.world; let n=0;
+     /* 산지가 터져 새 화산이 생기고, 재가 내려앉아 땅이 뿌옇게 흐려진다 */
+     for(let i=0;i<NT && n<2;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]||w.biome[j]!==5) continue;
+       w.biome[j]=8; w.baseSoil[j]=46; n++;
+     }
+     for(let k=0;k<60;k++){ const j=Math.floor(rnd()*NT);
+       if(w.vd[j]||w.biome[j]===10) continue;
+       w.dist[j]=Math.min(1,w.dist[j]+0.05);
+     }
+     if(n) g._sceneDirty=true;
+   },
    end:g=>{ for(let i=0;i<NT;i++) if(!g.world.vd[i]) g.world.baseSoil[i]=Math.min(150,g.world.baseSoil[i]+18); }},
   {k:"megadrought", name:"대가뭄", tone:"hot", minYear:18, w:1.0, dur:[16,32],
    intro:"비가 오지 않습니다. 강이 마르고 호수가 줄어듭니다.",
@@ -2070,7 +2083,17 @@ const ERAS = [
   {k:"greening", name:"대녹화", tone:"good", minYear:15, w:0.8, dur:[18,34],
    intro:"비가 넉넉하고 땅이 기름집니다. 초목이 폭발적으로 번집니다.",
    outro:"풍요로운 시절이 끝났습니다.",
-   temp:2, moist:1.30, light:1.28},
+   temp:2, moist:1.30, light:1.28,
+   year:g=>{ const w=g.world; let n=0;
+     /* 사막이 초원으로, 초원이 숲으로 — 유일하게 땅이 좋아지는 시대다 */
+     for(let i=0;i<NT && n<8;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]) continue;
+       if(w.biome[j]===4){ w.biome[j]=2; w.baseSoil[j]=58; w.baseMoist[j]=0.48; n++; }
+       else if(w.biome[j]===2 && rnd()<0.28){ w.biome[j]=3; w.baseSoil[j]=74; n++; }
+     }
+     if(n) g._sceneDirty=true;
+   }},
   /* 사람이 만든 시대 */
   {k:"acidrain", name:"산성비", tone:"human", human:true, w:1.0, dur:[14,28],
    intro:"공장 매연이 비에 섞여 내립니다. 숲이 말라갑니다.",
@@ -2130,6 +2153,23 @@ const ERAS = [
    }},
 ];
 function nbIdx(x,y){ return (x<0||y<0||x>=W||y>=H) ? -1 : y*W+x; }
+
+/* 시대별 화면 톤 — sky는 하늘색, air는 지형과 생물에 곱하는 공기 색.
+   너무 어둡게 하면 밝은 저폴리 맛이 죽고 생물이 안 보인다. 그래서 어둡게 하기보다
+   색조를 옮기는 쪽을 쓰고, 제일 어두운 운석 충돌도 평균 0.81까지만 내린다. */
+const ERA_LOOK = {
+  _none:       {sky:[0.756,0.894,0.957], air:[1.00,1.00,1.00]},
+  iceage:      {sky:[0.82,0.88,0.95],    air:[0.92,0.96,1.03]},  /* 창백한 파랑 */
+  warming:     {sky:[0.95,0.87,0.72],    air:[1.06,0.99,0.90]},  /* 뜨거운 아지랑이 */
+  impact:      {sky:[0.46,0.45,0.46],    air:[0.82,0.80,0.80]},  /* 먼지가 해를 가림 */
+  volcanic:    {sky:[0.60,0.56,0.53],    air:[0.87,0.84,0.80]},  /* 화산재 */
+  megadrought: {sky:[0.94,0.86,0.64],    air:[1.06,0.99,0.82]},  /* 누런 흙먼지 */
+  greening:    {sky:[0.70,0.92,0.99],    air:[0.98,1.06,0.96]},  /* 맑고 푸름 */
+  acidrain:    {sky:[0.71,0.74,0.62],    air:[0.94,0.96,0.85]},  /* 매연 섞인 회록색 */
+  radiation:   {sky:[0.72,0.67,0.84],    air:[1.00,0.94,1.05]},  /* 어딘가 잘못된 보랏빛 */
+  searise:     {sky:[0.62,0.72,0.80],    air:[0.93,0.97,1.02]},  /* 무겁게 내려앉은 회청색 */
+};
+const eraLook = () => (G.era && ERA_LOOK[G.era.def.k]) || ERA_LOOK._none;
 
 function eraTick(){
   const g=G;
@@ -3050,13 +3090,15 @@ const Globe = (function(){
   /* 밝은 하늘빛 환경광 + 한 방향 햇빛. 생물은 채도를 유지해 파스텔 지형 위에서 또렷하게. */
   const FS = `
     precision mediump float;
-    uniform vec3 uLight; varying vec3 vN; varying vec3 vC; varying float vK; varying float vY;
+    uniform vec3 uLight; uniform vec3 uAir;
+    varying vec3 vN; varying vec3 vC; varying float vK; varying float vY;
     void main(){
       vec3 n=normalize(vN);
       float d=max(dot(n,normalize(uLight)),0.0);
       float sky=max(n.y,0.0);
-      /* 명암을 거의 주지 않는다. 색이 그대로 살아야 장난감처럼 보인다. */
-      vec3 c = vC*(0.86 + 0.20*d) * (0.97 + 0.05*sky);
+      /* 명암을 거의 주지 않는다. 색이 그대로 살아야 장난감처럼 보인다.
+         uAir는 그 시대의 공기 색 — 빙하기면 파랗게, 운석 충돌이면 잿빛으로 깔린다. */
+      vec3 c = vC*(0.86 + 0.20*d) * (0.97 + 0.05*sky) * uAir;
       gl_FragColor = vec4(c, 1.0);
     }`;
   const VS_G = `
@@ -3086,12 +3128,13 @@ const Globe = (function(){
     }`;
   const FS_C = `
     precision mediump float;
-    uniform vec3 uLight; uniform vec3 uColor; varying vec3 vN;
+    uniform vec3 uLight; uniform vec3 uColor; uniform vec3 uAir; varying vec3 vN;
     void main(){
       vec3 n=normalize(vN);
       float d=max(dot(n,normalize(uLight)),0.0);
       float sky=max(n.y,0.0);
-      vec3 c = uColor*(0.90 + 0.18*d) * (0.97 + 0.05*sky);
+      /* 생물에는 공기 색을 절반만 먹인다. 어두운 시대에도 종이 구분돼야 한다. */
+      vec3 c = uColor*(0.90 + 0.18*d) * (0.97 + 0.05*sky) * mix(uAir, vec3(1.0), 0.45);
       gl_FragColor=vec4(c,1.0);
     }`;
 
@@ -3107,6 +3150,27 @@ const Globe = (function(){
     gl.linkProgram(pr);
     if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
     return pr;
+  }
+
+  /* ── 시대의 공기 ─────────────────────────────────────────────
+     시대가 바뀌면 하늘색과 공기 색이 3~4초에 걸쳐 서서히 옮겨간다.
+     툭 바뀌면 화면이 깨진 것처럼 보인다. */
+  const skyCur=[0.756,0.894,0.957], airCur=[1,1,1];
+  let airLast=0;
+  function tickAir(){
+    const now=performance.now();
+    const dt = airLast ? Math.min(0.1,(now-airLast)/1000) : 0.016;
+    airLast=now;
+    const L=eraLook(), k=1-Math.exp(-dt/1.1);
+    for(let i=0;i<3;i++){
+      skyCur[i]+=(L.sky[i]-skyCur[i])*k;
+      airCur[i]+=(L.air[i]-airCur[i])*k;
+    }
+  }
+  /* 새 판을 시작할 때는 이어지는 화면이 없으니 바로 맞춘다 */
+  function resetAir(){
+    const L=eraLook(); airLast=0;
+    for(let i=0;i<3;i++){ skyCur[i]=L.sky[i]; airCur[i]=L.air[i]; }
   }
 
   function init(){
@@ -3398,6 +3462,8 @@ const Globe = (function(){
     if(zoomDirty && performance.now()-lastZoom>140){ zoomDirty=false; lastZoom=performance.now(); updateCreatures(); }
     else if(zoomDirty) lastZoom=performance.now();
     const vp=viewProj();
+    tickAir();
+    gl.clearColor(skyCur[0],skyCur[1],skyCur[2],1);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND); gl.depthMask(true);
     gl.useProgram(prog);
@@ -3405,6 +3471,7 @@ const Globe = (function(){
     const sa=(G.tick/TICKS_PER_YEAR)*0.4;
     const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
     gl.uniform3f(gl.getUniformLocation(prog,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
+    gl.uniform3f(gl.getUniformLocation(prog,"uAir"),airCur[0],airCur[1],airCur[2]);
     if(terrN){ bindAttribs(prog,terrBuf); gl.drawArrays(gl.TRIANGLES,0,terrN); }
     if(sceneN){ bindAttribs(prog,sceneBuf); gl.drawArrays(gl.TRIANGLES,0,sceneN); }
     drawCreatures(vp);
@@ -3429,6 +3496,7 @@ const Globe = (function(){
     const sa=(G.tick/TICKS_PER_YEAR)*0.4;
     const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
     gl.uniform3f(gl.getUniformLocation(progC,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
+    gl.uniform3f(gl.getUniformLocation(progC,"uAir"),airCur[0],airCur[1],airCur[2]);
     const aP=gl.getAttribLocation(progC,"aPos"), aN=gl.getAttribLocation(progC,"aNrm");
     const aI=gl.getAttribLocation(progC,"aInst"), aS=gl.getAttribLocation(progC,"aScale");
     const uC=gl.getUniformLocation(progC,"uColor");
@@ -3513,7 +3581,7 @@ const Globe = (function(){
     return i;
   }
 
-  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick,
+  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetAir,
           get ok(){ return ok; }};
 })();
 
@@ -3800,7 +3868,7 @@ function startSim(){
   $("#globe").hidden = !use3d;
   $("#map").hidden = use3d;
   $("#viewhint").hidden = !use3d;
-  if(use3d){ Globe.buildCreatures(); Globe.updateTerrain(); Globe.buildScenery(); }
+  if(use3d){ Globe.resetAir(); Globe.buildCreatures(); Globe.updateTerrain(); Globe.buildScenery(); }
   buildLayerTabs(); renderStatus(); renderSpecies(); renderEvo(); renderLog();
   drawMap(); drawChart("chart","chart-legend",false);
   acc=0; lastT=performance.now(); lastUI=0;
