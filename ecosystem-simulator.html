@@ -4,43 +4,46 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 
 <style>
-/* ── 단일 테마: 야간 생태 관측 단말기 ─────────────────────────────── */
+/* ── 단일 테마: 밝은 테라리움 ──────────────────────────────────────
+   흰 바탕에 채도 높은 생물 색. 지형은 파스텔로 눌러 두고
+   생물만 진하게 올려서 도형이 눈에 먼저 들어오게 한다. */
 :root{
-  color-scheme: dark;
+  color-scheme: light;
 
-  --ground:  #070A09;
-  --panel:   #0D1211;
-  --panel-2: #121917;
-  --panel-3: #18211E;
-  --line:    #1C2523;
-  --line-2:  #28332F;
+  --ground:  #EFF3EC;
+  --panel:   #FFFFFF;
+  --panel-2: #F6F9F3;
+  --panel-3: #EAF0E5;
+  --line:    #E0E6DA;
+  --line-2:  #C7D2C0;
 
-  --ink:   #E7F0EA;
-  --ink-2: #93A9A0;
-  --ink-3: #63776F;
+  --ink:   #16231C;
+  --ink-2: #55665D;
+  --ink-3: #84958B;
 
-  --gold:    #C98500;
-  --gold-hi: #E7A82C;
+  --gold:    #D98200;
+  --gold-hi: #EE9A0E;
 
-  --good: #199e70;
-  --warn: #C98500;
-  --crit: #e66767;
+  --good: #1baf7a;
+  --warn: #D98200;
+  --crit: #e34948;
 
-  /* 기능군 팔레트 — 다크 표면 #131E1B 기준 인접쌍 검증 통과 */
-  --g0: #C98500;  /* 내 종 */
+  /* 기능군 팔레트 — 흰 표면 기준 인접쌍 검증 통과 */
+  --g0: #eda100;  /* 내 종 */
   --g1: #008300;  /* 생산자 */
-  --g2: #d55181;  /* 분해자 */
-  --g3: #3987E5;  /* 소형 초식 */
-  --g4: #d95926;  /* 대형 초식 */
-  --g5: #9085e9;  /* 잡식 */
-  --g6: #199e70;  /* 소형 육식 */
-  --g7: #e66767;  /* 대형 육식 */
+  --g2: #e87ba4;  /* 분해자 */
+  --g3: #2a78d6;  /* 소형 초식 */
+  --g4: #eb6834;  /* 대형 초식 */
+  --g5: #4a3aa7;  /* 잡식 */
+  --g6: #1baf7a;  /* 소형 육식 */
+  --g7: #e34948;  /* 대형 육식 */
 
   --f-disp: "Hahmlet", "Nanum Myeongjo", Georgia, serif;
   --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --f-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
-  --r: 3px;
+  --r: 12px;
+  --shadow: 0 6px 0 rgba(22,45,32,.10), 0 10px 24px rgba(22,45,32,.12);
 }
 
 *{ box-sizing: border-box; }
@@ -69,7 +72,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
   outline: 2px solid var(--gold-hi); outline-offset: 2px;
 }
 
-.app{ max-width: 1420px; margin: 0 auto; padding: 0 20px 64px; }
+.app{ max-width: 1500px; margin: 0 auto; padding: 0 20px 40px; }
+#scr-sim.screen.on{ padding-top:14px; }
 
 /* ── 화면 전환 ─────────────────────────────────────────────────── */
 .screen{ display:none; }
@@ -80,7 +84,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
   display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
   padding: 28px 0 16px; border-bottom:1px solid var(--line); margin-bottom:22px;
 }
-.masthead h1{ font-size: 30px; line-height:1.1; }
+.masthead h1{ font-size: 34px; line-height:1.05; }
 .masthead .sub{ color: var(--ink-2); font-size:13px; margin-top:6px; max-width: 62ch; }
 .masthead .right{ text-align:right; flex:none; }
 
@@ -90,9 +94,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 }
 @media (max-width: 1080px){ .design-grid{ grid-template-columns: 1fr; } }
 
-.card{
-  background: var(--panel); border:1px solid var(--line); border-radius: var(--r);
-}
+.card{ background: var(--panel); border:none; border-radius: 18px; box-shadow: var(--shadow); }
 .card > header{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:12px 16px; border-bottom:1px solid var(--line);
@@ -111,11 +113,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 /* 식성 선택 */
 .diets{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
 .diet{
-  background: var(--panel-2); border:1px solid var(--line-2); border-radius:var(--r);
-  padding:10px 10px 11px; text-align:left; transition: border-color .12s, background .12s;
+  background: var(--panel-2); border:2px solid transparent; border-radius:14px;
+  padding:11px 12px 12px; text-align:left; transition: transform .1s, border-color .12s, background .12s;
 }
-.diet:hover{ border-color: var(--line-2); background: var(--panel-3); }
-.diet[aria-pressed="true"]{ border-color: var(--gold); background: #22200F; }
+.diet:hover{ background: var(--panel-3); transform:translateY(-1px); }
+.diet[aria-pressed="true"]{ border-color: var(--gold); background: #FFF4DE; }
 .diet b{ display:block; font-weight:600; font-size:13px; }
 .diet span{ display:block; color:var(--ink-2); font-size:11px; line-height:1.4; margin-top:3px; }
 
@@ -157,12 +159,12 @@ input[type=range]::-moz-range-thumb{
 .budget{ margin-bottom:14px; }
 .budget .row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; }
 .budget .big{ font-size:26px; font-weight:600; letter-spacing:-0.02em; }
-.gauge{ height:6px; background: var(--panel-3); border-radius:3px; overflow:hidden; }
-.gauge i{ display:block; height:100%; background: var(--gold); transition: width .15s ease, background .15s; }
+.gauge{ height:10px; background: var(--panel-3); border-radius:999px; overflow:hidden; }
+.gauge i{ display:block; height:100%; background: var(--gold); border-radius:999px; transition: width .15s ease, background .15s; }
 .gauge.over i{ background: var(--crit); }
 
 /* 파생 지표 */
-.stats{ display:grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border:1px solid var(--line); border-radius: var(--r); overflow:hidden; }
+.stats{ display:grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border-radius: 12px; overflow:hidden; }
 .stat{ background: var(--panel); padding:9px 11px; }
 .stat .k{ font-size:10.5px; color: var(--ink-3); font-family:var(--f-mono); letter-spacing:.06em; }
 .stat .v{ font-size:14px; font-weight:500; margin-top:1px; }
@@ -182,18 +184,21 @@ input[type=range]::-moz-range-thumb{
 
 /* 버튼 */
 .btn{
-  background: var(--panel-2); border:1px solid var(--line-2); border-radius: var(--r);
-  padding:8px 13px; font-size:13px; transition: background .12s, border-color .12s;
+  background:#fff; border:none; border-radius:999px; box-shadow:var(--shadow);
+  padding:9px 15px; font-size:13px; font-weight:500; color:var(--ink-2);
+  transition: transform .08s, background .12s, color .12s;
 }
-.btn:hover{ background: var(--panel-3); }
-.btn[aria-pressed="true"]{ background: var(--panel-3); border-color: var(--gold); color: var(--gold-hi); }
+.btn:hover{ transform:translateY(-1px); color:var(--ink); }
+.btn[aria-pressed="true"]{ background: var(--gold); color:#fff; }
 .btn.primary{
-  background: var(--gold); border-color: var(--gold); color:#14100A; font-weight:600;
-  padding:11px 20px; font-size:14px;
+  background: var(--gold); color:#FFFFFF; font-weight:700; font-family:var(--f-disp);
+  padding:15px 22px; font-size:16px; border-radius:16px;
+  box-shadow: 0 5px 0 #A66200, 0 10px 22px rgba(217,130,0,.28);
 }
-.btn.primary:hover{ background: var(--gold-hi); }
-.btn.primary:disabled{ background: var(--panel-2); border-color:var(--line-2); color: var(--ink-3); font-weight:400; cursor:not-allowed; }
-.btn.ghost{ background:transparent; }
+.btn.primary:hover{ background: var(--gold-hi); transform:translateY(-1px); }
+.btn.primary:active{ transform:translateY(3px); box-shadow: 0 2px 0 #A66200; }
+.btn.primary:disabled{ background:#E3E8DE; color: var(--ink-3); font-weight:600; cursor:not-allowed; box-shadow:0 3px 0 #CBD3C4; }
+.btn.ghost{ background:rgba(255,255,255,.75); }
 .btnrow{ display:flex; gap:8px; flex-wrap:wrap; }
 
 /* ── 시뮬 화면 ─────────────────────────────────────────────────── */
@@ -214,18 +219,19 @@ input[type=range]::-moz-range-thumb{
 }
 @media (max-width: 1080px){ .sim-grid{ grid-template-columns: 1fr; } }
 
-.tabs{ display:flex; gap:2px; flex-wrap:wrap; }
+.tabs{ display:flex; gap:5px; flex-wrap:wrap; }
 .tab{
-  background:transparent; border:1px solid transparent; border-radius: var(--r);
-  padding:4px 9px; font-size:11.5px; color: var(--ink-2);
+  background:#fff; border:none; border-radius:999px; padding:6px 12px; font-size:12px;
+  font-weight:500; color: var(--ink-2); box-shadow:var(--shadow); line-height:1;
 }
-.tab:hover{ color: var(--ink); background: var(--panel-2); }
-.tab[aria-pressed="true"]{ background: var(--panel-3); color: var(--ink); border-color: var(--line-2); }
+.tab:hover{ color: var(--ink); }
+.tab[aria-pressed="true"]{ background: var(--gold); color:#fff; font-weight:600; }
 
 #map{ display:block; width:100%; height:auto; border-radius:2px; }
 .maplegend{
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  padding:9px 16px; border-top:1px solid var(--line); font-size:11px; color: var(--ink-2);
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  background:rgba(255,255,255,.9); border-radius:12px; padding:7px 12px;
+  font-size:11px; color: var(--ink-2); box-shadow:0 3px 10px rgba(22,45,32,.10);
 }
 .ramp{ display:flex; height:8px; width:120px; border-radius:2px; overflow:hidden; }
 .ramp i{ flex:1; }
@@ -234,9 +240,9 @@ input[type=range]::-moz-range-thumb{
 .sw i{ width:9px; height:9px; border-radius:2px; flex:none; }
 
 /* 로그 */
-.log{ max-height: 178px; overflow-y:auto; padding: 4px 0; }
+.log{ max-height: 168px; overflow-y:auto; }
 .logline{
-  display:grid; grid-template-columns: 64px 1fr; gap:10px; padding:5px 16px;
+  display:grid; grid-template-columns: 62px 1fr; gap:10px; padding:5px 2px;
   font-size:12px; line-height:1.45; border-left:2px solid transparent;
 }
 .logline time{ font-family: var(--f-mono); font-size:10.5px; color: var(--ink-3); padding-top:2px; }
@@ -245,19 +251,19 @@ input[type=range]::-moz-range-thumb{
 .logline.evo{ border-left-color: var(--gold); }
 .logline.death{ border-left-color: var(--ink-3); }
 .logline b{ font-weight:600; }
-.logline.human b{ color:#ef8a8a; }
-.logline.nature b{ color:#4fc79b; }
+.logline.human b{ color:#c93a39; }
+.logline.nature b{ color:#12855c; }
 .logline.evo b{ color: var(--gold-hi); }
 
 /* 종 테이블 */
 .sp-table{ width:100%; border-collapse: collapse; font-size:12px; }
 .sp-table th{
   font-family:var(--f-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
-  color: var(--ink-3); font-weight:500; text-align:right; padding:6px 10px; border-bottom:1px solid var(--line);
-  position:sticky; top:0; background: var(--panel); z-index:1;
+  color: var(--ink-3); font-weight:500; text-align:right; padding:5px 6px; border-bottom:1px solid var(--line);
+  position:sticky; top:0; background:#fff; z-index:1;
 }
 .sp-table th:first-child, .sp-table td:first-child{ text-align:left; }
-.sp-table td{ padding:5px 10px; border-bottom:1px solid var(--panel-2); text-align:right; }
+.sp-table td{ padding:4px 6px; border-bottom:1px solid var(--panel-2); text-align:right; }
 .sp-table tbody tr{ cursor:pointer; }
 .sp-table tbody tr:hover td{ background: var(--panel-2); }
 .sp-table tbody tr[aria-selected="true"] td{ background: var(--panel-3); }
@@ -267,21 +273,92 @@ input[type=range]::-moz-range-thumb{
 .sp-name i{ width:8px; height:8px; border-radius:2px; flex:none; }
 .sp-name em{ font-style:normal; font-size:10px; color: var(--ink-3); }
 .trend{ font-family:var(--f-mono); font-size:11px; }
-.trend.up{ color:#4fc79b; } .trend.down{ color:#ef8a8a; } .trend.flat{ color: var(--ink-3); }
+.trend.up{ color:#12855c; } .trend.down{ color:#c93a39; } .trend.flat{ color: var(--ink-3); }
 .tbl-wrap{ max-height: 268px; overflow-y:auto; }
 
 /* 차트 */
 #chart, #chart2{ display:block; width:100%; }
-.viewport{ position:relative; background:#050706; border-radius:2px; margin:10px 10px 0; overflow:hidden; }
-#globe{ display:block; width:100%; height:500px; cursor:grab; touch-action:none; }
-#globe.dragging{ cursor:grabbing; }
-#map:not([hidden]){ display:block; width:100%; height:auto; }
-[hidden]{ display:none !important; }
-.viewhint{
-  position:absolute; right:12px; top:10px; font-family:var(--f-mono); font-size:10px;
-  letter-spacing:.08em; color:var(--ink-3); pointer-events:none; transition:opacity .4s;
-  background:rgba(5,7,6,.6); padding:3px 7px; border-radius:2px;
+/* ── 인게임 화면: 세계가 꽉 차고 HUD가 그 위에 통통하게 떠 있다 ── */
+.stage{
+  position:relative; background:#B4E1F9; border-radius:20px; overflow:hidden;
+  height: calc(100vh - 56px); min-height: 620px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.7), 0 10px 30px rgba(22,45,32,.14);
 }
+#globe{ position:absolute; inset:0; width:100%; height:100%; cursor:grab; touch-action:none; }
+#globe.dragging{ cursor:grabbing; }
+#map:not([hidden]){ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+[hidden]{ display:none !important; }
+
+.hud{ position:absolute; z-index:5; display:flex; pointer-events:none; }
+.hud > *{ pointer-events:auto; }
+.hud-tl{ top:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:44%; }
+.hud-tr{ top:14px; right:14px; gap:6px; }
+.hud-bl{ bottom:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:52%; }
+.hud-r { top:14px; right:14px; margin-top:52px; flex-direction:column; gap:8px; width:330px; max-height:calc(100% - 80px); }
+.hud-b { bottom:14px; left:50%; transform:translateX(-50%); width:min(560px,62%); }
+
+.clock{
+  background:#fff; border-radius:16px; padding:8px 18px 9px; box-shadow:var(--shadow);
+}
+.clock .yr{ font-family:var(--f-disp); font-weight:700; font-size:26px; letter-spacing:-0.01em; }
+
+.chips{ display:flex; gap:6px; flex-wrap:wrap; }
+.chip{
+  background:#fff; border-radius:999px; padding:5px 12px; box-shadow:var(--shadow);
+  font-size:12px; display:inline-flex; gap:7px; align-items:baseline;
+}
+.chip b{ color:var(--ink-3); font-weight:500; font-size:10.5px; }
+.chip .num{ font-weight:600; }
+
+.mine{
+  background:var(--gold); color:#fff; border-radius:14px; padding:7px 14px;
+  box-shadow:var(--shadow); display:inline-flex; gap:9px; align-items:center; font-size:13px;
+}
+.mine .dot{ width:10px; height:10px; border-radius:50%; background:#fff; flex:none; }
+.mine-name{ font-weight:600; }
+.mine .num{ font-weight:700; }
+.phase{
+  background:rgba(255,255,255,.86); border-radius:999px; padding:5px 13px;
+  font-size:11.5px; color:var(--ink-2); box-shadow:0 3px 10px rgba(22,45,32,.10);
+}
+
+.pill{
+  background:#fff; border:none; border-radius:999px; padding:8px 15px; font-size:13px;
+  font-weight:600; color:var(--ink-2); box-shadow:var(--shadow); line-height:1;
+  transition: transform .08s, background .12s, color .12s;
+}
+.pill:hover{ transform:translateY(-1px); }
+.pill[aria-pressed="true"]{ background:var(--gold); color:#fff; }
+.pill.ghost{ background:rgba(255,255,255,.8); color:var(--ink-3); }
+.pill:disabled{ opacity:.45; }
+
+.panel{ background:#fff; border-radius:16px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+.panel-head{
+  background:none; border:none; width:100%; display:flex; align-items:center; gap:8px;
+  padding:10px 14px; font-family:var(--f-disp); font-weight:700; font-size:14px; text-align:left;
+}
+.panel-head em{ font-style:normal; margin-left:auto; color:var(--gold); font-weight:700; font-size:16px; }
+.panel-head i{ font-style:normal; color:var(--ink-3); transition:transform .15s; }
+.panel.collapsed .panel-head i{ transform:rotate(-90deg); }
+.panel.collapsed .panel-body{ display:none; }
+.panel-body{ padding:0 12px 12px; overflow:auto; min-height:0; }
+.panel.wide .panel-body{ padding:0 14px 12px; }
+.tiny{ font-size:11px; color:var(--ink-3); margin:0 0 8px; line-height:1.5; }
+
+.rowline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.viewhint{
+  position:absolute; right:14px; bottom:14px; font-size:11px;
+  color:var(--ink-2); pointer-events:none; transition:opacity .4s; z-index:4;
+  background:rgba(255,255,255,.8); padding:5px 11px; border-radius:999px;
+}
+.placebar{
+  position:absolute; left:50%; transform:translateX(-50%); bottom:76px; z-index:9;
+  background:rgba(255,255,255,.94); border:1px solid var(--line-2); border-radius:4px;
+  padding:9px 16px; font-size:12.5px; color:var(--ink-2); text-align:center;
+  box-shadow:0 6px 20px rgba(22,35,28,.14); pointer-events:none; max-width:88%;
+}
+.placebar b{ color:var(--ink); font-weight:600; }
+.stage.placing #globe{ cursor:crosshair; }
 .mini-select{
   background:var(--panel-2); border:1px solid var(--line-2); border-radius:var(--r);
   color:var(--ink-2); font-family:inherit; font-size:11.5px; padding:3px 6px;
@@ -294,7 +371,7 @@ input[type=range]::-moz-range-thumb{
 /* 진화 패널 */
 .ep-head{ display:flex; align-items:baseline; gap:8px; }
 .ep-head .big{ font-size:24px; font-weight:600; color: var(--gold-hi); }
-.evo-list{ display:flex; flex-direction:column; gap:2px; max-height: 224px; overflow-y:auto; }
+.evo-list{ display:flex; flex-direction:column; gap:2px; max-height: 250px; overflow-y:auto; }
 .evo-row{
   display:grid; grid-template-columns: 1fr 26px auto; align-items:center; gap:8px;
   padding:3px 4px; border-radius:2px; font-size:12px;
@@ -312,8 +389,8 @@ input[type=range]::-moz-range-thumb{
 /* 툴팁 */
 .tip{
   position:fixed; z-index:50; pointer-events:none; display:none;
-  background:#05100C; border:1px solid var(--line-2); border-radius: var(--r);
-  padding:8px 10px; font-size:11.5px; line-height:1.5; box-shadow: 0 6px 22px rgba(0,0,0,.55);
+  background:#FFFFFF; border:1px solid var(--line-2); border-radius: var(--r);
+  padding:8px 10px; font-size:11.5px; line-height:1.5; box-shadow: 0 8px 26px rgba(22,35,28,.16);
   max-width: 240px;
 }
 .tip .t{ font-weight:600; margin-bottom:4px; font-size:12px; }
@@ -322,7 +399,7 @@ input[type=range]::-moz-range-thumb{
 
 /* ── 결과 화면 ─────────────────────────────────────────────────── */
 .ending{
-  border:1px solid var(--line); border-left:3px solid var(--gold); border-radius: var(--r);
+  border:none; border-left:8px solid var(--gold); border-radius: 18px; box-shadow:var(--shadow);
   background: var(--panel); padding: 26px 28px; margin-bottom:18px;
 }
 .ending.bad{ border-left-color: var(--crit); }
@@ -465,84 +542,92 @@ input[type=range]::-moz-range-thumb{
 
 <!-- ══════════════ 2. 시뮬 화면 ══════════════ -->
 <section id="scr-sim" class="screen">
-  <div class="masthead" style="padding-bottom:12px; margin-bottom:14px">
-    <div>
-      <div class="eyebrow">관측 중</div>
-      <h1 id="sim-title" style="font-size:24px">번영의 계보</h1>
-    </div>
-    <div class="right btnrow" style="justify-content:flex-end">
-      <button class="btn" id="btn-pause">일시정지</button>
-      <button class="btn" data-speed="1" aria-pressed="true">×1</button>
-      <button class="btn" data-speed="4">×4</button>
-      <button class="btn" data-speed="16">×16</button>
-      <button class="btn ghost" id="btn-abort">중단</button>
-    </div>
-  </div>
+  <div class="stage" id="stage">
+    <canvas id="globe"></canvas>
+    <canvas id="map" width="880" height="480" hidden></canvas>
 
-  <div class="statusbar">
-    <div class="sb"><div class="k">연도</div><div class="v num" id="st-year">1년 봄</div></div>
-    <div class="sb"><div class="k">기온</div><div class="v num" id="st-temp">—</div></div>
-    <div class="sb"><div class="k">강수</div><div class="v num" id="st-moist">—</div></div>
-    <div class="sb"><div class="k">오염</div><div class="v num" id="st-poll">—</div></div>
-    <div class="sb"><div class="k">생존 종</div><div class="v num" id="st-alive">—</div></div>
-    <div class="sb"><div class="k">다양성 H'</div><div class="v num" id="st-div">—</div></div>
-    <div class="sb grow"><div class="k">내 종</div><div class="v num" id="st-mypop">—</div></div>
-    <div class="sb grow"><div class="k">현재 국면</div><div class="v small" id="st-phase">자연 상태 — 인간의 흔적 없음</div></div>
-  </div>
+    <!-- 왼쪽 위: 연도와 세계 상태 -->
+    <div class="hud hud-tl">
+      <div class="clock">
+        <span class="yr num" id="st-year">1년 봄</span>
+      </div>
+      <div class="chips">
+        <span class="chip"><b>기온</b><span class="num" id="st-temp">—</span></span>
+        <span class="chip"><b>강수</b><span class="num" id="st-moist">—</span></span>
+        <span class="chip"><b>오염</b><span class="num" id="st-poll">—</span></span>
+        <span class="chip"><b>다양성</b><span class="num" id="st-div">—</span></span>
+        <span class="chip"><b>생존 종</b><span class="num" id="st-alive">—</span></span>
+      </div>
+      <div class="mine" id="mine-card">
+        <span class="dot"></span>
+        <span class="mine-name" id="sim-title">내 종</span>
+        <span class="num" id="st-mypop">—</span>
+      </div>
+      <div class="phase" id="st-phase">자연 상태</div>
+    </div>
 
-  <div class="sim-grid">
-    <div>
-      <div class="card" style="margin-bottom:14px">
-        <header>
-          <h3 style="font-size:14px">서식 지도</h3>
-          <div class="tabs" id="layer-tabs"></div>
-          <select id="creature-mode" class="mini-select" aria-label="생물 표시">
-            <option value="all">생물 전체</option>
-            <option value="me">내 종만</option>
-            <option value="none">지형만</option>
-          </select>
-        </header>
-        <div class="viewport" id="viewport">
-          <canvas id="globe"></canvas>
-          <canvas id="map" width="960" height="600" hidden></canvas>
-          <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 확대</div>
-        </div>
+    <!-- 오른쪽 위: 속도 -->
+    <div class="hud hud-tr">
+      <button class="pill" id="btn-pause">❚❚</button>
+      <button class="pill" data-speed="1" aria-pressed="true">×1</button>
+      <button class="pill" data-speed="4">×4</button>
+      <button class="pill" data-speed="16">×16</button>
+      <button class="pill ghost" id="btn-abort">종료</button>
+    </div>
+
+    <!-- 왼쪽 아래: 지도 레이어 -->
+    <div class="hud hud-bl">
+      <div class="tabs" id="layer-tabs"></div>
+      <div class="rowline">
+        <select id="creature-mode" class="mini-select" aria-label="생물 표시">
+          <option value="all">생물 전체</option>
+          <option value="me">내 종만</option>
+          <option value="none">지형만</option>
+        </select>
         <div class="maplegend" id="map-legend"></div>
       </div>
-
-      <div class="card">
-        <header><h3 style="font-size:14px">관측 일지</h3><span class="eyebrow" id="log-count"></span></header>
-        <div class="log" id="log"></div>
-      </div>
     </div>
 
-    <div>
-      <div class="card" style="margin-bottom:14px">
-        <header>
-          <h3 style="font-size:14px">진화</h3>
-          <div class="ep-head"><span class="big num" id="ep-count">0</span><span style="font-size:11px;color:var(--ink-2)">포인트</span></div>
-        </header>
-        <div class="body" style="padding:10px 12px 12px">
-          <p class="footnote" style="margin:0 0 8px">5년마다 1점. 형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
-          <div class="evo-list" id="evo-list"></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:14px">
-        <header><h3 style="font-size:14px">개체수 추이</h3><span class="eyebrow">기능군별 누적</span></header>
-        <div style="padding:8px 6px 0"><canvas id="chart" width="760" height="300"></canvas></div>
-        <div class="chart-legend" id="chart-legend"></div>
-      </div>
-
-      <div class="card">
-        <header><h3 style="font-size:14px">종 목록</h3><span class="eyebrow">행 클릭 = 지도에 분포 표시</span></header>
-        <div class="tbl-wrap">
+    <!-- 오른쪽: 접었다 펴는 패널들 -->
+    <div class="hud hud-r">
+      <div class="panel" id="panel-species">
+        <button class="panel-head" data-toggle="panel-species"><span>종 목록</span><i>▾</i></button>
+        <div class="panel-body">
           <table class="sp-table">
-            <thead><tr><th>종</th><th>개체수</th><th>서식 타일</th><th>추세</th></tr></thead>
+            <thead><tr><th>종</th><th>개체수</th><th>서식</th><th>추세</th></tr></thead>
             <tbody id="sp-body"></tbody>
           </table>
         </div>
       </div>
+      <div class="panel" id="panel-evo">
+        <button class="panel-head" data-toggle="panel-evo">
+          <span>진화</span><em class="num" id="ep-count">0</em><i>▾</i>
+        </button>
+        <div class="panel-body">
+          <p class="tiny">형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
+          <div class="evo-list" id="evo-list"></div>
+        </div>
+      </div>
+      <div class="panel collapsed" id="panel-chart">
+        <button class="panel-head" data-toggle="panel-chart"><span>개체수 추이</span><i>▾</i></button>
+        <div class="panel-body">
+          <canvas id="chart" width="380" height="220"></canvas>
+          <div class="chart-legend" id="chart-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 아래: 관측 일지 -->
+    <div class="hud hud-b">
+      <div class="panel wide collapsed" id="panel-log">
+        <button class="panel-head" data-toggle="panel-log"><span>관측 일지</span><em id="log-count"></em><i>▾</i></button>
+        <div class="panel-body"><div class="log" id="log"></div></div>
+      </div>
+    </div>
+
+    <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 확대</div>
+    <div class="placebar" id="placebar" hidden>
+      <b>시작할 지역을 클릭하세요.</b> 진한 곳일수록 살기 좋습니다 — 하지만 좋은 땅에는 경쟁자도 많습니다.
     </div>
   </div>
 </section>
@@ -601,25 +686,25 @@ const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const lerp=(a,b,t)=>a+(b-a)*t;
 
 /* ── 세계 상수 ────────────────────────────────────────────────── */
-const W=32, H=20, NT=W*H;
+const W=44, H=24, NT=W*H;   // 대륙 규모 — 지역이 여러 개 넉넉히 들어간다
 const TICKS_PER_YEAR=4, MAX_YEARS=300, MAX_TICKS=MAX_YEARS*TICKS_PER_YEAR;
 const HUMAN_YEAR=42;                     // 인간 활동이 시작되는 연도
 const SEASONS=["봄","여름","가을","겨울"];
 const SEASON_TEMP=[3,11,2,-9], SEASON_MOIST=[.10,-.06,-.01,-.05], SEASON_BREED=[1.35,1.15,.75,.35];
 
-const BIOMES=["호수","습지","초원","숲","건조지","산지"];
-const BIOME_BASE=[ "#1b4a63","#245046","#4a5c2c","#26492e","#67593c","#4a4f56" ];
+const BIOMES=["호수","습지","초원","숲","사막","산지","설원","정글","화산","도시"];
+const BIOME_BASE=[ "#22C1F5","#3EDCA2","#9CE535","#28AE46","#FFC53D","#BFB0D2","#FFFFFF","#0B9B48","#E9553C","#E3DED2" ];
 
 /* 기능군 — 색은 다크 표면 인접쌍 검증을 통과한 고정 순서 */
 const GUILDS=[
-  {key:"me",   name:"내 종",      color:"#C98500"},
+  {key:"me",   name:"내 종",      color:"#eda100"},
   {key:"prod", name:"생산자",     color:"#008300"},
-  {key:"dec",  name:"분해자",     color:"#d55181"},
-  {key:"herbS",name:"소형 초식",  color:"#3987E5"},
-  {key:"herbL",name:"대형 초식",  color:"#d95926"},
-  {key:"omni", name:"잡식",       color:"#9085e9"},
-  {key:"carnS",name:"소형 육식",  color:"#199e70"},
-  {key:"carnL",name:"대형 육식",  color:"#e66767"},
+  {key:"dec",  name:"분해자",     color:"#e87ba4"},
+  {key:"herbS",name:"소형 초식",  color:"#2a78d6"},
+  {key:"herbL",name:"대형 초식",  color:"#eb6834"},
+  {key:"omni", name:"잡식",       color:"#4a3aa7"},
+  {key:"carnS",name:"소형 육식",  color:"#1baf7a"},
+  {key:"carnL",name:"대형 육식",  color:"#e34948"},
 ];
 const GI={me:0,prod:1,dec:2,herbS:3,herbL:4,omni:5,carnS:6,carnL:7};
 
@@ -685,14 +770,14 @@ const TRAIT_LABEL = {}; TRAIT_GROUPS.forEach(g=>g.traits.forEach(t=>TRAIT_LABEL[
 
 /* 생태 균형 조절값 — 한곳에 모아두면 조정이 쉽다 */
 const TUNE = {
-  soilA:0.40, soilB:5,      // 토양 → 광합성 에너지
+  soilA:0.26, soilB:3.4,      // 토양 → 광합성 에너지 (타일이 커진 만큼 늘림)
   detrPool:0.42,            // 부식물 중 한 틱에 접근 가능한 비율
   plantPool:0.55,           // 식물 바이오매스 중 한 틱에 뜯어먹을 수 있는 비율
   grazeLoss:0.38,           // 뜯긴 에너지가 식물 개체수 감소로 이어지는 비율
-  maxPred:0.34, predRefuge:0.85, predHalf:26, predConv:0.82,
+  maxPred:0.34, predRefuge:0.60, predHalf:17, predConv:0.82,
   starvExp:1.6, starvMul:0.7,
   stress:0.060, diseaseBase:0.12,
-  capA:0.55, capB:18, crowdBirth:0.75, birthScale:1.3,
+  capA:0.35, capB:11.5, crowdBirth:0.75, birthScale:1.3,
   allee:0.10,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
   compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
   succession:0.45,          // 천이 — 교란지에서 개척종이 받는 이점
@@ -857,14 +942,18 @@ function derive(t, diet){
 
   /* 서식지 선호 */
   let pref=[
-    clamp(t.climbSwim*0.105 - 0.05, 0.02, 1),
-    clamp(0.28 + t.climbSwim*0.052 + (0.9-moistOpt)*-0.25 + 0.25, 0.05, 1),
-    clamp(0.72 + t.vision*0.012, 0.05, 1),
-    clamp(0.42 + t.climbSwim*0.030 + t.camouflage*0.030, 0.05, 1),
-    clamp(t.droughtTol*0.085 + t.heatTol*0.022 - 0.10, 0.02, 1),
-    clamp(t.climbSwim*0.062 + t.coldTol*0.036 - 0.05, 0.02, 1),
+    clamp(t.climbSwim*0.105 - 0.05, 0.02, 1),                             // 호수
+    clamp(0.28 + t.climbSwim*0.052 + (0.9-moistOpt)*-0.25 + 0.25, 0.05, 1),// 습지
+    clamp(0.72 + t.vision*0.012, 0.05, 1),                                // 초원
+    clamp(0.42 + t.climbSwim*0.030 + t.camouflage*0.030, 0.05, 1),        // 숲
+    clamp(t.droughtTol*0.085 + t.heatTol*0.022 - 0.10, 0.02, 1),          // 사막
+    clamp(t.climbSwim*0.062 + t.coldTol*0.036 - 0.05, 0.02, 1),           // 산지
+    clamp(t.coldTol*0.082 + t.thermoreg*0.030 - 0.14, 0.02, 1),           // 설원
+    clamp(0.30 + t.climbSwim*0.035 + t.heatTol*0.035 + t.camouflage*0.020, 0.05, 1), // 정글
+    clamp(t.heatTol*0.055 + t.pollutionTol*0.040 - 0.16, 0.02, 1),        // 화산
+    clamp(t.intelligence*0.055 + t.pollutionTol*0.045 - 0.22, 0.02, 1),   // 도시
   ];
-  const mean = pref.reduce((a,b)=>a+b,0)/6, b = t.habitatBreadth/16;
+  const mean = pref.reduce((a,b)=>a+b,0)/10, b = t.habitatBreadth/16;
   pref = pref.map(v=>clamp(lerp(v, Math.max(mean,0.55), b), 0.02, 1));
   return {bodyMass,upkeep,juvSurv,birthMax,ageDeath,defense,attack,forage,compPow,
           optTemp,wCold,wHeat,moistOpt,moistW,pollHalf,disease,spread,starvRes,density,smart,
@@ -874,44 +963,147 @@ function derive(t, diet){
 /* ── 세계 생성 ────────────────────────────────────────────────── */
 function makeWorld(){
   const elev=new Float32Array(NT), wet=new Float32Array(NT), heat=new Float32Array(NT);
-  /* 반구에 감을 것이므로 동서 방향이 이음매 없이 이어져야 한다.
-     x를 각도로 보고 sin/cos 합으로 지형을 만들면 자동으로 맞물린다. */
-  const oct=[];
-  for(let k=1;k<=5;k++) oct.push({k, a:rrange(0.35,1)/k, ph:rnd()*Math.PI*2, m:Math.floor(rrange(1,4)), ps:rnd()*Math.PI*2});
-  const woct=[];
-  for(let k=1;k<=4;k++) woct.push({k, a:rrange(0.35,1)/k, ph:rnd()*Math.PI*2, m:Math.floor(rrange(1,4)), ps:rnd()*Math.PI*2});
+  const region=new Int8Array(NT);
 
+  /* 세계는 기본적으로 평평한 평원이다. 그 위에 사막·극지·숲·습지 같은
+     지역을 몇 군데 놓고, 산은 따로 몇 덩이만 솟게 한다.
+     노이즈로 흩뿌리면 어디가 무슨 땅인지 안 읽힌다. */
+  const TYPES=[
+    {k:"plain", heat:0.56, wet:0.46, rad:5.5},
+    {k:"forest",heat:0.50, wet:0.74, rad:5.0},
+    {k:"jungle",heat:0.88, wet:0.92, rad:4.4},
+    {k:"desert",heat:0.95, wet:0.08, rad:4.8},
+    {k:"polar", heat:0.03, wet:0.52, rad:4.8},
+    {k:"marsh", heat:0.58, wet:0.94, rad:3.6},
+    {k:"steppe",heat:0.68, wet:0.30, rad:5.0},
+    {k:"volcano",heat:0.86, wet:0.18, rad:3.0},
+  ];
+  /* 사막·극지·정글·화산은 반드시 하나씩 놓는다 — 대륙에 극단이 다 있어야 재미있다 */
+  const picks=["desert","polar","jungle","volcano","marsh"];
+  while(picks.length < 14) picks.push(["plain","forest","steppe","plain","forest"][Math.floor(rnd()*5)]);
+  /* 격자의 y는 원반에서 '중심으로부터의 거리'다. 격자 좌표로 지역을 나누면
+     지역이 원반 위에서 고리처럼 늘어난다. 실제 원반 좌표에서 나눠야 덩어리가 된다. */
+  const px=new Float32Array(NT), pz=new Float32Array(NT);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-    const i=y*W+x, th=x/W*Math.PI*2, la=y/(H-1);
-    let e=0,w=0;
-    for(const o of oct) e += o.a*Math.sin(o.k*th+o.ph)*Math.cos(o.m*Math.PI*la+o.ps);
-    for(const o of woct) w += o.a*Math.sin(o.k*th+o.ph)*Math.cos(o.m*Math.PI*la+o.ps);
-    e = e*0.42 + 0.48 + rrange(-0.05,0.05);
-    elev[i]=clamp(e,0,1);
-    wet[i]=clamp(w*0.36 + 0.50 - elev[i]*0.26 + rrange(-0.06,0.06),0,1);
-    /* 극지(y=0)는 춥고 적도(y=H-1)는 덥다. 고도가 높으면 더 춥다. */
-    heat[i]=clamp(0.14 + la*0.74 - elev[i]*0.30 + rrange(-0.04,0.04),0,1);
+    const i=y*W+x, rr=Math.sqrt((y+0.5)/H), th=(x+0.5)/W*Math.PI*2;
+    px[i]=rr*Math.cos(th); pz[i]=rr*Math.sin(th);
   }
+  const regions = picks.map(k=>{
+    const T=TYPES.find(t=>t.k===k);
+    const rr=Math.sqrt(rnd())*0.88, th=rnd()*Math.PI*2;
+    return {T, x:rr*Math.cos(th), z:rr*Math.sin(th),
+            rad:(T.rad/12)*rrange(0.85,1.3), ph:rnd()*Math.PI*2};
+  });
+
+  for(let i=0;i<NT;i++){
+    let best=0, bestS=-1e9;
+    for(let k=0;k<regions.length;k++){
+      const R=regions[k];
+      const ddx=px[i]-R.x, ddz=pz[i]-R.z;
+      const d=Math.hypot(ddx,ddz);
+      /* 경계에 물결을 줘서 동그랗게 딱 잘리지 않게 한다 */
+      const wob=Math.sin(Math.atan2(ddz,ddx)*3 + R.ph)*0.075;
+      const sc=R.rad + wob - d;
+      if(sc>bestS){ bestS=sc; best=k; }
+    }
+    region[i]=best;
+    const T=regions[best].T;
+    const soften=clamp((bestS+0.16)/0.28, 0, 1);   // 경계 근처는 이웃과 섞인다
+    heat[i]=clamp(lerp(0.52,T.heat,0.35+soften*0.65)+rrange(-0.05,0.05),0,1);
+    wet[i] =clamp(lerp(0.46,T.wet ,0.35+soften*0.65)+rrange(-0.06,0.06),0,1);
+    elev[i]=clamp(0.30+rrange(-0.028,0.028),0,1);   // 기본은 평평한 평원
+  }
+
+  /* 산 — 서너 덩이만 솟게 한다. 능선을 짧게 이어 산맥처럼 보이게 */
+  const nM=3+Math.floor(rnd()*3);
+  for(let m=0;m<nM;m++){
+    const r0=Math.sqrt(rnd())*0.8, t0=rnd()*Math.PI*2;
+    let cx=r0*Math.cos(t0), cz=r0*Math.sin(t0), dir=rnd()*Math.PI*2;
+    const steps=3+Math.floor(rnd()*4);
+    for(let st=0; st<steps; st++){
+      const rad=rrange(0.055,0.10), pk=rrange(0.50,0.80);
+      for(let i=0;i<NT;i++){
+        const d2=(px[i]-cx)**2+(pz[i]-cz)**2;
+        if(d2>rad*rad*6) continue;
+        elev[i]=clamp(elev[i]+pk*Math.exp(-d2/(2*rad*rad)),0,1);
+      }
+      cx+=Math.cos(dir)*rad*1.6; cz+=Math.sin(dir)*rad*1.6;
+      dir+=rrange(-0.6,0.6);
+      const rl=Math.hypot(cx,cz); if(rl>0.9){ cx*=0.9/rl; cz*=0.9/rl; }
+    }
+  }
+  /* 화산 — 원뿔로 솟고 가운데는 분화구로 꺼진다 */
+  const vol=new Uint8Array(NT);
+  for(const R of regions){
+    if(R.T.k!=="volcano") continue;
+    for(let i=0;i<NT;i++){
+      const d=Math.hypot(px[i]-R.x, pz[i]-R.z);
+      if(d>0.13) continue;
+      elev[i]=clamp(elev[i] + 0.72*Math.exp(-d*d/0.0040) - 0.42*Math.exp(-d*d/0.0008), 0, 1);
+      if(d<0.10) vol[i]=1;
+    }
+  }
+  for(let i=0;i<NT;i++) heat[i]=clamp(heat[i]-Math.max(0,elev[i]-0.36)*0.85,0,1);
 
   const biome=new Uint8Array(NT), soil=new Float32Array(NT), moist=new Float32Array(NT);
   const detr=new Float32Array(NT), poll=new Float32Array(NT), farm=new Uint8Array(NT), road=new Uint8Array(NT);
-  const dist=new Float32Array(NT);   // 교란도 — 중간교란 가설·생태 천이의 입력
+  const dist=new Float32Array(NT);
+
+  /* 강 — 산꼭대기에서 시작해 가장 낮은 이웃으로 흘러내린다.
+     지나간 자리는 물길, 양옆은 축축한 습지가 된다. */
+  const river=new Uint8Array(NT), riparian=new Uint8Array(NT);
+  const peaks=[];
+  for(let i=0;i<NT;i++) if(elev[i]>0.6) peaks.push(i);
+  peaks.sort((a,b)=>elev[b]-elev[a]);
+  const nR=Math.min(peaks.length, 3+Math.floor(rnd()*3));
+  for(let k=0;k<nR;k++){
+    let cur=peaks[Math.floor(rnd()*Math.min(peaks.length, 12))];
+    if(river[cur]) continue;
+    for(let step=0; step<W*2; step++){
+      river[cur]=1; wet[cur]=1;
+      elev[cur]=Math.max(0.05, elev[cur]-0.07);
+      const cx=cur%W, cy=(cur/W)|0;
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        const ny=cy+dy; if(ny<0||ny>=H) continue;
+        const nx=((cx+dx)%W+W)%W;
+        if(!river[ny*W+nx]){ riparian[ny*W+nx]=1; wet[ny*W+nx]=Math.min(1,wet[ny*W+nx]+0.22); }
+      }
+      let nxt=-1, low=elev[cur];
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        if(!dx&&!dy) continue;
+        const ny=cy+dy; if(ny<0||ny>=H) continue;
+        const nx=((cx+dx)%W+W)%W, j=ny*W+nx;
+        if(river[j]) continue;
+        if(elev[j]<low){ low=elev[j]; nxt=j; }
+      }
+      if(nxt<0){ elev[cur]=Math.max(0.05,elev[cur]-0.06); break; }   // 웅덩이 → 호수
+      cur=nxt;
+      if(cy===0||cy===H-1) break;
+    }
+  }
+
   for(let i=0;i<NT;i++){
-    const e=elev[i], w=wet[i];
+    const e=elev[i], w=wet[i], h=heat[i];
     let b;
-    if(e<0.32 && w>0.56) b=0;
-    else if(e<0.44 && w>0.58) b=1;
-    else if(e>0.74) b=5;
-    else if(w<0.34) b=4;
-    else if(w>0.55) b=3;
-    else b=2;
+    if(river[i]) b=0;
+    else if(e<0.26 && w>0.7) b=0;
+    else if(h<0.20) b=6;                        // 극지 — 설원
+    else if(e>0.52) b=5;                        // 산지
+    else if(riparian[i] || w>0.82) b=1;         // 습지
+    else if(w<0.24) b=4;                        // 사막
+    else if(h>0.78 && w>0.72) b=7;              // 정글
+    else if(w>0.58) b=3;                        // 숲
+    else b=2;                                   // 초원
+    if(vol[i]) b=8;                             // 화산
     biome[i]=b;
-    moist[i]= b===0?1.0 : b===1?0.88 : b===3?0.62 : b===4?0.16 : b===5?0.34 : 0.46;
-    moist[i]=clamp(moist[i]+rrange(-0.05,0.05),0,1);
-    soil[i]= b===0?24 : b===1?78 : b===3?70 : b===4?22 : b===5?30 : 58;
+    moist[i]= b===0?1.0 : b===1?0.88 : b===3?0.62 : b===4?0.12 : b===5?0.34 : b===6?0.40
+            : b===7?0.86 : b===8?0.16 : b===9?0.22 : 0.46;
+    moist[i]=clamp(lerp(moist[i], w, 0.35)+rrange(-0.04,0.04),0,1);
+    soil[i]= b===0?24 : b===1?78 : b===3?72 : b===4?18 : b===5?28 : b===6?20
+           : b===7?92 : b===8?86 : b===9?12 : 58;   // 화산재와 정글 토양은 비옥하다
     detr[i]= soil[i]*0.30;
   }
-  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,
+  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,region,vol,
           baseMoist:Float32Array.from(moist), baseSoil:Float32Array.from(soil)};
 }
 
@@ -942,31 +1134,31 @@ function newGame(playerDef){
   species.push(player);
   for(const n of NATIVES) species.push(makeSpecies(n,false));
 
-  /* 초기 배치 — 적합한 타일에 씨를 뿌림.
-     내 종은 창시자 개체군답게 좁은 지역에 모여서 시작한다. */
+  /* 토착종만 먼저 뿌린다. 내 종은 플레이어가 고른 지역에 나중에 놓는다. */
   for(const s of species){
-    const seedTotal = s.isPlayer ? 2600 : (NATIVES.find(n=>n.name===s.name)?.seed ?? 200);
+    if(s.isPlayer) continue;
+    const seedTotal = (NATIVES.find(n=>n.name===s.name)?.seed ?? 200);
     const scores=[];
     for(let i=0;i<NT;i++) scores.push([i, habitatScore(s,world,i)]);
     scores.sort((a,b)=>b[1]-a[1]);
-    const n = s.isPlayer ? 96 : (s.d.bodyMass>1.2 ? 64 : Math.max(6, Math.round(NT*0.22)));
+    const n = (s.d.bodyMass>1.2 ? 90 : Math.max(10, Math.round(NT*0.22)));
     let sum=0; for(let k=0;k<n;k++) sum+=scores[k][1];
     if(sum<=0) sum=1;
     for(let k=0;k<n;k++){ const [i,sc]=scores[k]; s.pop[i] = seedTotal*(sc/sum); }
   }
 
   G = {
-    world, species, player, tick:0, year:1, season:0,
+    world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
     ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5,
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
-    running:true, speed:1, over:false, ending:null,
+    running:false, speed:1, over:false, ending:null,
     layer:"terrain", selected:0,
     guildHist:[], totalHist:[], stableRun:0,
   };
   buildCompetition(species);
   G.prefMx = buildCompetition.mx; G.nSp = buildCompetition.n;
-  logMsg("nature", `<b>${player.name}</b>이(가) 이 땅에 처음 나타났습니다. 이미 33종이 자리를 잡고 있습니다.`);
+  logMsg("nature", `이 땅에는 이미 33종이 자리를 잡고 있습니다. <b>${player.name}</b>을(를) 풀어놓을 지역을 고르세요.`);
   const rival = player.topRival;
   if(rival) logMsg("nature", `가장 강한 경쟁 상대는 <b>${rival[0].name}</b>입니다. 생태 지위가 ${(rival[1]/TUNE.compet*100).toFixed(0)}% 겹칩니다.`);
   recount();
@@ -1025,6 +1217,31 @@ function buildCompetition(species){
     s.comp.sort((x,y)=>y[1]-x[1]);
     s.topRival = s.comp.length ? s.comp[0] : null;
   }
+}
+
+/* 플레이어가 고른 지역에 창시자 개체군을 놓는다.
+   고른 칸에서 가까우면서 살 만한 곳부터 채운다. */
+function seedPlayerAt(center){
+  const g=G, s=g.player, w=g.world, seedTotal=2600;
+  const cx=center%W, cy=(center/W)|0;
+  const cand=[];
+  for(let i=0;i<NT;i++){
+    const x=i%W, y=(i/W)|0;
+    const dx=Math.min(Math.abs(x-cx), W-Math.abs(x-cx));
+    const d=Math.hypot(dx, y-cy);
+    const fit=habitatScore(s,w,i);
+    cand.push([i, fit/(1+d*0.55), fit]);
+  }
+  cand.sort((a,b)=>b[1]-a[1]);
+  const n=Math.min(cand.length, 90);
+  let sum=0; for(let k=0;k<n;k++) sum+=cand[k][2];
+  if(sum<=0) sum=1;
+  for(let k=0;k<n;k++) s.pop[cand[k][0]] = seedTotal*(cand[k][2]/sum);
+  g.phase="running"; g.running=true;
+  recount();
+  logMsg("nature", `<b>${s.name}</b>이(가) ${BIOMES[w.biome[center]]}에 자리를 잡았습니다. 관측을 시작합니다.`);
+  const rival = s.topRival;
+  if(rival) logMsg("nature", `가장 강한 경쟁 상대는 <b>${rival[0].name}</b>입니다. 생태 지위가 ${(rival[1]/TUNE.compet*100).toFixed(0)}% 겹칩니다.`);
 }
 
 /* 서식 적합도 (0~1) */
@@ -1351,7 +1568,7 @@ function recount(){
     let tot=0,ti=0;
     for(let i=0;i<NT;i++){ const v=s.pop[i]; if(v>0.05){ tot+=v; ti++; } else if(v>0) s.pop[i]=0; }
     s.total=tot; s.tiles=ti; s.biomass=tot*s.d.bodyMass;
-    if(s.alive && tot<1){
+    if(s.alive && tot<1 && !(s.isPlayer && g.phase==="placing")){
       s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
       s.pop.fill(0);
       logMsg(s.isPlayer?"death":"death", `<b>${s.name}</b> 멸종. (${g.year}년)`);
@@ -1586,6 +1803,7 @@ function logMsg(kind, html){
 /* ── 종료 판정 ───────────────────────────────────────────────── */
 function checkEnd(){
   const g=G;
+  if(g.phase==="placing") return;
   const animals = g.species.filter(s=>s.alive && s.diet!=="producer");
   if(!g.player.alive){ finish("extinct"); return; }
   if(animals.length===0){ finish("silence"); return; }
@@ -1770,6 +1988,7 @@ const LAYERS=[
   {k:"moist",   n:"수분"},
   {k:"poll",    n:"오염"},
   {k:"species", n:"종 분포"},
+  {k:"suit",    n:"내 종 적합도"},
 ];
 function buildLayerTabs(){
   const el=$("#layer-tabs"); el.innerHTML="";
@@ -1786,7 +2005,7 @@ function hex2rgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16)
 function mix(a,b,t){ return [Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))]; }
 const rgb=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
 const BIOME_RGB = BIOME_BASE.map(hex2rgb);
-const GROUND_RGB = hex2rgb("#070A09");
+const GROUND_RGB = hex2rgb("#EFF3EC");
 
 function vegField(){
   const veg=new Float32Array(NT);
@@ -1801,31 +2020,41 @@ function tileRGB(i, layer, veg, sel){
   if(layer==="terrain"){
     const base=BIOME_RGB[w.biome[i]];
     const v=clamp((veg[i]||0)/70,0,1);
-    let col = mix(mix(GROUND_RGB,base,0.94), [138,182,104], v*0.42);
-    if(w.dist[i]>0.15) col = mix(col,[128,110,84], clamp(w.dist[i]*0.45,0,0.4));
-    if(w.farm[i]) col = mix(col,[132,112,62],0.58);
-    if(w.poll[i]>8) col = mix(col,[150,74,110], clamp(w.poll[i]/130,0,0.55));
-    if(w.road[i]) col = mix(col,[168,166,156],0.35);
+    const bi=w.biome[i];
+    const vegOK = (bi===2||bi===3||bi===1||bi===7);   // 초원·숲·습지·정글에만 초록을 얹는다
+    let col = vegOK ? mix(base, [56,178,74], v*0.16) : base.slice();
+    /* 높은 봉우리는 눈, 물가 낮은 땅은 모래 — 지형이 읽히게 하는 단서 */
+    const e=w.elev[i];
+    if(e>0.66 && w.biome[i]===5) col = mix(col,[255,255,255], clamp((e-0.66)/0.22,0,1)*0.9);
+    if(w.dist[i]>0.15) col = mix(col,[196,178,142], clamp(w.dist[i]*0.5,0,0.45));
+    if(w.farm[i]) col = mix(col,[214,190,110],0.62);
+    if(w.poll[i]>8) col = mix(col,[186,96,140], clamp(w.poll[i]/130,0,0.55));
+    if(w.road[i]) col = mix(col,[124,122,116],0.45);
     return col;
   }
   if(layer==="veg"){
     const v=clamp((veg[i]||0)/80,0,1);
-    return mix([16,26,22], [96,176,88], Math.pow(v,0.7));
+    return mix([237,242,230], [47,125,50], Math.pow(v,0.75));
   }
   if(layer==="temp"){
     const t=tileTemp(w,i,G.season,G.warming);
     const n=clamp((t+6)/40,0,1);
-    return n<0.5 ? mix([46,104,168],[62,72,70], n*2) : mix([62,72,70],[214,86,56], (n-0.5)*2);
+    return n<0.5 ? mix([74,144,217],[223,227,220], n*2) : mix([223,227,220],[224,83,58], (n-0.5)*2);
   }
   if(layer==="moist"){
-    return mix([26,28,26], [58,140,206], Math.pow(clamp(w.moist[i],0,1),0.8));
+    return mix([241,237,224], [42,120,214], Math.pow(clamp(w.moist[i],0,1),0.85));
   }
   if(layer==="poll"){
-    return mix([20,30,26], [213,81,129], Math.pow(clamp(w.poll[i]/100,0,1),0.6));
+    return mix([239,243,236], [201,61,114], Math.pow(clamp(w.poll[i]/100,0,1),0.6));
+  }
+  if(layer==="suit"){
+    /* 내가 설계한 종이 이 칸에서 얼마나 잘 살 수 있는지 */
+    const v=clamp(habitatScore(G.player, w, i)/0.75, 0, 1);
+    return mix([236,232,214], [26,140,86], Math.pow(v,0.75));
   }
   const p=sel.pop[i], mx=Math.max(1,sel._max||1);
   const base=BIOME_RGB[w.biome[i]];
-  return mix(mix(GROUND_RGB,base,0.45), hex2rgb(sel.color), Math.pow(clamp(p/mx,0,1),0.55));
+  return mix(mix([238,242,234],base,0.55), hex2rgb(sel.color), Math.pow(clamp(p/mx,0,1),0.6));
 }
 
 function drawMap2D(){
@@ -1878,14 +2107,17 @@ function drawMapLegend(){
       <span class="sw"><i style="background:#7A683A"></i>농지</span>
       <span class="sw"><i style="background:#C98500"></i>내 종 분포</span></span>`;
   } else if(L==="veg"){
-    el.innerHTML = ramp(["#101A16","#2c5a30","#60b058"],"식물 없음","울창함");
+    el.innerHTML = ramp(["#EDF2E6","#93c47d","#2f7d32"],"식물 없음","울창함");
   } else if(L==="temp"){
-    el.innerHTML = ramp(["#2e68a8","#3e4846","#d65638"],"-6°C","34°C") +
+    el.innerHTML = ramp(["#4a90d9","#dfe3dc","#e0533a"],"-6°C","34°C") +
       `<span style="margin-left:8px">현재 평균 <b class="num">${avgTemp().toFixed(1)}°C</b></span>`;
   } else if(L==="moist"){
-    el.innerHTML = ramp(["#1a1c1a","#2f6a92","#3a8cce"],"건조","포화");
+    el.innerHTML = ramp(["#F1EDE0","#8fc4e0","#2a78d6"],"건조","포화");
   } else if(L==="poll"){
-    el.innerHTML = ramp(["#141e1a","#7a3a5c","#d55181"],"0","100");
+    el.innerHTML = ramp(["#EFF3EC","#e5a8bf","#c93d72"],"0","100");
+  } else if(L==="suit"){
+    el.innerHTML = ramp(["#ECE8D6","#8fc79f","#1a8c56"],"못 삶","잘 삶") +
+      `<span style="margin-left:8px">진한 곳일수록 <b>${G.player.name}</b>이(가) 살기 좋습니다</span>`;
   } else {
     const s=G.species[G.selected];
     el.innerHTML = `<span class="sw"><i style="background:${s.color}"></i><b>${s.name}</b> 분포 밀도</span>
@@ -1923,13 +2155,13 @@ function drawChart(canvasId, legendId, full){
 
   /* 눈금 */
   ctx.font='400 10px "IBM Plex Mono", monospace';
-  ctx.strokeStyle="#26362F"; ctx.lineWidth=1;
+  ctx.strokeStyle="#E4EADF"; ctx.lineWidth=1;
   const ticks=4;
   ctx.textAlign="right"; ctx.textBaseline="middle";
   for(let i=0;i<=ticks;i++){
     const v=maxTot*i/ticks, y=Math.round(Y(v))+0.5;
     ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(Wc-pad.r,y); ctx.stroke();
-    ctx.fillStyle="#63776F"; ctx.fillText(fmt(v), pad.l-8, y);
+    ctx.fillStyle="#84958B"; ctx.fillText(fmt(v), pad.l-8, y);
   }
 
   /* 스택 */
@@ -1943,27 +2175,27 @@ function drawChart(canvasId, legendId, full){
     /* 표면 간격 2px */
     ctx.beginPath();
     for(let k=0;k<n;k++){ const y=Y(cum[k]+data[k][g]); k?ctx.lineTo(X(k),y):ctx.moveTo(X(k),y); }
-    ctx.strokeStyle="#131E1B"; ctx.lineWidth=2; ctx.stroke();
+    ctx.strokeStyle="#FFFFFF"; ctx.lineWidth=2; ctx.stroke();
     for(let k=0;k<n;k++) cum[k]+=data[k][g];
   }
 
   /* 내 종을 굵은 선으로 한 번 더 강조 (스택 맨 아래 슬롯) */
   ctx.beginPath();
   for(let k=0;k<n;k++){ const y=Y(data[k][0]); k?ctx.lineTo(X(k),y):ctx.moveTo(X(k),y); }
-  ctx.strokeStyle="#E7A82C"; ctx.lineWidth=2; ctx.stroke();
+  ctx.strokeStyle="#B06800"; ctx.lineWidth=2.2; ctx.stroke();
 
   /* 인간 등장 시점 */
   const humanTick = HUMAN_YEAR*TICKS_PER_YEAR/2;
   if(n>humanTick){
     const x=Math.round(X(humanTick))+0.5;
-    ctx.setLineDash([3,3]); ctx.strokeStyle="#e66767"; ctx.lineWidth=1;
+    ctx.setLineDash([3,3]); ctx.strokeStyle="#e34948"; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+gh); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle="#e66767"; ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillStyle="#e34948"; ctx.textAlign="left"; ctx.textBaseline="top";
     ctx.fillText("인간", x+4, pad.t+2);
   }
 
   /* x축 */
-  ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillStyle="#63776F";
+  ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillStyle="#84958B";
   for(let i=0;i<=4;i++){
     const k=Math.round((n-1)*i/4);
     ctx.fillText(Math.max(1,Math.round(k*2/TICKS_PER_YEAR))+"년", X(k), pad.t+gh+7);
@@ -1980,96 +2212,253 @@ function drawChart(canvasId, legendId, full){
   }
 }
 
-/* ══════════════ 3D 반구 뷰 (순수 WebGL, 외부 라이브러리 없음) ══════════════
-   32×20 격자를 반구에 감는다.
-   · 세로는 램버트 등면적 배치 — 극지 타일도 적도 타일과 면적이 같다.
-   · 가로는 지형 생성이 sin/cos 합이라 한 바퀴가 저절로 맞물린다.
-   · 고도는 반지름으로 밀어올려 산과 호수가 입체로 보인다.
-   생물은 특성에 맞는 저폴리 도형으로 놓는다 — 포식자는 뾰족하게,
-   초식동물은 둥글게, 교목은 길쭉한 원뿔, 분해자는 납작한 원반. */
+/* ══════════════ 3D 테라리움 뷰 (순수 WebGL, 외부 라이브러리 없음) ══════════════
+   세계는 원형 터레인이다. 그 위를 유리 돔이 덮고, 카메라는 돔 안쪽에서 지형을 본다.
+   · 32×20 격자를 극좌표로 원반에 편다. x는 각도, y는 중심에서의 거리.
+     반지름을 sqrt로 잡아 모든 고리의 면적이 같다 — 중심 타일이라고 좁지 않다.
+   · 지형 생성이 sin/cos 합이라 각도 방향으로 한 바퀴가 저절로 맞물린다.
+   · 고도는 위로 밀어올리고, 호수·습지에는 수면을 따로 깐다.
+   생물은 몸통·머리·다리·꼬리에 형질에 따라 뿔·귀·날개를 붙여 만든다. */
 const Globe = (function(){
-  const R = 10, RELIEF = 1.45, MAX_CREATURES = 1400;
+  const RD = 16.0, HGT = 4.6, WATER_Y = -0.7, MAX_CREATURES = 1200;
   let gl=null, ok=false, prog=null, cv=null;
-  let terrBuf=null, terrN=0, creaBuf=null, creaN=0;
-  let terrData=null, creaData=null, shapes=null;
-  let az=0.55, pol=0.58, dist=28, dragging=false, lx=0, ly=0;
+  let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0;
+  let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
+  let az=0.7, pol=0.66, dist=50, dragging=false, lx=0, ly=0;
+  const STRIDE = 10;
 
-  /* ── 작은 행렬 라이브러리 ────────────────────────────────── */
+  /* ── 행렬 ────────────────────────────────────────────────── */
   function mul(a,b){ const o=new Float32Array(16);
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){ let v=0;
       for(let k=0;k<4;k++) v+=a[k*4+j]*b[i*4+k]; o[i*4+j]=v; } return o; }
   function perspective(fovy,asp,n,f){ const t=1/Math.tan(fovy/2), o=new Float32Array(16);
     o[0]=t/asp; o[5]=t; o[10]=(f+n)/(n-f); o[11]=-1; o[14]=2*f*n/(n-f); return o; }
   function lookAt(e,c,u){
-    let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]]; let l=Math.hypot(...z); z=z.map(v=>v/l);
+    let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]]; let l=Math.hypot(z[0],z[1],z[2])||1; z=z.map(v=>v/l);
     let x=[u[1]*z[2]-u[2]*z[1], u[2]*z[0]-u[0]*z[2], u[0]*z[1]-u[1]*z[0]];
-    l=Math.hypot(...x)||1; x=x.map(v=>v/l);
+    l=Math.hypot(x[0],x[1],x[2])||1; x=x.map(v=>v/l);
     const y=[z[1]*x[2]-z[2]*x[1], z[2]*x[0]-z[0]*x[2], z[0]*x[1]-z[1]*x[0]];
     return new Float32Array([x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0,
       -(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]), -(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]), -(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]), 1]);
   }
 
-  /* ── 좌표 변환 ───────────────────────────────────────────── */
-  function vert(x,y,rad,out,o){
-    const cph = 1 - y/H;                       // 램버트 등면적
-    const sph = Math.sqrt(Math.max(0,1-cph*cph));
-    const th  = x/W*Math.PI*2;
-    out[o]=rad*sph*Math.cos(th); out[o+1]=rad*cph; out[o+2]=rad*sph*Math.sin(th);
+  /* ── 격자 → 원반 ─────────────────────────────────────────── */
+  const ringR = y => RD*Math.sqrt((y+2.2)/(H+2.2));    // 등면적 고리 (중심은 넓은 평지로 남긴다)
+  const tileH = i => (G.world.elev[i]-0.40)*HGT;
+  function polar(x,y,h,out){
+    const r=ringR(y), th=x/W*Math.PI*2;
+    out[0]=r*Math.cos(th); out[1]=h; out[2]=r*Math.sin(th);
   }
-  function tileRadius(i){ return R + (G.world.elev[i]-0.45)*RELIEF; }
+  function tileCenter(i,out){
+    const x=(i%W)+0.5, y=((i/W)|0)+0.5;
+    const r=RD*Math.sqrt(y/H), th=x/W*Math.PI*2;
+    out[0]=r*Math.cos(th); out[1]=tileH(i); out[2]=r*Math.sin(th);
+  }
 
-  /* ── 저폴리 도형 생성기 ──────────────────────────────────── */
-  /* 위아래로 뾰족한 다각뿔 두 개를 붙인 형태. 인자만 바꾸면
-     원뿔(나무)·구슬(초식)·창끝(육식)·원반(분해자)이 전부 나온다. */
-  function bipyramid(rad, up, down, seg){
-    const v=[];
-    for(let k=0;k<seg;k++){
-      const a0=k/seg*Math.PI*2, a1=(k+1)/seg*Math.PI*2;
-      const p0=[Math.cos(a0)*rad,0,Math.sin(a0)*rad], p1=[Math.cos(a1)*rad,0,Math.sin(a1)*rad];
-      v.push([0,up,0],p1,p0);
-      if(down>0) v.push([0,-down,0],p0,p1);
+  /* ── 저폴리 부품 ─────────────────────────────────────────── */
+  const P=(x,y,z)=>[x,y,z];
+  function pushT(o,a,b,c){ o.push(a,b,c); }
+  function blob(o,cx,cy,cz,rx,ry,rz,seg,rings){
+    const g=[];
+    for(let i=0;i<=rings;i++){
+      const ph=Math.PI*i/rings, sy=Math.cos(ph), sr=Math.sin(ph), row=[];
+      for(let j=0;j<seg;j++){
+        const th=Math.PI*2*j/seg;
+        row.push(P(cx+rx*sr*Math.cos(th), cy+ry*sy, cz+rz*sr*Math.sin(th)));
+      }
+      g.push(row);
     }
-    return v;
+    for(let i=0;i<rings;i++)for(let j=0;j<seg;j++){
+      const j2=(j+1)%seg, a=g[i][j], b=g[i][j2], c=g[i+1][j2], d=g[i+1][j];
+      if(i>0) pushT(o,a,b,c);
+      if(i<rings-1) pushT(o,a,c,d);
+      if(i===0) pushT(o,a,b,c);
+      if(i===rings-1) pushT(o,a,c,d);
+    }
   }
-  function shapeFor(s){
-    const t=s.traits, z=t.size;
-    if(s.diet==="producer"){
-      if(z>=7) return bipyramid(0.34, 1.55, 0.05, 5);        // 교목 — 길쭉한 원뿔
-      if(z>=3) return bipyramid(0.46, 0.62, 0.08, 6);        // 관목 — 낮고 넓게
-      return bipyramid(0.42, 0.30, 0.03, 4);                 // 초본 — 납작한 뿔
+  /* 밑면 중심에서 방향 벡터 ax,ay,az 로 뻗는 뿔 */
+  function cone(o,bx,by,bz,r,h,seg,ax,ay,az){
+    const l=Math.hypot(ax,ay,az)||1; ax/=l; ay/=l; az/=l;
+    let ux=-az, uy=0, uz=ax; let ul=Math.hypot(ux,uy,uz);
+    if(ul<1e-4){ ux=1; uy=0; uz=0; ul=1; }
+    ux/=ul; uy/=ul; uz/=ul;
+    const vx=ay*uz-az*uy, vy=az*ux-ax*uz, vz=ax*uy-ay*ux;
+    const tip=P(bx+ax*h, by+ay*h, bz+az*h), ring=[];
+    for(let j=0;j<seg;j++){
+      const th=Math.PI*2*j/seg, c=Math.cos(th)*r, sn=Math.sin(th)*r;
+      ring.push(P(bx+ux*c+vx*sn, by+uy*c+vy*sn, bz+uz*c+vz*sn));
     }
-    if(s.diet==="detritivore") return bipyramid(0.34, 0.09, 0.05, 7);   // 원반
-    if(s.diet==="carnivore")   return bipyramid(0.24, 0.62, 0.22, 4);   // 창끝
-    if(s.diet==="omnivore")    return bipyramid(0.30, 0.34, 0.26, 8);   // 다면체
-    /* 초식 — 사회성이 높을수록 둥글게, 방어가 높을수록 각지게 */
-    return bipyramid(0.32, 0.36, 0.26, t.sociality>=6?8:6);
+    for(let j=0;j<seg;j++){ const j2=(j+1)%seg; pushT(o,ring[j],ring[j2],tip); }
+  }
+  function cyl(o,bx,by,bz,r,h,seg){
+    const lo=[], hi=[];
+    for(let j=0;j<seg;j++){ const th=Math.PI*2*j/seg, c=Math.cos(th)*r, sn=Math.sin(th)*r;
+      lo.push(P(bx+c,by,bz+sn)); hi.push(P(bx+c,by+h,bz+sn)); }
+    for(let j=0;j<seg;j++){ const j2=(j+1)%seg;
+      pushT(o,lo[j],lo[j2],hi[j2]); pushT(o,lo[j],hi[j2],hi[j]); }
+  }
+  function dome(o,cx,cy,cz,r,h,seg){
+    const ring=[];
+    for(let j=0;j<seg;j++){ const th=Math.PI*2*j/seg; ring.push(P(cx+r*Math.cos(th),cy,cz+r*Math.sin(th))); }
+    const mid=[];
+    for(let j=0;j<seg;j++){ const th=Math.PI*2*j/seg;
+      mid.push(P(cx+r*0.62*Math.cos(th), cy+h*0.72, cz+r*0.62*Math.sin(th))); }
+    const top=P(cx,cy+h,cz);
+    for(let j=0;j<seg;j++){ const j2=(j+1)%seg;
+      pushT(o,ring[j],ring[j2],mid[j2]); pushT(o,ring[j],mid[j2],mid[j]); pushT(o,mid[j],mid[j2],top); }
+  }
+  /* 상자 — 저폴리 장난감의 기본 부품 */
+  function box(o,cx,cy,cz,sx,sy,sz){
+    const x0=cx-sx,x1=cx+sx, y0=cy-sy,y1=cy+sy, z0=cz-sz,z1=cz+sz;
+    const v=[P(x0,y0,z0),P(x1,y0,z0),P(x1,y1,z0),P(x0,y1,z0),
+             P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1)];
+    const F=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[0,4,7,3]];
+    for(const f of F){ pushT(o,v[f[0]],v[f[1]],v[f[2]]); pushT(o,v[f[0]],v[f[2]],v[f[3]]); }
+  }
+  /* 사다리꼴 상자 — 위가 좁아 뿔이나 다리에 쓴다 */
+  function taper(o,cx,cy,cz,sx,sy,sz,top){
+    const x0=cx-sx,x1=cx+sx, y0=cy-sy,y1=cy+sy, z0=cz-sz,z1=cz+sz;
+    const tx=sx*top, tz=sz*top;
+    const v=[P(x0,y0,z0),P(x1,y0,z0),P(cx+tx,y1,cz-tz),P(cx-tx,y1,cz-tz),
+             P(x0,y0,z1),P(x1,y0,z1),P(cx+tx,y1,cz+tz),P(cx-tx,y1,cz+tz)];
+    const F=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[0,4,7,3]];
+    for(const f of F){ pushT(o,v[f[0]],v[f[1]],v[f[2]]); pushT(o,v[f[0]],v[f[2]],v[f[3]]); }
+  }
+
+  /* 풀잎 — 아래가 넓고 위가 뾰족한 삼각형을 살짝 기울여 세운다 */
+  function blade(o,cx,cz,ang,len,wid,lean){
+    const c=Math.cos(ang), s=Math.sin(ang);
+    const a=P(cx-c*wid, 0, cz-s*wid), b=P(cx+c*wid, 0, cz+s*wid);
+    const t=P(cx+c*lean, len, cz+s*lean);
+    pushT(o,a,b,t); pushT(o,b,a,t);
+  }
+
+  /* ── 종별 생물 모형 ──────────────────────────────────────
+     네모와 원기둥만으로 짠 장난감. 머리를 크게, 다리를 짧게.
+     그래도 형질은 그대로 드러난다 — 뿔, 귀, 날개, 몸길이, 꼬리. */
+  function organism(s){
+    const t=s.traits, o=[];
+    if(s.diet==="producer"){
+      if(t.size>=7){                                   // 큰 나무 — 기둥에 네모 수관 2단
+        box(o,0,0.18,0,0.075,0.18,0.075);
+        box(o,0,0.50,0,0.34,0.20,0.34);
+        box(o,0,0.80,0,0.22,0.16,0.22);
+      } else if(t.size>=3){                             // 덤불 — 네모 두 덩이
+        box(o,0,0.16,0,0.28,0.16,0.28);
+        box(o,0.05,0.36,0.03,0.17,0.12,0.17);
+      } else {                                          // 풀 — 얇은 잎 세 장
+        box(o,-0.09,0.13,0.02,0.045,0.13,0.045);
+        box(o, 0.03,0.17,-0.06,0.045,0.17,0.045);
+        box(o, 0.08,0.11,0.07,0.040,0.11,0.040);
+      }
+      return o;
+    }
+    if(s.diet==="detritivore"){                         // 버섯 — 기둥에 납작한 갓
+      box(o,0,0.09,0,0.065,0.09,0.065);
+      box(o,0,0.22,0,0.23,0.055,0.23);
+      return o;
+    }
+
+    /* 동물 — 상자 몸통에 큰 상자 머리 */
+    const bird = t.mobility>=9;
+    const carn = (s.diet==="carnivore");
+    const len  = 0.24 + t.speed*0.008;                  // 몸길이
+    const bh   = 0.15 + t.armor*0.004;                  // 몸 높이
+    const bw   = 0.15 + t.size*0.004;                   // 몸 폭
+    const legL = 0.09 + t.speed*0.007;
+    const by   = legL*2 + bh;
+    const hr   = 0.15 + (4-Math.min(t.size,4))*0.010;   // 작은 종일수록 머리가 크다
+
+    box(o, -0.02, by, 0, len, bh, bw);                                  // 몸통
+    const hx = len*0.85 + hr*0.75;
+    box(o, hx, by+bh*0.75, 0, hr, hr, hr*0.88);                         // 머리
+    box(o, hx+hr*0.85, by+bh*0.45, 0, hr*0.40, hr*0.34, hr*0.42);       // 주둥이
+
+    if(!bird){
+      for(const sx of [0.62,-0.55]) for(const sz of [0.66,-0.66])
+        box(o, len*sx, legL, bw*sz, 0.045, legL, 0.045);
+    } else {
+      for(const sz of [0.5,-0.5]) box(o, 0, legL*0.85, bw*sz, 0.038, legL*0.85, 0.038);
+      for(const sg of [1,-1])                                            // 납작한 날개
+        box(o, -len*0.1, by+bh*0.25, sg*(bw+len*0.42), len*0.55, 0.035, len*0.42);
+    }
+    box(o, -len-0.06, by+bh*0.45, 0, 0.06, 0.045, 0.045);                // 꼬리
+    if(t.speed>=7) box(o, -len-0.16, by+bh*0.70, 0, 0.055, 0.05, 0.04);  // 빠른 종은 꼬리가 길다
+
+    if(!carn) for(const sg of [1,-1])                                    // 둥근 귀 대신 세운 네모
+      box(o, hx-hr*0.2, by+bh*0.75+hr*1.05, sg*hr*0.5, hr*0.16, hr*0.34, hr*0.14);
+    else      for(const sg of [1,-1])                                    // 뾰족한 귀
+      taper(o, hx-hr*0.15, by+bh*0.75+hr*0.95, sg*hr*0.45, hr*0.20, hr*0.30, hr*0.16, 0.15);
+    if(!carn && t.size>=6) for(const sg of [1,-1])                        // 뿔
+      taper(o, hx-hr*0.1, by+bh*0.75+hr*1.2, sg*hr*0.55, 0.05, 0.13, 0.05, 0.2);
+    return o;
   }
 
   /* ── 셰이더 ─────────────────────────────────────────────── */
   const VS = `
-    attribute vec3 aPos; attribute vec3 aNrm; attribute vec3 aCol; attribute float aEmit;
-    uniform mat4 uMVP; varying vec3 vN; varying vec3 vC; varying float vD; varying float vE;
-    void main(){ vN=aNrm; vC=aCol; vE=aEmit; vec4 p=uMVP*vec4(aPos,1.0);
-      vD=p.z/p.w; gl_Position=p; }`;
-  /* 지형은 낮게 깔고 생물만 자체 발광시켜, 어두운 바탕 위에 도형이 떠 보이게 한다 */
+    attribute vec3 aPos; attribute vec3 aNrm; attribute vec3 aCol; attribute float aKind;
+    uniform mat4 uMVP; varying vec3 vN; varying vec3 vC; varying float vK; varying float vY;
+    void main(){ vN=aNrm; vC=aCol; vK=aKind; vY=aPos.y; gl_Position=uMVP*vec4(aPos,1.0); }`;
+  /* 밝은 하늘빛 환경광 + 한 방향 햇빛. 생물은 채도를 유지해 파스텔 지형 위에서 또렷하게. */
   const FS = `
     precision mediump float;
-    uniform vec3 uLight; varying vec3 vN; varying vec3 vC; varying float vD; varying float vE;
+    uniform vec3 uLight; varying vec3 vN; varying vec3 vC; varying float vK; varying float vY;
     void main(){
-      vec3 n = normalize(vN);
-      float d = max(dot(n, normalize(uLight)), 0.0);
-      float sky = max(n.y, 0.0);
-      vec3 base = vC*(0.34 + 0.74*d) + vec3(0.038,0.060,0.055)*sky;
-      vec3 glow = vC*(0.62 + 0.55*d) + vC*0.30;
-      vec3 c = mix(base, glow, vE);
-      c = mix(c, vec3(0.016,0.024,0.021), clamp(vD*0.42,0.0,0.5));
+      vec3 n=normalize(vN);
+      float d=max(dot(n,normalize(uLight)),0.0);
+      float sky=max(n.y,0.0);
+      /* 명암을 거의 주지 않는다. 색이 그대로 살아야 장난감처럼 보인다. */
+      vec3 c = vC*(0.88 + 0.28*d) * (0.96 + 0.08*sky);
       gl_FragColor = vec4(c, 1.0);
+    }`;
+  const VS_G = `
+    attribute vec3 aPos; attribute vec3 aNrm; attribute vec3 aCol; attribute float aKind;
+    uniform mat4 uMVP; varying vec3 vN; varying vec3 vC; varying float vK;
+    void main(){ vN=aNrm; vC=aCol; vK=aKind; gl_Position=uMVP*vec4(aPos,1.0); }`;
+  const FS_G = `
+    precision mediump float;
+    varying vec3 vN; varying vec3 vC; varying float vK;
+    void main(){
+      /* 유리 돔 — 스치는 각도일수록 진해져 테두리만 은은하게 보인다 */
+      float f = 1.0 - abs(normalize(vN).y);
+      gl_FragColor = vec4(vC, vK*(0.05 + 0.16*f*f));
+    }`;
+  let progG=null;
+  /* 생물 — 모델은 한 번만 올리고, 인스턴스마다 위치·방향·크기만 바꾼다 */
+  const VS_C = `
+    attribute vec3 aPos; attribute vec3 aNrm;
+    attribute vec4 aInst;        // x, y, z, yaw
+    attribute float aScale;
+    uniform mat4 uMVP; varying vec3 vN;
+    void main(){
+      float c=cos(aInst.w), s=sin(aInst.w);
+      vec3 p = vec3(aPos.x*c - aPos.z*s, aPos.y, aPos.x*s + aPos.z*c)*aScale + aInst.xyz;
+      vN = vec3(aNrm.x*c - aNrm.z*s, aNrm.y, aNrm.x*s + aNrm.z*c);
+      gl_Position = uMVP*vec4(p,1.0);
+    }`;
+  const FS_C = `
+    precision mediump float;
+    uniform vec3 uLight; uniform vec3 uColor; varying vec3 vN;
+    void main(){
+      vec3 n=normalize(vN);
+      float d=max(dot(n,normalize(uLight)),0.0);
+      float sky=max(n.y,0.0);
+      vec3 c = uColor*(0.92 + 0.20*d) * (0.96 + 0.08*sky);
+      gl_FragColor=vec4(c,1.0);
     }`;
 
   function compile(type,src){
     const sh=gl.createShader(type); gl.shaderSource(sh,src); gl.compileShader(sh);
     if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
     return sh;
+  }
+  function link(vs,fs){
+    const pr=gl.createProgram();
+    gl.attachShader(pr,compile(gl.VERTEX_SHADER,vs));
+    gl.attachShader(pr,compile(gl.FRAGMENT_SHADER,fs));
+    gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+    return pr;
   }
 
   function init(){
@@ -2079,31 +2468,30 @@ const Globe = (function(){
     try{
       gl = cv.getContext("webgl",{antialias:true,alpha:false}) || cv.getContext("experimental-webgl");
       if(!gl) return false;
-      prog = gl.createProgram();
-      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
-      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
-      gl.linkProgram(prog);
-      if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
-      gl.useProgram(prog);
+      prog  = link(VS,FS);
+      progG = link(VS_G,FS_G);
+      /* 인스턴싱이 되면 생물을 매 프레임 움직일 수 있다.
+         안 되면 모델을 한 번만 놓고 멈춰 있게 한다. */
+      ext = gl.getExtension("ANGLE_instanced_arrays");
+      if(ext) progC = link(VS_C, FS_C);
       gl.enable(gl.DEPTH_TEST);
-      gl.clearColor(0.016,0.024,0.021,1);
-      terrBuf = gl.createBuffer();
-      creaBuf = gl.createBuffer();
-      terrData = new Float32Array(NT*6*10);
-      creaData = new Float32Array(MAX_CREATURES*40*10);
+      gl.clearColor(0.706,0.882,0.976,1);   // 맑은 하늘색
+      terrBuf=gl.createBuffer(); domeBuf=gl.createBuffer(); waterBuf=gl.createBuffer();
+      terrData=new Float32Array(NT*6*STRIDE + (W*3 + W*6)*STRIDE);
+      instScratch=new Float32Array(MAX_CREATURES*5);
+      buildDome();
       bindControls();
-      ok=true;
-      return true;
+      ok=true; return true;
     }catch(err){ console.warn("3D 초기화 실패 — 2D 지도로 대체합니다:", err.message); gl=null; return false; }
   }
 
   function bindControls(){
-    const start=e=>{ dragging=true; cv.classList.add("dragging");
-      lx=e.clientX; ly=e.clientY; cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
+    const start=e=>{ dragging=true; cv.classList.add("dragging"); lx=e.clientX; ly=e.clientY;
+      if(cv.setPointerCapture) cv.setPointerCapture(e.pointerId);
       const h=document.getElementById("viewhint"); if(h) h.style.opacity="0"; };
     const move=e=>{ if(!dragging) return;
       az -= (e.clientX-lx)*0.0075;
-      pol = clamp(pol - (e.clientY-ly)*0.006, 0.10, 1.42);
+      pol = clamp(pol - (e.clientY-ly)*0.005, 0.10, 1.30);
       lx=e.clientX; ly=e.clientY; };
     const end=()=>{ dragging=false; cv.classList.remove("dragging"); };
     cv.addEventListener("pointerdown",start);
@@ -2111,14 +2499,36 @@ const Globe = (function(){
     cv.addEventListener("pointerup",end);
     cv.addEventListener("pointercancel",end);
     cv.addEventListener("pointerleave",end);
-    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*1.5, 12.5, 42); e.preventDefault(); },{passive:false});
+    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*2.4, 20, 86); e.preventDefault(); },{passive:false});
   }
 
-  function buildCreatures(){ shapes = G.species.map(shapeFor); }
+  function buildCreatures(){
+    if(models) for(const m of models) if(m && m.buf) gl.deleteBuffer(m.buf);
+    models = G.species.map(s=>{
+      const tris = organism(s);
+      const arr = new Float32Array(tris.length*6);
+      let o=0;
+      for(let k=0;k<tris.length;k+=3){
+        const p0=tris[k], p1=tris[k+1], p2=tris[k+2];
+        const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
+        const vx=p2[0]-p0[0], vy=p2[1]-p0[1], vz=p2[2]-p0[2];
+        let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+        const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+        for(const q of [p0,p1,p2]){
+          arr[o++]=q[0]; arr[o++]=q[1]; arr[o++]=q[2];
+          arr[o++]=nx;   arr[o++]=ny;   arr[o++]=nz;
+        }
+      }
+      const buf=gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+      gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);
+      return {buf, count:tris.length, color:hex2rgb(s.color).map(v=>v/255)};
+    });
+    inst = G.species.map(()=>({n:0, base:null, buf:gl.createBuffer(), sbuf:gl.createBuffer()}));
+  }
 
-  /* ── 지형 정점 채우기 ────────────────────────────────────── */
-  const _a=new Float32Array(3), _b=new Float32Array(3), _c=new Float32Array(3), _d=new Float32Array(3);
-  function pushTri(buf,o,p0,p1,p2,r,g,b,em){
+  /* ── 정점 쓰기 ───────────────────────────────────────────── */
+  function pushTri(buf,o,p0,p1,p2,r,g,b,kind){
     const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
     const vx=p2[0]-p0[0], vy=p2[1]-p0[1], vz=p2[2]-p0[2];
     let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
@@ -2127,151 +2537,280 @@ const Globe = (function(){
     for(let k=0;k<3;k++){
       buf[o++]=ps[k][0]; buf[o++]=ps[k][1]; buf[o++]=ps[k][2];
       buf[o++]=nx; buf[o++]=ny; buf[o++]=nz;
-      buf[o++]=r; buf[o++]=g; buf[o++]=b; buf[o++]=em;
+      buf[o++]=r; buf[o++]=g; buf[o++]=b; buf[o++]=kind;
+    }
+    return o;
+  }
+
+  /* 꼭짓점 높이는 맞닿은 타일들의 평균으로 잡는다.
+     타일마다 제 높이로 세우면 사이가 벌어져 지형이 조각조각 떠 보인다. */
+  let vh=null, tc=null;
+  function vertHeights(){
+    if(!vh) vh=new Float32Array(W*(H+1));
+    for(let y=0;y<=H;y++)for(let x=0;x<W;x++){
+      let sum=0,n=0;
+      for(let dy=-1;dy<=0;dy++)for(let dx=-1;dx<=0;dx++){
+        const yy=y+dy; if(yy<0||yy>=H) continue;
+        const xx=((x+dx)%W+W)%W;
+        sum+=tileH(yy*W+xx); n++;
+      }
+      vh[y*W+x] = n?sum/n:0;
+    }
+    return vh;
+  }
+
+  function pushTri3(buf,o,p0,p1,p2,c0,c1,c2){
+    const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
+    const vx=p2[0]-p0[0], vy=p2[1]-p0[1], vz=p2[2]-p0[2];
+    let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+    const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+    const ps=[p0,p1,p2], cs=[c0,c1,c2];
+    for(let k=0;k<3;k++){
+      buf[o++]=ps[k][0]; buf[o++]=ps[k][1]; buf[o++]=ps[k][2];
+      buf[o++]=nx; buf[o++]=ny; buf[o++]=nz;
+      buf[o++]=cs[k][0]; buf[o++]=cs[k][1]; buf[o++]=cs[k][2]; buf[o++]=0;
     }
     return o;
   }
 
   function updateTerrain(){
     if(!ok) return;
-    const layer=G.layer, veg=vegField(), sel=G.species[G.selected];
+    const layer=G.layer, veg=vegField(), sel=G.species[G.selected], w=G.world;
+    const VH=vertHeights();
+    const hAt=(x,y)=>VH[y*W+((x%W)+W)%W];
     let o=0;
-    const q0=[0,0,0], q1=[0,0,0], q2=[0,0,0], q3=[0,0,0];
+    const q0=[0,0,0],q1=[0,0,0],q2=[0,0,0],q3=[0,0,0];
+    const wat=[];
+    let cH=0; for(let x=0;x<W;x++) cH+=hAt(x,0); cH/=W;
+    const ctr=[0,cH,0], e0=[0,0,0], e1=[0,0,0];
+    let cr0=0,cg0=0,cb0=0;
+    /* 저폴리 지형 — 칸마다 평평한 면 하나, 색도 하나.
+       꼭짓점 높이만 이웃과 맞춰 틈을 없애고, 면은 각지게 둔다.
+       잘게 쪼개 보간하면 면이 사라져 슬라임처럼 뭉개진다. */
+    if(!tc || tc.length!==NT*3) tc=new Float32Array(NT*3);
     for(let i=0;i<NT;i++){
-      const x=i%W, y=(i/W)|0, rad=tileRadius(i);
-      vert(x,   y,   rad, q0, 0);
-      vert(x+1, y,   rad, q1, 0);
-      vert(x+1, y+1, rad, q2, 0);
-      vert(x,   y+1, rad, q3, 0);
-      const c = tileRGB(i, layer, veg, sel);
-      const r=c[0]/255, g=c[1]/255, b=c[2]/255;
-      o = pushTri(terrData,o,q0,q1,q2,r,g,b,0.0);
-      o = pushTri(terrData,o,q0,q2,q3,r,g,b,0.0);
+      const c=tileRGB(i,layer,veg,sel);
+      tc[i*3]=c[0]/255; tc[i*3+1]=c[1]/255; tc[i*3+2]=c[2]/255;
     }
-    terrN = o/10;
-    gl.bindBuffer(gl.ARRAY_BUFFER, terrBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, terrData, gl.DYNAMIC_DRAW);
+    for(let x=0;x<W;x++){ cr0+=tc[x*3]; cg0+=tc[x*3+1]; cb0+=tc[x*3+2]; }
+    cr0/=W; cg0/=W; cb0/=W;
+    for(let i=0;i<NT;i++){
+      const x=i%W, y=(i/W)|0;
+      const h00=hAt(x,y), h10=hAt(x+1,y), h11=hAt(x+1,y+1), h01=hAt(x,y+1);
+      const r=tc[i*3], g=tc[i*3+1], b=tc[i*3+2];
+      polar(x,  y,  h00,q0); polar(x+1,y,  h10,q1);
+      polar(x+1,y+1,h11,q2); polar(x,  y+1,h01,q3);
+      o=pushTri(terrData,o,q0,q2,q1,r,g,b,0);
+      o=pushTri(terrData,o,q0,q3,q2,r,g,b,0);
+      /* 중심의 빈 원은 부채꼴 무늬가 안 보이게 한 가지 색으로 메운다 */
+      if(y===0){
+        polar(x,0,h00,e0); polar(x+1,0,h10,e1);
+        o=pushTri(terrData,o,ctr,e0,e1,cr0,cg0,cb0,0);
+      }
+      /* 바깥 고리에 두께를 준다 — 테라리움 받침처럼 */
+      if(y===H-1){
+        polar(x,  H,hAt(x,H),  q0); polar(x+1,H,hAt(x+1,H),q1);
+        const b0=[q0[0],-1.7,q0[2]], b1=[q1[0],-1.7,q1[2]];
+        o=pushTri(terrData,o,q0,b0,b1,r*0.55,g*0.53,b*0.48,0);
+        o=pushTri(terrData,o,q0,b1,q1,r*0.55,g*0.53,b*0.48,0);
+      }
+      if(layer==="terrain" && w.biome[i]<=1) wat.push(i);
+    }
+    terrN=o/STRIDE;
+    gl.bindBuffer(gl.ARRAY_BUFFER,terrBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,terrData.subarray(0,o),gl.DYNAMIC_DRAW);
+
+    /* 수면 — 호수와 습지에만 평평하게 깐다 */
+    const wd=new Float32Array(Math.max(1,wat.length)*6*STRIDE); let wo=0;
+    for(const i of wat){
+      const x=i%W, y=(i/W)|0;
+      /* 물 높이는 그 칸 바닥 바로 위. 호수는 낮게, 산속 개울은 높게 잡힌다 */
+      const wy=tileH(i)+0.13;
+      polar(x,  y,  wy,q0); polar(x+1,y,  wy,q1);
+      polar(x+1,y+1,wy,q2); polar(x,  y+1,wy,q3);
+      const deep=clamp((WATER_Y-tileH(i))/1.2,0,1);
+      const r=lerp(0.36,0.10,deep), g=lerp(0.74,0.42,deep), b=lerp(0.95,0.80,deep);
+      wo=pushTri(wd,wo,q0,q2,q1,r,g,b,0);
+      wo=pushTri(wd,wo,q0,q3,q2,r,g,b,0);
+    }
+    waterN=wo/STRIDE;
+    gl.bindBuffer(gl.ARRAY_BUFFER,waterBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,wd.subarray(0,wo),gl.DYNAMIC_DRAW);
   }
 
-  /* ── 생물 도형 배치 ──────────────────────────────────────── */
+  /* 유리 돔 — 한 번만 만든다 */
+  function buildDome(){
+    /* 카메라가 이 안에 들어가 있어야 하므로 지형보다 훨씬 크게 만든다.
+       앞면을 잘라내서 시야를 가리지 않고 안쪽 면만 은은하게 보이게 한다. */
+    const seg=56, rings=18, R=RD*2.6, arr=[];
+    const V=(i,j)=>{ const ph=(Math.PI/2)*(i/rings), th=Math.PI*2*j/seg;
+      return P(R*Math.sin(ph)*Math.cos(th), R*Math.cos(ph)*0.62-4.5, R*Math.sin(ph)*Math.sin(th)); };
+    const buf=new Float32Array(seg*rings*6*STRIDE); let o=0;
+    for(let i=0;i<rings;i++)for(let j=0;j<seg;j++){
+      const a=V(i,j), b=V(i,(j+1)%seg), c=V(i+1,(j+1)%seg), d=V(i+1,j);
+      o=pushTri(buf,o,a,b,c,0.62,0.80,0.88,1);
+      o=pushTri(buf,o,a,c,d,0.62,0.80,0.88,1);
+    }
+    domeN=o/STRIDE;
+    gl.bindBuffer(gl.ARRAY_BUFFER,domeBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,buf.subarray(0,o),gl.STATIC_DRAW);
+  }
+
+  /* 어느 타일에 몇 마리를 놓을지 정한다. 시뮬레이션이 갱신될 때만 다시 계산한다.
+     실제 움직임은 매 프레임 render()에서 이 값에 시간을 곱해 만든다. */
   function updateCreatures(){
-    if(!ok) return;
+    if(!ok || !inst) return;
     const mode=G.creatureMode||"all";
-    let o=0, count=0;
-    const p=[0,0,0], t0=[0,0,0], t1=[0,0,0], t2=[0,0,0];
+    const c0=[0,0,0];
+    let budget=MAX_CREATURES;
     for(let si=0; si<G.species.length; si++){
-      const s=G.species[si];
-      if(mode==="none") break;
-      if(!s.alive || (mode==="me" && !s.isPlayer)) continue;
-      const shp=shapes[si]; if(!shp) continue;
+      const s=G.species[si], it=inst[si];
+      it.n=0;
+      if(mode==="none" || !s.alive || (mode==="me" && !s.isPlayer)) continue;
       let peak=0; for(let i=0;i<NT;i++) if(s.pop[i]>peak) peak=s.pop[i];
       if(peak<=0.4) continue;
-      const hx=hex2rgb(s.color), cr=hx[0]/255, cg=hx[1]/255, cb=hx[2]/255;
-      const base = 0.34 + s.traits.size*0.062;
-      for(let i=0;i<NT;i++){
-        if(count>=MAX_CREATURES) break;
+      const t=s.traits;
+      const base=0.10+t.size*0.021;
+      /* 형질이 움직임을 정한다 — 이동 범위는 이동성, 속도는 순발력과 대사율 */
+      const isPlant = (s.diet==="producer");
+      const wander = isPlant ? 0 : (0.05 + t.mobility*0.026 + t.youngDispersal*0.006);
+      const rate   = isPlant ? 0.22 : (0.10 + t.speed*0.052 + t.metabolism*0.022);
+      const bob    = (!isPlant && t.mobility>=9) ? 0.15 : 0;
+      const cap=Math.min(budget, 95);
+      const arr=new Float32Array(cap*7);
+      let n=0;
+      for(let i=0;i<NT && n<cap;i++){
         const v=s.pop[i];
-        if(v < peak*0.10 || v < 0.5) continue;
-        const scale = base*(0.48 + 0.72*Math.pow(v/peak, 0.40));
-        const rad = tileRadius(i)+0.01;
-        /* 타일 안에서 고정된 위치로 흔들어 격자처럼 줄 서지 않게 한다 */
-        const hsh=(i*2654435761 + si*97)>>>0;
-        const jx=((hsh&1023)/1023-0.5)*0.55, jy=(((hsh>>10)&1023)/1023-0.5)*0.55;
-        const x=(i%W)+0.5+jx, y=clamp(((i/W)|0)+0.5+jy, 0.05, H-0.05);
-        vert(x,y,rad,p,0);
-        /* 지표면 법선 방향으로 세운다 */
-        const nl=Math.hypot(p[0],p[1],p[2])||1;
-        const nx=p[0]/nl, ny=p[1]/nl, nz=p[2]/nl;
-        /* 법선을 y축으로 하는 정규직교 기저 */
-        let ax, ay, az2;
-        if(Math.abs(ny)<0.92){ ax=ny*0-0*nz; ax=-nz; ay=0; az2=nx; }
-        else { ax=1; ay=0; az2=0; }
-        let al=Math.hypot(ax,ay,az2)||1; ax/=al; ay/=al; az2/=al;
-        const bx=ny*az2-nz*ay, by=nz*ax-nx*az2, bz=nx*ay-ny*ax;
-        for(let k=0;k<shp.length;k+=3){
-          if(o+30 > creaData.length) break;
-          for(let m=0;m<3;m++){
-            const q=shp[k+m];
-            const sx=q[0]*scale, sy=q[1]*scale, sz=q[2]*scale;
-            const tgt=[t0,t1,t2][m];
-            tgt[0]=p[0]+ax*sx+nx*sy+bx*sz;
-            tgt[1]=p[1]+ay*sx+ny*sy+by*sz;
-            tgt[2]=p[2]+az2*sx+nz*sy+bz*sz;
-          }
-          o = pushTri(creaData,o,t0,t1,t2,cr,cg,cb,1.0);
-        }
-        count++;
+        if(v<peak*0.16 || v<0.8) continue;
+        tileCenter(i,c0);
+        const hsh=(i*2654435761+si*9176)>>>0;
+        const o=n*7;
+        arr[o]  =c0[0];
+        arr[o+1]=c0[1];
+        arr[o+2]=c0[2];
+        arr[o+3]=base*(0.55+0.66*Math.pow(v/peak,0.40));   // 크기
+        arr[o+4]=((hsh&4095)/4095)*Math.PI*2;              // 위상
+        arr[o+5]=wander*(0.6+((hsh>>12&255)/255)*0.8);     // 이동 범위
+        arr[o+6]=rate*(0.75+((hsh>>20&255)/255)*0.5);      // 속도
+        n++;
       }
+      it.n=n; it.base=arr; it.bob=bob; it.plant=isPlant;
+      budget-=n;
+      if(budget<=0) break;
     }
-    creaN=o/10;
-    gl.bindBuffer(gl.ARRAY_BUFFER, creaBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, creaData.subarray(0,o), gl.DYNAMIC_DRAW);
   }
 
   /* ── 렌더 ────────────────────────────────────────────────── */
   let vpCache=null;
   function viewProj(){
-    const w=cv.clientWidth||760, h=cv.clientHeight||440;
+    const w=cv.clientWidth||760, h=cv.clientHeight||500;
     const dpr=Math.min(2, window.devicePixelRatio||1);
-    if(cv.width!==Math.round(w*dpr) || cv.height!==Math.round(h*dpr)){
+    if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){
       cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
     }
     gl.viewport(0,0,cv.width,cv.height);
-    const cp=[Math.sin(az)*Math.cos(pol)*dist, Math.sin(pol)*dist+2.0, Math.cos(az)*Math.cos(pol)*dist];
-    const P=perspective(0.66, cv.width/cv.height, 0.5, 220);
-    const V=lookAt(cp,[0,R*0.30,0],[0,1,0]);
-    vpCache={mvp:mul(P,V), eye:cp};
+    const cp=[Math.sin(az)*Math.cos(pol)*dist, Math.sin(pol)*dist+1.2, Math.cos(az)*Math.cos(pol)*dist];
+    const P4=perspective(0.66, cv.width/cv.height, 0.5, 320);
+    const V=lookAt(cp,[0,0.3,0],[0,1,0]);
+    vpCache={mvp:mul(P4,V), eye:cp};
     return vpCache;
   }
-
-  function draw(buf,n){
-    if(!n) return;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    const st=10*4;
-    const aP=gl.getAttribLocation(prog,"aPos"), aN=gl.getAttribLocation(prog,"aNrm"),
-          aC=gl.getAttribLocation(prog,"aCol"), aE=gl.getAttribLocation(prog,"aEmit");
+  function bindAttribs(pr,buf){
+    gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+    const st=STRIDE*4;
+    const aP=gl.getAttribLocation(pr,"aPos"), aN=gl.getAttribLocation(pr,"aNrm"),
+          aC=gl.getAttribLocation(pr,"aCol"), aK=gl.getAttribLocation(pr,"aKind");
     gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP,3,gl.FLOAT,false,st,0);
     gl.enableVertexAttribArray(aN); gl.vertexAttribPointer(aN,3,gl.FLOAT,false,st,12);
     gl.enableVertexAttribArray(aC); gl.vertexAttribPointer(aC,3,gl.FLOAT,false,st,24);
-    gl.enableVertexAttribArray(aE); gl.vertexAttribPointer(aE,1,gl.FLOAT,false,st,36);
-    gl.drawArrays(gl.TRIANGLES,0,n);
+    gl.enableVertexAttribArray(aK); gl.vertexAttribPointer(aK,1,gl.FLOAT,false,st,36);
   }
-
   function render(){
-    if(!ok || !G) return;
+    if(!ok||!G) return;
     const vp=viewProj();
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.BLEND); gl.depthMask(true);
     gl.useProgram(prog);
-    gl.uniformMatrix4fv(gl.getUniformLocation(prog,"uMVP"), false, vp.mvp);
-    /* 계절에 따라 해가 뜨고 진다 */
-    const sa=(G.tick/TICKS_PER_YEAR)*0.45;
-    const sh=0.55+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.42;
-    gl.uniform3f(gl.getUniformLocation(prog,"uLight"), Math.cos(sa), sh, Math.sin(sa));
-    draw(terrBuf, terrN);
-    draw(creaBuf, creaN);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog,"uMVP"),false,vp.mvp);
+    const sa=(G.tick/TICKS_PER_YEAR)*0.4;
+    const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
+    gl.uniform3f(gl.getUniformLocation(prog,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
+    if(terrN){ bindAttribs(prog,terrBuf); gl.drawArrays(gl.TRIANGLES,0,terrN); }
+    drawCreatures(vp);
+    /* 반투명 — 수면, 그리고 마지막에 유리 돔 */
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
+    if(waterN){ bindAttribs(prog,waterBuf); gl.drawArrays(gl.TRIANGLES,0,waterN); }
+    gl.useProgram(progG);
+    gl.uniformMatrix4fv(gl.getUniformLocation(progG,"uMVP"),false,vp.mvp);
+    gl.enable(gl.CULL_FACE); gl.cullFace(gl.FRONT);
+    if(domeN){ bindAttribs(progG,domeBuf); gl.drawArrays(gl.TRIANGLES,0,domeN); }
+    gl.disable(gl.CULL_FACE);
+    gl.depthMask(true); gl.disable(gl.BLEND);
   }
 
-  /* ── 마우스 → 타일 (반구와 광선의 교점) ──────────────────── */
+  /* 매 프레임 생물의 위치와 방향을 다시 계산한다.
+     느린 종은 거의 제자리, 빠른 종은 넓게 돌아다닌다. 식물은 살짝 흔들리기만 한다. */
+  function drawCreatures(vp){
+    if(!ext || !progC || !inst) return;
+    const T = performance.now()/1000;
+    gl.useProgram(progC);
+    gl.uniformMatrix4fv(gl.getUniformLocation(progC,"uMVP"),false,vp.mvp);
+    const sa=(G.tick/TICKS_PER_YEAR)*0.4;
+    const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
+    gl.uniform3f(gl.getUniformLocation(progC,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
+    const aP=gl.getAttribLocation(progC,"aPos"), aN=gl.getAttribLocation(progC,"aNrm");
+    const aI=gl.getAttribLocation(progC,"aInst"), aS=gl.getAttribLocation(progC,"aScale");
+    const uC=gl.getUniformLocation(progC,"uColor");
+    for(let si=0; si<inst.length; si++){
+      const it=inst[si], md=models[si];
+      if(!it || !it.n || !md || !md.count) continue;
+      const b=it.base, n=it.n, out=instScratch;
+      for(let k=0;k<n;k++){
+        const o=k*7, q=k*5;
+        const ph=b[o+4], wr=b[o+5], rt=b[o+6];
+        const a = ph + T*rt;
+        if(it.plant){
+          out[q]=b[o]; out[q+1]=b[o+1]; out[q+2]=b[o+2];
+          out[q+3]=Math.sin(a)*0.16;                       // 바람에 흔들림
+        } else {
+          out[q]  = b[o]   + wr*(Math.cos(a) + 0.42*Math.cos(2.3*a+ph));
+          out[q+2]= b[o+2] + wr*(Math.sin(a) + 0.42*Math.sin(1.7*a+ph));
+          out[q+1]= b[o+1] + (it.bob ? Math.abs(Math.sin(a*2.2))*it.bob : 0);
+          out[q+3]= a + Math.PI*0.5;                       // 가는 쪽을 바라본다
+        }
+        out[q+4]=b[o+3];
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER,it.buf);
+      gl.bufferData(gl.ARRAY_BUFFER,out.subarray(0,n*5),gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(aI); gl.vertexAttribPointer(aI,4,gl.FLOAT,false,20,0);
+      gl.enableVertexAttribArray(aS); gl.vertexAttribPointer(aS,1,gl.FLOAT,false,20,16);
+      ext.vertexAttribDivisorANGLE(aI,1); ext.vertexAttribDivisorANGLE(aS,1);
+      gl.bindBuffer(gl.ARRAY_BUFFER,md.buf);
+      gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0);
+      gl.enableVertexAttribArray(aN); gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12);
+      ext.vertexAttribDivisorANGLE(aP,0); ext.vertexAttribDivisorANGLE(aN,0);
+      gl.uniform3f(uC, md.color[0], md.color[1], md.color[2]);
+      ext.drawArraysInstancedANGLE(gl.TRIANGLES,0,md.count,n);
+    }
+    ext.vertexAttribDivisorANGLE(aI,0); ext.vertexAttribDivisorANGLE(aS,0);
+    gl.disableVertexAttribArray(aI); gl.disableVertexAttribArray(aS);
+  }
+
+  /* ── 마우스 → 타일 (광선과 지면 평면의 교점) ─────────────── */
   function pick(ev){
-    if(!ok || !vpCache) return -1;
+    if(!ok||!vpCache) return -1;
     const r=cv.getBoundingClientRect();
     const nx=((ev.clientX-r.left)/r.width)*2-1, ny=-((ev.clientY-r.top)/r.height)*2+1;
     const inv=invert(vpCache.mvp); if(!inv) return -1;
-    const far=applyPoint(inv,[nx,ny,1]);
-    const eye=vpCache.eye;
-    const d=[far[0]-eye[0], far[1]-eye[1], far[2]-eye[2]];
-    const dl=Math.hypot(...d); if(!dl) return -1;
-    d[0]/=dl; d[1]/=dl; d[2]/=dl;
-    const bq=eye[0]*d[0]+eye[1]*d[1]+eye[2]*d[2];
-    const cq=eye[0]*eye[0]+eye[1]*eye[1]+eye[2]*eye[2]-R*R;
-    const disc=bq*bq-cq; if(disc<0) return -1;
-    const t=-bq-Math.sqrt(disc); if(t<=0) return -1;
-    const hp=[eye[0]+d[0]*t, eye[1]+d[1]*t, eye[2]+d[2]*t];
-    if(hp[1] < -0.05) return -1;                       // 반구 아래쪽은 없다
-    const cph=clamp(hp[1]/R, 0, 1);
-    const y=clamp(Math.floor((1-cph)*H), 0, H-1);
-    let th=Math.atan2(hp[2], hp[0]); if(th<0) th+=Math.PI*2;
-    const x=clamp(Math.floor(th/(Math.PI*2)*W), 0, W-1);
+    const far=applyPoint(inv,[nx,ny,1]), eye=vpCache.eye;
+    const d=[far[0]-eye[0],far[1]-eye[1],far[2]-eye[2]];
+    if(Math.abs(d[1])<1e-6) return -1;
+    const t=(0-eye[1])/d[1]; if(t<=0) return -1;
+    const px=eye[0]+d[0]*t, pz=eye[2]+d[2]*t;
+    const rad=Math.hypot(px,pz); if(rad>RD) return -1;
+    const y=clamp(Math.floor((rad/RD)*(rad/RD)*H),0,H-1);
+    let th=Math.atan2(pz,px); if(th<0) th+=Math.PI*2;
+    const x=clamp(Math.floor(th/(Math.PI*2)*W),0,W-1);
     return y*W+x;
   }
   function applyPoint(m,v){
@@ -2320,13 +2859,13 @@ function chartHover(ev){
   let tot=0; for(const v of row) tot+=v;
   const html = `<div class="t">${yr}년</div>` +
     GUILDS.map((g,i)=>`<div class="r"><span style="color:${g.color}">■</span>&nbsp;<span style="flex:1">${g.name}</span><span>${fmt(row[i])}</span></div>`).join("") +
-    `<div class="r" style="margin-top:4px;border-top:1px solid #33463E;padding-top:4px"><span style="flex:1">합계</span><span>${fmt(tot)}</span></div>`;
+    `<div class="r" style="margin-top:4px;border-top:1px solid var(--line);padding-top:4px"><span style="flex:1">합계</span><span>${fmt(tot)}</span></div>`;
   showTip(ev, html);
   drawChart("chart","chart-legend",false);
   const ctx=cv.getContext("2d"), dpr=Math.min(2,window.devicePixelRatio||1);
   ctx.setTransform(dpr,0,0,dpr,0,0);
   const px=c.X(k);
-  ctx.strokeStyle="rgba(231,240,234,.45)"; ctx.lineWidth=1;
+  ctx.strokeStyle="rgba(22,35,28,.35)"; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(px,c.pad.t); ctx.lineTo(px,c.pad.t+c.gh); ctx.stroke();
 }
 function tileTipHTML(i){
@@ -2340,9 +2879,9 @@ function tileTipHTML(i){
     <div class="r"><span>토양 양분</span><span>${w.soil[i].toFixed(0)}</span></div>
     <div class="r"><span>부식물</span><span>${w.detr[i].toFixed(0)}</span></div>
     <div class="r"><span>오염</span><span>${w.poll[i].toFixed(0)}</span></div>
-    ${here.length?`<div style="margin-top:5px;border-top:1px solid #33463E;padding-top:4px">`+
+    ${here.length?`<div style="margin-top:5px;border-top:1px solid var(--line);padding-top:4px">`+
       here.map(s=>`<div class="r"><span style="color:${s.color}">■</span>&nbsp;<span style="flex:1">${s.name}</span><span>${fmt(s.pop[i])}</span></div>`).join("")+`</div>`
-      :`<div style="margin-top:5px;color:#63776F">생물 없음</div>`}`;
+      :`<div style="margin-top:5px;color:var(--ink-3)">생물 없음</div>`}`;
 }
 
 function showTip(ev,html){ const t=$("#tip"); t.innerHTML=html; t.style.display="block";
@@ -2496,7 +3035,7 @@ function loop(t){
   if(Globe.ok) Globe.render();        // 멈춰 있어도 카메라는 부드럽게 돈다
   if(G.over) return;
   const dt=Math.min(100, t-lastT); lastT=t;
-  if(!G.running) return;
+  if(!G.running || G.phase==="placing") return;
 
   acc += dt*G.speed/220;
   let steps=0;
@@ -2510,7 +3049,7 @@ function loop(t){
     s._max=mx;
   }
   drawMap();
-  drawChart("chart","chart-legend",false);
+  if(!$("#panel-chart").classList.contains("collapsed")) drawChart("chart","chart-legend",false);
 
   /* 표·패널은 초당 4회로 제한 — 매 프레임 DOM을 다시 만들 이유가 없음 */
   if(t-lastUI > 240){
@@ -2526,9 +3065,10 @@ function loop(t){
 function startSim(){
   design.name = ($("#sp-name").value||"이름 없는 종").trim();
   newGame(design);
-  $("#sim-title").textContent = `${design.name} — ${DIETS[design.diet].name}`;
+  $("#sim-title").textContent = `${design.name}`;
   G.selected=0;
   G.creatureMode = $("#creature-mode").value;
+  G.layer="suit";
   show("sim");
   const use3d = Globe.init();
   $("#globe").hidden = !use3d;
@@ -2538,7 +3078,31 @@ function startSim(){
   buildLayerTabs(); renderStatus(); renderSpecies(); renderEvo(); renderLog();
   drawMap(); drawChart("chart","chart-legend",false);
   acc=0; lastT=performance.now(); lastUI=0;
-  $("#btn-pause").textContent="일시정지";
+  $("#btn-pause").textContent="❚❚";
+  setPlacing(true);
+}
+
+function setPlacing(on){
+  $("#placebar").hidden = !on;
+  $("#stage").classList.toggle("placing", on);
+  $("#btn-pause").disabled = on;
+  $$("[data-speed]").forEach(b=>b.disabled=on);
+}
+
+/* 지역 선택 — 끌어서 회전한 경우와 구분하려고 이동 거리를 본다 */
+function attachPlacement(el, tileFrom){
+  let dx=0, dy=0, px=0, py=0;
+  el.addEventListener("pointerdown", e=>{ dx=dy=0; px=e.clientX; py=e.clientY; });
+  el.addEventListener("pointermove", e=>{ dx+=Math.abs(e.clientX-px); dy+=Math.abs(e.clientY-py); px=e.clientX; py=e.clientY; });
+  el.addEventListener("pointerup", e=>{
+    if(!G || G.phase!=="placing" || dx+dy>6) return;
+    const i=tileFrom(e);
+    if(i<0) return;
+    seedPlayerAt(i);
+    setPlacing(false);
+    G.layer="terrain"; buildLayerTabs();
+    renderStatus(); renderSpecies(); renderLog(); drawMap();
+  });
 }
 
 function bind(){
@@ -2555,7 +3119,11 @@ function bind(){
   };
   $("#btn-start").onclick = startSim;
 
-  $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"일시정지":"재개"; };
+  $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
+  $$("[data-toggle]").forEach(b=>b.onclick=()=>{
+    document.getElementById(b.dataset.toggle).classList.toggle("collapsed");
+    if(b.dataset.toggle==="panel-chart" && G && !G.over) requestAnimationFrame(()=>drawChart("chart","chart-legend",false));
+  });
   $$("[data-speed]").forEach(b=>b.onclick=()=>{
     G.speed=+b.dataset.speed;
     $$("[data-speed]").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
@@ -2586,6 +3154,12 @@ function bind(){
   });
   $("#globe").addEventListener("mouseleave", hideTip);
 
+  attachPlacement($("#globe"), ev=>Globe.pick(ev));
+  attachPlacement($("#map"), ev=>{
+    const r=ev.currentTarget.getBoundingClientRect();
+    const x=Math.floor((ev.clientX-r.left)/r.width*W), y=Math.floor((ev.clientY-r.top)/r.height*H);
+    return (x<0||y<0||x>=W||y>=H) ? -1 : y*W+x;
+  });
   window.addEventListener("resize", ()=>{ if(G && !G.over) drawChart("chart","chart-legend",false); });
   requestAnimationFrame(loop);
 }
