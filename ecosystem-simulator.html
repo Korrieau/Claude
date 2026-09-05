@@ -768,7 +768,7 @@ const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const lerp=(a,b,t)=>a+(b-a)*t;
 
 /* ── 세계 상수 ────────────────────────────────────────────────── */
-const W=44, H=24, NT=W*H;   // 대륙 규모 — 지역이 여러 개 넉넉히 들어간다
+const W=32, H=32, NT=W*H;   // 정사각 격자 — 칸이 늘어나지 않는다
 const TICKS_PER_YEAR=4, MAX_YEARS=300, MAX_TICKS=MAX_YEARS*TICKS_PER_YEAR;
 const HUMAN_YEAR=42;                     // 인간 활동이 시작되는 연도
 const SEASONS=["봄","여름","가을","겨울"];
@@ -1052,12 +1052,13 @@ function makeWorld(){
   const elev=new Float32Array(NT), wet=new Float32Array(NT), heat=new Float32Array(NT);
   const region=new Int8Array(NT);
 
-  /* 격자를 극좌표로 원반에 편다. y는 중심에서의 거리다. */
-  const px=new Float32Array(NT), pz=new Float32Array(NT), rad=new Float32Array(NT), ang=new Float32Array(NT);
+  /* 격자를 그대로 -1~1 평면에 놓는다 */
+  const px=new Float32Array(NT), pz=new Float32Array(NT);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-    const i=y*W+x, rr=Math.sqrt((y+0.5)/H), th=(x+0.5)/W*Math.PI*2;
-    px[i]=rr*Math.cos(th); pz[i]=rr*Math.sin(th); rad[i]=rr; ang[i]=th;
+    const i=y*W+x;
+    px[i]=(x+0.5)/W*2-1; pz[i]=(y+0.5)/H*2-1;
   }
+  const randPt=()=>[rrange(-0.86,0.86), rrange(-0.86,0.86)];
 
   /* ── 1. 해안선 ────────────────────────────────────────────────
      대륙을 동그란 원으로 자르면 인공적이다. 각도에 따라 들쭉날쭉하게 만들어
@@ -1071,8 +1072,9 @@ function makeWorld(){
   const landXZ=(X,Z)=>{
     let n=0;
     for(const w of waves) n += w.a*Math.sin(w.f*(X*Math.cos(w.d)+Z*Math.sin(w.d))+w.ph);
-    const r2=X*X+Z*Z;
-    return n*0.26 + 0.42 + shift - r2*0.46;      // 바깥일수록 바다가 되기 쉽다
+    /* 가장자리로 갈수록 바다가 되기 쉽다 (사각 지도라 네 변 모두) */
+    const edge=Math.max(Math.abs(X),Math.abs(Z));
+    return n*0.26 + 0.46 + shift - Math.pow(edge,3)*0.62;
   };
   const noiseXZ=(X,Z)=>{
     let n=0;
@@ -1092,8 +1094,7 @@ function makeWorld(){
   /* 앞바다에 섬 몇 개 */
   const nIsl=2+Math.floor(rnd()*3);
   for(let k=0;k<nIsl;k++){
-    const th=rnd()*Math.PI*2, rr=Math.sqrt(rnd())*0.92;
-    const ix=rr*Math.cos(th), iz=rr*Math.sin(th), sz=rrange(0.05,0.095);
+    const [ix,iz]=randPt(), sz=rrange(0.05,0.10);
     if(landXZ(ix,iz)>0.02) continue;                      // 바다 위에만 섬을 놓는다
     for(let i=0;i<NT;i++){
       const d2=(px[i]-ix)**2+(pz[i]-iz)**2;
@@ -1108,8 +1109,7 @@ function makeWorld(){
   const ranges=1+Math.floor(rnd()*2);
   for(let m=0;m<ranges;m++){
     let cx=0, cz=0, tries=0;
-    do{ const th0=rnd()*Math.PI*2, r0=rrange(0.10,0.55);
-        cx=r0*Math.cos(th0); cz=r0*Math.sin(th0); tries++; }
+    do{ [cx,cz]=randPt(); tries++; }
     while(landXZ(cx,cz)<0.06 && tries<30);
     let dir=rnd()*Math.PI*2;
     const segs=7+Math.floor(rnd()*6), step=rrange(0.055,0.085);
@@ -1119,8 +1119,7 @@ function makeWorld(){
       pts.push([cx,cz]);
       dir+=rrange(-0.45,0.45);
       cx+=Math.cos(dir)*step; cz+=Math.sin(dir)*step;
-      const rl=Math.hypot(cx,cz);
-      if(rl>0.70){ cx*=0.70/rl; cz*=0.70/rl; dir+=Math.PI*0.6; }
+      if(Math.abs(cx)>0.85||Math.abs(cz)>0.85){ cx=clamp(cx,-0.85,0.85); cz=clamp(cz,-0.85,0.85); dir+=Math.PI*0.6; }
     }
     for(let i=0;i<NT;i++){
       let best=1e9;
@@ -1153,9 +1152,8 @@ function makeWorld(){
   while(picks.length<11) picks.push(["plain","forest","steppe","plain","forest"][Math.floor(rnd()*5)]);
   const regions=picks.map(k=>{
     const T=TYPES.find(t=>t.k===k);
-    let X,Z,tries=0;
-    do{ const rr=Math.sqrt(rnd())*0.80, th=rnd()*Math.PI*2;
-        X=rr*Math.cos(th); Z=rr*Math.sin(th); tries++; }
+    let X=0,Z=0,tries=0;
+    do{ [X,Z]=randPt(); tries++; }
     while(landXZ(X,Z)<0.03 && tries<30);                  // 되도록 육지 위에
     return {T, x:X, z:Z, rad:T.rad*rrange(0.8,1.25), ph:rnd()*6.28};
   });
@@ -1178,8 +1176,8 @@ function makeWorld(){
   /* ── 4. 화산 ─────────────────────────────────────────────── */
   const vol=new Uint8Array(NT);
   {
-    const th=rnd()*Math.PI*2, rr=rrange(0.15,0.55);
-    const vx=rr*Math.cos(th), vz=rr*Math.sin(th);
+    let vx=0,vz=0,tr=0;
+    do{ [vx,vz]=randPt(); tr++; } while(landXZ(vx,vz)<0.08 && tr<30);
     for(let i=0;i<NT;i++){
       const d=Math.hypot(px[i]-vx, pz[i]-vz);
       if(d>0.13) continue;
@@ -1251,6 +1249,9 @@ function makeWorld(){
   const dist=new Float32Array(NT);
   const sea=new Uint8Array(NT);
   for(let i=0;i<NT;i++) if(elev[i]<SEA_ELEV && !river[i] && !lake[i]) sea[i]=1;
+  /* 산·섬·강이 고도를 건드린 뒤에도 바닷바닥은 평평해야 한다.
+     물속에 계단이 지면 지저분하게 보인다. */
+  for(let i=0;i<NT;i++) if(sea[i]) elev[i]=SEA_ELEV-0.085;
   /* 해변 — 바다에 맞닿은 낮은 육지 */
   const beach=new Uint8Array(NT);
   for(let i=0;i<NT;i++){
@@ -1709,8 +1710,8 @@ function step(){
         let tw=0, c=0;
         for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
           if(!dx&&!dy) continue;
-          const ny=y+dy; if(ny<0||ny>=H) continue;
-          const nx=(x+dx+W)%W;                 // 동서로 한 바퀴 이어진다
+          const ny=y+dy, nx=x+dx;
+          if(ny<0||ny>=H||nx<0||nx>=W) continue;
           const j=ny*W+nx;
           const fj=f[j];
           const attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010);
@@ -1913,6 +1914,39 @@ const HUMAN_EVENTS=[
    go:g=>{ for(const s of g.species){ if(!s.alive||s.diet==="producer") continue;
      if(s.traits.size>=6){ const f=1-clamp(0.16+(s.traits.size-6)*0.045 - s.traits.intelligence*0.012,0.03,0.42);
        for(let i=0;i<NT;i++) s.pop[i]*=f; } } }},
+  {k:"city", p:0.034, msg:"<b>도시</b>가 들어섰습니다. 건물이 늘어나며 주변 자연이 밀려납니다.",
+   go:g=>{
+     const w=g.world;
+     if(g.cityAt===undefined){
+       /* 첫 도시는 평지에 자리 잡는다 */
+       let best=-1, bs=-1;
+       for(let n=0;n<200;n++){
+         const i=Math.floor(rnd()*NT);
+         if(w.biome[i]===10||w.biome[i]===0||w.biome[i]===12||w.biome[i]===5) continue;
+         const sc=(w.farm[i]?2:0)+(w.biome[i]===2?1.5:0)+(w.biome[i]===11?1:0)+rnd();
+         if(sc>bs){ bs=sc; best=i; }
+       }
+       if(best<0) return;
+       g.cityAt=best; g.citySize=0;
+     }
+     /* 이미 있는 도시 가장자리로 번져나간다 */
+     const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
+     let added=0;
+     const R=2+Math.floor(Math.sqrt(g.citySize||0));
+     for(let n=0;n<260 && added<7;n++){
+       const x=cx+Math.round(rrange(-R,R)), y=cy+Math.round(rrange(-R,R));
+       if(x<0||y<0||x>=W||y>=H) continue;
+       const i=y*W+x;
+       if(w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
+       w.biome[i]=9; w.farm[i]=0; w.dist[i]=1;
+       w.soil[i]=12; w.baseSoil[i]=12;
+       w.moist[i]=0.20; w.baseMoist[i]=0.20;
+       w.poll[i]=Math.min(100, w.poll[i]+rrange(10,26));
+       for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.10:0.35;
+       added++;
+     }
+     g.citySize=(g.citySize||0)+added;
+   }},
   {k:"road", p:0.020, msg:"<b>도로 건설</b>로 서식지가 잘려나갔습니다. 이동이 어려워집니다.",
    go:g=>{ const horiz=rnd()<0.5, at=Math.floor(rnd()*(horiz?H:W));
      for(let k=0;k<(horiz?W:H);k++){ const i=horiz? at*W+k : k*W+at;
@@ -2406,7 +2440,7 @@ const Globe = (function(){
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
-  let az=0.7, pol=0.66, dist=50, dragging=false, lx=0, ly=0;
+  let az=0.72, pol=0.72, dist=54, dragging=false, lx=0, ly=0;
   const STRIDE = 10;
 
   /* ── 행렬 ────────────────────────────────────────────────── */
@@ -2426,16 +2460,16 @@ const Globe = (function(){
 
   /* ── 격자 → 원반 ─────────────────────────────────────────── */
   const isWater = b => (b===0||b===10||b===12);
-  const ringR = y => RD*Math.sqrt((y+1.6)/(H+1.6));    // 등면적 고리 (중심에 작은 평지를 남긴다)
   const tileH = i => (G.world.elev[i]-0.40)*HGT;
+  /* 격자를 그대로 평면에 편다. 칸이 전부 같은 정사각형이라 늘어나지 않는다. */
+  const TS = () => (RD*2)/Math.max(W,H);
   function polar(x,y,h,out){
-    const r=ringR(y), th=x/W*Math.PI*2;
-    out[0]=r*Math.cos(th); out[1]=h; out[2]=r*Math.sin(th);
+    const t=TS();
+    out[0]=(x-W/2)*t; out[1]=h; out[2]=(y-H/2)*t;
   }
   function tileCenter(i,out){
-    const x=(i%W)+0.5, y=((i/W)|0)+0.5;
-    const r=RD*Math.sqrt(y/H), th=x/W*Math.PI*2;
-    out[0]=r*Math.cos(th); out[1]=tileH(i); out[2]=r*Math.sin(th);
+    const t=TS();
+    out[0]=((i%W)+0.5-W/2)*t; out[1]=tileH(i); out[2]=(((i/W)|0)+0.5-H/2)*t;
   }
 
   /* ── 저폴리 부품 ─────────────────────────────────────────── */
@@ -2598,7 +2632,9 @@ const Globe = (function(){
       rock:      mk(o=>{ taper(o,0,0.13,0,0.20,0.13,0.18,0.55); taper(o,0.12,0.08,0.08,0.10,0.08,0.10,0.6); }),
       spire:     mk(o=>{ taper(o,0,0.34,0,0.16,0.34,0.15,0.25); }),
       mound:     mk(o=>{ taper(o,0,0.10,0,0.26,0.10,0.24,0.7); }),
-      house:     mk(o=>{ box(o,0,0.22,0,0.20,0.22,0.18); taper(o,0,0.50,0,0.24,0.10,0.22,0.25); }),
+      house:     mk(o=>{ box(o,0,0.20,0,0.19,0.20,0.17); taper(o,0,0.45,0,0.23,0.09,0.21,0.25); }),
+      tower:     mk(o=>{ box(o,0,0.42,0,0.14,0.42,0.14); box(o,0,0.87,0,0.10,0.05,0.10); }),
+      block:     mk(o=>{ box(o,0,0.26,0,0.24,0.26,0.20); box(o,0,0.55,0,0.15,0.06,0.14); }),
     };
   })();
   const SC = {                                  // 장식물 색 — 무광 파스텔
@@ -2606,6 +2642,7 @@ const Globe = (function(){
     conifer:[0.36,0.63,0.50], grass:[0.72,0.86,0.47], reed:[0.78,0.86,0.53],
     cactus:[0.49,0.73,0.52], rock:[0.75,0.74,0.78], vrock:[0.58,0.44,0.40],
     snow:[0.99,1,1], wall:[0.95,0.93,0.88], roof:[0.86,0.56,0.48],
+    wall2:[0.84,0.86,0.90], wall3:[0.92,0.86,0.76], road:[0.55,0.55,0.58],
   };
   /* 지형별로 무엇을 몇 개 세울지 */
   function propsFor(b){
@@ -2618,7 +2655,7 @@ const Globe = (function(){
       case 6: return [[SCENE.conifer,SC.conifer,2,0.30],[SCENE.mound,SC.snow,2,0.35]];
       case 7: return [[SCENE.jungle,SC.jungleLeaf,3,0.62],[SCENE.bush,SC.jungleLeaf,2,0.4]];
       case 8: return [[SCENE.rock,SC.vrock,3,0.45]];
-      case 9: return [[SCENE.house,SC.wall,3,0.55]];
+      case 9: return [[SCENE.tower,SC.wall2,2,0.55],[SCENE.block,SC.wall3,2,0.6],[SCENE.house,SC.wall,2,0.5]];
       default: return null;
     }
   }
@@ -2770,7 +2807,7 @@ const Globe = (function(){
     cv.addEventListener("pointerup",end);
     cv.addEventListener("pointercancel",end);
     cv.addEventListener("pointerleave",end);
-    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*2.4, 20, 86); e.preventDefault(); },{passive:false});
+    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*2.2, 16, 80); e.preventDefault(); },{passive:false});
   }
 
   function buildCreatures(){
@@ -2814,7 +2851,7 @@ const Globe = (function(){
   }
 
   let tc=null;
-  const nb=(x,y)=>{ if(y<0||y>=H) return -1; return y*W+(((x%W)+W)%W); };
+  const nb=(x,y)=>{ if(y<0||y>=H||x<0||x>=W) return -1; return y*W+x; };
 
   function pushTri3(buf,o,p0,p1,p2,c0,c1,c2){
     const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
@@ -2836,9 +2873,7 @@ const Globe = (function(){
     let o=0;
     const q0=[0,0,0],q1=[0,0,0],q2=[0,0,0],q3=[0,0,0];
     const wat=[];
-    let cH=0; for(let x=0;x<W;x++) cH+=tileH(x); cH/=W;
-    const ctr=[0,cH,0], e0=[0,0,0], e1=[0,0,0];
-    let cr0=0,cg0=0,cb0=0;
+
     /* 저폴리 지형 — 칸마다 평평한 면 하나, 색도 하나.
        꼭짓점 높이만 이웃과 맞춰 틈을 없애고, 면은 각지게 둔다.
        잘게 쪼개 보간하면 면이 사라져 슬라임처럼 뭉개진다. */
@@ -2847,12 +2882,10 @@ const Globe = (function(){
       const c=tileRGB(i,layer,veg,sel);
       tc[i*3]=c[0]/255; tc[i*3+1]=c[1]/255; tc[i*3+2]=c[2]/255;
     }
-    for(let x=0;x<W;x++){ cr0+=tc[x*3]; cg0+=tc[x*3+1]; cb0+=tc[x*3+2]; }
-    cr0/=W; cg0/=W; cb0/=W;
     /* 계단형 저폴리 — 칸마다 제 높이로 평평한 면을 놓고,
        옆 칸이 낮으면 그 사이에 절벽 벽면을 세운다. 이래야 면이 각지게 보인다.
        꼭짓점 높이를 평균 내면 이어지긴 하지만 죄다 둥글어져 슬라임처럼 된다. */
-    const w0=[0,0,0],w1=[0,0,0],w2=[0,0,0],w3=[0,0,0];
+    const w0=[0,0,0],w1=[0,0,0],w2=[0,0,0],w3=[0,0,0], e0=[0,0,0], e1=[0,0,0];
     for(let i=0;i<NT;i++){
       const x=i%W, y=(i/W)|0, h=tileH(i);
       const r=tc[i*3], g=tc[i*3+1], b=tc[i*3+2];
@@ -2872,28 +2905,13 @@ const Globe = (function(){
         o=pushTri(terrData,o,w0,w2,w1,dr,dg,db,0);
         o=pushTri(terrData,o,w0,w3,w2,dr,dg,db,0);
       };
+      const BASE=-1.7;                                  // 지도 바깥은 받침까지 떨어진다
       const jIn=nb(x,y-1), jOut=nb(x,y+1), jL=nb(x-1,y), jR=nb(x+1,y);
-      wall(q1,q0, jIn <0 ? h : tileH(jIn));            // 안쪽
-      wall(q3,q2, jOut<0 ? -1.7 : tileH(jOut));        // 바깥쪽 (마지막 고리는 받침까지)
-      wall(q0,q3, jL  <0 ? h : tileH(jL));
-      wall(q2,q1, jR  <0 ? h : tileH(jR));
+      wall(q1,q0, jIn <0 ? BASE : tileH(jIn));
+      wall(q3,q2, jOut<0 ? BASE : tileH(jOut));
+      wall(q0,q3, jL  <0 ? BASE : tileH(jL));
+      wall(q2,q1, jR  <0 ? BASE : tileH(jR));
 
-      /* 중심의 빈 원 — 평평한 원판 하나로 덮고, 안쪽 고리와의 높이 차는
-         절벽으로 메운다. 부채꼴을 타일 높이에 맞추면 사이가 벌어져 흰 줄이 생긴다. */
-      if(y===0){
-        polar(x,0,cH,e0); polar(x+1,0,cH,e1);
-        o=pushTri(terrData,o,ctr,e0,e1,cr0,cg0,cb0,0);
-        if(Math.abs(h-cH)>0.012){
-          const lo=Math.min(h,cH), hi=Math.max(h,cH);
-          w0[0]=e0[0]; w0[1]=hi; w0[2]=e0[2];
-          w1[0]=e1[0]; w1[1]=hi; w1[2]=e1[2];
-          w2[0]=e1[0]; w2[1]=lo; w2[2]=e1[2];
-          w3[0]=e0[0]; w3[1]=lo; w3[2]=e0[2];
-          const cr=(h>cH?r:cr0)*0.78, cg=(h>cH?g:cg0)*0.76, cb=(h>cH?b:cb0)*0.74;
-          o=pushTri(terrData,o,w0,w2,w1,cr,cg,cb,0);
-          o=pushTri(terrData,o,w0,w3,w2,cr,cg,cb,0);
-        }
-      }
       if(layer==="terrain" && isWater(w.biome[i])) wat.push(i);
     }
     terrN=o/STRIDE;
@@ -3087,11 +3105,9 @@ const Globe = (function(){
     const d=[far[0]-eye[0],far[1]-eye[1],far[2]-eye[2]];
     if(Math.abs(d[1])<1e-6) return -1;
     const t=(0-eye[1])/d[1]; if(t<=0) return -1;
-    const px=eye[0]+d[0]*t, pz=eye[2]+d[2]*t;
-    const rad=Math.hypot(px,pz); if(rad>RD) return -1;
-    const y=clamp(Math.floor((rad/RD)*(rad/RD)*H),0,H-1);
-    let th=Math.atan2(pz,px); if(th<0) th+=Math.PI*2;
-    const x=clamp(Math.floor(th/(Math.PI*2)*W),0,W-1);
+    const wx=eye[0]+d[0]*t, wz=eye[2]+d[2]*t, ts=TS();
+    const x=Math.floor(wx/ts + W/2), y=Math.floor(wz/ts + H/2);
+    if(x<0||y<0||x>=W||y>=H) return -1;
     return y*W+x;
   }
   function applyPoint(m,v){
