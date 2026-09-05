@@ -89,6 +89,36 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .masthead .sub{ color: var(--ink-2); font-size:13px; margin-top:6px; max-width: 62ch; }
 .masthead .right{ text-align:right; flex:none; }
 
+/* ── 히어로 (설계·결과 화면 머리) ─────────────────────────────────── */
+.hero{
+  background:var(--panel); border-radius:24px; box-shadow:var(--shadow);
+  margin:20px 0 18px; padding:24px 26px; display:grid;
+  grid-template-columns:minmax(0,1fr) auto; gap:22px; align-items:center;
+}
+@media (max-width:860px){ .hero{ grid-template-columns:1fr; } }
+.hero h1{ font-size:40px; line-height:1.02; }
+.hero h1 .tag{
+  display:inline-block; vertical-align:6px; margin-left:10px; padding:3px 11px;
+  background:var(--gold); color:#fff; border-radius:999px;
+  font-size:12px; letter-spacing:.02em; box-shadow:0 3px 0 #A66200;
+}
+.hero .sub{ color:var(--ink-2); font-size:13.5px; margin:9px 0 0; max-width:60ch; }
+.hero .sub b{ color:var(--gold-hi); font-weight:600; }
+.hero-steps{ display:flex; gap:8px; flex-wrap:wrap; margin-top:15px; }
+.step{
+  display:flex; align-items:center; gap:8px; background:var(--panel-2);
+  border-radius:999px; padding:5px 14px 5px 5px; font-size:12.5px; color:var(--ink-2);
+}
+.step b{
+  width:23px; height:23px; border-radius:50%; background:#fff; color:var(--gold-hi);
+  font-family:var(--f-disp); font-size:12px; display:flex; align-items:center;
+  justify-content:center; flex:none; box-shadow:0 2px 0 rgba(22,45,32,.10);
+}
+.hero-facts{ display:flex; gap:10px; flex:none; }
+.fact{ background:var(--panel-2); border-radius:18px; padding:13px 16px; text-align:center; min-width:88px; }
+.fact .v{ font-family:var(--f-disp); font-size:26px; line-height:1.1; color:var(--gold); }
+.fact .k{ font-size:11px; color:var(--ink-3); margin-top:1px; }
+
 /* ── 설계 화면 레이아웃 ─────────────────────────────────────────── */
 .design-grid{
   display:grid; grid-template-columns: minmax(0,1fr) 330px; gap:22px; align-items:start;
@@ -106,60 +136,83 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 /* 정체성 입력 */
 .identity{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
 .field label{ display:block; margin-bottom:6px; }
+.field label{ font-family:var(--f-disp); font-size:12.5px; color:var(--ink-2); }
 .field input[type=text], .field select{
-  width:100%; background: var(--panel-2); border:1px solid var(--line-2);
-  border-radius: var(--r); color: var(--ink); padding:9px 11px; font-size:14px;
+  width:100%; background: var(--panel-2); border:2px solid transparent;
+  border-radius: 14px; color: var(--ink); padding:11px 13px; font-size:14px;
+  transition: border-color .12s, background .12s;
 }
+.field input[type=text]:focus, .field select:focus{ border-color: var(--gold); background:#fff; outline:none; }
+.field input[type=text]{ font-family:var(--f-disp); font-size:16px; }
 
 /* 식성 선택 */
-.diets{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+.diets{ display:grid; grid-template-columns: repeat(4,1fr); gap:10px; }
+@media (max-width:640px){ .diets{ grid-template-columns:repeat(2,1fr); } }
 .diet{
-  background: var(--panel-2); border:2px solid transparent; border-radius:14px;
-  padding:11px 12px 12px; text-align:left; transition: transform .1s, border-color .12s, background .12s;
+  background: var(--panel-2); border:3px solid transparent; border-radius:18px;
+  padding:14px 13px 15px; text-align:left; transition: transform .1s, border-color .12s, background .12s;
 }
-.diet:hover{ background: var(--panel-3); transform:translateY(-1px); }
-.diet[aria-pressed="true"]{ border-color: var(--gold); background: #FFF4DE; }
-.diet b{ display:block; font-weight:600; font-size:13px; }
-.diet span{ display:block; color:var(--ink-2); font-size:11px; line-height:1.4; margin-top:3px; }
+.diet:hover{ background: var(--panel-3); transform:translateY(-2px); }
+.diet[aria-pressed="true"]{ border-color: var(--gold); background:#FFF4DE; box-shadow:0 4px 0 rgba(217,130,0,.22); }
+.diet .ic{
+  display:flex; align-items:center; justify-content:center; width:34px; height:34px;
+  border-radius:12px; background:#fff; margin-bottom:8px; font-size:18px; line-height:1;
+  box-shadow:0 2px 0 rgba(22,45,32,.10);
+}
+.diet[aria-pressed="true"] .ic{ box-shadow:0 0 0 3px var(--gold); }
+.diet b{ display:block; font-family:var(--f-disp); font-weight:700; font-size:15px; }
+.diet span{ display:block; color:var(--ink-2); font-size:11px; line-height:1.45; margin-top:3px; }
 
 /* 형질 그룹 */
 .trait-group + .trait-group{ margin-top:18px; }
 .trait-group > h4{
-  font-family: var(--f-mono); font-size:10px; font-weight:600; letter-spacing:.16em;
-  text-transform:uppercase; color: var(--ink-3); margin:0 0 9px;
-  padding-bottom:6px; border-bottom:1px solid var(--line);
+  display:inline-block; font-family: var(--f-disp); font-size:13px; font-weight:700;
+  letter-spacing:0; color: var(--ink-2); margin:0 0 10px;
+  background: var(--panel-2); border-radius:999px; padding:5px 14px;
 }
 .traits{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px 26px; }
 @media (max-width: 780px){ .traits{ grid-template-columns: 1fr; } }
 
 .trait{
-  display:grid; grid-template-columns: 116px 1fr 30px; align-items:center; gap:10px;
-  padding: 5px 0;
+  display:grid; grid-template-columns: 116px 1fr 26px; align-items:center; gap:10px;
+  padding: 6px 0;
 }
 .trait .tname{ font-size:13px; }
 .trait .tname .hint{ display:block; color:var(--ink-3); font-size:10.5px; line-height:1.35; }
-.trait .tval{ text-align:right; font-size:13px; font-weight:500; color: var(--gold-hi); }
+.trait .tval{
+  display:flex; align-items:center; justify-content:center; width:26px; height:26px;
+  border-radius:9px; background:var(--panel-2); font-family:var(--f-disp);
+  font-size:13px; color: var(--gold-hi);
+}
 .trait input[type=range]{ width:100%; }
 
 input[type=range]{
-  -webkit-appearance:none; appearance:none; background:transparent; height:18px; margin:0;
+  -webkit-appearance:none; appearance:none; background:transparent; height:20px; margin:0;
 }
 input[type=range]::-webkit-slider-runnable-track{
-  height:3px; background: var(--line-2); border-radius:2px;
+  height:8px; border-radius:999px;
+  background: linear-gradient(var(--gold),var(--gold)) 0/var(--p,0%) 100% no-repeat, var(--panel-3);
 }
-input[type=range]::-moz-range-track{ height:3px; background: var(--line-2); border-radius:2px; }
+input[type=range]::-moz-range-track{
+  height:8px; border-radius:999px;
+  background: linear-gradient(var(--gold),var(--gold)) 0/var(--p,0%) 100% no-repeat, var(--panel-3);
+}
 input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
-  background: var(--gold-hi); margin-top:-5px; border:none;
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  background: var(--gold-hi); margin-top:-5px; border:3px solid #fff;
+  box-shadow:0 2px 0 rgba(22,45,32,.16);
 }
 input[type=range]::-moz-range-thumb{
-  width:13px; height:13px; border-radius:50%; background: var(--gold-hi); border:none;
+  width:18px; height:18px; border-radius:50%; background: var(--gold-hi);
+  border:3px solid #fff; box-shadow:0 2px 0 rgba(22,45,32,.16);
 }
 
 /* 예산 게이지 */
 .budget{ margin-bottom:14px; }
-.budget .row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; }
-.budget .big{ font-size:26px; font-weight:600; letter-spacing:-0.02em; }
+.budget .row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.budget .big{ font-family:var(--f-disp); font-size:38px; font-weight:700; line-height:1; color:var(--gold); }
+.budget.over .big{ color:var(--crit); }
+#budget-gauge{ height:16px; box-shadow:inset 0 2px 0 rgba(22,45,32,.06); }
 .gauge{ height:10px; background: var(--panel-3); border-radius:999px; overflow:hidden; }
 .gauge i{ display:block; height:100%; background: var(--gold); border-radius:999px; transition: width .15s ease, background .15s; }
 .gauge.over i{ background: var(--crit); }
@@ -463,13 +516,52 @@ input[type=range]::-moz-range-thumb{
 }
 .ending.bad{ border-left-color: var(--crit); }
 .ending.good{ border-left-color: var(--good); }
-.ending h2{ font-size:26px; margin-bottom:8px; }
+.ending .eyebrow{ margin-bottom:4px; }
+.ending h2{ font-size:30px; margin-bottom:8px; }
 .ending p{ margin:0; color: var(--ink-2); max-width: 68ch; }
 .ending .verdict{ font-size:15px; color: var(--ink); margin-top:12px; }
 .result-grid{ display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:18px; align-items:start; }
 @media (max-width: 1080px){ .result-grid{ grid-template-columns:1fr; } }
 .score-bar{ display:block; height:5px; background: var(--panel-3); border-radius:3px; overflow:hidden; width:74px; margin-left:auto; }
 .score-bar i{ display:block; height:100%; }
+
+/* 결과 요약 카드 */
+.res-summary{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
+@media (max-width:900px){ .res-summary{ grid-template-columns:repeat(2,1fr); } }
+.res-stat{ background:var(--panel); border-radius:20px; box-shadow:var(--shadow); padding:15px 17px; }
+.res-stat .k{ font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); }
+.res-stat .v{ font-family:var(--f-disp); font-size:28px; line-height:1.12; margin-top:3px; }
+.res-stat .v small{ font-family:var(--f-body); font-weight:300; font-size:13px; color:var(--ink-2); }
+.res-stat .s{ font-size:11.5px; color:var(--ink-2); margin-top:1px; }
+.res-stat.hi .v{ color:var(--gold); }
+.res-stat.bad .v{ color:var(--crit); }
+
+.res-side{ display:flex; flex-direction:column; gap:14px; }
+.era-list{ display:flex; flex-direction:column; gap:7px; max-height:230px; overflow-y:auto; }
+.era-line{ display:flex; align-items:center; gap:9px; font-size:13px; }
+.era-line i{ width:11px; height:11px; border-radius:50%; flex:none; background:var(--ink-3); }
+.era-line i.cold{ background:#4C8FD6; } .era-line i.hot{ background:#E2743C; }
+.era-line i.human{ background:#7B5CE0; } .era-line i.good{ background:#2FA85E; }
+.era-line time{ font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-left:auto; }
+.era-none{ color:var(--ink-3); font-size:12.5px; }
+
+.res-table td{ padding:7px 6px; }
+.res-table td.spcell{ text-align:left; }
+.res-table th:nth-child(2){ text-align:left; }
+.res-table tbody tr.me td{ background:#FFF6E4; }
+.res-table tbody tr{ cursor:default; }
+.res-table tbody tr:hover td{ background:transparent; }
+.res-table tbody tr.me:hover td{ background:#FFF6E4; }
+.res-table td.gone{ text-align:left; color:var(--ink-3); font-size:11.5px; }
+.rk{
+  display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
+  border-radius:50%; font-family:var(--f-disp); font-size:12.5px;
+  color:var(--ink-3); background:var(--panel-3);
+}
+.rk.rk1{ background:#F3C13C; color:#4E3400; box-shadow:0 2px 0 #C99A18; }
+.rk.rk2{ background:#D3DBE1; color:#2F3D46; box-shadow:0 2px 0 #ADB8C0; }
+.rk.rk3{ background:#E0A87B; color:#472708; box-shadow:0 2px 0 #B98354; }
+.rk.rkb{ background:transparent; width:auto; font-size:10.5px; font-family:var(--f-mono); }
 
 .footnote{ color: var(--ink-3); font-size:11.5px; margin-top:10px; line-height:1.6; }
 
@@ -502,15 +594,23 @@ input[type=range]::-moz-range-thumb{
 
 <!-- ══════════════ 1. 설계 화면 ══════════════ -->
 <section id="scr-design" class="screen on">
-  <div class="masthead">
+  <div class="hero">
     <div>
-      <div class="eyebrow">생태 시뮬레이터 · 1틱 = 한 계절</div>
-      <h1>번영의 계보</h1>
-      <p class="sub">형질 33개를 배분해 하나의 종을 설계하고, 33종이 이미 자리 잡은 땅에 풀어놓습니다. 300년 뒤 동물 가운데 <b>종합 번영 지수 1위</b>가 되면 승리입니다.</p>
+      <h1>번영의 계보<span class="tag">생태 시뮬레이터</span></h1>
+      <p class="sub">형질 33개를 배분해 종 하나를 설계하고, 이미 33종이 자리 잡은 땅에 풀어놓습니다.
+        300년 뒤 동물 가운데 <b>종합 번영 지수 1위</b>가 되면 승리입니다.</p>
+      <div class="hero-steps">
+        <span class="step"><b>1</b>형질 설계</span>
+        <span class="step"><b>2</b>지역 선택</span>
+        <span class="step"><b>3</b>관측</span>
+        <span class="step"><b>4</b>진화 포인트로 조정</span>
+        <span class="step"><b>5</b>번영 판정</span>
+      </div>
     </div>
-    <div class="right">
-      <div class="eyebrow">세계</div>
-      <div class="num" style="font-size:15px">32 × 20 타일 · 34종 · 최대 300년</div>
+    <div class="hero-facts">
+      <div class="fact"><div class="v">34</div><div class="k">경쟁 종</div></div>
+      <div class="fact"><div class="v">33</div><div class="k">형질</div></div>
+      <div class="fact"><div class="v">300</div><div class="k">관측 연수</div></div>
     </div>
   </div>
 
@@ -703,35 +803,39 @@ input[type=range]::-moz-range-thumb{
 
 <!-- ══════════════ 3. 결과 화면 ══════════════ -->
 <section id="scr-result" class="screen">
-  <div class="masthead">
-    <div>
-      <div class="eyebrow" id="res-eyebrow">관측 종료</div>
-      <h1 style="font-size:28px">최종 보고</h1>
-    </div>
-    <div class="right btnrow" style="justify-content:flex-end">
-      <button class="btn" id="btn-again">같은 종으로 다시</button>
-      <button class="btn primary" id="btn-redesign" style="padding:8px 16px; font-size:13px">새로 설계</button>
-    </div>
-  </div>
-
   <div class="ending" id="ending"></div>
+
+  <div class="res-summary" id="res-summary"></div>
 
   <div class="result-grid">
     <div class="card">
-      <header><h3 style="font-size:14px">종합 번영 지수</h3><span class="eyebrow">개체수(로그)·서식지·바이오매스(로그)·안정성 각 25</span></header>
+      <header>
+        <h3>종합 번영 지수</h3>
+        <span class="eyebrow">개체수(로그)·서식지·바이오매스(로그)·안정성 각 25</span>
+      </header>
       <div class="tbl-wrap" style="max-height:none">
-        <table class="sp-table">
+        <table class="sp-table res-table">
           <thead><tr><th>순위</th><th>종</th><th>개체수</th><th>서식지</th><th>바이오매스</th><th>안정성</th><th>지수</th></tr></thead>
           <tbody id="res-body"></tbody>
         </table>
       </div>
-      <div class="chart-legend"><span>개체수(로그)·서식지 점유·바이오매스(로그)·안정성을 각 25%씩 합산합니다. 식물은 개체수와 면적에서 언제나 압도하므로 생태계 기반으로 분리하고 동물끼리 순위를 매깁니다.</span></div>
+      <div class="chart-legend"><span>식물은 개체수와 면적에서 언제나 압도하므로 생태계 기반으로 분리하고 동물끼리 순위를 매깁니다.</span></div>
     </div>
 
-    <div class="card">
-      <header><h3 style="font-size:14px">전체 기간 추이</h3></header>
-      <div style="padding:8px 6px 0"><canvas id="chart2" width="760" height="340"></canvas></div>
-      <div class="chart-legend" id="chart2-legend"></div>
+    <div class="res-side">
+      <div class="card">
+        <header><h3>전체 기간 추이</h3></header>
+        <div style="padding:8px 10px 0"><canvas id="chart2" width="760" height="300"></canvas></div>
+        <div class="chart-legend" id="chart2-legend"></div>
+      </div>
+      <div class="card" id="era-history-card">
+        <header><h3>겪은 시대</h3></header>
+        <div class="body"><div class="era-list" id="era-history"></div></div>
+      </div>
+      <div class="btnrow" style="justify-content:stretch">
+        <button class="btn primary" id="btn-again" style="flex:1">같은 종으로 다시</button>
+        <button class="btn" id="btn-redesign" style="flex:1">새로 설계</button>
+      </div>
     </div>
   </div>
 </section>
@@ -788,6 +892,13 @@ const DIETS={
   detritivore:{name:"분해자",  desc:"사체와 부식물을 먹습니다. 경쟁이 거의 없습니다"},
 };
 const PLAYER_DIETS=["herbivore","carnivore","omnivore","detritivore"];
+/* 식성 아이콘 — 저폴리 톤에 맞춘 단순 도형 */
+const DIET_ICON={
+  herbivore:  `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,3 17,11 10,17 3,11" fill="#2a78d6"/><polygon points="10,3 17,11 10,11" fill="#5a9ae4"/></svg>`,
+  carnivore:  `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,3 17,16 3,16" fill="#e34948"/><polygon points="10,3 17,16 10,16" fill="#ef7170"/></svg>`,
+  omnivore:   `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="3" fill="#4a3aa7"/><polygon points="3,17 17,3 17,17" fill="#7a68d0"/></svg>`,
+  detritivore:`<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#e87ba4"/><circle cx="10" cy="10" r="3" fill="#fff"/></svg>`,
+};
 
 /* ── 형질 정의 (33개) ─────────────────────────────────────────── */
 const TRAIT_GROUPS=[
@@ -848,7 +959,7 @@ const TUNE = {
   grazeLoss:0.38,           // 뜯긴 에너지가 식물 개체수 감소로 이어지는 비율
   maxPred:0.34, predRefuge:0.36, predHalf:10.3, predConv:0.82,
   starvExp:1.6, starvMul:0.7,
-  stress:0.060, diseaseBase:0.12,
+  stress:0.050, diseaseBase:0.10,
   capA:0.212, capB:7.0, crowdBirth:0.75, birthScale:1.3,
   allee:0.10,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
   compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
@@ -1352,7 +1463,7 @@ function newGame(playerDef){
   G = {
     world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
-    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5,
+    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5, eraLog:[], peakPop:0,
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
     running:false, speed:1, over:false, ending:null,
     layer:"terrain", selected:0,
@@ -1435,7 +1546,7 @@ function seedPlayerAt(center){
     cand.push([i, fit/(1+d*0.55), fit]);
   }
   cand.sort((a,b)=>b[1]-a[1]);
-  const n=Math.min(cand.length, 90);
+  const n=Math.min(cand.length, 120);
   let sum=0; for(let k=0;k<n;k++) sum+=cand[k][2];
   if(sum<=0) sum=1;
   for(let k=0;k<n;k++) s.pop[cand[k][0]] = seedTotal*(cand[k][2]/sum);
@@ -1774,6 +1885,7 @@ function recount(){
     let tot=0,ti=0;
     for(let i=0;i<NT;i++){ const v=s.pop[i]; if(v>0.05){ tot+=v; ti++; } else if(v>0) s.pop[i]=0; }
     s.total=tot; s.tiles=ti; s.biomass=tot*s.d.bodyMass;
+    if(s.isPlayer && tot>g.peakPop) g.peakPop=tot;
     if(s.alive && tot<1 && !(s.isPlayer && g.phase==="placing")){
       s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
       s.pop.fill(0);
@@ -1898,7 +2010,7 @@ const ERAS = [
   {k:"iceage", name:"빙하기", tone:"cold", minYear:25, w:1.0, dur:[20,38],
    intro:"기온이 해마다 떨어집니다. 얼음이 남쪽으로 내려오고 있습니다.",
    outro:"얼음이 물러갔습니다. 살아남은 것들이 빈 땅을 채웁니다.",
-   temp:-7.5, moist:0.88, light:0.82,
+   temp:-6, moist:0.90, light:0.86,
    year:g=>{ /* 추운 곳부터 설원으로 덮인다 */
      const w=g.world; let n=0;
      for(let i=0;i<NT && n<14;i++){
@@ -1911,7 +2023,7 @@ const ERAS = [
   {k:"warming", name:"급격한 온난화", tone:"hot", minYear:30, w:1.0, dur:[26,48],
    intro:"기온이 치솟습니다. 물이 마르고 얼음이 녹습니다.",
    outro:"기온 상승이 멎었습니다. 그러나 녹은 것은 돌아오지 않습니다.",
-   temp:6, moist:0.84, light:1.0,
+   temp:5, moist:0.88, light:1.0,
    year:g=>{ const w=g.world; let n=0;
      for(let i=0;i<NT && n<10;i++){
        const j=Math.floor(rnd()*NT);
@@ -1923,7 +2035,7 @@ const ERAS = [
   {k:"impact", name:"운석 충돌", tone:"cold", minYear:35, w:0.55, dur:[6,12],
    intro:"하늘이 갈라지고 먼지가 해를 가렸습니다. 광합성이 멈춰갑니다.",
    outro:"먼지가 걷혔습니다. 햇빛이 돌아옵니다.",
-   temp:-6.5, moist:1.0, light:0.58,
+   temp:-5, moist:1.0, light:0.66,
    start:g=>{ /* 충돌 지점 주변이 초토화된다 */
      let c=-1; for(let n=0;n<80;n++){ const j=Math.floor(rnd()*NT); if(!g.world.vd[j]){ c=j; break; } }
      if(c<0) return;
@@ -1941,12 +2053,12 @@ const ERAS = [
   {k:"volcanic", name:"화산 겨울", tone:"cold", minYear:20, w:0.9, dur:[8,16],
    intro:"대분화가 일어났습니다. 화산재가 하늘을 덮습니다.",
    outro:"재가 가라앉았습니다. 땅은 오히려 기름집니다.",
-   temp:-5, moist:1.05, light:0.70,
+   temp:-4, moist:1.05, light:0.76,
    end:g=>{ for(let i=0;i<NT;i++) if(!g.world.vd[i]) g.world.baseSoil[i]=Math.min(150,g.world.baseSoil[i]+18); }},
   {k:"megadrought", name:"대가뭄", tone:"hot", minYear:18, w:1.0, dur:[16,32],
    intro:"비가 오지 않습니다. 강이 마르고 호수가 줄어듭니다.",
    outro:"오랜만에 비가 내렸습니다.",
-   temp:3, moist:0.55, light:1.0,
+   temp:2.5, moist:0.62, light:1.0,
    year:g=>{ const w=g.world; let n=0;
      for(let i=0;i<NT && n<8;i++){
        const j=Math.floor(rnd()*NT);
@@ -2032,7 +2144,7 @@ function eraTick(){
     return;
   }
   if(g.year < (g.eraCool||18)) return;
-  if(rnd() > 0.115) return;
+  if(rnd() > 0.085) return;
   const pool=ERAS.filter(e=>(!e.human||g.humanArrived) && g.year>=(e.minYear||0));
   if(!pool.length) return;
   let tot=0; for(const e of pool) tot+=e.w;
@@ -2041,6 +2153,7 @@ function eraTick(){
   const dur=Math.round(rrange(pick.dur[0],pick.dur[1]));
   g.era={def:pick, endYear:g.year+dur, startYear:g.year};
   if(pick.start) pick.start(g);
+  g.eraLog.push({name:pick.name, tone:pick.tone, year:g.year});
   logMsg(pick.human?"human":"nature", `<b>${pick.name}</b> 시작. ${pick.intro} (약 ${dur}년)`);
   g._sceneDirty=true;
 }
@@ -2297,7 +2410,7 @@ function buildDiets(){
     const b=document.createElement("button");
     b.className="diet"; b.type="button"; b.dataset.diet=k;
     b.setAttribute("aria-pressed", String(design.diet===k));
-    b.innerHTML=`<b>${DIETS[k].name}</b><span>${DIETS[k].desc}</span>`;
+    b.innerHTML=`<span class="ic">${DIET_ICON[k]}</span><b>${DIETS[k].name}</b><span>${DIETS[k].desc}</span>`;
     b.onclick=()=>{ design.diet=k; buildDiets(); refreshDesign(); };
     el.appendChild(b);
   }
@@ -2316,7 +2429,10 @@ function buildTraits(){
       inp.type="range"; inp.min=1; inp.max=10; inp.step=1; inp.value=design.traits[key];
       inp.setAttribute("aria-label", label);
       const val=document.createElement("div"); val.className="tval num"; val.textContent=design.traits[key];
-      inp.oninput=()=>{ design.traits[key]=+inp.value; val.textContent=inp.value; $("#preset").value="custom"; refreshDesign(); };
+      /* 채워진 구간을 색으로 보여준다 — 값 하나하나가 눈에 들어와야 배분이 쉽다 */
+      const fill=()=>inp.style.setProperty("--p", ((inp.value-1)/9*100).toFixed(1)+"%");
+      fill();
+      inp.oninput=()=>{ design.traits[key]=+inp.value; val.textContent=inp.value; fill(); $("#preset").value="custom"; refreshDesign(); };
       row.appendChild(inp); row.appendChild(val); grid.appendChild(row);
     }
     sec.appendChild(grid); wrap.appendChild(sec);
@@ -2329,6 +2445,7 @@ function refreshDesign(){
   $("#budget-total").textContent = BUDGET;
   const gg=$("#budget-gauge");
   gg.classList.toggle("over", left<0);
+  gg.closest(".budget").classList.toggle("over", left<0);
   gg.firstElementChild.style.width = clamp(cost/BUDGET*100,0,100)+"%";
   $("#btn-start").disabled = left<0;
   $("#btn-start").textContent = left<0 ? `포인트 ${-left} 초과` : "이 종으로 시작";
@@ -3578,20 +3695,41 @@ function renderResult(){
   const rows=pr.animals, me=rows.find(r=>r.s.isPlayer);
   const won = g.myRank===1 && g.player.alive;
 
-  $("#res-eyebrow").textContent = e.eyebrow;
   const box=$("#ending");
   box.className = "ending "+(won?"good":e.cls);
   let verdict;
   if(!g.player.alive) verdict = `<b>${g.player.name}</b>은(는) ${g.player.extinctYear}년에 사라졌습니다.`;
   else if(won) verdict = `<b>승리.</b> ${g.player.name}이(가) 동물 ${g.rivalCount}종 가운데 번영 지수 <b>1위</b>가 되었습니다. (지수 ${me.score.toFixed(1)})`;
   else verdict = `<b>${g.myRank}위 / ${g.rivalCount}종.</b> ${g.player.name}은(는) 살아남았지만 최고는 아니었습니다. 1위는 <b>${rows[0].s.name}</b>입니다. (내 지수 ${me.score.toFixed(1)} · 1위 ${rows[0].score.toFixed(1)})`;
-  box.innerHTML = `<h2>${won?"번영":e.title}</h2><p>${e.body}</p><div class="verdict">${verdict}</div>`;
+  box.innerHTML = `<div class="eyebrow">${e.eyebrow}</div>
+    <h2>${won?"번영":e.title}</h2><p>${e.body}</p><div class="verdict">${verdict}</div>`;
+
+  /* 한 판 요약 */
+  const deadCnt = g.species.filter(s=>!s.alive && s.diet!=="producer").length;
+  const stat=(k,v,s,cls="")=>`<div class="res-stat ${cls}"><div class="k">${k}</div>
+    <div class="v">${v}</div><div class="s">${s}</div></div>`;
+  $("#res-summary").innerHTML =
+    stat("최종 순위", g.player.alive?`${g.myRank}<small> / ${g.rivalCount}</small>`:"—",
+         g.player.alive?"동물 종 기준":"멸종", won?"hi":(g.player.alive?"":"bad")) +
+    stat("번영 지수", me?me.score.toFixed(1):"0.0", `1위 ${rows[0]?rows[0].score.toFixed(1):"—"}`) +
+    stat("최대 개체수", fmt(g.peakPop), `마지막 ${fmt(g.player.total)}`) +
+    stat("관측 기간", `${g.year}<small>년</small>`, `시대 ${g.eraLog.length}회`) +
+    stat("멸종한 동물", `${deadCnt}<small>종</small>`, `동물 ${g.rivalCount}종 가운데`, deadCnt?"bad":"");
+
+  $("#era-history").innerHTML = g.eraLog.length
+    ? g.eraLog.map(x=>`<div class="era-line"><i class="${x.tone||""}"></i>${x.name}<time>${x.year}년</time></div>`).join("")
+    : `<div class="era-none">큰 국면 없이 지나갔습니다.</div>`;
 
   const max=Math.max(rows[0].score, pr.base.length?pr.base[0].score:0)||1;
-  const line = r=>`
-    <tr class="${r.s.isPlayer?"me":""} ${r.s.alive?"":"dead"}">
-      <td class="num">${r.rank??"기반"}</td>
-      <td><span class="sp-name"><i style="background:${r.s.color}"></i>${r.s.name}${r.s.isPlayer?" <em>내 종</em>":""}</span></td>
+  const line = r=>{
+    const rk = r.rank ? `<span class="rk rk${r.rank<=3?r.rank:""}">${r.rank}</span>`
+                      : `<span class="rk rkb">기반</span>`;
+    const nm = `<td class="spcell"><span class="sp-name"><i style="background:${r.s.color}"></i>${r.s.name}${r.s.isPlayer?" <em>내 종</em>":""}</span></td>`;
+    /* 멸종한 종은 0%을 네 칸 늘어놓는 대신 사라진 해만 적는다 */
+    if(!r.s.alive) return `<tr class="dead ${r.s.isPlayer?"me":""}"><td>${rk}</td>${nm}
+      <td class="gone" colspan="5">${r.s.extinctYear}년 멸종</td></tr>`;
+    return `<tr class="${r.s.isPlayer?"me":""}">
+      <td>${rk}</td>${nm}
       <td class="num">${(r.pop*100).toFixed(1)}%</td>
       <td class="num">${(r.range*100).toFixed(1)}%</td>
       <td class="num">${(r.bio*100).toFixed(1)}%</td>
@@ -3599,6 +3737,7 @@ function renderResult(){
       <td class="num" style="color:${r.s.isPlayer?"var(--gold-hi)":"var(--ink)"}">${r.score.toFixed(1)}
         <span class="score-bar"><i style="width:${(r.score/max*100).toFixed(0)}%;background:${r.s.color}"></i></span></td>
     </tr>`;
+  };
   $("#res-body").innerHTML = rows.map(line).join("")
     + `<tr><td colspan="7" style="padding:10px 10px 4px;color:var(--ink-3);font-size:10.5px;
          font-family:var(--f-mono);letter-spacing:.1em;border-bottom:1px solid var(--line)">
