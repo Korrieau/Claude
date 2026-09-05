@@ -1,0 +1,2593 @@
+<title>번영의 계보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+/* ── 단일 테마: 야간 생태 관측 단말기 ─────────────────────────────── */
+:root{
+  color-scheme: dark;
+
+  --ground:  #070A09;
+  --panel:   #0D1211;
+  --panel-2: #121917;
+  --panel-3: #18211E;
+  --line:    #1C2523;
+  --line-2:  #28332F;
+
+  --ink:   #E7F0EA;
+  --ink-2: #93A9A0;
+  --ink-3: #63776F;
+
+  --gold:    #C98500;
+  --gold-hi: #E7A82C;
+
+  --good: #199e70;
+  --warn: #C98500;
+  --crit: #e66767;
+
+  /* 기능군 팔레트 — 다크 표면 #131E1B 기준 인접쌍 검증 통과 */
+  --g0: #C98500;  /* 내 종 */
+  --g1: #008300;  /* 생산자 */
+  --g2: #d55181;  /* 분해자 */
+  --g3: #3987E5;  /* 소형 초식 */
+  --g4: #d95926;  /* 대형 초식 */
+  --g5: #9085e9;  /* 잡식 */
+  --g6: #199e70;  /* 소형 육식 */
+  --g7: #e66767;  /* 대형 육식 */
+
+  --f-disp: "Hahmlet", "Nanum Myeongjo", Georgia, serif;
+  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --r: 3px;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin:0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3{ font-family: var(--f-disp); font-weight:700; margin:0; text-wrap: balance; letter-spacing:-0.01em; }
+.num{ font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.eyebrow{
+  font-family: var(--f-mono); font-size:10px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color: var(--ink-3);
+}
+
+button{ font-family: inherit; font-size: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible{
+  outline: 2px solid var(--gold-hi); outline-offset: 2px;
+}
+
+.app{ max-width: 1420px; margin: 0 auto; padding: 0 20px 64px; }
+
+/* ── 화면 전환 ─────────────────────────────────────────────────── */
+.screen{ display:none; }
+.screen.on{ display:block; }
+
+/* ── 헤더 ─────────────────────────────────────────────────────── */
+.masthead{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+  padding: 28px 0 16px; border-bottom:1px solid var(--line); margin-bottom:22px;
+}
+.masthead h1{ font-size: 30px; line-height:1.1; }
+.masthead .sub{ color: var(--ink-2); font-size:13px; margin-top:6px; max-width: 62ch; }
+.masthead .right{ text-align:right; flex:none; }
+
+/* ── 설계 화면 레이아웃 ─────────────────────────────────────────── */
+.design-grid{
+  display:grid; grid-template-columns: minmax(0,1fr) 330px; gap:22px; align-items:start;
+}
+@media (max-width: 1080px){ .design-grid{ grid-template-columns: 1fr; } }
+
+.card{
+  background: var(--panel); border:1px solid var(--line); border-radius: var(--r);
+}
+.card > header{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px 16px; border-bottom:1px solid var(--line);
+}
+.card > header h3{ font-size:15px; }
+.card .body{ padding:16px; }
+
+/* 정체성 입력 */
+.identity{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+.field label{ display:block; margin-bottom:6px; }
+.field input[type=text], .field select{
+  width:100%; background: var(--panel-2); border:1px solid var(--line-2);
+  border-radius: var(--r); color: var(--ink); padding:9px 11px; font-size:14px;
+}
+
+/* 식성 선택 */
+.diets{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+.diet{
+  background: var(--panel-2); border:1px solid var(--line-2); border-radius:var(--r);
+  padding:10px 10px 11px; text-align:left; transition: border-color .12s, background .12s;
+}
+.diet:hover{ border-color: var(--line-2); background: var(--panel-3); }
+.diet[aria-pressed="true"]{ border-color: var(--gold); background: #22200F; }
+.diet b{ display:block; font-weight:600; font-size:13px; }
+.diet span{ display:block; color:var(--ink-2); font-size:11px; line-height:1.4; margin-top:3px; }
+
+/* 형질 그룹 */
+.trait-group + .trait-group{ margin-top:18px; }
+.trait-group > h4{
+  font-family: var(--f-mono); font-size:10px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color: var(--ink-3); margin:0 0 9px;
+  padding-bottom:6px; border-bottom:1px solid var(--line);
+}
+.traits{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px 26px; }
+@media (max-width: 780px){ .traits{ grid-template-columns: 1fr; } }
+
+.trait{
+  display:grid; grid-template-columns: 116px 1fr 30px; align-items:center; gap:10px;
+  padding: 5px 0;
+}
+.trait .tname{ font-size:13px; }
+.trait .tname .hint{ display:block; color:var(--ink-3); font-size:10.5px; line-height:1.35; }
+.trait .tval{ text-align:right; font-size:13px; font-weight:500; color: var(--gold-hi); }
+.trait input[type=range]{ width:100%; }
+
+input[type=range]{
+  -webkit-appearance:none; appearance:none; background:transparent; height:18px; margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:3px; background: var(--line-2); border-radius:2px;
+}
+input[type=range]::-moz-range-track{ height:3px; background: var(--line-2); border-radius:2px; }
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
+  background: var(--gold-hi); margin-top:-5px; border:none;
+}
+input[type=range]::-moz-range-thumb{
+  width:13px; height:13px; border-radius:50%; background: var(--gold-hi); border:none;
+}
+
+/* 예산 게이지 */
+.budget{ margin-bottom:14px; }
+.budget .row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; }
+.budget .big{ font-size:26px; font-weight:600; letter-spacing:-0.02em; }
+.gauge{ height:6px; background: var(--panel-3); border-radius:3px; overflow:hidden; }
+.gauge i{ display:block; height:100%; background: var(--gold); transition: width .15s ease, background .15s; }
+.gauge.over i{ background: var(--crit); }
+
+/* 파생 지표 */
+.stats{ display:grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border:1px solid var(--line); border-radius: var(--r); overflow:hidden; }
+.stat{ background: var(--panel); padding:9px 11px; }
+.stat .k{ font-size:10.5px; color: var(--ink-3); font-family:var(--f-mono); letter-spacing:.06em; }
+.stat .v{ font-size:14px; font-weight:500; margin-top:1px; }
+.stat .v small{ font-weight:300; color:var(--ink-2); font-size:11px; }
+
+/* 제약 목록 */
+.constraints{ margin-top:14px; display:flex; flex-direction:column; gap:6px; }
+.cons{
+  display:flex; gap:8px; align-items:flex-start; font-size:11.5px; line-height:1.45;
+  padding:7px 9px; border-radius: var(--r); background: var(--panel-2);
+  border-left:2px solid var(--line-2); color: var(--ink-2);
+}
+.cons.warn{ border-left-color: var(--warn); }
+.cons.crit{ border-left-color: var(--crit); }
+.cons.good{ border-left-color: var(--good); }
+.cons b{ color: var(--ink); font-weight:500; }
+
+/* 버튼 */
+.btn{
+  background: var(--panel-2); border:1px solid var(--line-2); border-radius: var(--r);
+  padding:8px 13px; font-size:13px; transition: background .12s, border-color .12s;
+}
+.btn:hover{ background: var(--panel-3); }
+.btn[aria-pressed="true"]{ background: var(--panel-3); border-color: var(--gold); color: var(--gold-hi); }
+.btn.primary{
+  background: var(--gold); border-color: var(--gold); color:#14100A; font-weight:600;
+  padding:11px 20px; font-size:14px;
+}
+.btn.primary:hover{ background: var(--gold-hi); }
+.btn.primary:disabled{ background: var(--panel-2); border-color:var(--line-2); color: var(--ink-3); font-weight:400; cursor:not-allowed; }
+.btn.ghost{ background:transparent; }
+.btnrow{ display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── 시뮬 화면 ─────────────────────────────────────────────────── */
+.statusbar{
+  display:flex; align-items:center; gap:0; flex-wrap:wrap;
+  border:1px solid var(--line); border-radius: var(--r); background: var(--panel);
+  margin-bottom: 14px; overflow:hidden;
+}
+.sb{ padding:9px 16px; border-right:1px solid var(--line); flex:none; }
+.sb:last-child{ border-right:none; }
+.sb .k{ font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color: var(--ink-3); }
+.sb .v{ font-size:15px; font-weight:500; line-height:1.3; }
+.sb.grow{ flex:1 1 200px; }
+.sb .v.small{ font-size:12.5px; font-weight:300; color: var(--ink-2); }
+
+.sim-grid{
+  display:grid; grid-template-columns: minmax(0,1.55fr) minmax(0,1fr); gap:14px; align-items:start;
+}
+@media (max-width: 1080px){ .sim-grid{ grid-template-columns: 1fr; } }
+
+.tabs{ display:flex; gap:2px; flex-wrap:wrap; }
+.tab{
+  background:transparent; border:1px solid transparent; border-radius: var(--r);
+  padding:4px 9px; font-size:11.5px; color: var(--ink-2);
+}
+.tab:hover{ color: var(--ink); background: var(--panel-2); }
+.tab[aria-pressed="true"]{ background: var(--panel-3); color: var(--ink); border-color: var(--line-2); }
+
+#map{ display:block; width:100%; height:auto; border-radius:2px; }
+.maplegend{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:9px 16px; border-top:1px solid var(--line); font-size:11px; color: var(--ink-2);
+}
+.ramp{ display:flex; height:8px; width:120px; border-radius:2px; overflow:hidden; }
+.ramp i{ flex:1; }
+.swatches{ display:flex; gap:12px; flex-wrap:wrap; }
+.sw{ display:flex; align-items:center; gap:5px; }
+.sw i{ width:9px; height:9px; border-radius:2px; flex:none; }
+
+/* 로그 */
+.log{ max-height: 178px; overflow-y:auto; padding: 4px 0; }
+.logline{
+  display:grid; grid-template-columns: 64px 1fr; gap:10px; padding:5px 16px;
+  font-size:12px; line-height:1.45; border-left:2px solid transparent;
+}
+.logline time{ font-family: var(--f-mono); font-size:10.5px; color: var(--ink-3); padding-top:2px; }
+.logline.nature{ border-left-color: var(--good); }
+.logline.human{ border-left-color: var(--crit); }
+.logline.evo{ border-left-color: var(--gold); }
+.logline.death{ border-left-color: var(--ink-3); }
+.logline b{ font-weight:600; }
+.logline.human b{ color:#ef8a8a; }
+.logline.nature b{ color:#4fc79b; }
+.logline.evo b{ color: var(--gold-hi); }
+
+/* 종 테이블 */
+.sp-table{ width:100%; border-collapse: collapse; font-size:12px; }
+.sp-table th{
+  font-family:var(--f-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  color: var(--ink-3); font-weight:500; text-align:right; padding:6px 10px; border-bottom:1px solid var(--line);
+  position:sticky; top:0; background: var(--panel); z-index:1;
+}
+.sp-table th:first-child, .sp-table td:first-child{ text-align:left; }
+.sp-table td{ padding:5px 10px; border-bottom:1px solid var(--panel-2); text-align:right; }
+.sp-table tbody tr{ cursor:pointer; }
+.sp-table tbody tr:hover td{ background: var(--panel-2); }
+.sp-table tbody tr[aria-selected="true"] td{ background: var(--panel-3); }
+.sp-table tbody tr.me td{ font-weight:500; }
+.sp-table tbody tr.dead td{ color: var(--ink-3); }
+.sp-name{ display:flex; align-items:center; gap:7px; }
+.sp-name i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.sp-name em{ font-style:normal; font-size:10px; color: var(--ink-3); }
+.trend{ font-family:var(--f-mono); font-size:11px; }
+.trend.up{ color:#4fc79b; } .trend.down{ color:#ef8a8a; } .trend.flat{ color: var(--ink-3); }
+.tbl-wrap{ max-height: 268px; overflow-y:auto; }
+
+/* 차트 */
+#chart, #chart2{ display:block; width:100%; }
+.viewport{ position:relative; background:#050706; border-radius:2px; margin:10px 10px 0; overflow:hidden; }
+#globe{ display:block; width:100%; height:500px; cursor:grab; touch-action:none; }
+#globe.dragging{ cursor:grabbing; }
+#map:not([hidden]){ display:block; width:100%; height:auto; }
+[hidden]{ display:none !important; }
+.viewhint{
+  position:absolute; right:12px; top:10px; font-family:var(--f-mono); font-size:10px;
+  letter-spacing:.08em; color:var(--ink-3); pointer-events:none; transition:opacity .4s;
+  background:rgba(5,7,6,.6); padding:3px 7px; border-radius:2px;
+}
+.mini-select{
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:var(--r);
+  color:var(--ink-2); font-family:inherit; font-size:11.5px; padding:3px 6px;
+}
+.chart-legend{
+  display:flex; gap:12px; flex-wrap:wrap; padding:10px 16px; border-top:1px solid var(--line);
+  font-size:11px; color: var(--ink-2);
+}
+
+/* 진화 패널 */
+.ep-head{ display:flex; align-items:baseline; gap:8px; }
+.ep-head .big{ font-size:24px; font-weight:600; color: var(--gold-hi); }
+.evo-list{ display:flex; flex-direction:column; gap:2px; max-height: 224px; overflow-y:auto; }
+.evo-row{
+  display:grid; grid-template-columns: 1fr 26px auto; align-items:center; gap:8px;
+  padding:3px 4px; border-radius:2px; font-size:12px;
+}
+.evo-row:hover{ background: var(--panel-2); }
+.evo-row .v{ text-align:right; font-family:var(--f-mono); font-size:12px; }
+.evo-row .ctl{ display:flex; gap:3px; }
+.mini{
+  width:22px; height:22px; padding:0; line-height:1; border-radius:2px;
+  background: var(--panel-2); border:1px solid var(--line-2); font-size:13px; color: var(--ink-2);
+}
+.mini:hover:not(:disabled){ background: var(--panel-3); color: var(--ink); border-color: var(--gold); }
+.mini:disabled{ opacity:.3; cursor:not-allowed; }
+
+/* 툴팁 */
+.tip{
+  position:fixed; z-index:50; pointer-events:none; display:none;
+  background:#05100C; border:1px solid var(--line-2); border-radius: var(--r);
+  padding:8px 10px; font-size:11.5px; line-height:1.5; box-shadow: 0 6px 22px rgba(0,0,0,.55);
+  max-width: 240px;
+}
+.tip .t{ font-weight:600; margin-bottom:4px; font-size:12px; }
+.tip .r{ display:flex; justify-content:space-between; gap:14px; }
+.tip .r span:last-child{ font-family:var(--f-mono); }
+
+/* ── 결과 화면 ─────────────────────────────────────────────────── */
+.ending{
+  border:1px solid var(--line); border-left:3px solid var(--gold); border-radius: var(--r);
+  background: var(--panel); padding: 26px 28px; margin-bottom:18px;
+}
+.ending.bad{ border-left-color: var(--crit); }
+.ending.good{ border-left-color: var(--good); }
+.ending h2{ font-size:26px; margin-bottom:8px; }
+.ending p{ margin:0; color: var(--ink-2); max-width: 68ch; }
+.ending .verdict{ font-size:15px; color: var(--ink); margin-top:12px; }
+.result-grid{ display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:18px; align-items:start; }
+@media (max-width: 1080px){ .result-grid{ grid-template-columns:1fr; } }
+.score-bar{ display:block; height:5px; background: var(--panel-3); border-radius:3px; overflow:hidden; width:74px; margin-left:auto; }
+.score-bar i{ display:block; height:100%; }
+
+.footnote{ color: var(--ink-3); font-size:11.5px; margin-top:10px; line-height:1.6; }
+
+.theory > summary{
+  padding:11px 16px; cursor:pointer; font-family:var(--f-disp); font-weight:700;
+  font-size:14px; list-style:none; display:flex; align-items:center; gap:8px;
+}
+.theory > summary::-webkit-details-marker{ display:none; }
+.theory > summary::before{ content:"+"; color:var(--gold-hi); font-family:var(--f-mono); font-weight:600; }
+.theory[open] > summary::before{ content:"−"; }
+.theory[open] > summary{ border-bottom:1px solid var(--line); }
+.theory .body{ padding:12px 16px 14px; }
+.theory-list{ margin:0; }
+.theory-list dt{
+  font-size:12px; font-weight:500; color:var(--ink); margin-top:9px;
+  padding-left:9px; border-left:2px solid var(--gold);
+}
+.theory-list dt:first-child{ margin-top:0; }
+.theory-list dd{ margin:2px 0 0 11px; font-size:11.5px; color:var(--ink-2); line-height:1.5; }
+
+::-webkit-scrollbar{ width:9px; height:9px; }
+::-webkit-scrollbar-track{ background: transparent; }
+::-webkit-scrollbar-thumb{ background: var(--line-2); border-radius:5px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+</style>
+
+<div class="app">
+
+<!-- ══════════════ 1. 설계 화면 ══════════════ -->
+<section id="scr-design" class="screen on">
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">생태 시뮬레이터 · 1틱 = 한 계절</div>
+      <h1>번영의 계보</h1>
+      <p class="sub">형질 33개를 배분해 하나의 종을 설계하고, 33종이 이미 자리 잡은 땅에 풀어놓습니다. 300년 뒤 동물 가운데 <b>종합 번영 지수 1위</b>가 되면 승리입니다.</p>
+    </div>
+    <div class="right">
+      <div class="eyebrow">세계</div>
+      <div class="num" style="font-size:15px">32 × 20 타일 · 34종 · 최대 300년</div>
+    </div>
+  </div>
+
+  <div class="design-grid">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <header><h3>종 정보</h3><span class="eyebrow">1틱 = 한 계절</span></header>
+        <div class="body">
+          <div class="identity" style="margin-bottom:16px">
+            <div class="field">
+              <label for="sp-name">종 이름</label>
+              <input type="text" id="sp-name" value="회색등 초원쥐" maxlength="18">
+            </div>
+            <div class="field">
+              <label for="preset">설계 프리셋</label>
+              <select id="preset">
+                <option value="custom">직접 설계</option>
+                <option value="rstrat" selected>소형 다산형 — 작고 빨리 번식</option>
+                <option value="kstrat">대형 K전략 — 크고 오래 살고 적게 낳음</option>
+                <option value="apex">최상위 포식자 — 사냥에 전부 투자</option>
+                <option value="toxic">독성 방어형 — 안 잡아먹히는 데 투자</option>
+                <option value="decomp">분해자 — 사체를 먹고 조용히 퍼짐</option>
+                <option value="general">제너럴리스트 — 어디서든 그럭저럭</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="eyebrow" style="margin-bottom:7px">식성</div>
+          <div class="diets" id="diets"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header>
+          <h3>형질 배분</h3>
+          <div class="btnrow">
+            <button class="btn ghost" id="btn-reset">전부 3으로</button>
+            <button class="btn ghost" id="btn-random">무작위</button>
+          </div>
+        </header>
+        <div class="body" id="trait-groups"></div>
+      </div>
+    </div>
+
+    <div style="position:sticky; top:14px">
+      <div class="card" style="margin-bottom:14px">
+        <header><h3>예산</h3></header>
+        <div class="body">
+          <div class="budget">
+            <div class="row">
+              <span class="big num" id="budget-left">—</span>
+              <span style="color:var(--ink-2); font-size:12px">남은 포인트 / <span class="num" id="budget-total">260</span></span>
+            </div>
+            <div class="gauge" id="budget-gauge"><i style="width:0%"></i></div>
+          </div>
+          <div class="stats" id="derived"></div>
+          <div class="constraints" id="constraints"></div>
+        </div>
+      </div>
+
+      <details class="card theory" style="margin-bottom:14px">
+        <summary>적용된 생태 이론 14가지</summary>
+        <div class="body">
+          <dl class="theory-list">
+            <dt>로지스틱 성장 · 환경수용력</dt><dd>자원이 정한 상한에 부딪히면 번식이 멈춥니다.</dd>
+            <dt>r / K 선택</dt><dd>많이 낳고 방치할지, 적게 낳고 키울지. 새끼 생존율이 정반대로 움직입니다.</dd>
+            <dt>Holling III형 기능 반응</dt><dd>포식자는 흔한 먹이에 집중합니다. 그래서 희귀해진 종은 오히려 덜 잡힙니다.</dd>
+            <dt>최적 채이 이론</dt><dd>포식자마다 수지가 맞는 먹이 크기가 정해져 있습니다. 너무 작으면 손해, 너무 크면 못 잡습니다.</dd>
+            <dt>로트카–볼테라 종간 경쟁</dt><dd>생태 지위가 겹치는 종의 개체수가 내 환경수용력을 갉아먹습니다.</dd>
+            <dt>경쟁 배타 원리 · 지위 분화</dt><dd>식성·몸집·서식지·활동 시간이 모두 겹치면 한쪽이 밀려납니다. 하나라도 어긋나면 공존합니다.</dd>
+            <dt>알리 효과</dt><dd>개체가 너무 흩어지면 짝을 못 찾아 번식이 무너집니다. 멸종에는 임계점이 있습니다.</dd>
+            <dt>희석 효과</dt><dd>무리가 클수록 '하필 내가' 잡아먹힐 확률이 낮아집니다.</dd>
+            <dt>생태 천이 · 중간교란 가설</dt><dd>교란된 땅은 개척종 차지, 안정된 땅은 극상종 차지. 적당한 교란에서 다양성이 가장 높습니다.</dd>
+            <dt>베르그만 법칙</dt><dd>큰 몸은 열을 덜 잃습니다. 대형종은 추운 곳, 소형종은 더운 곳에 유리합니다.</dd>
+            <dt>자연선택 (브리더 방정식 R = h²·S)</dt><dd>모든 종이 자기를 죽이는 요인에 맞춰 형질을 바꿉니다. 공짜는 없어서, 하나가 오르면 하나가 내려갑니다.</dd>
+            <dt>세대 시간과 진화 속도</dt><dd>진화의 시계는 '년'이 아니라 '세대'입니다. 쥐는 1년에 두 번 진화하고 들소는 7년에 한 번 진화합니다.</dd>
+            <dt>유전적 부동 · 병목 효과</dt><dd>개체수가 적으면 선택이 헛돌고 형질이 제멋대로 흔들립니다.</dd>
+            <dt>붉은 여왕 가설</dt><dd>먹이가 방어를 올리면 포식자는 사냥을 올립니다. 제자리에 있으려면 계속 달려야 합니다.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <button class="btn primary" id="btn-start" style="width:100%">이 종으로 시작</button>
+      <p class="footnote">모든 형질은 1~10. 8 이상은 포인트가 급격히 비싸집니다. 상충하는 형질을 동시에 올리면 추가 비용이 붙습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 2. 시뮬 화면 ══════════════ -->
+<section id="scr-sim" class="screen">
+  <div class="masthead" style="padding-bottom:12px; margin-bottom:14px">
+    <div>
+      <div class="eyebrow">관측 중</div>
+      <h1 id="sim-title" style="font-size:24px">번영의 계보</h1>
+    </div>
+    <div class="right btnrow" style="justify-content:flex-end">
+      <button class="btn" id="btn-pause">일시정지</button>
+      <button class="btn" data-speed="1" aria-pressed="true">×1</button>
+      <button class="btn" data-speed="4">×4</button>
+      <button class="btn" data-speed="16">×16</button>
+      <button class="btn ghost" id="btn-abort">중단</button>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="sb"><div class="k">연도</div><div class="v num" id="st-year">1년 봄</div></div>
+    <div class="sb"><div class="k">기온</div><div class="v num" id="st-temp">—</div></div>
+    <div class="sb"><div class="k">강수</div><div class="v num" id="st-moist">—</div></div>
+    <div class="sb"><div class="k">오염</div><div class="v num" id="st-poll">—</div></div>
+    <div class="sb"><div class="k">생존 종</div><div class="v num" id="st-alive">—</div></div>
+    <div class="sb"><div class="k">다양성 H'</div><div class="v num" id="st-div">—</div></div>
+    <div class="sb grow"><div class="k">내 종</div><div class="v num" id="st-mypop">—</div></div>
+    <div class="sb grow"><div class="k">현재 국면</div><div class="v small" id="st-phase">자연 상태 — 인간의 흔적 없음</div></div>
+  </div>
+
+  <div class="sim-grid">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <header>
+          <h3 style="font-size:14px">서식 지도</h3>
+          <div class="tabs" id="layer-tabs"></div>
+          <select id="creature-mode" class="mini-select" aria-label="생물 표시">
+            <option value="all">생물 전체</option>
+            <option value="me">내 종만</option>
+            <option value="none">지형만</option>
+          </select>
+        </header>
+        <div class="viewport" id="viewport">
+          <canvas id="globe"></canvas>
+          <canvas id="map" width="960" height="600" hidden></canvas>
+          <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 확대</div>
+        </div>
+        <div class="maplegend" id="map-legend"></div>
+      </div>
+
+      <div class="card">
+        <header><h3 style="font-size:14px">관측 일지</h3><span class="eyebrow" id="log-count"></span></header>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <header>
+          <h3 style="font-size:14px">진화</h3>
+          <div class="ep-head"><span class="big num" id="ep-count">0</span><span style="font-size:11px;color:var(--ink-2)">포인트</span></div>
+        </header>
+        <div class="body" style="padding:10px 12px 12px">
+          <p class="footnote" style="margin:0 0 8px">5년마다 1점. 형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
+          <div class="evo-list" id="evo-list"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <header><h3 style="font-size:14px">개체수 추이</h3><span class="eyebrow">기능군별 누적</span></header>
+        <div style="padding:8px 6px 0"><canvas id="chart" width="760" height="300"></canvas></div>
+        <div class="chart-legend" id="chart-legend"></div>
+      </div>
+
+      <div class="card">
+        <header><h3 style="font-size:14px">종 목록</h3><span class="eyebrow">행 클릭 = 지도에 분포 표시</span></header>
+        <div class="tbl-wrap">
+          <table class="sp-table">
+            <thead><tr><th>종</th><th>개체수</th><th>서식 타일</th><th>추세</th></tr></thead>
+            <tbody id="sp-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 3. 결과 화면 ══════════════ -->
+<section id="scr-result" class="screen">
+  <div class="masthead">
+    <div>
+      <div class="eyebrow" id="res-eyebrow">관측 종료</div>
+      <h1 style="font-size:28px">최종 보고</h1>
+    </div>
+    <div class="right btnrow" style="justify-content:flex-end">
+      <button class="btn" id="btn-again">같은 종으로 다시</button>
+      <button class="btn primary" id="btn-redesign" style="padding:8px 16px; font-size:13px">새로 설계</button>
+    </div>
+  </div>
+
+  <div class="ending" id="ending"></div>
+
+  <div class="result-grid">
+    <div class="card">
+      <header><h3 style="font-size:14px">종합 번영 지수</h3><span class="eyebrow">개체수(로그)·서식지·바이오매스(로그)·안정성 각 25</span></header>
+      <div class="tbl-wrap" style="max-height:none">
+        <table class="sp-table">
+          <thead><tr><th>순위</th><th>종</th><th>개체수</th><th>서식지</th><th>바이오매스</th><th>안정성</th><th>지수</th></tr></thead>
+          <tbody id="res-body"></tbody>
+        </table>
+      </div>
+      <div class="chart-legend"><span>개체수(로그)·서식지 점유·바이오매스(로그)·안정성을 각 25%씩 합산합니다. 식물은 개체수와 면적에서 언제나 압도하므로 생태계 기반으로 분리하고 동물끼리 순위를 매깁니다.</span></div>
+    </div>
+
+    <div class="card">
+      <header><h3 style="font-size:14px">전체 기간 추이</h3></header>
+      <div style="padding:8px 6px 0"><canvas id="chart2" width="760" height="340"></canvas></div>
+      <div class="chart-legend" id="chart2-legend"></div>
+    </div>
+  </div>
+</section>
+
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════════
+   번영의 계보 — 생물·생태 시뮬레이터
+   1틱 = 한 계절, 4틱 = 1년. 지도 32×20. 종 22개(내 종 1 + 토착 21).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 난수 (시드 고정) ──────────────────────────────────────────── */
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+let RND = mulberry32(Date.now()&0xffffffff);
+const rnd = ()=>RND();
+const rrange=(a,b)=>a+RND()*(b-a);
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ── 세계 상수 ────────────────────────────────────────────────── */
+const W=32, H=20, NT=W*H;
+const TICKS_PER_YEAR=4, MAX_YEARS=300, MAX_TICKS=MAX_YEARS*TICKS_PER_YEAR;
+const HUMAN_YEAR=42;                     // 인간 활동이 시작되는 연도
+const SEASONS=["봄","여름","가을","겨울"];
+const SEASON_TEMP=[3,11,2,-9], SEASON_MOIST=[.10,-.06,-.01,-.05], SEASON_BREED=[1.35,1.15,.75,.35];
+
+const BIOMES=["호수","습지","초원","숲","건조지","산지"];
+const BIOME_BASE=[ "#1b4a63","#245046","#4a5c2c","#26492e","#67593c","#4a4f56" ];
+
+/* 기능군 — 색은 다크 표면 인접쌍 검증을 통과한 고정 순서 */
+const GUILDS=[
+  {key:"me",   name:"내 종",      color:"#C98500"},
+  {key:"prod", name:"생산자",     color:"#008300"},
+  {key:"dec",  name:"분해자",     color:"#d55181"},
+  {key:"herbS",name:"소형 초식",  color:"#3987E5"},
+  {key:"herbL",name:"대형 초식",  color:"#d95926"},
+  {key:"omni", name:"잡식",       color:"#9085e9"},
+  {key:"carnS",name:"소형 육식",  color:"#199e70"},
+  {key:"carnL",name:"대형 육식",  color:"#e66767"},
+];
+const GI={me:0,prod:1,dec:2,herbS:3,herbL:4,omni:5,carnS:6,carnL:7};
+
+const DIETS={
+  producer:   {name:"생산자",  desc:"햇빛과 토양 양분으로 삽니다"},
+  herbivore:  {name:"초식",    desc:"식물을 먹습니다. 먹이는 많지만 잡아먹힙니다"},
+  carnivore:  {name:"육식",    desc:"동물을 사냥합니다. 효율은 높지만 먹이가 귀합니다"},
+  omnivore:   {name:"잡식",    desc:"둘 다 먹습니다. 효율은 낮지만 굶지 않습니다"},
+  detritivore:{name:"분해자",  desc:"사체와 부식물을 먹습니다. 경쟁이 거의 없습니다"},
+};
+const PLAYER_DIETS=["herbivore","carnivore","omnivore","detritivore"];
+
+/* ── 형질 정의 (33개) ─────────────────────────────────────────── */
+const TRAIT_GROUPS=[
+ {name:"체형 · 생리", traits:[
+   ["size","체격","클수록 방어와 사냥에 유리하지만 먹이 요구량이 급증"],
+   ["metabolism","대사율","성장과 번식이 빨라지지만 굶주림에 취약"],
+   ["lifespan","수명","자연 사망률이 낮아짐"],
+   ["growth","성장 속도","개체군 회복이 빨라짐"],
+   ["energyStore","에너지 저장","기근을 버팁니다. 대신 둔해짐"],
+   ["thermoreg","체온 조절","견딜 수 있는 기온 폭이 넓어짐"],
+ ]},
+ {name:"번식", traits:[
+   ["fertility","산자 수","한 번에 낳는 새끼 수"],
+   ["breedFreq","번식 빈도","1년에 몇 번 번식하는가"],
+   ["parentalCare","양육 투자","새끼 생존율이 크게 오름"],
+   ["maturity","성숙 속도","빨리 어른이 되어 번식에 합류"],
+   ["youngDispersal","유체 분산","새끼가 멀리 퍼져 종내 경쟁을 피함"],
+   ["mutationRate","돌연변이율","진화 포인트를 더 자주 받지만 형질이 제멋대로 흔들림"],
+ ]},
+ {name:"감각 · 인지", traits:[
+   ["vision","시각","먹이 탐색과 포식자 조기 발견"],
+   ["olfaction","후각","어두워도 먹이를 찾음"],
+   ["nocturnal","야행성","주행성 포식자를 피하지만 시각 효율이 떨어짐"],
+   ["intelligence","지능","재난과 인간 활동에 적응"],
+   ["sociality","사회성","무리 방어와 협동 사냥. 대신 질병이 빠르게 번짐"],
+ ]},
+ {name:"방어 · 공격", traits:[
+   ["armor","체피 방어","가죽·비늘·껍질의 두께"],
+   ["toxicity","독성","포식자가 아예 기피함. 가장 강력한 방어"],
+   ["camouflage","위장","발견 자체를 줄임"],
+   ["aggression","공격성","사냥 성공률과 자원 경쟁력"],
+   ["speed","순발력","추격과 도주"],
+   ["stamina","지구력","긴 추격과 이동을 버팀"],
+ ]},
+ {name:"이동 · 서식", traits:[
+   ["mobility","이동 범위","새 타일로 퍼지는 속도"],
+   ["climbSwim","등반 · 수영","산지와 물가에 진출"],
+   ["territoriality","세력권","자원을 독점하지만 밀도 상한이 낮아짐"],
+   ["habitatBreadth","서식지 폭","아무 데나 살 수 있지만 어디서도 최고는 아님"],
+   ["nesting","은신처 구축","새끼와 자신을 재난에서 보호"],
+ ]},
+ {name:"내성", traits:[
+   ["coldTol","내한성","추위를 견딤"],
+   ["heatTol","내열성","더위를 견딤"],
+   ["droughtTol","내건성","건조한 땅에서 삶"],
+   ["pollutionTol","오염 내성","폐수·살충제를 견딤"],
+   ["diseaseResist","질병 저항","전염병 사망률 감소"],
+ ]},
+];
+const TRAIT_KEYS = TRAIT_GROUPS.flatMap(g=>g.traits.map(t=>t[0]));
+const TRAIT_LABEL = {}; TRAIT_GROUPS.forEach(g=>g.traits.forEach(t=>TRAIT_LABEL[t[0]]=t[1]));
+
+/* 생태 균형 조절값 — 한곳에 모아두면 조정이 쉽다 */
+const TUNE = {
+  soilA:0.40, soilB:5,      // 토양 → 광합성 에너지
+  detrPool:0.42,            // 부식물 중 한 틱에 접근 가능한 비율
+  plantPool:0.55,           // 식물 바이오매스 중 한 틱에 뜯어먹을 수 있는 비율
+  grazeLoss:0.38,           // 뜯긴 에너지가 식물 개체수 감소로 이어지는 비율
+  maxPred:0.34, predRefuge:0.85, predHalf:26, predConv:0.82,
+  starvExp:1.6, starvMul:0.7,
+  stress:0.060, diseaseBase:0.12,
+  capA:0.55, capB:18, crowdBirth:0.75, birthScale:1.3,
+  allee:0.10,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
+  compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
+  succession:0.45,          // 천이 — 교란지에서 개척종이 받는 이점
+  bergmann:0.30,            // 베르그만 법칙 강도
+  dilution:0.030,           // 무리 희석 효과 강도
+  preyOpt:0.62, payoff:1.0, // 최적 채이 — 선호 먹이 크기 / 큰 먹이 선호도
+  stormP:0.035,             // 배경 교란 빈도
+  evoRate:0.55, driftRate:0.55, neHalf:900,   // 진화: 선택 효율 / 부동 / 유효 개체군 반포화점
+};
+window.TUNE = TUNE;
+
+const BUDGET = 260;
+/* 1~7은 선형, 8부터 급격히 비싸짐 */
+function traitCost(v){ return v + Math.max(0,v-7)*4 + Math.max(0,v-9)*6; }
+
+/* 상충 조합 추가 비용 */
+function couplingPenalties(t){
+  const p=[];
+  const add=(cost,level,text)=>{ if(cost>0) p.push({cost,level,text}); };
+  add(Math.max(0,t.coldTol+t.heatTol-12)*3,"warn",`내한성과 내열성을 동시에 높였습니다 — 양극단 적응은 생리적으로 비쌉니다`);
+  add(Math.max(0,(t.size-5)*(t.speed-5))*1.5,"warn",`덩치가 크면서 빠르기까지 하기는 어렵습니다`);
+  add(Math.max(0,(t.fertility-5)*(t.parentalCare-5))*1.6,"warn",`많이 낳으면서 잘 키울 수는 없습니다 (r/K 상충)`);
+  add(Math.max(0,t.armor+t.toxicity+t.camouflage-15)*2.2,"warn",`방어 수단 세 가지에 중복 투자했습니다`);
+  add(Math.max(0,(t.habitatBreadth-5)*((t.droughtTol+t.climbSwim)/2-5))*1.4,"warn",`제너럴리스트이면서 특수 환경에 특화할 수는 없습니다`);
+  add(Math.max(0,(t.metabolism-5)*(t.energyStore-5))*1.2,"warn",`대사율이 높으면 에너지를 저장해둘 수가 없습니다`);
+  add(Math.max(0,(t.sociality-5)*(t.territoriality-5))*1.5,"warn",`무리 생활과 세력권 방어는 양립하기 어렵습니다`);
+  return p;
+}
+function totalCost(t){
+  let c=0; for(const k of TRAIT_KEYS) c+=traitCost(t[k]);
+  for(const p of couplingPenalties(t)) c+=p.cost;
+  return Math.round(c);
+}
+
+/* 프리셋 */
+function baseTraits(v){ const o={}; for(const k of TRAIT_KEYS) o[k]=v; return o; }
+const PRESETS={
+  rstrat:{diet:"herbivore", name:"회색등 초원쥐", t:{size:1,metabolism:7,lifespan:3,growth:9,energyStore:5,thermoreg:4,
+    fertility:8,breedFreq:7,parentalCare:4,maturity:8,youngDispersal:6,mutationRate:6,
+    vision:4,olfaction:6,nocturnal:7,intelligence:3,sociality:5,
+    armor:2,toxicity:1,camouflage:7,aggression:2,speed:6,stamina:4,
+    mobility:5,climbSwim:2,territoriality:1,habitatBreadth:8,nesting:6,
+    coldTol:4,heatTol:4,droughtTol:4,pollutionTol:5,diseaseResist:5}},
+  kstrat:{diet:"herbivore", name:"큰뿔 들사슴", t:{size:8,metabolism:3,lifespan:8,growth:3,energyStore:7,thermoreg:6,
+    fertility:2,breedFreq:2,parentalCare:8,maturity:2,youngDispersal:4,mutationRate:2,
+    vision:6,olfaction:5,nocturnal:3,intelligence:5,sociality:7,
+    armor:5,toxicity:1,camouflage:3,aggression:4,speed:6,stamina:7,
+    mobility:5,climbSwim:3,territoriality:3,habitatBreadth:4,nesting:2,
+    coldTol:6,heatTol:3,droughtTol:3,pollutionTol:3,diseaseResist:5}},
+  apex:{diet:"carnivore", name:"검은등 사냥개", t:{size:7,metabolism:6,lifespan:6,growth:5,energyStore:5,thermoreg:5,
+    fertility:3,breedFreq:3,parentalCare:6,maturity:4,youngDispersal:5,mutationRate:3,
+    vision:8,olfaction:8,nocturnal:5,intelligence:7,sociality:8,
+    armor:4,toxicity:1,camouflage:4,aggression:9,speed:8,stamina:8,
+    mobility:7,climbSwim:3,territoriality:5,habitatBreadth:5,nesting:3,
+    coldTol:5,heatTol:4,droughtTol:3,pollutionTol:3,diseaseResist:4}},
+  toxic:{diet:"herbivore", name:"붉은띠 독나방", t:{size:2,metabolism:5,lifespan:5,growth:6,energyStore:5,thermoreg:4,
+    fertility:7,breedFreq:6,parentalCare:3,maturity:6,youngDispersal:5,mutationRate:4,
+    vision:4,olfaction:6,nocturnal:6,intelligence:3,sociality:3,
+    armor:3,toxicity:10,camouflage:6,aggression:1,speed:3,stamina:4,
+    mobility:5,climbSwim:4,territoriality:2,habitatBreadth:7,nesting:5,
+    coldTol:4,heatTol:5,droughtTol:4,pollutionTol:6,diseaseResist:5}},
+  decomp:{diet:"detritivore", name:"흰실 부식균", t:{size:1,metabolism:5,lifespan:5,growth:8,energyStore:6,thermoreg:3,
+    fertility:7,breedFreq:9,parentalCare:3,maturity:8,youngDispersal:6,mutationRate:5,
+    vision:2,olfaction:8,nocturnal:8,intelligence:4,sociality:3,
+    armor:2,toxicity:3,camouflage:5,aggression:3,speed:1,stamina:4,
+    mobility:5,climbSwim:4,territoriality:1,habitatBreadth:9,nesting:2,
+    coldTol:5,heatTol:5,droughtTol:7,pollutionTol:6,diseaseResist:6}},
+  general:{diet:"omnivore", name:"들녘 잡식조", t:{size:4,metabolism:5,lifespan:5,growth:5,energyStore:5,thermoreg:6,
+    fertility:5,breedFreq:5,parentalCare:5,maturity:5,youngDispersal:5,mutationRate:5,
+    vision:6,olfaction:6,nocturnal:4,intelligence:7,sociality:5,
+    armor:3,toxicity:1,camouflage:5,aggression:4,speed:5,stamina:5,
+    mobility:7,climbSwim:5,territoriality:3,habitatBreadth:8,nesting:5,
+    coldTol:5,heatTol:5,droughtTol:5,pollutionTol:5,diseaseResist:5}},
+};
+
+/* ── 토착 종 21개 ──────────────────────────────────────────────── */
+function T(o){ return Object.assign(baseTraits(4), {toxicity:1}, o); }
+const NATIVES=[
+ /* ── 생산자 6 ── 극지 이끼부터 건조지 선인장까지 서로 다른 기후를 나눠 가진다 */
+ {name:"들풀",       short:"초본", guild:"prod", diet:"producer", seed:5200, t:T({size:1,growth:10,metabolism:6,fertility:9,breedFreq:9,mobility:6,habitatBreadth:8,coldTol:5,heatTol:6,droughtTol:6,camouflage:1,lifespan:2,maturity:9})},
+ {name:"북방이끼",   short:"선태", guild:"prod", diet:"producer", seed:1400, t:T({size:1,growth:7,metabolism:3,fertility:9,breedFreq:8,mobility:5,habitatBreadth:5,coldTol:10,heatTol:2,droughtTol:2,lifespan:4,maturity:8,thermoreg:7})},
+ {name:"떨기나무",   short:"관목", guild:"prod", diet:"producer", seed:1800, t:T({size:4,growth:6,metabolism:4,fertility:5,breedFreq:4,mobility:3,habitatBreadth:6,coldTol:6,heatTol:6,droughtTol:7,armor:5,lifespan:6})},
+ {name:"큰잎나무",   short:"교목", guild:"prod", diet:"producer", seed:900,  t:T({size:9,growth:3,metabolism:3,fertility:3,breedFreq:2,mobility:2,habitatBreadth:4,coldTol:5,heatTol:5,droughtTol:3,armor:7,lifespan:10,maturity:2})},
+ {name:"물수초",     short:"수생", guild:"prod", diet:"producer", seed:1100, t:T({size:2,growth:8,metabolism:5,fertility:8,breedFreq:7,mobility:5,climbSwim:10,habitatBreadth:2,droughtTol:1,coldTol:4,heatTol:6,lifespan:3})},
+ {name:"가시선인장", short:"다육", guild:"prod", diet:"producer", seed:800,  t:T({size:3,growth:4,metabolism:2,fertility:4,breedFreq:3,mobility:2,habitatBreadth:3,droughtTol:10,heatTol:9,coldTol:2,armor:8,toxicity:4,energyStore:9,lifespan:8})},
+ /* ── 분해자 4 ── */
+ {name:"토양균류",   short:"균류", guild:"dec", diet:"detritivore", seed:520, t:T({size:1,growth:9,metabolism:5,fertility:10,breedFreq:9,mobility:6,habitatBreadth:9,pollutionTol:7,diseaseResist:8,camouflage:9,lifespan:3,maturity:9})},
+ {name:"땅지렁이",   short:"환형", guild:"dec", diet:"detritivore", seed:400, t:T({size:2,growth:6,metabolism:4,fertility:7,breedFreq:6,mobility:3,habitatBreadth:6,droughtTol:2,camouflage:8,lifespan:4})},
+ {name:"부식딱정벌레",short:"곤충",guild:"dec", diet:"detritivore", seed:340, t:T({size:2,growth:7,metabolism:6,fertility:8,breedFreq:7,mobility:7,habitatBreadth:7,armor:6,camouflage:6,lifespan:2,maturity:8})},
+ {name:"늪점균",     short:"점균", guild:"dec", diet:"detritivore", seed:300, t:T({size:1,growth:8,metabolism:4,fertility:9,breedFreq:8,mobility:4,climbSwim:7,habitatBreadth:4,droughtTol:1,pollutionTol:8,diseaseResist:7,lifespan:2,maturity:9})},
+ /* ── 소형 초식 6 ── */
+ {name:"들쥐",       short:"설치", guild:"herbS", diet:"herbivore", seed:300, t:T({size:1,metabolism:8,growth:8,fertility:9,breedFreq:8,maturity:9,mobility:6,nocturnal:7,camouflage:7,speed:6,habitatBreadth:7,lifespan:2,parentalCare:2})},
+ {name:"산토끼",     short:"토끼", guild:"herbS", diet:"herbivore", seed:210, t:T({size:3,metabolism:6,growth:6,fertility:8,breedFreq:6,maturity:7,mobility:7,speed:9,stamina:6,vision:6,camouflage:6,habitatBreadth:6,lifespan:3})},
+ {name:"잎벌레",     short:"곤충", guild:"herbS", diet:"herbivore", seed:620, t:T({size:1,metabolism:9,growth:10,fertility:10,breedFreq:10,maturity:10,mobility:8,camouflage:7,habitatBreadth:6,lifespan:1,diseaseResist:2,coldTol:2,heatTol:7})},
+ {name:"청설모",     short:"수상", guild:"herbS", diet:"herbivore", seed:180, t:T({size:2,metabolism:7,growth:6,fertility:6,breedFreq:5,maturity:7,mobility:5,climbSwim:8,vision:7,speed:7,energyStore:7,habitatBreadth:4,lifespan:3})},
+ {name:"초원메뚜기", short:"직시", guild:"herbS", diet:"herbivore", seed:480, t:T({size:1,metabolism:9,growth:10,fertility:10,breedFreq:9,maturity:10,mobility:9,youngDispersal:9,droughtTol:8,heatTol:8,coldTol:2,camouflage:6,habitatBreadth:6,lifespan:1})},
+ {name:"씨앗먹이새", short:"조류", guild:"herbS", diet:"herbivore", seed:190, t:T({size:2,metabolism:8,growth:6,fertility:5,breedFreq:4,parentalCare:6,maturity:6,mobility:10,youngDispersal:8,vision:8,speed:8,sociality:7,habitatBreadth:8,lifespan:4})},
+ /* ── 대형 초식 4 ── */
+ {name:"붉은사슴",   short:"사슴", guild:"herbL", diet:"herbivore", seed:190, t:T({size:7,metabolism:4,growth:4,fertility:3,breedFreq:2,parentalCare:7,maturity:3,mobility:6,speed:7,stamina:7,sociality:6,vision:6,coldTol:6,habitatBreadth:6,lifespan:7})},
+ {name:"들소",       short:"우제", guild:"herbL", diet:"herbivore", seed:150, t:T({size:10,metabolism:3,growth:3,fertility:3,breedFreq:2,parentalCare:8,maturity:2,mobility:4,armor:7,sociality:8,stamina:8,coldTol:7,habitatBreadth:5,lifespan:8})},
+ {name:"바위산양",   short:"산지", guild:"herbL", diet:"herbivore", seed:130, t:T({size:5,metabolism:5,growth:4,fertility:4,breedFreq:3,parentalCare:6,maturity:4,mobility:4,climbSwim:9,coldTol:9,heatTol:2,habitatBreadth:3,speed:6,lifespan:6})},
+ {name:"늪사슴",     short:"습지", guild:"herbL", diet:"herbivore", seed:140, t:T({size:6,metabolism:5,growth:4,fertility:4,breedFreq:3,parentalCare:6,maturity:4,mobility:5,climbSwim:8,heatTol:7,droughtTol:1,habitatBreadth:4,speed:6,stamina:6,lifespan:6})},
+ /* ── 잡식 4 ── */
+ {name:"멧돼지",     short:"저돌", guild:"omni", diet:"omnivore", seed:170, t:T({size:6,metabolism:6,growth:5,fertility:6,breedFreq:4,parentalCare:5,maturity:5,mobility:6,olfaction:9,aggression:7,armor:6,stamina:7,habitatBreadth:7,intelligence:6,lifespan:5})},
+ {name:"들까마귀",   short:"조류", guild:"omni", diet:"omnivore", seed:150, t:T({size:2,metabolism:7,growth:6,fertility:4,breedFreq:3,parentalCare:7,maturity:6,mobility:10,vision:9,intelligence:10,sociality:7,habitatBreadth:9,speed:7,lifespan:6})},
+ {name:"너구리",     short:"식육", guild:"omni", diet:"omnivore", seed:140, t:T({size:3,metabolism:6,growth:5,fertility:5,breedFreq:4,parentalCare:6,maturity:6,mobility:5,olfaction:8,nocturnal:9,intelligence:7,camouflage:6,habitatBreadth:8,pollutionTol:7,lifespan:4})},
+ {name:"물새",       short:"수금", guild:"omni", diet:"omnivore", seed:160, t:T({size:3,metabolism:7,growth:5,fertility:5,breedFreq:3,parentalCare:6,maturity:5,mobility:10,climbSwim:9,vision:7,sociality:7,habitatBreadth:5,droughtTol:1,lifespan:5})},
+ /* ── 소형 육식 5 ── */
+ {name:"족제비",     short:"식육", guild:"carnS", diet:"carnivore", seed:90,  t:T({size:2,metabolism:9,growth:6,fertility:5,breedFreq:4,maturity:6,mobility:6,olfaction:8,aggression:8,speed:8,nocturnal:7,camouflage:5,habitatBreadth:6,lifespan:3})},
+ {name:"참매",       short:"맹금", guild:"carnS", diet:"carnivore", seed:70,  t:T({size:3,metabolism:8,growth:5,fertility:3,breedFreq:2,parentalCare:7,maturity:5,mobility:10,vision:10,aggression:8,speed:10,stamina:6,habitatBreadth:7,lifespan:6})},
+ {name:"살무사",     short:"파충", guild:"carnS", diet:"carnivore", seed:95,  t:T({size:2,metabolism:2,growth:3,fertility:5,breedFreq:2,maturity:5,mobility:3,toxicity:8,camouflage:9,nocturnal:6,energyStore:8,heatTol:7,coldTol:2,habitatBreadth:5,lifespan:5})},
+ {name:"늪개구리",   short:"양서", guild:"carnS", diet:"carnivore", seed:120, t:T({size:1,metabolism:5,growth:7,fertility:9,breedFreq:6,maturity:7,mobility:4,climbSwim:9,camouflage:7,toxicity:4,speed:5,habitatBreadth:3,droughtTol:1,pollutionTol:2,lifespan:3})},
+ {name:"사냥거미",   short:"절지", guild:"carnS", diet:"carnivore", seed:200, t:T({size:1,metabolism:6,growth:8,fertility:9,breedFreq:6,maturity:8,mobility:4,vision:7,toxicity:6,camouflage:8,aggression:7,speed:6,nesting:8,habitatBreadth:7,lifespan:2})},
+ /* ── 대형 육식 4 ── */
+ {name:"잿빛늑대",   short:"군집", guild:"carnL", diet:"carnivore", seed:60,  t:T({size:7,metabolism:6,growth:4,fertility:4,breedFreq:3,parentalCare:7,maturity:4,mobility:8,olfaction:9,vision:7,aggression:9,sociality:9,speed:8,stamina:9,intelligence:8,coldTol:7,habitatBreadth:6,lifespan:6})},
+ {name:"산표범",     short:"단독", guild:"carnL", diet:"carnivore", seed:40,  t:T({size:8,metabolism:5,growth:4,fertility:3,breedFreq:2,parentalCare:8,maturity:3,mobility:6,vision:8,camouflage:8,aggression:9,speed:9,climbSwim:7,territoriality:8,nocturnal:7,habitatBreadth:5,lifespan:7})},
+ {name:"큰수리",     short:"맹금", guild:"carnL", diet:"carnivore", seed:45,  t:T({size:5,metabolism:7,growth:4,fertility:2,breedFreq:2,parentalCare:8,maturity:3,mobility:10,youngDispersal:9,vision:10,aggression:8,speed:9,stamina:8,habitatBreadth:8,lifespan:8})},
+ {name:"늪악어",     short:"파충", guild:"carnL", diet:"carnivore", seed:50,  t:T({size:9,metabolism:2,growth:3,fertility:6,breedFreq:2,parentalCare:5,maturity:3,mobility:3,climbSwim:10,armor:10,aggression:9,energyStore:10,camouflage:8,heatTol:8,coldTol:1,habitatBreadth:2,lifespan:9})},
+];
+
+/* ── 형질 → 생태 파라미터 ─────────────────────────────────────── */
+function derive(t, diet){
+  const bodyMass = 0.25 + Math.pow(t.size,1.75)/22;              // 개체 질량 단위
+  /* 식물은 광합성으로 스스로 만들어내므로 유지비가 훨씬 싸다 */
+  const upkeep   = bodyMass * (0.30 + t.metabolism*0.075) * (diet==="producer"?0.45:1);
+  const juvSurv  = clamp(0.16 + t.parentalCare*0.072 - t.fertility*0.012, 0.05, 0.92);
+  const birthMax = TUNE.birthScale * (0.16 + t.fertility*0.075 + t.breedFreq*0.055) * juvSurv * (0.55 + t.maturity*0.075)
+                   * (0.65 + t.growth*0.055);
+  const ageDeath = 0.006 + 0.115/(t.lifespan*0.9+1.2);
+  const defense  = 1 + t.armor*0.42 + t.camouflage*0.34 + t.toxicity*0.95
+                   + t.speed*0.30 + t.stamina*0.12 + t.nesting*0.16 + t.sociality*0.22 + t.size*0.55;
+  const attack   = (t.aggression*0.40 + t.speed*0.32 + t.stamina*0.20 + t.sociality*0.22
+                   + t.size*0.34 + t.intelligence*0.14) * (diet==="carnivore"?1.0:(diet==="omnivore"?0.62:0.18));
+  const forage   = 0.35 + t.vision*0.030*(1-t.nocturnal*0.045) + t.olfaction*0.038
+                   + t.intelligence*0.022 + t.mobility*0.018;
+  const compPow  = 0.55 + t.aggression*0.055 + t.size*0.045 + t.territoriality*0.05 + t.sociality*0.02;
+  /* 베르그만 법칙 — 큰 몸은 부피 대비 표면적이 작아 열을 덜 잃는다.
+     그래서 대형종은 추운 곳에, 소형종은 더운 곳에 유리하다. */
+  const bergmann = (t.size-4)*TUNE.bergmann;
+  const optTemp  = 7 + t.heatTol*1.55 - t.coldTol*1.05 - bergmann;
+  const wCold    = 3.2 + t.coldTol*0.95 + t.thermoreg*0.85 + t.habitatBreadth*0.42 + Math.max(0,t.size-4)*0.34;
+  const wHeat    = 3.2 + t.heatTol*0.95 + t.thermoreg*0.85 + t.habitatBreadth*0.42 + Math.max(0,4-t.size)*0.34;
+  const moistOpt = clamp(0.80 - t.droughtTol*0.062, 0.10, 0.92);
+  const moistW   = 0.11 + t.habitatBreadth*0.019 + t.thermoreg*0.006;
+  const pollHalf = 12 + t.pollutionTol*11;
+  const disease  = (0.06 + t.sociality*0.020) / (1 + t.diseaseResist*0.30);
+  const spread   = clamp(0.008 + t.mobility*0.0115 + t.youngDispersal*0.0055, 0.01, 0.17);
+  const starvRes = 0.30 - t.energyStore*0.021;
+  const density  = (2.6 + t.sociality*0.30) / (1 + t.territoriality*0.20);  // 타일 밀도 계수
+  const smart    = t.intelligence;
+  /* 개척종 ↔ 극상종 — 빨리 자라고 멀리 퍼지고 많이 낳으면 개척종이다.
+     교란된 땅은 개척종 차지, 안정된 땅은 극상종 차지 (생태 천이) */
+  const pioneer  = clamp((t.growth + t.mobility + t.fertility + t.breedFreq)/40, 0, 1);
+  /* 알리 효과 임계 — 무리 생활종일수록 최소 개체수가 커야 유지된다 */
+  const alleeK   = TUNE.allee * (0.45 + t.sociality*0.22) / (1 + t.youngDispersal*0.04);
+  /* 진화 속도의 실제 결정 요인 —
+     ① 세대 시간: 빨리 성숙하고 작은 종은 1년에 여러 세대를 돌린다. 진화의 시계는 '년'이 아니라 '세대'다.
+     ② 유전율 h²: 돌연변이율이 만드는 유전적 변이의 양.
+     세 번째 요인인 유효 개체군 크기는 매 틱 개체수에서 직접 계산한다. */
+  const gensPerYear = clamp(0.15 + t.maturity*0.16 + t.growth*0.055 - t.size*0.052 - t.lifespan*0.018, 0.10, 3.2);
+  const heritab     = clamp(0.14 + t.mutationRate*0.046, 0.14, 0.62);
+
+  /* 서식지 선호 */
+  let pref=[
+    clamp(t.climbSwim*0.105 - 0.05, 0.02, 1),
+    clamp(0.28 + t.climbSwim*0.052 + (0.9-moistOpt)*-0.25 + 0.25, 0.05, 1),
+    clamp(0.72 + t.vision*0.012, 0.05, 1),
+    clamp(0.42 + t.climbSwim*0.030 + t.camouflage*0.030, 0.05, 1),
+    clamp(t.droughtTol*0.085 + t.heatTol*0.022 - 0.10, 0.02, 1),
+    clamp(t.climbSwim*0.062 + t.coldTol*0.036 - 0.05, 0.02, 1),
+  ];
+  const mean = pref.reduce((a,b)=>a+b,0)/6, b = t.habitatBreadth/16;
+  pref = pref.map(v=>clamp(lerp(v, Math.max(mean,0.55), b), 0.02, 1));
+  return {bodyMass,upkeep,juvSurv,birthMax,ageDeath,defense,attack,forage,compPow,
+          optTemp,wCold,wHeat,moistOpt,moistW,pollHalf,disease,spread,starvRes,density,smart,
+          pioneer,alleeK,gensPerYear,heritab,pref};
+}
+
+/* ── 세계 생성 ────────────────────────────────────────────────── */
+function makeWorld(){
+  const elev=new Float32Array(NT), wet=new Float32Array(NT), heat=new Float32Array(NT);
+  /* 반구에 감을 것이므로 동서 방향이 이음매 없이 이어져야 한다.
+     x를 각도로 보고 sin/cos 합으로 지형을 만들면 자동으로 맞물린다. */
+  const oct=[];
+  for(let k=1;k<=5;k++) oct.push({k, a:rrange(0.35,1)/k, ph:rnd()*Math.PI*2, m:Math.floor(rrange(1,4)), ps:rnd()*Math.PI*2});
+  const woct=[];
+  for(let k=1;k<=4;k++) woct.push({k, a:rrange(0.35,1)/k, ph:rnd()*Math.PI*2, m:Math.floor(rrange(1,4)), ps:rnd()*Math.PI*2});
+
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x, th=x/W*Math.PI*2, la=y/(H-1);
+    let e=0,w=0;
+    for(const o of oct) e += o.a*Math.sin(o.k*th+o.ph)*Math.cos(o.m*Math.PI*la+o.ps);
+    for(const o of woct) w += o.a*Math.sin(o.k*th+o.ph)*Math.cos(o.m*Math.PI*la+o.ps);
+    e = e*0.42 + 0.48 + rrange(-0.05,0.05);
+    elev[i]=clamp(e,0,1);
+    wet[i]=clamp(w*0.36 + 0.50 - elev[i]*0.26 + rrange(-0.06,0.06),0,1);
+    /* 극지(y=0)는 춥고 적도(y=H-1)는 덥다. 고도가 높으면 더 춥다. */
+    heat[i]=clamp(0.14 + la*0.74 - elev[i]*0.30 + rrange(-0.04,0.04),0,1);
+  }
+
+  const biome=new Uint8Array(NT), soil=new Float32Array(NT), moist=new Float32Array(NT);
+  const detr=new Float32Array(NT), poll=new Float32Array(NT), farm=new Uint8Array(NT), road=new Uint8Array(NT);
+  const dist=new Float32Array(NT);   // 교란도 — 중간교란 가설·생태 천이의 입력
+  for(let i=0;i<NT;i++){
+    const e=elev[i], w=wet[i];
+    let b;
+    if(e<0.32 && w>0.56) b=0;
+    else if(e<0.44 && w>0.58) b=1;
+    else if(e>0.74) b=5;
+    else if(w<0.34) b=4;
+    else if(w>0.55) b=3;
+    else b=2;
+    biome[i]=b;
+    moist[i]= b===0?1.0 : b===1?0.88 : b===3?0.62 : b===4?0.16 : b===5?0.34 : 0.46;
+    moist[i]=clamp(moist[i]+rrange(-0.05,0.05),0,1);
+    soil[i]= b===0?24 : b===1?78 : b===3?70 : b===4?22 : b===5?30 : 58;
+    detr[i]= soil[i]*0.30;
+  }
+  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,
+          baseMoist:Float32Array.from(moist), baseSoil:Float32Array.from(soil)};
+}
+
+/* ── 종 객체 ─────────────────────────────────────────────────── */
+function makeSpecies(def, isPlayer){
+  const t = Object.assign({},def.t);
+  const s = {
+    name:def.name, short:def.short||"", guild:def.guild, diet:def.diet, isPlayer:!!isPlayer,
+    traits:t, d:derive(t,def.diet),
+    pop:new Float32Array(NT), buf:new Float32Array(NT), out:new Float32Array(NT), crd:new Float32Array(NT),
+    fit:new Float32Array(NT), dem:new Float32Array(NT),
+    ink:new Float32Array(NT), pl:new Float32Array(NT),
+    total:0, tiles:0, biomass:0, alive:true, extinctYear:null,
+    acc:{w:0,sat:0,pred:0,dt:0,crowd:0}, evoCount:0,
+    hist:[], color: GUILDS[GI[def.guild]].color, gi: GI[def.guild],
+  };
+  return s;
+}
+
+/* ── 게임 상태 ────────────────────────────────────────────────── */
+let G = null;
+
+function newGame(playerDef){
+  RND = mulberry32((Math.random()*4294967296)>>>0);
+  const world = makeWorld();
+  const species = [];
+  const player = makeSpecies({name:playerDef.name, short:"내 종", guild:"me", diet:playerDef.diet, t:playerDef.traits}, true);
+  species.push(player);
+  for(const n of NATIVES) species.push(makeSpecies(n,false));
+
+  /* 초기 배치 — 적합한 타일에 씨를 뿌림.
+     내 종은 창시자 개체군답게 좁은 지역에 모여서 시작한다. */
+  for(const s of species){
+    const seedTotal = s.isPlayer ? 2600 : (NATIVES.find(n=>n.name===s.name)?.seed ?? 200);
+    const scores=[];
+    for(let i=0;i<NT;i++) scores.push([i, habitatScore(s,world,i)]);
+    scores.sort((a,b)=>b[1]-a[1]);
+    const n = s.isPlayer ? 96 : (s.d.bodyMass>1.2 ? 64 : Math.max(6, Math.round(NT*0.22)));
+    let sum=0; for(let k=0;k<n;k++) sum+=scores[k][1];
+    if(sum<=0) sum=1;
+    for(let k=0;k<n;k++){ const [i,sc]=scores[k]; s.pop[i] = seedTotal*(sc/sum); }
+  }
+
+  G = {
+    world, species, player, tick:0, year:1, season:0,
+    warming:0, globalPoll:0, humanArrived:false,
+    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5,
+    log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
+    running:true, speed:1, over:false, ending:null,
+    layer:"terrain", selected:0,
+    guildHist:[], totalHist:[], stableRun:0,
+  };
+  buildCompetition(species);
+  G.prefMx = buildCompetition.mx; G.nSp = buildCompetition.n;
+  logMsg("nature", `<b>${player.name}</b>이(가) 이 땅에 처음 나타났습니다. 이미 33종이 자리를 잡고 있습니다.`);
+  const rival = player.topRival;
+  if(rival) logMsg("nature", `가장 강한 경쟁 상대는 <b>${rival[0].name}</b>입니다. 생태 지위가 ${(rival[1]/TUNE.compet*100).toFixed(0)}% 겹칩니다.`);
+  recount();
+  snapshot();
+  window.G = G; window.TUNE = TUNE;   // 개발·디버깅용 핸들
+  return G;
+}
+
+/* ── 생태 지위 겹침 (Gause 경쟁 배타 원리 / 로트카–볼테라 경쟁계수) ──
+   같은 자원을 같은 방식으로 쓰는 종일수록 서로의 환경수용력을 갉아먹는다.
+   완전히 겹치면 한쪽이 밀려나고, 어긋나면 공존한다 (지위 분화). */
+function nicheOverlap(a,b){
+  if(a===b) return 1;
+  let dm;
+  const pa=a.diet==="producer", pb=b.diet==="producer";
+  if(pa!==pb) return 0;                                  // 식물과 동물은 자원이 다르다
+  if(a.diet===b.diet) dm=1;
+  else if(a.diet==="omnivore"||b.diet==="omnivore") dm=0.55;
+  else dm=0.12;                                          // 초식↔육식은 거의 안 겹침
+  /* 몸 크기가 비슷하면 같은 크기의 먹이를 두고 다툰다 */
+  const sz = Math.exp(-Math.pow(a.traits.size-b.traits.size,2)/14);
+  /* 서식지 선호 코사인 유사도 */
+  let dot=0,na=0,nb=0;
+  for(let i=0;i<6;i++){ dot+=a.d.pref[i]*b.d.pref[i]; na+=a.d.pref[i]*a.d.pref[i]; nb+=b.d.pref[i]*b.d.pref[i]; }
+  const hab = dot/Math.sqrt(na*nb+1e-9);
+  /* 활동 시간대가 다르면 마주치지 않는다 */
+  const act = 1 - Math.abs(a.traits.nocturnal-b.traits.nocturnal)/13;
+  return clamp(dm*sz*hab*act, 0, 1);
+}
+function buildCompetition(species){
+  species.forEach((s,i)=>{ s.idx=i; });
+  /* 최적 채이 선호도는 형질에서만 나온다. 타일마다 다시 계산할 이유가 없으니
+     종 쌍마다 한 번 구해 표로 들고 다닌다. 종이 34개면 타일 루프에서 큰 차이가 난다. */
+  const n=species.length, mx=new Float32Array(n*n);
+  for(const pr of species){
+    if(pr.diet!=="carnivore" && pr.diet!=="omnivore") continue;
+    for(const py of species){
+      if(py===pr || py.diet==="producer") continue;
+      const optPrey = pr.traits.size*TUNE.preyOpt;
+      const band = 1.5 + pr.traits.size*0.34;
+      const sizeFit = Math.exp(-Math.pow(py.traits.size-optPrey,2)/(2*band*band));
+      const payoff = 1 - TUNE.payoff + TUNE.payoff*(0.35 + py.d.bodyMass/(py.d.bodyMass+1.1));
+      const night = 1 - Math.abs(pr.traits.nocturnal-py.traits.nocturnal)*0.035;
+      mx[pr.idx*n+py.idx] = sizeFit*payoff*night;
+    }
+  }
+  buildCompetition.mx=mx; buildCompetition.n=n;
+  if(typeof G!=="undefined" && G){ G.prefMx=mx; G.nSp=n; }
+  for(const s of species){
+    s.comp=[];
+    for(const o of species){
+      if(o===s) continue;
+      const a = nicheOverlap(s,o)*TUNE.compet;
+      if(a>0.12) s.comp.push([o,a]);      // 미미한 경쟁은 버려서 계산을 아낀다
+    }
+    s.comp.sort((x,y)=>y[1]-x[1]);
+    s.topRival = s.comp.length ? s.comp[0] : null;
+  }
+}
+
+/* 서식 적합도 (0~1) */
+function habitatScore(s,w,i){
+  const d=s.d;
+  const dt = tileTemp(w,i,0,0) - d.optTemp;
+  const tf = Math.exp(-(dt*dt)/(2*(dt<0?d.wCold:d.wHeat)**2));
+  const dm = w.moist[i]-d.moistOpt;
+  const mf = Math.exp(-(dm*dm)/(2*d.moistW*d.moistW));
+  const pf = 1/(1+Math.pow(w.poll[i]/d.pollHalf,2));
+  return tf*mf*pf*d.pref[w.biome[i]];
+}
+
+function tileTemp(w,i,season,warming){
+  return 4 + w.heat[i]*22 + SEASON_TEMP[season] + warming;
+}
+
+/* ── 시뮬레이션 한 틱 ─────────────────────────────────────────── */
+function step(){
+  const g=G, w=g.world, S=g.species, se=g.season;
+
+  /* 1. 환경 */
+  const droughtF = g.events.drought>0 ? 0.55 : 1;
+  const floodF   = g.events.flood>0   ? 1.45 : 1;
+  const heatF    = g.events.heat>0    ? 6 : 0;
+  const coldF    = g.events.cold>0    ? -7 : 0;
+  const seasonMoist = SEASON_MOIST[se];
+
+  for(let i=0;i<NT;i++){
+    const target = clamp(w.baseMoist[i]*droughtF*floodF + seasonMoist, 0, 1);
+    w.moist[i] += (target - w.moist[i])*0.45;
+    /* 오염 확산·자연 정화 */
+    if(w.poll[i]>0.01) w.poll[i] = Math.max(0, w.poll[i]*0.985 - 0.05);
+    if(w.dist[i]>0.001) w.dist[i] *= 0.945;   // 교란의 흔적은 서서히 아문다
+    /* 부식물 → 토양 양분 */
+    const mineral = w.detr[i]*0.055;
+    w.detr[i] -= mineral;
+    w.soil[i] = Math.min(w.baseSoil[i]*1.4, w.soil[i] + mineral*0.9 + (w.baseSoil[i]-w.soil[i])*0.03);
+  }
+
+  /* 2. 종별 적합도 & 요구량 계산 (적합도는 빈 타일까지 — 분산에 필요) */
+  const n=S.length;
+  const canopy=g._canopy || (g._canopy=new Float32Array(NT));
+  canopy.fill(0);
+  for(let k=0;k<n;k++){
+    const s=S[k]; if(!s.alive) continue;
+    if(s.diet==="producer" && s.traits.size>=7){
+      const p=s.pop; for(let i=0;i<NT;i++) canopy[i]+=p[i]*0.010;
+    }
+  }
+
+  const baseTemp=g._temp || (g._temp=new Float32Array(NT));
+  for(let i=0;i<NT;i++) baseTemp[i]=tileTemp(w,i,se,g.warming)+heatF+coldF;
+
+  for(let k=0;k<n;k++){
+    const s=S[k];
+    s.ink.fill(0); s.pl.fill(0);
+    if(!s.alive){ s.fit.fill(0); s.dem.fill(0); continue; }
+    const d=s.d, p=s.pop, f=s.fit, dm=s.dem;
+    for(let i=0;i<NT;i++){
+      const dt = baseTemp[i] - d.optTemp;
+      const tf = Math.exp(-(dt*dt)/(2*(dt<0?d.wCold:d.wHeat)**2));
+      const dmo = w.moist[i]-d.moistOpt;
+      const mf = Math.exp(-(dmo*dmo)/(2*d.moistW*d.moistW));
+      const pf = 1/(1+Math.pow(w.poll[i]/d.pollHalf,2));
+      const farmPen = w.farm[i] ? (s.diet==="producer"?0.35:Math.min(1,0.55+d.smart*0.02)) : 1;
+      const roadPen = w.road[i] ? 0.72 : 1;
+      /* 생태 천이 — 갓 교란된 땅은 개척종의 차지, 오래 안정된 땅은 극상종의 차지 */
+      const dz = w.dist[i];
+      const succ = dz>0.02 ? clamp(1 + TUNE.succession*dz*(d.pioneer-0.45)*2.6, 0.45, 1.85) : 1;
+      /* 네 요소를 곱하면 '괜찮은 환경'도 0.4까지 떨어진다. 제곱근으로 눌러 실제 체감에 맞춘다 */
+      f[i] = Math.pow(tf*mf*pf*d.pref[w.biome[i]], 0.45)*farmPen*roadPen*succ;
+      dm[i] = p[i]>0.0001 ? p[i]*d.upkeep : 0;
+    }
+  }
+
+  /* 3a. 생산자 — 광량과 토양을 두고 경쟁 */
+  const producers = [], decomposers = [], grazers = [], hunters = [], animals = [];
+  for(let k=0;k<n;k++){
+    const s=S[k]; if(!s.alive) continue;
+    if(s.diet==="producer") producers.push(s); else animals.push(s);
+    if(s.diet==="detritivore"||s.diet==="omnivore") decomposers.push(s);
+    if(s.diet==="herbivore"||s.diet==="omnivore") grazers.push(s);
+    if(s.diet==="carnivore"||s.diet==="omnivore") hunters.push(s);
+  }
+
+  for(let i=0;i<NT;i++){
+    let wsum=0; const parts=[];
+    for(const s of producers){
+      if(s.dem[i]<=1e-6) continue;
+      const light = clamp(1 - canopy[i]*(s.traits.size>=7?0.10:1.0), 0.16, 1);
+      /* 개체 수가 아니라 '먹이 요구량'으로 배분한다.
+         개체 수로 나누면 작고 수만 많은 종이 자원을 전부 독식한다. */
+      const wgt = s.dem[i]*s.d.compPow*s.fit[i]*light;
+      if(wgt>0){ parts.push([s,wgt]); wsum+=wgt; }
+    }
+    if(!wsum) continue;
+    const pool = (w.soil[i]*TUNE.soilA + TUNE.soilB) * clamp(w.moist[i]*1.6,0.12,1.35);
+    for(const [s,wg] of parts){
+      s.ink[i] = Math.min(s.dem[i], pool*(wg/wsum)*s.d.forage*1.5);
+    }
+    w.soil[i] = Math.max(2, w.soil[i] - pool*0.055);
+  }
+
+  /* 3b. 분해자 — 부식물 */
+  for(let i=0;i<NT;i++){
+    if(w.detr[i]<=0.01) continue;
+    let wsum=0; const parts=[];
+    for(const s of decomposers){
+      if(s.dem[i]<=1e-6) continue;
+      const wgt = s.dem[i]*s.d.compPow*s.fit[i]*(s.diet==="omnivore"?0.35:1);
+      if(wgt>0){ parts.push([s,wgt]); wsum+=wgt; }
+    }
+    if(!wsum) continue;
+    const pool = w.detr[i]*TUNE.detrPool;
+    let used=0;
+    for(const [s,wg] of parts){
+      const eat = Math.min(s.dem[i]-s.ink[i], pool*(wg/wsum)*s.d.forage*(s.diet==="omnivore"?0.55:1.25));
+      if(eat>0){ s.ink[i]+=eat; used+=eat; }
+    }
+    w.detr[i] = Math.max(0, w.detr[i]-used*0.85);
+    /* 분해자의 본업 — 먹은 만큼 토양 양분으로 되돌린다 */
+    w.soil[i] = Math.min(w.baseSoil[i]*1.6, w.soil[i] + used*0.95);
+  }
+
+  /* 3c. 초식·잡식 — 생산자 바이오매스 */
+  for(let i=0;i<NT;i++){
+    let plantMass=0; const prods=[];
+    for(const s of producers){
+      const m=s.pop[i]*s.d.bodyMass; if(m>0.0001){ prods.push([s,m]); plantMass+=m; }
+    }
+    if(plantMass<=0) continue;
+    let wsum=0; const parts=[];
+    for(const s of grazers){
+      if(s.dem[i]<=1e-6) continue;
+      const wgt = s.dem[i]*s.d.compPow*s.fit[i]*(s.diet==="omnivore"?0.72:1);
+      if(wgt>0){ parts.push([s,wgt]); wsum+=wgt; }
+    }
+    if(!wsum) continue;
+    const pool = plantMass*TUNE.plantPool;
+    let used=0;
+    for(const [s,wg] of parts){
+      const eat = Math.min(s.dem[i]-s.ink[i], pool*(wg/wsum)*s.d.forage*(s.diet==="omnivore"?0.72:1.15));
+      if(eat>0){ s.ink[i]+=eat; used+=eat; }
+    }
+    /* 먹힌 만큼 생산자 감소 */
+    if(used>0){
+      for(const [s,m] of prods){
+        const loss = used*(m/plantMass)/s.d.bodyMass;
+        s.pop[i] = Math.max(0, s.pop[i]-loss*TUNE.grazeLoss);
+      }
+    }
+  }
+
+  /* 3d. 육식·잡식 — 사냥 (Holling III형)
+     타일의 총 포식량을 먼저 정하고 먹이 종끼리 나눈다. 두 가지가 핵심이다.
+     · 먹이 밀도가 낮으면 총 포식량이 급격히 줄어든다 — 희귀종의 피난처.
+     · 몫은 (양 × 취약도)^1.5 로 나눈다 — 포식자는 흔한 먹이에 집중한다.
+     종마다 따로 계산하면 드물수록 더 잡아먹히는 멸종 소용돌이가 생긴다. */
+  const MAX_PRED = TUNE.maxPred;
+  const hw = new Float64Array(hunters.length);
+  const mx = g.prefMx, nsp = g.nSp;
+  for(let i=0;i<NT;i++){
+    let preyMassTot=0;
+    const prey=[];
+    for(const s of animals){
+      const p=s.pop[i]; if(p<=0.0001) continue;
+      const m=p*s.d.bodyMass; prey.push([s,m]); preyMassTot+=m;
+    }
+    if(!prey.length) continue;
+
+    let needTot=0, predPower=0;
+    for(let h=0;h<hunters.length;h++){
+      const pr=hunters[h], pp=pr.pop[i];
+      hw[h]=0;
+      if(pp<=0.0001 || pr.dem[i]<=0) continue;
+      const need = pr.dem[i]-pr.ink[i]; if(need<=0) continue;
+      hw[h] = pp * pr.d.attack * pr.d.compPow * (pr.diet==="omnivore"?0.45:1);
+      needTot += need; predPower += hw[h];
+    }
+    if(predPower<=0 || needTot<=0) continue;
+
+    const refuge = preyMassTot/(preyMassTot + TUNE.predRefuge);
+    const satur  = predPower/(predPower + TUNE.predHalf);
+    let harvest = Math.min(MAX_PRED*preyMassTot*refuge*satur, needTot/TUNE.predConv);
+    if(harvest<=0) continue;
+
+    /* 종별 몫 — 기여도(cw)는 배분에도 그대로 쓴다 */
+    let availTot=0;
+    const avail=new Float64Array(prey.length);
+    const conW=[];
+    for(let q=0;q<prey.length;q++){
+      const s=prey[q][0], m=prey[q][1];
+      const cw=new Float64Array(hunters.length);
+      let sus=0;
+      for(let h=0;h<hunters.length;h++){
+        const pr=hunters[h]; if(hw[h]<=0 || pr===s) continue;
+        /* 최적 채이 이론 — 포식자는 아무거나 잡지 않는다. 너무 작으면 수지가
+           안 맞고 너무 크면 못 잡는다. 선호도는 미리 만든 표에서 꺼낸다. */
+        const c = hw[h]*mx[pr.idx*nsp + s.idx];
+        cw[h]=c; sus+=c;
+      }
+      conW.push(cw);
+      if(sus<=0) continue;
+      /* 희석 효과 — 무리가 클수록 '내가 걸릴' 확률이 낮아진다 */
+      const herd = 1 + s.traits.sociality*TUNE.dilution*Math.log1p(s.pop[i]);
+      avail[q] = Math.pow(m*(sus/predPower)/(s.d.defense*herd), 1.5);
+      availTot += avail[q];
+    }
+    if(availTot<=0) continue;
+
+    for(let q=0;q<prey.length;q++){
+      if(avail[q]<=0) continue;
+      const s=prey[q][0], m=prey[q][1];
+      const killed = Math.min(harvest*(avail[q]/availTot), m*MAX_PRED);
+      if(killed<=0) continue;
+      s.pl[i] += killed/s.d.bodyMass;
+      const cw=conW[q]; let cwTot=0;
+      for(let h=0;h<hunters.length;h++) cwTot+=cw[h];
+      if(cwTot<=0) continue;
+      for(let h=0;h<hunters.length;h++){
+        if(cw[h]<=0) continue;
+        const pr=hunters[h];
+        const gain = killed*(cw[h]/cwTot)*TUNE.predConv*(pr.diet==="omnivore"?0.6:1);
+        pr.ink[i] = Math.min(pr.dem[i], pr.ink[i]+gain);
+      }
+    }
+  }
+
+  /* 4. 출생·사망 */
+  for(let k=0;k<n;k++){
+    const s=S[k]; if(!s.alive) continue;
+    const d=s.d, p=s.pop, buf=s.buf, f=s.fit, dm=s.dem, ink=s.ink, pl=s.pl, crd=s.crd;
+    const comp=s.comp||[];
+    const breed = SEASON_BREED[se];
+    const diseaseP = g.events.disease>0 ? d.disease*3.2 : d.disease*TUNE.diseaseBase;
+    const pest = g.events.pesticide>0 && s.traits.size<=4 ? 0.16/(1+s.traits.pollutionTol*0.28) : 0;
+    for(let i=0;i<NT;i++){
+      const pop=p[i];
+      if(pop<=0.0001){ buf[i]=0; crd[i]=0; continue; }
+      const sat = dm[i]>0 ? clamp(ink[i]/dm[i],0,1) : 1;
+      const cap = (w.soil[i]*TUNE.capA+TUNE.capB) * d.density / (d.bodyMass*0.9+0.35);
+      /* 로트카–볼테라 종간 경쟁 — 지위가 겹치는 종의 개체수도 내 자리를 갉아먹는다 */
+      let eff = pop;
+      for(let c=0;c<comp.length;c++) eff += comp[c][0].pop[i]*comp[c][1];
+      const crowd = clamp(eff/Math.max(cap,1), 0, 1.8);
+      crd[i]=clamp(pop/Math.max(cap,1),0,1.8);
+
+      /* 알리 효과 — 개체가 너무 흩어지면 짝을 못 찾고 무리 방어도 무너진다 */
+      const allee = pop/(pop + d.alleeK);
+
+      let birth = pop * d.birthMax * breed * sat * Math.pow(f[i],0.45)
+                * allee * Math.max(0, 1-crowd*TUNE.crowdBirth);
+      if(g.events.boom>0) birth *= 1.25;
+
+      let mort = d.ageDeath
+               + Math.pow(1-sat,TUNE.starvExp) * Math.max(0.05, d.starvRes*TUNE.starvMul)
+               + (1-clamp(f[i],0,1))*TUNE.stress
+               + diseaseP + pest;
+      if(crowd>1) mort += (crowd-1)*0.10;
+      mort = clamp(mort, 0, 0.94);
+
+      /* 자연선택 측정 — 이 종이 실제로 무엇 때문에 죽고 있는지 기록한다 */
+      const A=s.acc;
+      A.w+=pop; A.sat+=sat*pop; A.crowd+=crowd*pop;
+      A.pred+=Math.min(pl[i],pop*0.42);
+      A.dt+=(baseTemp[i]-d.optTemp)*pop;
+
+      let died = pop*mort + Math.min(pl[i], pop*0.42);
+      died = Math.min(died, pop*0.96);
+      let np = pop + birth - died;
+      if(np < 0.02) np = 0;
+      buf[i]=np;
+      w.detr[i] += died*d.bodyMass*0.55;
+    }
+    /* 5. 분산 */
+    const sp=d.spread;
+    for(let i=0;i<NT;i++) p[i]=buf[i];
+    if(sp>0){
+      const out=s.out; out.fill(0);
+      const nj=new Int32Array(8), na=new Float64Array(8);
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        const i=y*W+x, v=p[i]; if(v<=0.02){ out[i]+=v; continue; }
+        /* 밀도 의존 분산 — 자리가 넉넉하면 굳이 떠나지 않는다.
+           이게 없으면 개체군이 나쁜 타일로 계속 새어 나가 굶어 죽는다. */
+        const move=v*sp*clamp(0.10+crd[i]*1.1, 0.10, 1); out[i]+=v-move;
+        let tw=0, c=0;
+        for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+          if(!dx&&!dy) continue;
+          const ny=y+dy; if(ny<0||ny>=H) continue;
+          const nx=(x+dx+W)%W;                 // 동서로 한 바퀴 이어진다
+          const j=ny*W+nx;
+          const fj=f[j];
+          const attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010);
+          nj[c]=j; na[c]=attract; c++; tw+=attract;
+        }
+        if(tw<=0){ out[i]+=move; continue; }
+        for(let q=0;q<c;q++) out[nj[q]] += move*(na[q]/tw);
+      }
+      p.set(out);
+    }
+  }
+
+  /* 6. 이벤트 타이머 감소 */
+  for(const k in g.events) if(g.events[k]>0) g.events[k]--;
+
+  /* 7. 시간 진행 */
+  g.tick++;
+  g.season=(g.season+1)%TICKS_PER_YEAR;
+  if(g.season===0) g.year++;
+  if(g.humanArrived) g.warming = Math.min(8.0, g.warming + 0.0092);
+  if(g.season===0) evolveAll();          // 1년마다 자연선택이 작동한다
+
+  rollEvents();
+  recount();
+  if(g.tick%2===0) snapshot();
+  checkEnd();
+}
+
+/* ── 개체수 집계 ─────────────────────────────────────────────── */
+function recount(){
+  const g=G;
+  for(const s of g.species){
+    let tot=0,ti=0;
+    for(let i=0;i<NT;i++){ const v=s.pop[i]; if(v>0.05){ tot+=v; ti++; } else if(v>0) s.pop[i]=0; }
+    s.total=tot; s.tiles=ti; s.biomass=tot*s.d.bodyMass;
+    if(s.alive && tot<1){
+      s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
+      s.pop.fill(0);
+      logMsg(s.isPlayer?"death":"death", `<b>${s.name}</b> 멸종. (${g.year}년)`);
+    }
+  }
+}
+
+/* 섀넌 다양성 지수 H' = -Σ p·ln p, 균등도 J = H'/ln S.
+   다양성-안정성 가설의 지표로 쓴다. */
+function diversity(){
+  const alive=G.species.filter(s=>s.alive && s.total>0);
+  let tot=0; for(const s of alive) tot+=s.total;
+  if(tot<=0||alive.length<2) return {H:0,J:0,S:alive.length};
+  let H=0;
+  for(const s of alive){ const pr=s.total/tot; if(pr>0) H-=pr*Math.log(pr); }
+  return {H, J:H/Math.log(alive.length), S:alive.length};
+}
+
+function snapshot(){
+  const g=G;
+  const gsum=new Array(8).fill(0);
+  let tot=0;
+  for(const s of g.species){ gsum[s.gi]+=s.total; tot+=s.total; s.hist.push(s.total); }
+  g.guildHist.push(gsum); g.totalHist.push(tot);
+}
+
+/* ── 진화 ────────────────────────────────────────────────────────
+   자연선택: 종은 자기를 가장 많이 죽이는 요인에 맞춰 형질을 바꾼다.
+   공짜는 없다 — 한 형질이 오르면 다른 형질이 내려간다.
+   붉은 여왕 가설: 먹이가 방어를 올리면 포식자는 사냥을 올린다. 서로 쫓고 쫓긴다.
+   유전적 부동: 개체수가 적을수록 방향 없는 변이가 커진다. */
+const EVO_RESPONSE = {
+  hunger:    {up:["olfaction","vision","mobility","habitatBreadth"], down:["metabolism","size","territoriality"], ko:"굶주림"},
+  predation: {up:["camouflage","speed","toxicity","armor","nesting"], down:["size","aggression","metabolism"], ko:"포식 압력"},
+  heat:      {up:["heatTol","thermoreg"], down:["coldTol","size"], ko:"더위"},
+  cold:      {up:["coldTol","thermoreg","size"], down:["heatTol"], ko:"추위"},
+  crowd:     {up:["mobility","habitatBreadth","youngDispersal"], down:["territoriality","size"], ko:"과밀"},
+  hunt:      {up:["aggression","speed","vision","stamina"], down:["energyStore","parentalCare"], ko:"사냥 실패"},
+};
+
+function selectionPressure(s){
+  const a=s.acc; if(a.w<=0) return null;
+  const sat=a.sat/a.w, pred=a.pred/a.w, dt=a.dt/a.w, crowd=a.crowd/a.w;
+  const hungerKey = (s.diet==="carnivore") ? "hunt" : "hunger";
+  const list=[
+    [hungerKey, (1-sat)*1.25],
+    ["predation", pred*3.4],
+    [dt>0?"heat":"cold", Math.min(1, Math.abs(dt)/9)*0.95],
+    ["crowd", clamp(crowd-0.55,0,1)*0.85],
+  ];
+  list.sort((x,y)=>y[1]-x[1]);
+  return list[0][1] > 0.30 ? list[0] : null;
+}
+
+function evolveOne(s){
+  const t=s.traits, d=s.d, N=s.total;
+  if(N<=0) return null;
+  const P = selectionPressure(s);
+
+  /* 브리더 방정식 R = h² · S — 한 세대에 형질이 얼마나 움직이는가.
+     여기에 세대 수와 선택 효율을 곱해 '이번 해의 변화량'을 낸다. */
+  const gens   = d.gensPerYear;                 // 올해 지나간 세대 수
+  const h2     = d.heritab;                     // 유전율
+  const selEff = N/(N + TUNE.neHalf);           // 유효 개체군이 작으면 선택이 헛돈다
+  const S      = P ? P[1] : 0;                  // 선택 차등
+
+  const pSelect = clamp(gens * h2 * S * selEff * TUNE.evoRate, 0, 0.80);
+  /* 유전적 부동 — 개체군이 작을수록 방향 없는 변화가 커진다 (병목·창시자 효과) */
+  const pDrift  = clamp(gens * h2 * (1-selEff) * TUNE.driftRate, 0, 0.45);
+
+  let up, dn, cause;
+  if(P && rnd() < pSelect){
+    const R = EVO_RESPONSE[P[0]];
+    const ups = R.up.filter(k=>t[k]<10), dns = R.down.filter(k=>t[k]>1);
+    if(!ups.length || !dns.length) return null;
+    up = ups[Math.floor(rnd()*ups.length)];
+    dn = dns[Math.floor(rnd()*dns.length)];
+    cause = R.ko;
+  } else if(rnd() < pDrift){
+    const ks=TRAIT_KEYS.filter(k=>k!=="mutationRate");
+    up = ks[Math.floor(rnd()*ks.length)];
+    dn = ks[Math.floor(rnd()*ks.length)];
+    if(up===dn || t[up]>=10 || t[dn]<=1) return null;
+    cause = "유전적 부동";
+  } else return null;
+
+  t[up]++; t[dn]--;
+  s.d = derive(t, s.diet);
+  s.evoCount++;
+  return {up,dn,cause};
+}
+
+function evolveAll(){
+  const g=G;
+  const notable=[];
+  for(const s of g.species){
+    if(!s.alive) continue;
+    if(!s.isPlayer){
+      const r = evolveOne(s);
+      if(r) notable.push([s,r]);
+    }
+    s.acc.w=s.acc.sat=s.acc.pred=s.acc.dt=s.acc.crowd=0;
+  }
+  /* 형질이 바뀌면 생태 지위도 바뀐다 — 경쟁 관계를 다시 계산 */
+  if(g.year%5===0) buildCompetition(g.species);
+  /* 전부 기록하면 일지가 넘치므로 눈에 띄는 것만 */
+  if(notable.length && rnd()<0.45){
+    const [s,r] = notable[Math.floor(rnd()*notable.length)];
+    const msg = r.cause==="유전적 부동"
+      ? `<b>${s.name}</b>의 형질이 방향 없이 흔들렸습니다 (유전적 부동) — ${TRAIT_LABEL[r.up]} ↑ / ${TRAIT_LABEL[r.dn]} ↓`
+      : `<b>${s.name}</b>이(가) ${r.cause}에 적응했습니다 — ${TRAIT_LABEL[r.up]} ↑ / ${TRAIT_LABEL[r.dn]} ↓`;
+    logMsg("evo", msg);
+  }
+}
+
+/* ── 이벤트 ──────────────────────────────────────────────────── */
+const NATURE_EVENTS=[
+  {k:"drought", p:0.020, dur:[2,5], msg:"<b>가뭄</b>이 시작됐습니다. 강수가 절반 아래로 떨어집니다.",
+   go:g=>{ g.events.drought=Math.round(rrange(2,5)); }},
+  {k:"flood", p:0.016, dur:[1,3], msg:"<b>폭우와 범람</b>. 저지대가 물에 잠깁니다.",
+   go:g=>{ g.events.flood=Math.round(rrange(1,3));
+     for(let i=0;i<NT;i++) if(g.world.elev[i]<0.38){ g.world.detr[i]*=0.7; g.world.poll[i]*=0.6;
+       g.world.dist[i]=Math.min(1,g.world.dist[i]+0.55); } }},
+  {k:"heat", p:0.017, dur:[1,3], msg:"<b>폭염</b>. 기온이 6도 치솟습니다.", go:g=>{ g.events.heat=Math.round(rrange(1,3)); }},
+  {k:"cold", p:0.017, dur:[1,3], msg:"<b>한파</b>. 기온이 7도 떨어집니다.", go:g=>{ g.events.cold=Math.round(rrange(1,3)); }},
+  {k:"fire", p:0.012, msg:"<b>산불</b>이 번졌습니다. 숲 일부가 잿더미가 됩니다.",
+   go:g=>{ const cx=Math.floor(rnd()*W), cy=Math.floor(rnd()*H), r=rrange(3,6);
+     for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const i=y*W+x;
+       const dx=Math.min(Math.abs(x-cx), W-Math.abs(x-cx));
+       if(Math.hypot(dx,y-cy)<r && (g.world.biome[i]===3||g.world.biome[i]===2)){
+         for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.10:0.42;
+         g.world.detr[i]+=25; g.world.soil[i]=Math.min(120,g.world.soil[i]+14);
+         g.world.dist[i]=1;                      // 완전 교란 — 개척종의 기회
+       } } }},
+  {k:"disease", p:0.014, msg:"<b>전염병</b>이 돌기 시작했습니다. 무리 생활을 하는 종이 특히 위험합니다.",
+   go:g=>{ g.events.disease=Math.round(rrange(2,5)); }},
+  {k:"boom", p:0.014, msg:"<b>풍년</b>. 유난히 온화한 해입니다.",
+   go:g=>{ g.events.boom=Math.round(rrange(2,4));
+     for(let i=0;i<NT;i++) g.world.soil[i]=Math.min(140,g.world.soil[i]+12); }},
+  {k:"storm", p:TUNE.stormP, msg:"<b>강풍과 국지 교란</b>. 몇몇 지역의 식생이 헝클어졌습니다.",
+   go:g=>{ for(let n=0;n<rrange(6,18);n++){ const i=Math.floor(rnd()*NT);
+     g.world.dist[i]=Math.min(1,g.world.dist[i]+rrange(0.3,0.8));
+     for(const s of g.species) if(s.diet==="producer") s.pop[i]*=0.80;
+     g.world.detr[i]+=6; } }},
+  {k:"quake", p:0.006, msg:"<b>지각 변동</b>으로 지형 일부가 바뀌었습니다.",
+   go:g=>{ for(let n=0;n<26;n++){ const i=Math.floor(rnd()*NT);
+     g.world.biome[i]= [0,1,2,3,4,5][Math.floor(rnd()*6)];
+     g.world.dist[i]=1;
+     g.world.baseMoist[i]=clamp(g.world.baseMoist[i]+rrange(-0.3,0.3),0,1); } }},
+];
+const HUMAN_EVENTS=[
+  {k:"sewage", p:0.028, msg:"<b>공장 폐수</b>가 하천으로 흘러들었습니다. 물가부터 오염됩니다.",
+   go:g=>{ for(let i=0;i<NT;i++) if(g.world.biome[i]<=1) g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(22,45));
+     for(let n=0;n<40;n++){ const i=Math.floor(rnd()*NT); g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(8,20)); } }},
+  {k:"farm", p:0.030, msg:"<b>농지 개간</b>. 초원과 숲이 밭으로 바뀝니다.",
+   go:g=>{ let c=0; for(let n=0;n<220&&c<26;n++){ const i=Math.floor(rnd()*NT);
+     if((g.world.biome[i]===2||g.world.biome[i]===3)&&!g.world.farm[i]){ g.world.farm[i]=1; c++;
+       g.world.dist[i]=1;
+       for(const s of g.species) if(s.diet==="producer") s.pop[i]*=0.25; } } }},
+  {k:"pesticide", p:0.022, msg:"<b>살충제 살포</b>. 작은 몸집의 종이 먼저 쓰러집니다.",
+   go:g=>{ g.events.pesticide=Math.round(rrange(2,4));
+     for(let i=0;i<NT;i++) if(g.world.farm[i]) g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(10,24)); }},
+  {k:"hunt", p:0.024, msg:"<b>남획</b>이 벌어졌습니다. 덩치 큰 종이 표적이 됩니다.",
+   go:g=>{ for(const s of g.species){ if(!s.alive||s.diet==="producer") continue;
+     if(s.traits.size>=6){ const f=1-clamp(0.16+(s.traits.size-6)*0.045 - s.traits.intelligence*0.012,0.03,0.42);
+       for(let i=0;i<NT;i++) s.pop[i]*=f; } } }},
+  {k:"road", p:0.020, msg:"<b>도로 건설</b>로 서식지가 잘려나갔습니다. 이동이 어려워집니다.",
+   go:g=>{ const horiz=rnd()<0.5, at=Math.floor(rnd()*(horiz?H:W));
+     for(let k=0;k<(horiz?W:H);k++){ const i=horiz? at*W+k : k*W+at;
+       g.world.road[i]=1; g.world.poll[i]=Math.min(100,g.world.poll[i]+8);
+       for(const s of g.species) s.pop[i]*=0.5; } }},
+  {k:"invasive", p:0.016, msg:"<b>외래종 유입</b>. 기존 종의 자원을 빠르게 잠식합니다.",
+   go:g=>{ const cands=g.species.filter(s=>s.alive&&!s.isPlayer&&s.diet!=="producer");
+     if(!cands.length) return; const s=cands[Math.floor(rnd()*cands.length)];
+     for(let i=0;i<NT;i++) if(s.pop[i]>0) s.pop[i]*=1.9;
+     logMsg("human", `유입된 개체군이 <b>${s.name}</b>과(와) 뒤섞여 급격히 불어났습니다.`); }},
+  {k:"warm", p:0.018, msg:"<b>온난화 가속</b>. 평균 기온 상승 속도가 빨라집니다.",
+   go:g=>{ g.warming += 0.55; }},
+  {k:"protect", p:0.014, msg:"<b>자연보호구역</b>이 지정됐습니다. 일부 지역의 개간과 오염이 되돌려집니다.",
+   go:g=>{ const cx=Math.floor(rnd()*W), cy=Math.floor(rnd()*H);
+     for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const i=y*W+x;
+       const dx=Math.min(Math.abs(x-cx), W-Math.abs(x-cx));
+       if(Math.hypot(dx,y-cy)<6){ g.world.farm[i]=0; g.world.poll[i]*=0.25; g.world.soil[i]=Math.min(140,g.world.soil[i]+16); } } }},
+  {k:"restore", p:0.011, msg:"<b>습지 복원 사업</b>이 시작됐습니다. 물길이 되살아납니다.",
+   go:g=>{ for(let i=0;i<NT;i++) if(g.world.biome[i]===1||g.world.biome[i]===0){
+     g.world.poll[i]*=0.35; g.world.baseMoist[i]=clamp(g.world.baseMoist[i]+0.12,0,1); g.world.detr[i]+=12; } }},
+];
+
+function rollEvents(){
+  const g=G;
+  if(!g.humanArrived && g.year>=HUMAN_YEAR){
+    g.humanArrived=true;
+    logMsg("human","<b>사람이 이 땅에 정착했습니다.</b> 이제부터 자연은 혼자가 아닙니다.");
+  }
+  for(const e of NATURE_EVENTS){
+    if(rnd() < e.p*0.72){ e.go(g); logMsg("nature", e.msg); }
+  }
+  if(g.humanArrived){
+    const intensity = clamp((g.year-HUMAN_YEAR)/95, 0.45, 1.9);
+    for(const e of HUMAN_EVENTS){
+      if(rnd() < e.p*0.62*intensity){ e.go(g); logMsg("human", e.msg); }
+    }
+  }
+  /* 진화 포인트 */
+  if(g.tick>=g.nextEpTick){
+    const mr=g.player.traits.mutationRate;
+    g.ep += 1;
+    /* 진화 포인트도 '세대'로 온다. 빨리 번식하는 종일수록 자주 진화한다 */
+    const d=g.player.d;
+    g.nextEpTick = g.tick + clamp(Math.round(19/(d.gensPerYear*0.55 + d.heritab*1.4)), 6, 34);
+    if(g.player.alive) logMsg("evo", `진화 포인트 1점을 얻었습니다. (보유 ${g.ep}점)`);
+    /* 높은 돌연변이율 = 통제 불가능한 자동 변이 */
+    if(mr>=7 && rnd()<0.22+g.player.d.heritab*0.25 && g.player.alive){
+      const k=TRAIT_KEYS[Math.floor(rnd()*TRAIT_KEYS.length)];
+      const dir = rnd()<0.5?-1:1;
+      const nv = clamp(g.player.traits[k]+dir,1,10);
+      if(nv!==g.player.traits[k]){
+        g.player.traits[k]=nv; g.player.d=derive(g.player.traits,g.player.diet);
+        logMsg("evo", `돌연변이 — <b>${TRAIT_LABEL[k]}</b>이(가) 저절로 ${dir>0?"올랐":"내렸"}습니다 (${nv}).`);
+      }
+    }
+  }
+}
+
+function logMsg(kind, html){
+  const g=G;
+  g.log.unshift({y:g.year, s:SEASONS[g.season], kind, html});
+  if(g.log.length>300) g.log.pop();
+  g._logDirty=true;
+}
+
+/* ── 종료 판정 ───────────────────────────────────────────────── */
+function checkEnd(){
+  const g=G;
+  const animals = g.species.filter(s=>s.alive && s.diet!=="producer");
+  if(!g.player.alive){ finish("extinct"); return; }
+  if(animals.length===0){ finish("silence"); return; }
+  if(g.tick>=MAX_TICKS){ finish("timeout"); return; }
+
+  /* 균형: 최근 10년(40틱) 총 개체수 변동계수 6% 미만 + 생존 종 5개 이상 + 그 사이 멸종 없음 */
+  if(g.year>=45 && g.totalHist.length>=22){
+    const win = g.totalHist.slice(-22);
+    const mean = win.reduce((a,b)=>a+b,0)/win.length;
+    const sd = Math.sqrt(win.reduce((a,b)=>a+(b-mean)**2,0)/win.length);
+    const cv = mean>0 ? sd/mean : 1;
+    const aliveN = g.species.filter(s=>s.alive).length;
+    if(cv<0.055 && aliveN>=6) g.stableRun++; else g.stableRun=0;
+    if(g.stableRun>=12){ finish("balance"); return; }
+  }
+}
+
+function prosperity(){
+  const g=G;
+  /* 개체수를 그대로 쓰면 곰팡이 10만 마리가 늑대 30마리를 언제나 이긴다.
+     생태학에서 풍부도를 비교할 때처럼 로그 척도를 쓰고, 서식지 점유와
+     바이오매스, 안정성을 함께 본다. 몸집이 달라도 비교가 되게 하는 방법이다. */
+  const L = n => n>0 ? Math.log(1+n) : 0;
+  let tl=0, tt=0, tb=0;
+  for(const s of g.species){ tl+=L(s.total); tt+=s.tiles; tb+=L(s.biomass); }
+  const rows = g.species.map(s=>{
+    if(!s.alive) return {s, pop:0, range:0, bio:0, stab:0, score:0};
+    const pop   = tl>0 ? L(s.total)/tl : 0;
+    const range = s.tiles/NT;
+    const bio   = tb>0 ? L(s.biomass)/tb : 0;
+    /* 안정성 — 최근 20년의 변동계수. 계절 진동까지 포함되므로 기준을 0.7로 잡는다 */
+    const h = s.hist.slice(-40);
+    let stab=0;
+    if(h.length>6){
+      const m=h.reduce((a,b)=>a+b,0)/h.length;
+      const sd=Math.sqrt(h.reduce((a,b)=>a+(b-m)*(b-m),0)/h.length);
+      stab = m>0 ? clamp(1-(sd/m)/0.7,0,1) : 0;
+    }
+    /* 네 항목을 똑같이 25씩. 한쪽에 가중치를 몰면 그 축에 유리한 몸집만 이긴다.
+       4등분이라야 다산형·K전략·독성형·분해자가 각자 다른 길로 이길 수 있다. */
+    const score = (pop + range + bio + stab)*25;
+    return {s, pop, range, bio, stab, score};
+  });
+  rows.sort((a,b)=>b.score-a.score);
+  /* 식물은 생태계의 토대라 항상 개체수와 면적에서 압도한다.
+     동물끼리 겨루는 게 이 게임의 승부이므로 순위는 동물만으로 매긴다. */
+  const animals = rows.filter(r=>r.s.diet!=="producer");
+  const base    = rows.filter(r=>r.s.diet==="producer");
+  animals.forEach((r,i)=>r.rank=i+1);
+  base.forEach(r=>r.rank=null);
+  return {all:rows, animals, base};
+}
+
+const ENDINGS={
+  extinct:{cls:"bad", eyebrow:"배드 엔딩", title:"계보의 끝",
+    body:"당신의 종은 살아남지 못했습니다. 마지막 개체가 사라진 뒤에도 이 땅의 다른 생물들은 계속 살아갑니다. 생태계는 어떤 종 하나가 없어도 굴러갑니다 — 그게 자연의 냉정한 부분입니다."},
+  silence:{cls:"bad", eyebrow:"배드 엔딩", title:"침묵의 땅",
+    body:"모든 동물이 사라졌습니다. 남은 것은 식물과 흙뿐입니다. 먹이사슬의 어느 한 칸이 무너지면 위쪽은 통째로 따라 무너집니다."},
+  balance:{cls:"good", eyebrow:"관측 종료 · 균형 도달", title:"평형",
+    body:"10년 넘게 전체 개체수 변동이 6% 아래로 유지됐습니다. 생태계가 안정 상태에 들어섰다고 판단해 관측을 마칩니다. 이제부터는 큰 변화 없이 같은 리듬이 반복됩니다."},
+  timeout:{cls:"", eyebrow:"관측 종료 · 기간 만료", title:"300년",
+    body:"관측 기간이 끝났습니다. 균형에 도달하지는 않았지만, 이 시점의 판세로 번영도를 판정합니다."},
+};
+
+function finish(kind){
+  const g=G; if(g.over) return;
+  g.over=true; g.running=false; g.ending=kind;
+  const pr = prosperity();
+  g.result = pr;
+  g.myRank = pr.animals.findIndex(r=>r.s.isPlayer)+1;
+  g.rivalCount = pr.animals.length;
+  hideTip();
+  show("result");
+  renderResult();
+}
+
+/* ═══════════════ UI ═══════════════ */
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+"M" : n>=1e4 ? Math.round(n/1e3)+"k" : n>=1000 ? (n/1000).toFixed(1)+"k" : Math.round(n).toString();
+
+function show(which){
+  $$(".screen").forEach(e=>e.classList.remove("on"));
+  $("#scr-"+which).classList.add("on");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+
+/* ── 설계 화면 ───────────────────────────────────────────────── */
+let design = { name: PRESETS.rstrat.name, diet: PRESETS.rstrat.diet, traits: Object.assign({},PRESETS.rstrat.t) };
+
+function buildDiets(){
+  const el=$("#diets"); el.innerHTML="";
+  for(const k of PLAYER_DIETS){
+    const b=document.createElement("button");
+    b.className="diet"; b.type="button"; b.dataset.diet=k;
+    b.setAttribute("aria-pressed", String(design.diet===k));
+    b.innerHTML=`<b>${DIETS[k].name}</b><span>${DIETS[k].desc}</span>`;
+    b.onclick=()=>{ design.diet=k; buildDiets(); refreshDesign(); };
+    el.appendChild(b);
+  }
+}
+
+function buildTraits(){
+  const wrap=$("#trait-groups"); wrap.innerHTML="";
+  for(const g of TRAIT_GROUPS){
+    const sec=document.createElement("div"); sec.className="trait-group";
+    sec.innerHTML=`<h4>${g.name}</h4>`;
+    const grid=document.createElement("div"); grid.className="traits";
+    for(const [key,label,hint] of g.traits){
+      const row=document.createElement("div"); row.className="trait";
+      row.innerHTML=`<div class="tname">${label}<span class="hint">${hint}</span></div>`;
+      const inp=document.createElement("input");
+      inp.type="range"; inp.min=1; inp.max=10; inp.step=1; inp.value=design.traits[key];
+      inp.setAttribute("aria-label", label);
+      const val=document.createElement("div"); val.className="tval num"; val.textContent=design.traits[key];
+      inp.oninput=()=>{ design.traits[key]=+inp.value; val.textContent=inp.value; $("#preset").value="custom"; refreshDesign(); };
+      row.appendChild(inp); row.appendChild(val); grid.appendChild(row);
+    }
+    sec.appendChild(grid); wrap.appendChild(sec);
+  }
+}
+
+function refreshDesign(){
+  const t=design.traits, cost=totalCost(t), left=BUDGET-cost;
+  $("#budget-left").textContent = left;
+  $("#budget-total").textContent = BUDGET;
+  const gg=$("#budget-gauge");
+  gg.classList.toggle("over", left<0);
+  gg.firstElementChild.style.width = clamp(cost/BUDGET*100,0,100)+"%";
+  $("#btn-start").disabled = left<0;
+  $("#btn-start").textContent = left<0 ? `포인트 ${-left} 초과` : "이 종으로 시작";
+
+  const d=derive(t,design.diet);
+  const yrs = (1/Math.max(d.ageDeath,0.001)/TICKS_PER_YEAR).toFixed(1);
+  const stats=[
+    ["개체 유지비", d.upkeep.toFixed(2)+" <small>/틱</small>"],
+    ["최대 번식률", (d.birthMax*100).toFixed(1)+"<small>% /틱</small>"],
+    ["기대 수명", yrs+"<small>년</small>"],
+    ["새끼 생존율", (d.juvSurv*100).toFixed(0)+"<small>%</small>"],
+    ["방어 지수", d.defense.toFixed(1)],
+    ["사냥 지수", d.attack.toFixed(1)],
+    ["적정 기온", d.optTemp.toFixed(0)+"<small>°C ±"+((d.wCold+d.wHeat)/2).toFixed(0)+"</small>"],
+    ["적정 습도", (d.moistOpt*100).toFixed(0)+"<small>%</small>"],
+    ["확산 속도", (d.spread*100).toFixed(1)+"<small>% /틱</small>"],
+    ["타일 밀도", d.density.toFixed(1)],
+    ["세대 시간", (1/d.gensPerYear).toFixed(1)+"<small>년</small>"],
+    ["유전율 h²", d.heritab.toFixed(2)],
+    ["진화 포인트", "약 "+(clamp(Math.round(19/(d.gensPerYear*0.55+d.heritab*1.4)),6,34)/TICKS_PER_YEAR).toFixed(1)+"<small>년마다</small>"],
+    ["개척종 지수", d.pioneer.toFixed(2)],
+  ];
+  $("#derived").innerHTML = stats.map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v num">${v}</div></div>`).join("");
+
+  /* 제약 · 경고 */
+  const cons=[];
+  for(const p of couplingPenalties(t)) cons.push({lvl:"warn", html:`${p.text} <b>+${Math.round(p.cost)}p</b>`});
+  if(d.upkeep>2.6) cons.push({lvl:"crit", html:`유지비가 매우 높습니다. <b>기근 한 번에 무너질</b> 수 있습니다.`});
+  if(d.birthMax<0.012) cons.push({lvl:"crit", html:`번식이 너무 느립니다. 개체수가 줄면 <b>회복이 거의 불가능</b>합니다.`});
+  if(design.diet==="carnivore" && d.attack<2.5) cons.push({lvl:"crit", html:`육식인데 사냥 지수가 낮습니다. <b>공격성·순발력·체격</b> 중 하나는 올려야 합니다.`});
+  if(design.diet==="carnivore" && t.size<=2) cons.push({lvl:"warn", html:`몸집이 작으면 <b>작은 먹이만</b> 잡을 수 있습니다.`});
+  if(d.defense<4 && design.diet!=="producer") cons.push({lvl:"warn", html:`방어 지수가 낮습니다. 포식자에게 <b>일방적으로 소모</b>될 수 있습니다.`});
+  if(t.pollutionTol<=3) cons.push({lvl:"warn", html:`오염 내성이 낮습니다. ${HUMAN_YEAR}년쯤 <b>인간이 등장</b>하면 위험합니다.`});
+  if(t.habitatBreadth>=8) cons.push({lvl:"good", html:`서식지 폭이 넓어 <b>여러 지형에 퍼질</b> 수 있습니다.`});
+  if(t.toxicity>=8) cons.push({lvl:"good", html:`독성이 높아 <b>거의 잡아먹히지 않습니다.</b>`});
+  if(t.mutationRate>=7) cons.push({lvl:"warn", html:`돌연변이율이 높습니다. 진화 포인트를 자주 받지만 <b>형질이 제멋대로</b> 바뀝니다.`});
+  if(cons.length===0) cons.push({lvl:"good", html:`상충하는 조합이 없습니다. 균형 잡힌 설계입니다.`});
+  $("#constraints").innerHTML = cons.slice(0,7).map(c=>`<div class="cons ${c.lvl}">${c.html}</div>`).join("");
+}
+
+function applyPreset(key){
+  if(key==="custom") return;
+  const p=PRESETS[key];
+  design.traits=Object.assign({},p.t); design.diet=p.diet; design.name=p.name;
+  $("#sp-name").value=p.name;
+  buildDiets(); buildTraits(); refreshDesign();
+}
+
+/* ── 지도 렌더 ───────────────────────────────────────────────── */
+const LAYERS=[
+  {k:"terrain", n:"지형"},
+  {k:"veg",     n:"식생"},
+  {k:"temp",    n:"기온"},
+  {k:"moist",   n:"수분"},
+  {k:"poll",    n:"오염"},
+  {k:"species", n:"종 분포"},
+];
+function buildLayerTabs(){
+  const el=$("#layer-tabs"); el.innerHTML="";
+  for(const L of LAYERS){
+    const b=document.createElement("button");
+    b.className="tab"; b.type="button"; b.textContent=L.n;
+    b.setAttribute("aria-pressed", String(G.layer===L.k));
+    b.onclick=()=>{ G.layer=L.k; buildLayerTabs(); drawMap(); };
+    el.appendChild(b);
+  }
+}
+
+function hex2rgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function mix(a,b,t){ return [Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))]; }
+const rgb=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
+const BIOME_RGB = BIOME_BASE.map(hex2rgb);
+const GROUND_RGB = hex2rgb("#070A09");
+
+function vegField(){
+  const veg=new Float32Array(NT);
+  for(const s of G.species) if(s.diet==="producer"&&s.alive)
+    for(let i=0;i<NT;i++) veg[i]+=s.pop[i]*s.d.bodyMass;
+  return veg;
+}
+
+/* 타일 하나의 색 — 2D 지도와 3D 반구가 같은 함수를 쓴다 */
+function tileRGB(i, layer, veg, sel){
+  const w=G.world;
+  if(layer==="terrain"){
+    const base=BIOME_RGB[w.biome[i]];
+    const v=clamp((veg[i]||0)/70,0,1);
+    let col = mix(mix(GROUND_RGB,base,0.94), [138,182,104], v*0.42);
+    if(w.dist[i]>0.15) col = mix(col,[128,110,84], clamp(w.dist[i]*0.45,0,0.4));
+    if(w.farm[i]) col = mix(col,[132,112,62],0.58);
+    if(w.poll[i]>8) col = mix(col,[150,74,110], clamp(w.poll[i]/130,0,0.55));
+    if(w.road[i]) col = mix(col,[168,166,156],0.35);
+    return col;
+  }
+  if(layer==="veg"){
+    const v=clamp((veg[i]||0)/80,0,1);
+    return mix([16,26,22], [96,176,88], Math.pow(v,0.7));
+  }
+  if(layer==="temp"){
+    const t=tileTemp(w,i,G.season,G.warming);
+    const n=clamp((t+6)/40,0,1);
+    return n<0.5 ? mix([46,104,168],[62,72,70], n*2) : mix([62,72,70],[214,86,56], (n-0.5)*2);
+  }
+  if(layer==="moist"){
+    return mix([26,28,26], [58,140,206], Math.pow(clamp(w.moist[i],0,1),0.8));
+  }
+  if(layer==="poll"){
+    return mix([20,30,26], [213,81,129], Math.pow(clamp(w.poll[i]/100,0,1),0.6));
+  }
+  const p=sel.pop[i], mx=Math.max(1,sel._max||1);
+  const base=BIOME_RGB[w.biome[i]];
+  return mix(mix(GROUND_RGB,base,0.45), hex2rgb(sel.color), Math.pow(clamp(p/mx,0,1),0.55));
+}
+
+function drawMap2D(){
+  const cv=$("#map"), ctx=cv.getContext("2d");
+  const cs = cv.width/W;
+  const w=G.world, layer=G.layer;
+  ctx.fillStyle="#0B1310"; ctx.fillRect(0,0,cv.width,cv.height);
+
+  const veg = vegField();
+  const sel = G.species[G.selected];
+
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x;
+    const col = tileRGB(i, layer, veg, sel);
+    ctx.fillStyle=rgb(col);
+    ctx.fillRect(Math.round(x*cs), Math.round(y*cs), Math.ceil(cs), Math.ceil(cs));
+    if(layer==="terrain" && w.road[i]){
+      ctx.fillStyle="rgba(200,200,190,.30)";
+      ctx.fillRect(Math.round(x*cs), Math.round(y*cs+cs*0.42), Math.ceil(cs), Math.max(1,cs*0.16));
+    }
+  }
+
+  /* 지형 레이어에서는 내 종 분포를 점으로 겹쳐 표시 */
+  if(layer==="terrain" && G.player.alive){
+    const p=G.player.pop; let mx=0; for(let i=0;i<NT;i++) if(p[i]>mx) mx=p[i];
+    if(mx>0){
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        const i=y*W+x, v=p[i]/mx; if(v<=0.04) continue;
+        const r=Math.max(1.1, cs*0.30*Math.pow(v,0.5));
+        ctx.beginPath();
+        ctx.arc(x*cs+cs/2, y*cs+cs/2, r, 0, Math.PI*2);
+        ctx.fillStyle=`rgba(231,168,44,${0.35+v*0.55})`; ctx.fill();
+      }
+    }
+  }
+}
+
+/* 2D 지도와 3D 반구 중 가능한 쪽으로 그린다 */
+function drawMap(){
+  if(Globe.ok){ Globe.updateTerrain(); Globe.updateCreatures(); }
+  else drawMap2D();
+  drawMapLegend();
+}
+
+function drawMapLegend(){
+  const el=$("#map-legend"), L=G.layer, w=G.world;
+  const ramp=(cols,a,b)=>`<span class="ramp">${cols.map(c=>`<i style="background:${c}"></i>`).join("")}</span><span class="num">${a}</span><span style="color:var(--ink-3)">→</span><span class="num">${b}</span>`;
+  if(L==="terrain"){
+    el.innerHTML = `<span class="swatches">${BIOMES.map((b,i)=>`<span class="sw"><i style="background:${BIOME_BASE[i]}"></i>${b}</span>`).join("")}
+      <span class="sw"><i style="background:#7A683A"></i>농지</span>
+      <span class="sw"><i style="background:#C98500"></i>내 종 분포</span></span>`;
+  } else if(L==="veg"){
+    el.innerHTML = ramp(["#101A16","#2c5a30","#60b058"],"식물 없음","울창함");
+  } else if(L==="temp"){
+    el.innerHTML = ramp(["#2e68a8","#3e4846","#d65638"],"-6°C","34°C") +
+      `<span style="margin-left:8px">현재 평균 <b class="num">${avgTemp().toFixed(1)}°C</b></span>`;
+  } else if(L==="moist"){
+    el.innerHTML = ramp(["#1a1c1a","#2f6a92","#3a8cce"],"건조","포화");
+  } else if(L==="poll"){
+    el.innerHTML = ramp(["#141e1a","#7a3a5c","#d55181"],"0","100");
+  } else {
+    const s=G.species[G.selected];
+    el.innerHTML = `<span class="sw"><i style="background:${s.color}"></i><b>${s.name}</b> 분포 밀도</span>
+      <span style="color:var(--ink-3)">서식 타일 <b class="num">${s.tiles}</b> / ${NT} · 최대 밀도 <b class="num">${fmt(s._max||0)}</b></span>`;
+  }
+}
+function avgTemp(){ let t=0; for(let i=0;i<NT;i++) t+=tileTemp(G.world,i,G.season,G.warming); return t/NT; }
+function avgMoist(){ let t=0; for(let i=0;i<NT;i++) t+=G.world.moist[i]; return t/NT; }
+function avgPoll(){ let t=0; for(let i=0;i<NT;i++) t+=G.world.poll[i]; return t/NT; }
+
+/* ── 스택 영역 차트 ──────────────────────────────────────────── */
+function drawChart(canvasId, legendId, full){
+  const cv=$("#"+canvasId); if(!cv) return;
+  const ctx=cv.getContext("2d");
+  const cssW = cv.clientWidth || cv.width;
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  const wpx = Math.round(cssW*dpr), hpx = Math.round((full?340:300)*dpr);
+  if(cv.width!==wpx || cv.height!==hpx){ cv.width=wpx; cv.height=hpx; }
+  cv.style.height=(full?340:300)+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const Wc=cssW, Hc=(full?340:300);
+  ctx.clearRect(0,0,Wc,Hc);
+
+  const pad={l:52,r:14,t:12,b:26};
+  const gw=Wc-pad.l-pad.r, gh=Hc-pad.t-pad.b;
+  const data=G.guildHist;
+  if(data.length<2){ return; }
+
+  let maxTot=0;
+  for(const row of data){ let s=0; for(const v of row) s+=v; if(s>maxTot) maxTot=s; }
+  maxTot = maxTot*1.06 || 1;
+  const n=data.length;
+  const X = k => pad.l + (n<2?0:(k/(n-1))*gw);
+  const Y = v => pad.t + gh - (v/maxTot)*gh;
+
+  /* 눈금 */
+  ctx.font='400 10px "IBM Plex Mono", monospace';
+  ctx.strokeStyle="#26362F"; ctx.lineWidth=1;
+  const ticks=4;
+  ctx.textAlign="right"; ctx.textBaseline="middle";
+  for(let i=0;i<=ticks;i++){
+    const v=maxTot*i/ticks, y=Math.round(Y(v))+0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(Wc-pad.r,y); ctx.stroke();
+    ctx.fillStyle="#63776F"; ctx.fillText(fmt(v), pad.l-8, y);
+  }
+
+  /* 스택 */
+  const cum=new Float32Array(n);
+  for(let g=0; g<8; g++){
+    ctx.beginPath();
+    for(let k=0;k<n;k++){ const y=Y(cum[k]+data[k][g]); k?ctx.lineTo(X(k),y):ctx.moveTo(X(k),y); }
+    for(let k=n-1;k>=0;k--) ctx.lineTo(X(k), Y(cum[k]));
+    ctx.closePath();
+    ctx.fillStyle=GUILDS[g].color; ctx.globalAlpha = g===0?0.95:0.78; ctx.fill(); ctx.globalAlpha=1;
+    /* 표면 간격 2px */
+    ctx.beginPath();
+    for(let k=0;k<n;k++){ const y=Y(cum[k]+data[k][g]); k?ctx.lineTo(X(k),y):ctx.moveTo(X(k),y); }
+    ctx.strokeStyle="#131E1B"; ctx.lineWidth=2; ctx.stroke();
+    for(let k=0;k<n;k++) cum[k]+=data[k][g];
+  }
+
+  /* 내 종을 굵은 선으로 한 번 더 강조 (스택 맨 아래 슬롯) */
+  ctx.beginPath();
+  for(let k=0;k<n;k++){ const y=Y(data[k][0]); k?ctx.lineTo(X(k),y):ctx.moveTo(X(k),y); }
+  ctx.strokeStyle="#E7A82C"; ctx.lineWidth=2; ctx.stroke();
+
+  /* 인간 등장 시점 */
+  const humanTick = HUMAN_YEAR*TICKS_PER_YEAR/2;
+  if(n>humanTick){
+    const x=Math.round(X(humanTick))+0.5;
+    ctx.setLineDash([3,3]); ctx.strokeStyle="#e66767"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+gh); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#e66767"; ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillText("인간", x+4, pad.t+2);
+  }
+
+  /* x축 */
+  ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillStyle="#63776F";
+  for(let i=0;i<=4;i++){
+    const k=Math.round((n-1)*i/4);
+    ctx.fillText(Math.max(1,Math.round(k*2/TICKS_PER_YEAR))+"년", X(k), pad.t+gh+7);
+  }
+
+  cv._chart={pad,gw,gh,X,Y,n,maxTot,Wc,Hc};
+
+  const lg=$("#"+legendId);
+  if(lg){
+    lg.innerHTML = GUILDS.map((g,i)=>{
+      const last=data[data.length-1][i];
+      return `<span class="sw"><i style="background:${g.color}"></i>${g.name} <b class="num" style="color:var(--ink)">${fmt(last)}</b></span>`;
+    }).join("");
+  }
+}
+
+/* ══════════════ 3D 반구 뷰 (순수 WebGL, 외부 라이브러리 없음) ══════════════
+   32×20 격자를 반구에 감는다.
+   · 세로는 램버트 등면적 배치 — 극지 타일도 적도 타일과 면적이 같다.
+   · 가로는 지형 생성이 sin/cos 합이라 한 바퀴가 저절로 맞물린다.
+   · 고도는 반지름으로 밀어올려 산과 호수가 입체로 보인다.
+   생물은 특성에 맞는 저폴리 도형으로 놓는다 — 포식자는 뾰족하게,
+   초식동물은 둥글게, 교목은 길쭉한 원뿔, 분해자는 납작한 원반. */
+const Globe = (function(){
+  const R = 10, RELIEF = 1.45, MAX_CREATURES = 1400;
+  let gl=null, ok=false, prog=null, cv=null;
+  let terrBuf=null, terrN=0, creaBuf=null, creaN=0;
+  let terrData=null, creaData=null, shapes=null;
+  let az=0.55, pol=0.58, dist=28, dragging=false, lx=0, ly=0;
+
+  /* ── 작은 행렬 라이브러리 ────────────────────────────────── */
+  function mul(a,b){ const o=new Float32Array(16);
+    for(let i=0;i<4;i++)for(let j=0;j<4;j++){ let v=0;
+      for(let k=0;k<4;k++) v+=a[k*4+j]*b[i*4+k]; o[i*4+j]=v; } return o; }
+  function perspective(fovy,asp,n,f){ const t=1/Math.tan(fovy/2), o=new Float32Array(16);
+    o[0]=t/asp; o[5]=t; o[10]=(f+n)/(n-f); o[11]=-1; o[14]=2*f*n/(n-f); return o; }
+  function lookAt(e,c,u){
+    let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]]; let l=Math.hypot(...z); z=z.map(v=>v/l);
+    let x=[u[1]*z[2]-u[2]*z[1], u[2]*z[0]-u[0]*z[2], u[0]*z[1]-u[1]*z[0]];
+    l=Math.hypot(...x)||1; x=x.map(v=>v/l);
+    const y=[z[1]*x[2]-z[2]*x[1], z[2]*x[0]-z[0]*x[2], z[0]*x[1]-z[1]*x[0]];
+    return new Float32Array([x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0,
+      -(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]), -(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]), -(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]), 1]);
+  }
+
+  /* ── 좌표 변환 ───────────────────────────────────────────── */
+  function vert(x,y,rad,out,o){
+    const cph = 1 - y/H;                       // 램버트 등면적
+    const sph = Math.sqrt(Math.max(0,1-cph*cph));
+    const th  = x/W*Math.PI*2;
+    out[o]=rad*sph*Math.cos(th); out[o+1]=rad*cph; out[o+2]=rad*sph*Math.sin(th);
+  }
+  function tileRadius(i){ return R + (G.world.elev[i]-0.45)*RELIEF; }
+
+  /* ── 저폴리 도형 생성기 ──────────────────────────────────── */
+  /* 위아래로 뾰족한 다각뿔 두 개를 붙인 형태. 인자만 바꾸면
+     원뿔(나무)·구슬(초식)·창끝(육식)·원반(분해자)이 전부 나온다. */
+  function bipyramid(rad, up, down, seg){
+    const v=[];
+    for(let k=0;k<seg;k++){
+      const a0=k/seg*Math.PI*2, a1=(k+1)/seg*Math.PI*2;
+      const p0=[Math.cos(a0)*rad,0,Math.sin(a0)*rad], p1=[Math.cos(a1)*rad,0,Math.sin(a1)*rad];
+      v.push([0,up,0],p1,p0);
+      if(down>0) v.push([0,-down,0],p0,p1);
+    }
+    return v;
+  }
+  function shapeFor(s){
+    const t=s.traits, z=t.size;
+    if(s.diet==="producer"){
+      if(z>=7) return bipyramid(0.34, 1.55, 0.05, 5);        // 교목 — 길쭉한 원뿔
+      if(z>=3) return bipyramid(0.46, 0.62, 0.08, 6);        // 관목 — 낮고 넓게
+      return bipyramid(0.42, 0.30, 0.03, 4);                 // 초본 — 납작한 뿔
+    }
+    if(s.diet==="detritivore") return bipyramid(0.34, 0.09, 0.05, 7);   // 원반
+    if(s.diet==="carnivore")   return bipyramid(0.24, 0.62, 0.22, 4);   // 창끝
+    if(s.diet==="omnivore")    return bipyramid(0.30, 0.34, 0.26, 8);   // 다면체
+    /* 초식 — 사회성이 높을수록 둥글게, 방어가 높을수록 각지게 */
+    return bipyramid(0.32, 0.36, 0.26, t.sociality>=6?8:6);
+  }
+
+  /* ── 셰이더 ─────────────────────────────────────────────── */
+  const VS = `
+    attribute vec3 aPos; attribute vec3 aNrm; attribute vec3 aCol; attribute float aEmit;
+    uniform mat4 uMVP; varying vec3 vN; varying vec3 vC; varying float vD; varying float vE;
+    void main(){ vN=aNrm; vC=aCol; vE=aEmit; vec4 p=uMVP*vec4(aPos,1.0);
+      vD=p.z/p.w; gl_Position=p; }`;
+  /* 지형은 낮게 깔고 생물만 자체 발광시켜, 어두운 바탕 위에 도형이 떠 보이게 한다 */
+  const FS = `
+    precision mediump float;
+    uniform vec3 uLight; varying vec3 vN; varying vec3 vC; varying float vD; varying float vE;
+    void main(){
+      vec3 n = normalize(vN);
+      float d = max(dot(n, normalize(uLight)), 0.0);
+      float sky = max(n.y, 0.0);
+      vec3 base = vC*(0.34 + 0.74*d) + vec3(0.038,0.060,0.055)*sky;
+      vec3 glow = vC*(0.62 + 0.55*d) + vC*0.30;
+      vec3 c = mix(base, glow, vE);
+      c = mix(c, vec3(0.016,0.024,0.021), clamp(vD*0.42,0.0,0.5));
+      gl_FragColor = vec4(c, 1.0);
+    }`;
+
+  function compile(type,src){
+    const sh=gl.createShader(type); gl.shaderSource(sh,src); gl.compileShader(sh);
+    if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+    return sh;
+  }
+
+  function init(){
+    if(ok) return true;
+    cv = document.getElementById("globe");
+    if(!cv) return false;
+    try{
+      gl = cv.getContext("webgl",{antialias:true,alpha:false}) || cv.getContext("experimental-webgl");
+      if(!gl) return false;
+      prog = gl.createProgram();
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(prog);
+      if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+      gl.useProgram(prog);
+      gl.enable(gl.DEPTH_TEST);
+      gl.clearColor(0.016,0.024,0.021,1);
+      terrBuf = gl.createBuffer();
+      creaBuf = gl.createBuffer();
+      terrData = new Float32Array(NT*6*10);
+      creaData = new Float32Array(MAX_CREATURES*40*10);
+      bindControls();
+      ok=true;
+      return true;
+    }catch(err){ console.warn("3D 초기화 실패 — 2D 지도로 대체합니다:", err.message); gl=null; return false; }
+  }
+
+  function bindControls(){
+    const start=e=>{ dragging=true; cv.classList.add("dragging");
+      lx=e.clientX; ly=e.clientY; cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
+      const h=document.getElementById("viewhint"); if(h) h.style.opacity="0"; };
+    const move=e=>{ if(!dragging) return;
+      az -= (e.clientX-lx)*0.0075;
+      pol = clamp(pol - (e.clientY-ly)*0.006, 0.10, 1.42);
+      lx=e.clientX; ly=e.clientY; };
+    const end=()=>{ dragging=false; cv.classList.remove("dragging"); };
+    cv.addEventListener("pointerdown",start);
+    cv.addEventListener("pointermove",move);
+    cv.addEventListener("pointerup",end);
+    cv.addEventListener("pointercancel",end);
+    cv.addEventListener("pointerleave",end);
+    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*1.5, 12.5, 42); e.preventDefault(); },{passive:false});
+  }
+
+  function buildCreatures(){ shapes = G.species.map(shapeFor); }
+
+  /* ── 지형 정점 채우기 ────────────────────────────────────── */
+  const _a=new Float32Array(3), _b=new Float32Array(3), _c=new Float32Array(3), _d=new Float32Array(3);
+  function pushTri(buf,o,p0,p1,p2,r,g,b,em){
+    const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
+    const vx=p2[0]-p0[0], vy=p2[1]-p0[1], vz=p2[2]-p0[2];
+    let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+    const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+    const ps=[p0,p1,p2];
+    for(let k=0;k<3;k++){
+      buf[o++]=ps[k][0]; buf[o++]=ps[k][1]; buf[o++]=ps[k][2];
+      buf[o++]=nx; buf[o++]=ny; buf[o++]=nz;
+      buf[o++]=r; buf[o++]=g; buf[o++]=b; buf[o++]=em;
+    }
+    return o;
+  }
+
+  function updateTerrain(){
+    if(!ok) return;
+    const layer=G.layer, veg=vegField(), sel=G.species[G.selected];
+    let o=0;
+    const q0=[0,0,0], q1=[0,0,0], q2=[0,0,0], q3=[0,0,0];
+    for(let i=0;i<NT;i++){
+      const x=i%W, y=(i/W)|0, rad=tileRadius(i);
+      vert(x,   y,   rad, q0, 0);
+      vert(x+1, y,   rad, q1, 0);
+      vert(x+1, y+1, rad, q2, 0);
+      vert(x,   y+1, rad, q3, 0);
+      const c = tileRGB(i, layer, veg, sel);
+      const r=c[0]/255, g=c[1]/255, b=c[2]/255;
+      o = pushTri(terrData,o,q0,q1,q2,r,g,b,0.0);
+      o = pushTri(terrData,o,q0,q2,q3,r,g,b,0.0);
+    }
+    terrN = o/10;
+    gl.bindBuffer(gl.ARRAY_BUFFER, terrBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, terrData, gl.DYNAMIC_DRAW);
+  }
+
+  /* ── 생물 도형 배치 ──────────────────────────────────────── */
+  function updateCreatures(){
+    if(!ok) return;
+    const mode=G.creatureMode||"all";
+    let o=0, count=0;
+    const p=[0,0,0], t0=[0,0,0], t1=[0,0,0], t2=[0,0,0];
+    for(let si=0; si<G.species.length; si++){
+      const s=G.species[si];
+      if(mode==="none") break;
+      if(!s.alive || (mode==="me" && !s.isPlayer)) continue;
+      const shp=shapes[si]; if(!shp) continue;
+      let peak=0; for(let i=0;i<NT;i++) if(s.pop[i]>peak) peak=s.pop[i];
+      if(peak<=0.4) continue;
+      const hx=hex2rgb(s.color), cr=hx[0]/255, cg=hx[1]/255, cb=hx[2]/255;
+      const base = 0.34 + s.traits.size*0.062;
+      for(let i=0;i<NT;i++){
+        if(count>=MAX_CREATURES) break;
+        const v=s.pop[i];
+        if(v < peak*0.10 || v < 0.5) continue;
+        const scale = base*(0.48 + 0.72*Math.pow(v/peak, 0.40));
+        const rad = tileRadius(i)+0.01;
+        /* 타일 안에서 고정된 위치로 흔들어 격자처럼 줄 서지 않게 한다 */
+        const hsh=(i*2654435761 + si*97)>>>0;
+        const jx=((hsh&1023)/1023-0.5)*0.55, jy=(((hsh>>10)&1023)/1023-0.5)*0.55;
+        const x=(i%W)+0.5+jx, y=clamp(((i/W)|0)+0.5+jy, 0.05, H-0.05);
+        vert(x,y,rad,p,0);
+        /* 지표면 법선 방향으로 세운다 */
+        const nl=Math.hypot(p[0],p[1],p[2])||1;
+        const nx=p[0]/nl, ny=p[1]/nl, nz=p[2]/nl;
+        /* 법선을 y축으로 하는 정규직교 기저 */
+        let ax, ay, az2;
+        if(Math.abs(ny)<0.92){ ax=ny*0-0*nz; ax=-nz; ay=0; az2=nx; }
+        else { ax=1; ay=0; az2=0; }
+        let al=Math.hypot(ax,ay,az2)||1; ax/=al; ay/=al; az2/=al;
+        const bx=ny*az2-nz*ay, by=nz*ax-nx*az2, bz=nx*ay-ny*ax;
+        for(let k=0;k<shp.length;k+=3){
+          if(o+30 > creaData.length) break;
+          for(let m=0;m<3;m++){
+            const q=shp[k+m];
+            const sx=q[0]*scale, sy=q[1]*scale, sz=q[2]*scale;
+            const tgt=[t0,t1,t2][m];
+            tgt[0]=p[0]+ax*sx+nx*sy+bx*sz;
+            tgt[1]=p[1]+ay*sx+ny*sy+by*sz;
+            tgt[2]=p[2]+az2*sx+nz*sy+bz*sz;
+          }
+          o = pushTri(creaData,o,t0,t1,t2,cr,cg,cb,1.0);
+        }
+        count++;
+      }
+    }
+    creaN=o/10;
+    gl.bindBuffer(gl.ARRAY_BUFFER, creaBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, creaData.subarray(0,o), gl.DYNAMIC_DRAW);
+  }
+
+  /* ── 렌더 ────────────────────────────────────────────────── */
+  let vpCache=null;
+  function viewProj(){
+    const w=cv.clientWidth||760, h=cv.clientHeight||440;
+    const dpr=Math.min(2, window.devicePixelRatio||1);
+    if(cv.width!==Math.round(w*dpr) || cv.height!==Math.round(h*dpr)){
+      cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    }
+    gl.viewport(0,0,cv.width,cv.height);
+    const cp=[Math.sin(az)*Math.cos(pol)*dist, Math.sin(pol)*dist+2.0, Math.cos(az)*Math.cos(pol)*dist];
+    const P=perspective(0.66, cv.width/cv.height, 0.5, 220);
+    const V=lookAt(cp,[0,R*0.30,0],[0,1,0]);
+    vpCache={mvp:mul(P,V), eye:cp};
+    return vpCache;
+  }
+
+  function draw(buf,n){
+    if(!n) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    const st=10*4;
+    const aP=gl.getAttribLocation(prog,"aPos"), aN=gl.getAttribLocation(prog,"aNrm"),
+          aC=gl.getAttribLocation(prog,"aCol"), aE=gl.getAttribLocation(prog,"aEmit");
+    gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP,3,gl.FLOAT,false,st,0);
+    gl.enableVertexAttribArray(aN); gl.vertexAttribPointer(aN,3,gl.FLOAT,false,st,12);
+    gl.enableVertexAttribArray(aC); gl.vertexAttribPointer(aC,3,gl.FLOAT,false,st,24);
+    gl.enableVertexAttribArray(aE); gl.vertexAttribPointer(aE,1,gl.FLOAT,false,st,36);
+    gl.drawArrays(gl.TRIANGLES,0,n);
+  }
+
+  function render(){
+    if(!ok || !G) return;
+    const vp=viewProj();
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(prog);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog,"uMVP"), false, vp.mvp);
+    /* 계절에 따라 해가 뜨고 진다 */
+    const sa=(G.tick/TICKS_PER_YEAR)*0.45;
+    const sh=0.55+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.42;
+    gl.uniform3f(gl.getUniformLocation(prog,"uLight"), Math.cos(sa), sh, Math.sin(sa));
+    draw(terrBuf, terrN);
+    draw(creaBuf, creaN);
+  }
+
+  /* ── 마우스 → 타일 (반구와 광선의 교점) ──────────────────── */
+  function pick(ev){
+    if(!ok || !vpCache) return -1;
+    const r=cv.getBoundingClientRect();
+    const nx=((ev.clientX-r.left)/r.width)*2-1, ny=-((ev.clientY-r.top)/r.height)*2+1;
+    const inv=invert(vpCache.mvp); if(!inv) return -1;
+    const far=applyPoint(inv,[nx,ny,1]);
+    const eye=vpCache.eye;
+    const d=[far[0]-eye[0], far[1]-eye[1], far[2]-eye[2]];
+    const dl=Math.hypot(...d); if(!dl) return -1;
+    d[0]/=dl; d[1]/=dl; d[2]/=dl;
+    const bq=eye[0]*d[0]+eye[1]*d[1]+eye[2]*d[2];
+    const cq=eye[0]*eye[0]+eye[1]*eye[1]+eye[2]*eye[2]-R*R;
+    const disc=bq*bq-cq; if(disc<0) return -1;
+    const t=-bq-Math.sqrt(disc); if(t<=0) return -1;
+    const hp=[eye[0]+d[0]*t, eye[1]+d[1]*t, eye[2]+d[2]*t];
+    if(hp[1] < -0.05) return -1;                       // 반구 아래쪽은 없다
+    const cph=clamp(hp[1]/R, 0, 1);
+    const y=clamp(Math.floor((1-cph)*H), 0, H-1);
+    let th=Math.atan2(hp[2], hp[0]); if(th<0) th+=Math.PI*2;
+    const x=clamp(Math.floor(th/(Math.PI*2)*W), 0, W-1);
+    return y*W+x;
+  }
+  function applyPoint(m,v){
+    const w=m[3]*v[0]+m[7]*v[1]+m[11]*v[2]+m[15];
+    return [(m[0]*v[0]+m[4]*v[1]+m[8]*v[2]+m[12])/w,
+            (m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13])/w,
+            (m[2]*v[0]+m[6]*v[1]+m[10]*v[2]+m[14])/w];
+  }
+  function invert(m){
+    const i=new Float32Array(16), a=m;
+    i[0]=a[5]*a[10]*a[15]-a[5]*a[11]*a[14]-a[9]*a[6]*a[15]+a[9]*a[7]*a[14]+a[13]*a[6]*a[11]-a[13]*a[7]*a[10];
+    i[4]=-a[4]*a[10]*a[15]+a[4]*a[11]*a[14]+a[8]*a[6]*a[15]-a[8]*a[7]*a[14]-a[12]*a[6]*a[11]+a[12]*a[7]*a[10];
+    i[8]=a[4]*a[9]*a[15]-a[4]*a[11]*a[13]-a[8]*a[5]*a[15]+a[8]*a[7]*a[13]+a[12]*a[5]*a[11]-a[12]*a[7]*a[9];
+    i[12]=-a[4]*a[9]*a[14]+a[4]*a[10]*a[13]+a[8]*a[5]*a[14]-a[8]*a[6]*a[13]-a[12]*a[5]*a[10]+a[12]*a[6]*a[9];
+    i[1]=-a[1]*a[10]*a[15]+a[1]*a[11]*a[14]+a[9]*a[2]*a[15]-a[9]*a[3]*a[14]-a[13]*a[2]*a[11]+a[13]*a[3]*a[10];
+    i[5]=a[0]*a[10]*a[15]-a[0]*a[11]*a[14]-a[8]*a[2]*a[15]+a[8]*a[3]*a[14]+a[12]*a[2]*a[11]-a[12]*a[3]*a[10];
+    i[9]=-a[0]*a[9]*a[15]+a[0]*a[11]*a[13]+a[8]*a[1]*a[15]-a[8]*a[3]*a[13]-a[12]*a[1]*a[11]+a[12]*a[3]*a[9];
+    i[13]=a[0]*a[9]*a[14]-a[0]*a[10]*a[13]-a[8]*a[1]*a[14]+a[8]*a[2]*a[13]+a[12]*a[1]*a[10]-a[12]*a[2]*a[9];
+    i[2]=a[1]*a[6]*a[15]-a[1]*a[7]*a[14]-a[5]*a[2]*a[15]+a[5]*a[3]*a[14]+a[13]*a[2]*a[7]-a[13]*a[3]*a[6];
+    i[6]=-a[0]*a[6]*a[15]+a[0]*a[7]*a[14]+a[4]*a[2]*a[15]-a[4]*a[3]*a[14]-a[12]*a[2]*a[7]+a[12]*a[3]*a[6];
+    i[10]=a[0]*a[5]*a[15]-a[0]*a[7]*a[13]-a[4]*a[1]*a[15]+a[4]*a[3]*a[13]+a[12]*a[1]*a[7]-a[12]*a[3]*a[5];
+    i[14]=-a[0]*a[5]*a[14]+a[0]*a[6]*a[13]+a[4]*a[1]*a[14]-a[4]*a[2]*a[13]-a[12]*a[1]*a[6]+a[12]*a[2]*a[5];
+    i[3]=-a[1]*a[6]*a[11]+a[1]*a[7]*a[10]+a[5]*a[2]*a[11]-a[5]*a[3]*a[10]-a[9]*a[2]*a[7]+a[9]*a[3]*a[6];
+    i[7]=a[0]*a[6]*a[11]-a[0]*a[7]*a[10]-a[4]*a[2]*a[11]+a[4]*a[3]*a[10]+a[8]*a[2]*a[7]-a[8]*a[3]*a[6];
+    i[11]=-a[0]*a[5]*a[11]+a[0]*a[7]*a[9]+a[4]*a[1]*a[11]-a[4]*a[3]*a[9]-a[8]*a[1]*a[7]+a[8]*a[3]*a[5];
+    i[15]=a[0]*a[5]*a[10]-a[0]*a[6]*a[9]-a[4]*a[1]*a[10]+a[4]*a[2]*a[9]+a[8]*a[1]*a[6]-a[8]*a[2]*a[5];
+    let det=a[0]*i[0]+a[1]*i[4]+a[2]*i[8]+a[3]*i[12];
+    if(!det) return null; det=1/det;
+    for(let k=0;k<16;k++) i[k]*=det;
+    return i;
+  }
+
+  return {init, buildCreatures, updateTerrain, updateCreatures, render, pick,
+          get ok(){ return ok; }};
+})();
+
+/* 차트 호버 */
+function chartHover(ev){
+  const cv=$("#chart"), c=cv._chart; if(!c||!G) return;
+  const r=cv.getBoundingClientRect();
+  const x=ev.clientX-r.left;
+  if(x<c.pad.l||x>c.Wc-c.pad.r){ hideTip(); return; }
+  const k=Math.round((x-c.pad.l)/c.gw*(c.n-1));
+  const row=G.guildHist[k]; if(!row) return;
+  const yr=Math.max(1,Math.round(k*2/TICKS_PER_YEAR));
+  let tot=0; for(const v of row) tot+=v;
+  const html = `<div class="t">${yr}년</div>` +
+    GUILDS.map((g,i)=>`<div class="r"><span style="color:${g.color}">■</span>&nbsp;<span style="flex:1">${g.name}</span><span>${fmt(row[i])}</span></div>`).join("") +
+    `<div class="r" style="margin-top:4px;border-top:1px solid #33463E;padding-top:4px"><span style="flex:1">합계</span><span>${fmt(tot)}</span></div>`;
+  showTip(ev, html);
+  drawChart("chart","chart-legend",false);
+  const ctx=cv.getContext("2d"), dpr=Math.min(2,window.devicePixelRatio||1);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const px=c.X(k);
+  ctx.strokeStyle="rgba(231,240,234,.45)"; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(px,c.pad.t); ctx.lineTo(px,c.pad.t+c.gh); ctx.stroke();
+}
+function tileTipHTML(i){
+  const w=G.world;
+  const here = G.species.filter(s=>s.pop[i]>0.5).sort((a,b)=>b.pop[i]-a.pop[i]).slice(0,6);
+  const tags = [w.farm[i]?"농지":"", w.road[i]?"도로":"", w.dist[i]>0.2?"교란":""].filter(Boolean);
+  return `<div class="t">${BIOMES[w.biome[i]]}${tags.length?" · "+tags.join(" · "):""}</div>
+    <div class="r"><span>고도</span><span>${(w.elev[i]*100).toFixed(0)}</span></div>
+    <div class="r"><span>기온</span><span>${tileTemp(w,i,G.season,G.warming).toFixed(1)}°C</span></div>
+    <div class="r"><span>수분</span><span>${(w.moist[i]*100).toFixed(0)}%</span></div>
+    <div class="r"><span>토양 양분</span><span>${w.soil[i].toFixed(0)}</span></div>
+    <div class="r"><span>부식물</span><span>${w.detr[i].toFixed(0)}</span></div>
+    <div class="r"><span>오염</span><span>${w.poll[i].toFixed(0)}</span></div>
+    ${here.length?`<div style="margin-top:5px;border-top:1px solid #33463E;padding-top:4px">`+
+      here.map(s=>`<div class="r"><span style="color:${s.color}">■</span>&nbsp;<span style="flex:1">${s.name}</span><span>${fmt(s.pop[i])}</span></div>`).join("")+`</div>`
+      :`<div style="margin-top:5px;color:#63776F">생물 없음</div>`}`;
+}
+
+function showTip(ev,html){ const t=$("#tip"); t.innerHTML=html; t.style.display="block";
+  const r=t.getBoundingClientRect();
+  t.style.left=Math.min(window.innerWidth-r.width-10, ev.clientX+14)+"px";
+  t.style.top=Math.min(window.innerHeight-r.height-10, ev.clientY+14)+"px"; }
+function hideTip(){ $("#tip").style.display="none"; }
+
+/* ── 종 목록 ─────────────────────────────────────────────────── */
+function renderSpecies(){
+  const tb=$("#sp-body");
+  const rows=G.species.map((s,idx)=>({s,idx})).sort((a,b)=>{
+    if(a.s.isPlayer) return -1; if(b.s.isPlayer) return 1;
+    return b.s.total-a.s.total;
+  });
+  tb.innerHTML = rows.map(({s,idx})=>{
+    const h=s.hist, prev=h.length>6?h[h.length-6]:h[0]||0;
+    let cls="flat", ar="—";
+    if(s.alive && prev>0){
+      const ch=(s.total-prev)/prev;
+      if(ch>0.06){ cls="up"; ar="▲ "+(ch*100).toFixed(0)+"%"; }
+      else if(ch<-0.06){ cls="down"; ar="▼ "+(Math.abs(ch)*100).toFixed(0)+"%"; }
+    }
+    return `<tr data-idx="${idx}" tabindex="0" class="${s.isPlayer?"me":""} ${s.alive?"":"dead"}" aria-selected="${G.selected===idx}">
+      <td><span class="sp-name"><i style="background:${s.color}"></i>${s.name}${s.isPlayer?" <em>내 종</em>":` <em>${s.short}</em>`}</span></td>
+      <td class="num">${s.alive?fmt(s.total):"멸종 "+s.extinctYear+"년"}</td>
+      <td class="num">${s.alive?s.tiles:"—"}</td>
+      <td class="num trend ${cls}">${s.alive?ar:"—"}</td></tr>`;
+  }).join("");
+  tb.querySelectorAll("tr").forEach(tr=>{
+    const pick=()=>{
+      G.selected=+tr.dataset.idx; G.layer="species";
+      const s=G.species[G.selected]; let mx=0; for(let i=0;i<NT;i++) if(s.pop[i]>mx) mx=s.pop[i]; s._max=mx;
+      buildLayerTabs(); drawMap(); renderSpecies();
+    };
+    tr.onclick=pick;
+    tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); } };
+  });
+}
+
+/* ── 진화 패널 ───────────────────────────────────────────────── */
+function renderEvo(){
+  $("#ep-count").textContent=G.ep;
+  const t=G.player.traits, list=$("#evo-list");
+  const keep = list.scrollTop;
+  list.innerHTML = TRAIT_KEYS.map(k=>`
+    <div class="evo-row">
+      <span>${TRAIT_LABEL[k]}</span>
+      <span class="v" style="color:${t[k]>=8?"var(--gold-hi)":"var(--ink)"}">${t[k]}</span>
+      <span class="ctl">
+        <button class="mini" data-k="${k}" data-d="-1" ${(t[k]<=1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 낮추기">−</button>
+        <button class="mini" data-k="${k}" data-d="1" ${(t[k]>=10||G.ep<1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 높이기">+</button>
+      </span>
+    </div>`).join("");
+  list.scrollTop = keep;
+  list.querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{
+      const k=b.dataset.k, d=+b.dataset.d;
+      if(d>0){ if(G.ep<1) return; G.ep--; }
+      else { G.ep+=0.5; }
+      G.player.traits[k]=clamp(G.player.traits[k]+d,1,10);
+      G.ep=Math.floor(G.ep*2)/2;
+      G.player.d=derive(G.player.traits,G.player.diet);
+      logMsg("evo", `<b>${TRAIT_LABEL[k]}</b>을(를) ${d>0?"높였":"낮췄"}습니다 → ${G.player.traits[k]}`);
+      renderEvo(); renderLog();
+    };
+  });
+}
+
+/* ── 상태바 · 로그 ───────────────────────────────────────────── */
+function renderStatus(){
+  const g=G;
+  $("#st-year").textContent = `${g.year}년 ${SEASONS[g.season]}`;
+  $("#st-temp").textContent = avgTemp().toFixed(1)+"°C" + (g.warming>0.4?` (+${g.warming.toFixed(1)})`:"");
+  $("#st-moist").textContent = (avgMoist()*100).toFixed(0)+"%";
+  const ap=avgPoll();
+  $("#st-poll").textContent = ap.toFixed(1);
+  $("#st-poll").style.color = ap>25?"var(--crit)":ap>10?"var(--warn)":"var(--ink)";
+  $("#st-alive").textContent = g.species.filter(s=>s.alive).length+" / "+g.species.length;
+  const dv = diversity();
+  $("#st-div").textContent = dv.H.toFixed(2);
+  $("#st-div").style.color = dv.H>1.9?"var(--good)":dv.H>1.2?"var(--ink)":"var(--warn)";
+  const p=g.player;
+  $("#st-mypop").textContent = p.alive ? `${fmt(p.total)}마리 · ${p.tiles}타일` : "멸종";
+  $("#st-mypop").style.color = p.alive ? "var(--gold-hi)" : "var(--crit)";
+
+  const act=[];
+  if(g.events.drought>0) act.push("가뭄");
+  if(g.events.flood>0) act.push("범람");
+  if(g.events.heat>0) act.push("폭염");
+  if(g.events.cold>0) act.push("한파");
+  if(g.events.disease>0) act.push("전염병");
+  if(g.events.pesticide>0) act.push("살충제");
+  if(g.events.boom>0) act.push("풍년");
+  let phase;
+  if(act.length) phase = act.join(" · ") + " 진행 중";
+  else if(!g.humanArrived) phase = `자연 상태 — 인간은 ${HUMAN_YEAR}년경 등장`;
+  else phase = `인간 활동기 ${g.year-HUMAN_YEAR}년차 · 안정 구간 ${g.stableRun}/12`;
+  $("#st-phase").textContent = phase;
+}
+
+function renderLog(){
+  const el=$("#log");
+  el.innerHTML = G.log.slice(0,60).map(l=>
+    `<div class="logline ${l.kind}"><time>${l.y}년 ${l.s}</time><div>${l.html}</div></div>`).join("");
+  $("#log-count").textContent = G.log.length+"건";
+  G._logDirty=false;
+}
+
+/* ── 결과 ────────────────────────────────────────────────────── */
+function renderResult(){
+  const g=G, e=ENDINGS[g.ending], pr=g.result;
+  const rows=pr.animals, me=rows.find(r=>r.s.isPlayer);
+  const won = g.myRank===1 && g.player.alive;
+
+  $("#res-eyebrow").textContent = e.eyebrow;
+  const box=$("#ending");
+  box.className = "ending "+(won?"good":e.cls);
+  let verdict;
+  if(!g.player.alive) verdict = `<b>${g.player.name}</b>은(는) ${g.player.extinctYear}년에 사라졌습니다.`;
+  else if(won) verdict = `<b>승리.</b> ${g.player.name}이(가) 동물 ${g.rivalCount}종 가운데 번영 지수 <b>1위</b>가 되었습니다. (지수 ${me.score.toFixed(1)})`;
+  else verdict = `<b>${g.myRank}위 / ${g.rivalCount}종.</b> ${g.player.name}은(는) 살아남았지만 최고는 아니었습니다. 1위는 <b>${rows[0].s.name}</b>입니다. (내 지수 ${me.score.toFixed(1)} · 1위 ${rows[0].score.toFixed(1)})`;
+  box.innerHTML = `<h2>${won?"번영":e.title}</h2><p>${e.body}</p><div class="verdict">${verdict}</div>`;
+
+  const max=Math.max(rows[0].score, pr.base.length?pr.base[0].score:0)||1;
+  const line = r=>`
+    <tr class="${r.s.isPlayer?"me":""} ${r.s.alive?"":"dead"}">
+      <td class="num">${r.rank??"기반"}</td>
+      <td><span class="sp-name"><i style="background:${r.s.color}"></i>${r.s.name}${r.s.isPlayer?" <em>내 종</em>":""}</span></td>
+      <td class="num">${(r.pop*100).toFixed(1)}%</td>
+      <td class="num">${(r.range*100).toFixed(1)}%</td>
+      <td class="num">${(r.bio*100).toFixed(1)}%</td>
+      <td class="num">${(r.stab*100).toFixed(0)}%</td>
+      <td class="num" style="color:${r.s.isPlayer?"var(--gold-hi)":"var(--ink)"}">${r.score.toFixed(1)}
+        <span class="score-bar"><i style="width:${(r.score/max*100).toFixed(0)}%;background:${r.s.color}"></i></span></td>
+    </tr>`;
+  $("#res-body").innerHTML = rows.map(line).join("")
+    + `<tr><td colspan="7" style="padding:10px 10px 4px;color:var(--ink-3);font-size:10.5px;
+         font-family:var(--f-mono);letter-spacing:.1em;border-bottom:1px solid var(--line)">
+         생태계 기반 — 생산자 (순위 제외)</td></tr>`
+    + pr.base.map(line).join("");
+
+  requestAnimationFrame(()=>drawChart("chart2","chart2-legend",true));
+}
+
+/* ── 루프 ────────────────────────────────────────────────────── */
+let acc=0, lastT=0, lastUI=0, evoSig="";
+function loop(t){
+  requestAnimationFrame(loop);
+  if(!G) return;
+  if(Globe.ok) Globe.render();        // 멈춰 있어도 카메라는 부드럽게 돈다
+  if(G.over) return;
+  const dt=Math.min(100, t-lastT); lastT=t;
+  if(!G.running) return;
+
+  acc += dt*G.speed/220;
+  let steps=0;
+  while(acc>=1 && steps<8 && !G.over){ step(); acc-=1; steps++; }
+  if(!steps || G.over) return;
+
+  renderStatus();
+  if(G.layer==="species"){
+    const s=G.species[G.selected]; let mx=0;
+    for(let i=0;i<NT;i++) if(s.pop[i]>mx) mx=s.pop[i];
+    s._max=mx;
+  }
+  drawMap();
+  drawChart("chart","chart-legend",false);
+
+  /* 표·패널은 초당 4회로 제한 — 매 프레임 DOM을 다시 만들 이유가 없음 */
+  if(t-lastUI > 240){
+    lastUI=t;
+    renderSpecies();
+    const sig = G.ep+"|"+TRAIT_KEYS.map(k=>G.player.traits[k]).join(",")+"|"+G.player.alive;
+    if(sig!==evoSig){ evoSig=sig; renderEvo(); }
+    if(G._logDirty) renderLog();
+  }
+}
+
+/* ── 초기화 · 이벤트 바인딩 ──────────────────────────────────── */
+function startSim(){
+  design.name = ($("#sp-name").value||"이름 없는 종").trim();
+  newGame(design);
+  $("#sim-title").textContent = `${design.name} — ${DIETS[design.diet].name}`;
+  G.selected=0;
+  G.creatureMode = $("#creature-mode").value;
+  show("sim");
+  const use3d = Globe.init();
+  $("#globe").hidden = !use3d;
+  $("#map").hidden = use3d;
+  $("#viewhint").hidden = !use3d;
+  if(use3d) Globe.buildCreatures();
+  buildLayerTabs(); renderStatus(); renderSpecies(); renderEvo(); renderLog();
+  drawMap(); drawChart("chart","chart-legend",false);
+  acc=0; lastT=performance.now(); lastUI=0;
+  $("#btn-pause").textContent="일시정지";
+}
+
+function bind(){
+  buildDiets(); buildTraits(); refreshDesign();
+
+  $("#preset").onchange = e=>applyPreset(e.target.value);
+  $("#sp-name").oninput = e=>{ design.name=e.target.value; };
+  $("#btn-reset").onclick = ()=>{ design.traits=baseTraits(3); $("#preset").value="custom"; buildTraits(); refreshDesign(); };
+  $("#btn-random").onclick = ()=>{
+    let t;
+    do{ t=baseTraits(3); for(const k of TRAIT_KEYS) t[k]=1+Math.floor(Math.random()*10); }
+    while(totalCost(t)>BUDGET);
+    design.traits=t; $("#preset").value="custom"; buildTraits(); refreshDesign();
+  };
+  $("#btn-start").onclick = startSim;
+
+  $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"일시정지":"재개"; };
+  $$("[data-speed]").forEach(b=>b.onclick=()=>{
+    G.speed=+b.dataset.speed;
+    $$("[data-speed]").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+  });
+  $("#btn-abort").onclick = ()=>{ if(G && !G.over) finish("timeout"); };
+  $("#btn-redesign").onclick = ()=>{ show("design"); };
+  $("#btn-again").onclick = ()=>{ startSim(); };
+
+  const cv=$("#chart");
+  cv.addEventListener("mousemove", chartHover);
+  cv.addEventListener("mouseleave", ()=>{ hideTip(); if(G&&!G.over) drawChart("chart","chart-legend",false); });
+
+  $("#map").addEventListener("mousemove", ev=>{
+    if(!G) return;
+    const r=ev.currentTarget.getBoundingClientRect();
+    const x=Math.floor((ev.clientX-r.left)/r.width*W), y=Math.floor((ev.clientY-r.top)/r.height*H);
+    if(x<0||y<0||x>=W||y>=H){ hideTip(); return; }
+    showTip(ev, tileTipHTML(y*W+x));
+  });
+  $("#map").addEventListener("mouseleave", hideTip);
+
+  $("#creature-mode").onchange = e=>{ if(G){ G.creatureMode=e.target.value; drawMap(); } };
+  $("#globe").addEventListener("mousemove", ev=>{
+    if(!G || !Globe.ok) return;
+    const i = Globe.pick(ev);
+    if(i<0){ hideTip(); return; }
+    showTip(ev, tileTipHTML(i));
+  });
+  $("#globe").addEventListener("mouseleave", hideTip);
+
+  window.addEventListener("resize", ()=>{ if(G && !G.over) drawChart("chart","chart-legend",false); });
+  requestAnimationFrame(loop);
+}
+bind();
+</script>
