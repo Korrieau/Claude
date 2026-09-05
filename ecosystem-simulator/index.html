@@ -513,6 +513,23 @@ input[type=range]::-moz-range-thumb{
   background:#fff; border-radius:999px; padding:2px 9px; }
 .pressure p{ margin:5px 0 0; font-size:11.5px; color:var(--ink-2); line-height:1.5; }
 .pressure p b{ color:var(--gold-hi); font-weight:600; }
+/* 자원 패널 */
+.resrow{ display:grid; grid-template-columns:56px 1fr 46px; align-items:center; gap:8px; margin-bottom:6px; }
+.resrow .k{ font-size:11.5px; color:var(--ink-2); }
+.resrow .bar{ height:9px; background:var(--panel-3); border-radius:999px; overflow:hidden; }
+.resrow .bar i{ display:block; height:100%; border-radius:999px; transition:width .3s ease; }
+.resrow{ grid-template-columns:56px 1fr 62px; }
+.resrow .v{ font-size:11px; text-align:right; color:var(--ink); white-space:nowrap; }
+.resrow .v em{ font-style:normal; font-size:9.5px; margin-left:3px; }
+.resrow .v em.up{ color:#12855c; } .resrow .v em.down{ color:#c93a39; }
+.res-plants{ display:flex; flex-wrap:wrap; gap:5px; margin-top:9px;
+  border-top:1px solid var(--line); padding-top:9px; }
+.plantchip{ display:flex; align-items:center; gap:5px; background:var(--panel-2);
+  border-radius:999px; padding:3px 9px; font-size:11px; }
+.plantchip i{ width:7px; height:7px; border-radius:2px; flex:none; }
+.plantchip b{ font-weight:600; }
+.plantchip.dead{ opacity:.45; }
+
 .pr-chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
 .pr-chip{
   background:var(--good); color:#fff; border:none; border-radius:999px;
@@ -822,15 +839,6 @@ input[type=range]::-moz-range-thumb{
 
     <!-- 오른쪽: 접었다 펴는 패널들 -->
     <div class="hud hud-r">
-      <div class="panel" id="panel-species">
-        <button class="panel-head" data-toggle="panel-species"><span>종 목록</span><i>▾</i></button>
-        <div class="panel-body">
-          <table class="sp-table">
-            <thead><tr><th>종</th><th>개체수</th><th>서식</th><th>추세</th></tr></thead>
-            <tbody id="sp-body"></tbody>
-          </table>
-        </div>
-      </div>
       <div class="panel" id="panel-evo">
         <button class="panel-head" data-toggle="panel-evo">
           <span>진화</span><em class="num" id="ep-count">0</em><i>▾</i>
@@ -839,6 +847,23 @@ input[type=range]::-moz-range-thumb{
           <div class="pressure" id="pressure"></div>
           <p class="tiny">형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
           <div class="evo-list" id="evo-list"></div>
+        </div>
+      </div>
+      <div class="panel" id="panel-res">
+        <button class="panel-head" data-toggle="panel-res"><span>자원</span><i>▾</i></button>
+        <div class="panel-body">
+          <p class="tiny">모든 동물이 여기서 나눠 먹습니다. 재생되지만 한정돼 있습니다.</p>
+          <div id="res-bars"></div>
+          <div class="res-plants" id="res-plants"></div>
+        </div>
+      </div>
+      <div class="panel" id="panel-species">
+        <button class="panel-head" data-toggle="panel-species"><span>동물</span><i>▾</i></button>
+        <div class="panel-body">
+          <table class="sp-table">
+            <thead><tr><th>종</th><th>개체수</th><th>서식</th><th>추세</th></tr></thead>
+            <tbody id="sp-body"></tbody>
+          </table>
         </div>
       </div>
       <div class="panel collapsed" id="panel-chart">
@@ -1026,6 +1051,7 @@ const TUNE = {
   starvExp:1.6, starvMul:0.7,
   stress:0.044, diseaseBase:0.088,
   capA:0.226, capB:7.0, crowdBirth:0.75, birthScale:1.3,
+  satLag:0.0,               // 먹이 만족도의 관성 (0이면 지연 없음)
   allee:0.07,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
   compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
   succession:0.45,          // 천이 — 교란지에서 개척종이 받는 이점
@@ -1491,7 +1517,7 @@ function makeSpecies(def, isPlayer){
     traits:t, d:derive(t,def.diet),
     pop:new Float32Array(NT), buf:new Float32Array(NT), out:new Float32Array(NT), crd:new Float32Array(NT),
     fit:new Float32Array(NT), dem:new Float32Array(NT),
-    ink:new Float32Array(NT), pl:new Float32Array(NT),
+    ink:new Float32Array(NT), pl:new Float32Array(NT), satSm:new Float32Array(NT).fill(1),
     seedN:def.seed||200,
     total:0, tiles:0, biomass:0, alive:true, extinctYear:null,
     acc:{w:0,sat:0,pred:0,dt:0,crowd:0}, evoCount:0,
@@ -1865,7 +1891,12 @@ function step(){
     for(let i=0;i<NT;i++){
       const pop=p[i];
       if(pop<=0.0001){ buf[i]=0; crd[i]=0; continue; }
-      const sat = dm[i]>0 ? clamp(ink[i]/dm[i],0,1) : 1;
+      const satNow = dm[i]>0 ? clamp(ink[i]/dm[i],0,1) : 1;
+      /* 개체군에는 나이 구조가 있어서 한 계절 굶었다고 그 자리에서 다 죽지 않는다.
+         이 지연이 없으면 먹이가 조금만 출렁여도 개체수가 폭증과 붕괴를 반복한다. */
+      const sm=s.satSm;
+      sm[i] += (satNow - sm[i]) * (1-TUNE.satLag);
+      const sat = sm[i];
       const cap = (w.soil[i]*TUNE.capA+TUNE.capB) * d.density / (d.bodyMass*0.9+0.35);
       /* 로트카–볼테라 종간 경쟁 — 지위가 겹치는 종의 개체수도 내 자리를 갉아먹는다 */
       let eff = pop;
@@ -2065,6 +2096,9 @@ function evolveAll(){
       const r = evolveOne(s);
       if(r) notable.push([s,r]);
     }
+    /* 한 해치 평균을 남겨 두고 비운다. 비우고 나면 자원 패널이 읽을 게 없어서
+       언제나 '넉넉'으로 나왔다. */
+    if(s.acc.w>0){ s.satYr=s.acc.sat/s.acc.w; s.wYr=s.acc.w; }
     s.acc.w=s.acc.sat=s.acc.pred=s.acc.dt=s.acc.crowd=0;
   }
   /* 형질이 바뀌면 생태 지위도 바뀐다 — 경쟁 관계를 다시 계산 */
@@ -3961,10 +3995,15 @@ function hideTip(){ $("#tip").style.display="none"; }
 /* ── 종 목록 ─────────────────────────────────────────────────── */
 function renderSpecies(){
   const tb=$("#sp-body");
-  const rows=G.species.map((s,idx)=>({s,idx})).sort((a,b)=>{
-    if(a.s.isPlayer) return -1; if(b.s.isPlayer) return 1;
-    return b.s.total-a.s.total;
-  });
+  /* 식물은 스스로 움직이지 않는다. 경쟁 상대가 아니라 먹고 사는 바탕이므로
+     종 목록에서 빼고 '자원'으로 따로 본다. */
+  const rows=G.species.map((s,idx)=>({s,idx}))
+    .filter(r=>r.s.diet!=="producer")
+    .sort((a,b)=>{
+      if(a.s.isPlayer) return -1; if(b.s.isPlayer) return 1;
+      return b.s.total-a.s.total;
+    });
+  renderResources();
   tb.innerHTML = rows.map(({s,idx})=>{
     const h=s.hist, prev=h.length>6?h[h.length-6]:h[0]||0;
     let cls="flat", ar="—";
@@ -3991,6 +4030,60 @@ function renderSpecies(){
     tr.onclick=pick;
     tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); } };
   });
+}
+
+/* ── 자원 패널 ───────────────────────────────────────────────────
+   식물·부식물·토양은 동물이 나눠 먹는 바탕이다. 재생되지만 한정돼 있어서,
+   초식이 늘면 식물이 줄고 식물이 줄면 초식이 굶는다. 그 균형을 보여준다. */
+let resPeak={plant:1, detr:1};
+function renderResources(){
+  const g=G, w=g.world;
+  let plant=0, detr=0, soil=0, land=0, graze=0;
+  for(const s of g.species) if(s.diet==="producer") plant+=s.total;
+  for(let i=0;i<NT;i++){ if(w.vd[i]) continue; land++; detr+=w.detr[i]; soil+=w.soil[i]; }
+  /* 먹이가 모자란지는 '얼마나 먹혔나'가 아니라 '먹는 쪽이 배가 찼나'로 본다.
+     비율을 임의로 잡으면 언제나 과다로 나와서 아무 정보도 안 준다. */
+  let sw=0, ss=0;
+  for(const s of g.species){
+    if(s.diet==="producer" || !s.alive || !s.wYr) continue;
+    sw+=s.wYr; ss+=s.satYr*s.wYr;
+  }
+  const fed = sw>0 ? clamp(ss/sw,0,1) : 1;
+  resPeak.plant=Math.max(resPeak.plant, plant);
+  resPeak.detr =Math.max(resPeak.detr,  detr);
+  const soilAvg=soil/Math.max(1,land);
+
+  const bar=(k,v,max,col,txt)=>`
+    <div class="resrow">
+      <span class="k">${k}</span>
+      <span class="bar"><i style="width:${clamp(v/max*100,0,100).toFixed(0)}%;background:${col}"></i></span>
+      <span class="v num">${txt}</span>
+    </div>`;
+  /* 재생되는 자원이 늘고 있는지 줄고 있는지 — '한정돼 있다'가 실감나는 지점 */
+  if(resPeak.year!==g.year){
+    /* 첫 해에는 식물이 거의 0에서 시작해 증가율이 1000%로 찍힌다 */
+    if(resPeak.year!==undefined && resPeak.lastPlant>resPeak.plant*0.05)
+      resPeak.trend=clamp((plant-resPeak.lastPlant)/resPeak.lastPlant,-0.99,0.99);
+    resPeak.year=g.year; resPeak.lastPlant=plant;
+  }
+  const tr=resPeak.trend||0;
+  const trTxt = Math.abs(tr)<0.01 ? "" :
+    `<em class="${tr>0?"up":"down"}">${tr>0?"▲":"▼"}${(Math.abs(tr)*100).toFixed(0)}%</em>`;
+
+  $("#res-bars").innerHTML =
+    bar("식물",   plant, resPeak.plant, "var(--g1)", fmt(plant)+trTxt)
+  + bar("부식물", detr,  resPeak.detr,  "var(--g2)", fmt(detr))
+  + bar("토양",   soilAvg, 110,         "#B08968",   soilAvg.toFixed(0))
+  /* 실제 분포가 0.54~0.98에 몰려 있다. 0~1을 그대로 그리면 언제나 꽉 찬 막대라
+     아무것도 못 읽는다. 관측된 구간만 펴서 보여준다. */
+  + bar("먹이 사정", clamp((fed-0.52)/0.44,0,1), 1,
+        fed<0.74?"var(--crit)":fed<0.83?"var(--warn)":"var(--good)",
+        fed<0.74?"굶주림":fed<0.83?"빠듯":fed<0.89?"보통":"넉넉");
+
+  const ps=g.species.filter(s=>s.diet==="producer");
+  $("#res-plants").innerHTML = ps.map(s=>
+    `<span class="plantchip${s.alive?"":" dead"}"><i style="background:${s.color}"></i>${s.name}
+     <b class="num">${s.alive?fmt(s.total):"멸종"}</b></span>`).join("");
 }
 
 /* ── 진화 패널 ───────────────────────────────────────────────── */
