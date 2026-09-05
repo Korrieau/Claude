@@ -350,8 +350,11 @@ input[type=range]::-moz-range-thumb{
 .hud-tl{ top:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:44%; }
 .hud-tr{ top:14px; right:14px; gap:6px; }
 .hud-bl{ bottom:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:40%; }
-.hud-r { top:14px; right:14px; margin-top:176px; flex-direction:column; gap:8px; width:326px; max-height:calc(100% - 210px); }
-.hud-b { bottom:14px; left:50%; transform:translateX(-50%); width:min(520px,46%); }
+/* 오른쪽 패널 기둥 — 다 펴면 화면보다 길어지므로 이 기둥 자체가 스크롤된다.
+   그렇지 않으면 아래쪽 패널이 잘려서 손이 닿지 않는다. */
+.hud-r { top:14px; right:14px; margin-top:176px; flex-direction:column; gap:8px; width:326px;
+         max-height:calc(100% - 200px); overflow-y:auto; overflow-x:hidden; padding-right:2px; }
+.hud-r > .panel{ flex:none; }
 
 /* 시대 배너 — 수십 년을 지배하는 큰 국면 */
 .era{
@@ -444,15 +447,26 @@ input[type=range]::-moz-range-thumb{
 
 .panel{ background:#fff; border-radius:18px; overflow:hidden; display:flex; flex-direction:column; min-height:0;
   box-shadow: 0 5px 0 #C9D3C4, 0 12px 24px rgba(22,45,32,.14); }
+/* 누를 수 있다는 게 보여야 한다 — 얹으면 바탕이 들어오고 꺾쇠가 진해진다 */
 .panel-head{
   background:none; border:none; width:100%; display:flex; align-items:center; gap:8px;
   padding:11px 15px; font-family:var(--f-disp); font-weight:700; font-size:15px; text-align:left;
+  transition: background .12s;
 }
+.panel-head:hover{ background:var(--panel-2); }
 .panel-head em{ font-style:normal; margin-left:auto; color:var(--gold); font-weight:700; font-size:16px; }
-.panel-head i{ font-style:normal; color:var(--ink-3); transition:transform .15s; }
+.panel-head i{
+  font-style:normal; color:var(--ink-2); transition:transform .15s; margin-left:auto;
+  width:20px; height:20px; border-radius:50%; background:var(--panel-2);
+  display:flex; align-items:center; justify-content:center; font-size:11px; flex:none;
+}
+.panel-head em + i{ margin-left:6px; }
+.panel-head:hover i{ background:var(--panel-3); color:var(--ink); }
 .panel.collapsed .panel-head i{ transform:rotate(-90deg); }
 .panel.collapsed .panel-body{ display:none; }
 .panel-body{ padding:0 12px 12px; overflow:auto; min-height:0; }
+/* 종이 34개라 그대로 두면 이 패널 하나가 화면보다 길어진다 */
+#panel-species .panel-body{ max-height:290px; }
 .panel.wide .panel-body{ padding:0 14px 12px; }
 .tiny{ font-size:11px; color:var(--ink-3); margin:0 0 8px; line-height:1.5; }
 
@@ -779,11 +793,7 @@ input[type=range]::-moz-range-thumb{
           <div class="chart-legend" id="chart-legend"></div>
         </div>
       </div>
-    </div>
-
-    <!-- 아래: 관측 일지 -->
-    <div class="hud hud-b">
-      <div class="panel wide collapsed" id="panel-log">
+      <div class="panel collapsed" id="panel-log">
         <button class="panel-head" data-toggle="panel-log"><span>관측 일지</span><em id="log-count"></em><i>▾</i></button>
         <div class="panel-body"><div class="log" id="log"></div></div>
       </div>
