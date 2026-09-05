@@ -300,6 +300,18 @@ input[type=range]::-moz-range-thumb{
 .hud-r { top:14px; right:14px; margin-top:176px; flex-direction:column; gap:8px; width:326px; max-height:calc(100% - 210px); }
 .hud-b { bottom:14px; left:50%; transform:translateX(-50%); width:min(520px,46%); }
 
+/* 시대 배너 — 수십 년을 지배하는 큰 국면 */
+.era{
+  display:flex; align-items:baseline; gap:9px; border-radius:14px; padding:8px 16px 9px;
+  color:#fff; font-size:12.5px;
+  box-shadow:0 4px 0 rgba(0,0,0,.16), 0 9px 18px rgba(22,45,32,.20);
+}
+.era b{ font-family:var(--f-disp); font-size:16px; }
+.era.cold{ background:#4C8FD6; }
+.era.hot{ background:#E2743C; }
+.era.human{ background:#7B5CE0; }
+.era.good{ background:#2FA85E; }
+
 /* 내 종 현황 카드 */
 .mecard{
   background:#fff; border-radius:18px; padding:13px 18px 14px; min-width:212px;
@@ -595,17 +607,18 @@ input[type=range]::-moz-range-thumb{
 
     <!-- 왼쪽 위: 내 종 현황 -->
     <div class="hud hud-tl">
-      <div class="mecard">
-        <div class="me-head"><span class="me-dot"></span><span class="me-name" id="sim-title">내 종</span></div>
-        <div class="me-pop"><span class="num" id="fl-pop">0</span><span class="me-unit">마리</span></div>
-        <div class="me-rank">동물 <b class="num" id="fl-rank">—</b>위<span class="me-sep">·</span>1위 <b id="fl-top">—</b></div>
-      </div>
       <div class="chips">
         <span class="chip"><b>기온</b><span class="num" id="st-temp">—</span></span>
         <span class="chip"><b>강수</b><span class="num" id="st-moist">—</span></span>
         <span class="chip"><b>오염</b><span class="num" id="st-poll">—</span></span>
         <span class="chip"><b>다양성</b><span class="num" id="st-div">—</span></span>
         <span class="chip"><b>생존 종</b><span class="num" id="st-alive">—</span></span>
+      </div>
+      <div class="era" id="era-banner" hidden><b id="era-name"></b><span id="era-left"></span></div>
+      <div class="mecard">
+        <div class="me-head"><span class="me-dot"></span><span class="me-name" id="sim-title">내 종</span></div>
+        <div class="me-pop"><span class="num" id="fl-pop">0</span><span class="me-unit">마리</span></div>
+        <div class="me-rank">동물 <b class="num" id="fl-rank">—</b>위<span class="me-sep">·</span>1위 <b id="fl-top">—</b></div>
       </div>
       <div class="phase" id="st-phase">자연 상태</div>
       <span id="st-mypop" hidden></span>
@@ -1269,6 +1282,32 @@ function makeWorld(){
 }
 
 /* ── 종 객체 ─────────────────────────────────────────────────── */
+/* 매 판 토착종 구성을 바꾼다. 기능군마다 최소 수는 보장해서
+   먹이사슬이 끊기지 않게 하고, 나머지는 뽑기로 넣거나 뺀다.
+   같은 종이라도 형질을 조금씩 흔들어 판마다 다르게 만든다. */
+function pickNatives(){
+  const byGuild={};
+  for(const n of NATIVES) (byGuild[n.guild]=byGuild[n.guild]||[]).push(n);
+  const minPer={prod:4, dec:2, herbS:3, herbL:2, omni:2, carnS:2, carnL:1};
+  const chosen=[];
+  for(const g in byGuild){
+    const arr=byGuild[g].slice();
+    for(let i=arr.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=arr[i]; arr[i]=arr[j]; arr[j]=t; }
+    const k=Math.min(arr.length, minPer[g]||1);
+    for(let i=0;i<arr.length;i++) if(i<k || rnd()<0.62) chosen.push(arr[i]);
+  }
+  /* 형질에 잡음을 준다 — 같은 이름이어도 판마다 조금씩 다르다 */
+  return chosen.map(n=>{
+    const t=Object.assign({},n.t);
+    const ks=TRAIT_KEYS.slice();
+    for(let i=0;i<4;i++){
+      const k=ks[Math.floor(rnd()*ks.length)];
+      t[k]=clamp(t[k]+(rnd()<0.5?-1:1), 1, 10);
+    }
+    return Object.assign({}, n, {t, seed:Math.round(n.seed*rrange(0.75,1.3))});
+  });
+}
+
 function makeSpecies(def, isPlayer){
   const t = Object.assign({},def.t);
   const s = {
@@ -1277,6 +1316,7 @@ function makeSpecies(def, isPlayer){
     pop:new Float32Array(NT), buf:new Float32Array(NT), out:new Float32Array(NT), crd:new Float32Array(NT),
     fit:new Float32Array(NT), dem:new Float32Array(NT),
     ink:new Float32Array(NT), pl:new Float32Array(NT),
+    seedN:def.seed||200,
     total:0, tiles:0, biomass:0, alive:true, extinctYear:null,
     acc:{w:0,sat:0,pred:0,dt:0,crowd:0}, evoCount:0,
     hist:[], color: GUILDS[GI[def.guild]].color, gi: GI[def.guild],
@@ -1293,12 +1333,13 @@ function newGame(playerDef){
   const species = [];
   const player = makeSpecies({name:playerDef.name, short:"내 종", guild:"me", diet:playerDef.diet, t:playerDef.traits}, true);
   species.push(player);
-  for(const n of NATIVES) species.push(makeSpecies(n,false));
+  const roster = pickNatives();
+  for(const n of roster) species.push(makeSpecies(n,false));
 
   /* 토착종만 먼저 뿌린다. 내 종은 플레이어가 고른 지역에 나중에 놓는다. */
   for(const s of species){
     if(s.isPlayer) continue;
-    const seedTotal = (NATIVES.find(n=>n.name===s.name)?.seed ?? 200);
+    const seedTotal = s.seedN;
     const scores=[];
     for(let i=0;i<NT;i++) scores.push([i, habitatScore(s,world,i)]);
     scores.sort((a,b)=>b[1]-a[1]);
@@ -1319,7 +1360,7 @@ function newGame(playerDef){
   };
   buildCompetition(species);
   G.prefMx = buildCompetition.mx; G.nSp = buildCompetition.n;
-  logMsg("nature", `이 땅에는 이미 33종이 자리를 잡고 있습니다. <b>${player.name}</b>을(를) 풀어놓을 지역을 고르세요.`);
+  logMsg("nature", `이 땅에는 이미 ${species.length-1}종이 자리를 잡고 있습니다. <b>${player.name}</b>을(를) 풀어놓을 지역을 고르세요.`);
   const rival = player.topRival;
   if(rival) logMsg("nature", `가장 강한 경쟁 상대는 <b>${rival[0].name}</b>입니다. 생태 지위가 ${(rival[1]/TUNE.compet*100).toFixed(0)}% 겹칩니다.`);
   recount();
@@ -1431,9 +1472,10 @@ function step(){
   const heatF    = g.events.heat>0    ? 6 : 0;
   const coldF    = g.events.cold>0    ? -7 : 0;
   const seasonMoist = SEASON_MOIST[se];
+  const eraM = eraMod("moist"), eraL = eraMod("light");
 
   for(let i=0;i<NT;i++){
-    const target = clamp(w.baseMoist[i]*droughtF*floodF + seasonMoist, 0, 1);
+    const target = clamp(w.baseMoist[i]*droughtF*floodF*eraM + seasonMoist, 0, 1);
     w.moist[i] += (target - w.moist[i])*0.45;
     /* 오염 확산·자연 정화 */
     if(w.poll[i]>0.01) w.poll[i] = Math.max(0, w.poll[i]*0.985 - 0.05);
@@ -1456,7 +1498,8 @@ function step(){
   }
 
   const baseTemp=g._temp || (g._temp=new Float32Array(NT));
-  for(let i=0;i<NT;i++) baseTemp[i]=tileTemp(w,i,se,g.warming)+heatF+coldF;
+  const eraT=eraMod("temp");
+  for(let i=0;i<NT;i++) baseTemp[i]=tileTemp(w,i,se,g.warming)+heatF+coldF+eraT;
 
   for(let k=0;k<n;k++){
     const s=S[k];
@@ -1502,7 +1545,7 @@ function step(){
       if(wgt>0){ parts.push([s,wgt]); wsum+=wgt; }
     }
     if(!wsum) continue;
-    const pool = (w.soil[i]*TUNE.soilA + TUNE.soilB) * clamp(w.moist[i]*1.6,0.12,1.35);
+    const pool = (w.soil[i]*TUNE.soilA + TUNE.soilB) * clamp(w.moist[i]*1.6,0.12,1.35) * eraL;
     for(const [s,wg] of parts){
       s.ink[i] = Math.min(s.dem[i], pool*(wg/wsum)*s.d.forage*1.5);
     }
@@ -1716,7 +1759,7 @@ function step(){
   g.season=(g.season+1)%TICKS_PER_YEAR;
   if(g.season===0) g.year++;
   if(g.humanArrived) g.warming = Math.min(8.0, g.warming + 0.0092);
-  if(g.season===0) evolveAll();          // 1년마다 자연선택이 작동한다
+  if(g.season===0){ evolveAll(); eraTick(); }   // 1년마다 자연선택과 시대가 움직인다
 
   rollEvents();
   recount();
@@ -1798,9 +1841,10 @@ function evolveOne(s){
   const selEff = N/(N + TUNE.neHalf);           // 유효 개체군이 작으면 선택이 헛돈다
   const S      = P ? P[1] : 0;                  // 선택 차등
 
-  const pSelect = clamp(gens * h2 * S * selEff * TUNE.evoRate, 0, 0.80);
+  const em = eraMod("mut");
+  const pSelect = clamp(gens * h2 * S * selEff * TUNE.evoRate * em, 0, 0.80);
   /* 유전적 부동 — 개체군이 작을수록 방향 없는 변화가 커진다 (병목·창시자 효과) */
-  const pDrift  = clamp(gens * h2 * (1-selEff) * TUNE.driftRate, 0, 0.45);
+  const pDrift  = clamp(gens * h2 * (1-selEff) * TUNE.driftRate * em, 0, 0.45);
 
   let up, dn, cause;
   if(P && rnd() < pSelect){
@@ -1846,6 +1890,161 @@ function evolveAll(){
     logMsg("evo", msg);
   }
 }
+
+/* ── 시대 ────────────────────────────────────────────────────────
+   몇 년 만에 지나가는 사건과 달리, 수십 년을 지배하는 큰 국면이다.
+   기온·강수·광량·돌연변이율을 통째로 흔들고 땅 자체를 바꾸기도 한다. */
+const ERAS = [
+  {k:"iceage", name:"빙하기", tone:"cold", minYear:25, w:1.0, dur:[20,38],
+   intro:"기온이 해마다 떨어집니다. 얼음이 남쪽으로 내려오고 있습니다.",
+   outro:"얼음이 물러갔습니다. 살아남은 것들이 빈 땅을 채웁니다.",
+   temp:-7.5, moist:0.88, light:0.82,
+   year:g=>{ /* 추운 곳부터 설원으로 덮인다 */
+     const w=g.world; let n=0;
+     for(let i=0;i<NT && n<14;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]||w.biome[j]===10||w.biome[j]===9) continue;
+       if(w.heat[j]<0.42 && w.biome[j]!==6){ w.biome[j]=6; w.baseSoil[j]=18; n++; }
+     }
+     if(n) g._sceneDirty=true;
+   }},
+  {k:"warming", name:"급격한 온난화", tone:"hot", minYear:30, w:1.0, dur:[26,48],
+   intro:"기온이 치솟습니다. 물이 마르고 얼음이 녹습니다.",
+   outro:"기온 상승이 멎었습니다. 그러나 녹은 것은 돌아오지 않습니다.",
+   temp:6, moist:0.84, light:1.0,
+   year:g=>{ const w=g.world; let n=0;
+     for(let i=0;i<NT && n<10;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]) continue;
+       if(w.biome[j]===6){ w.biome[j]=2; w.baseSoil[j]=52; n++; }
+     }
+     if(n) g._sceneDirty=true;
+   }},
+  {k:"impact", name:"운석 충돌", tone:"cold", minYear:35, w:0.55, dur:[6,12],
+   intro:"하늘이 갈라지고 먼지가 해를 가렸습니다. 광합성이 멈춰갑니다.",
+   outro:"먼지가 걷혔습니다. 햇빛이 돌아옵니다.",
+   temp:-6.5, moist:1.0, light:0.58,
+   start:g=>{ /* 충돌 지점 주변이 초토화된다 */
+     let c=-1; for(let n=0;n<80;n++){ const j=Math.floor(rnd()*NT); if(!g.world.vd[j]){ c=j; break; } }
+     if(c<0) return;
+     const cx=c%W, cy=(c/W)|0;
+     for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+       const d=Math.hypot(x-cx,y-cy); if(d>7) continue;
+       const i=y*W+x; if(g.world.vd[i]) continue;
+       const f=Math.exp(-d*d/14);
+       for(const s of g.species) s.pop[i]*=(1-0.92*f);
+       g.world.dist[i]=Math.min(1,g.world.dist[i]+f);
+       g.world.soil[i]=Math.min(140,g.world.soil[i]+22*f);
+     }
+     g._sceneDirty=true;
+   }},
+  {k:"volcanic", name:"화산 겨울", tone:"cold", minYear:20, w:0.9, dur:[8,16],
+   intro:"대분화가 일어났습니다. 화산재가 하늘을 덮습니다.",
+   outro:"재가 가라앉았습니다. 땅은 오히려 기름집니다.",
+   temp:-5, moist:1.05, light:0.70,
+   end:g=>{ for(let i=0;i<NT;i++) if(!g.world.vd[i]) g.world.baseSoil[i]=Math.min(150,g.world.baseSoil[i]+18); }},
+  {k:"megadrought", name:"대가뭄", tone:"hot", minYear:18, w:1.0, dur:[16,32],
+   intro:"비가 오지 않습니다. 강이 마르고 호수가 줄어듭니다.",
+   outro:"오랜만에 비가 내렸습니다.",
+   temp:3, moist:0.55, light:1.0,
+   year:g=>{ const w=g.world; let n=0;
+     for(let i=0;i<NT && n<8;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]) continue;
+       if(w.biome[j]===1||w.biome[j]===2){ w.biome[j]=4; w.baseMoist[j]=0.12; w.baseSoil[j]=18; n++; }
+     }
+     if(n) g._sceneDirty=true;
+   }},
+  {k:"greening", name:"대녹화", tone:"good", minYear:15, w:0.8, dur:[18,34],
+   intro:"비가 넉넉하고 땅이 기름집니다. 초목이 폭발적으로 번집니다.",
+   outro:"풍요로운 시절이 끝났습니다.",
+   temp:2, moist:1.30, light:1.28},
+  /* 사람이 만든 시대 */
+  {k:"acidrain", name:"산성비", tone:"human", human:true, w:1.0, dur:[14,28],
+   intro:"공장 매연이 비에 섞여 내립니다. 숲이 말라갑니다.",
+   outro:"산성비가 잦아들었습니다.",
+   temp:0, moist:1.0, light:0.88,
+   year:g=>{ const w=g.world;
+     for(let n=0;n<70;n++){ const j=Math.floor(rnd()*NT);
+       if(w.vd[j]) continue;
+       w.poll[j]=Math.min(100,w.poll[j]+rrange(3,9));
+       w.soil[j]=Math.max(6,w.soil[j]-rrange(1,4));
+     } }},
+  {k:"radiation", name:"방사능 유출", tone:"human", human:true, w:0.85, dur:[30,70],
+   intro:"원자로가 터졌습니다. 보이지 않는 것이 땅에 내려앉습니다.",
+   outro:"방사선 수치가 배경 수준으로 내려왔습니다.",
+   temp:0, moist:1.0, light:1.0, mut:2.6,
+   start:g=>{
+     let c=-1; for(let n=0;n<80;n++){ const j=Math.floor(rnd()*NT); if(!g.world.vd[j]&&g.world.biome[j]!==10){ c=j; break; } }
+     if(c<0) return;
+     g.radAt=c;
+     const cx=c%W, cy=(c/W)|0;
+     for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+       const d=Math.hypot(x-cx,y-cy); if(d>8) continue;
+       const i=y*W+x; if(g.world.vd[i]) continue;
+       g.world.poll[i]=Math.min(100,g.world.poll[i]+70*Math.exp(-d*d/22));
+     }
+   },
+   year:g=>{ if(g.radAt===undefined) return;
+     const cx=g.radAt%W, cy=(g.radAt/W)|0;
+     for(let n=0;n<50;n++){
+       const x=cx+Math.round(rrange(-9,9)), y=cy+Math.round(rrange(-9,9));
+       if(x<0||y<0||x>=W||y>=H) continue;
+       const i=y*W+x; if(g.world.vd[i]) continue;
+       g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(2,6));
+     } }},
+  {k:"searise", name:"해수면 상승", tone:"human", human:true, w:0.9, dur:[24,50],
+   intro:"빙하가 녹아 바닷물이 차오릅니다. 해안이 잠기기 시작합니다.",
+   outro:"해수면 상승이 멈췄습니다. 잠긴 땅은 돌아오지 않습니다.",
+   temp:5, moist:1.1, light:1.0,
+   year:g=>{ const w=g.world; let n=0;
+     /* 바다에 맞닿은 낮은 땅부터 잠긴다 */
+     for(let i=0;i<NT && n<10;i++){
+       const j=Math.floor(rnd()*NT);
+       if(w.vd[j]||w.biome[j]===10) continue;
+       if(w.biome[j]!==11 && w.biome[j]!==1) continue;
+       let coastal=false;
+       const cx=j%W, cy=(j/W)|0;
+       for(let dy=-1;dy<=1&&!coastal;dy++)for(let dx=-1;dx<=1;dx++){
+         const k=nbIdx(cx+dx,cy+dy); if(k>=0&&w.biome[k]===10){ coastal=true; break; }
+       }
+       if(!coastal) continue;
+       w.biome[j]=10; w.baseSoil[j]=16; w.baseMoist[j]=1; w.soil[j]=16; w.moist[j]=1;
+       w.elev[j]=SEA_ELEV-0.085; w.sea[j]=1;
+       for(const s of g.species) if(s.diet!=="producer"||true) s.pop[j]*=0.05;
+       n++;
+     }
+     if(n){ g._sceneDirty=true; }
+   }},
+];
+function nbIdx(x,y){ return (x<0||y<0||x>=W||y>=H) ? -1 : y*W+x; }
+
+function eraTick(){
+  const g=G;
+  if(g.era){
+    if(g.era.def.year) g.era.def.year(g);
+    if(g.year>=g.era.endYear){
+      const d=g.era.def;
+      if(d.end) d.end(g);
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 끝났습니다. ${d.outro}`);
+      g.era=null; g.eraCool=g.year+rrange(20,36);
+    }
+    return;
+  }
+  if(g.year < (g.eraCool||18)) return;
+  if(rnd() > 0.115) return;
+  const pool=ERAS.filter(e=>(!e.human||g.humanArrived) && g.year>=(e.minYear||0));
+  if(!pool.length) return;
+  let tot=0; for(const e of pool) tot+=e.w;
+  let r=rnd()*tot, pick=pool[0];
+  for(const e of pool){ r-=e.w; if(r<=0){ pick=e; break; } }
+  const dur=Math.round(rrange(pick.dur[0],pick.dur[1]));
+  g.era={def:pick, endYear:g.year+dur, startYear:g.year};
+  if(pick.start) pick.start(g);
+  logMsg(pick.human?"human":"nature", `<b>${pick.name}</b> 시작. ${pick.intro} (약 ${dur}년)`);
+  g._sceneDirty=true;
+}
+const eraMod = k => (G.era && G.era.def[k]!==undefined) ? G.era.def[k] : (k==="temp"?0:1);
 
 /* ── 이벤트 ──────────────────────────────────────────────────── */
 const NATURE_EVENTS=[
@@ -2421,11 +2620,11 @@ function drawChart(canvasId, legendId, full){
    · 고도는 위로 밀어올리고, 호수·습지에는 수면을 따로 깐다.
    생물은 몸통·머리·다리·꼬리에 형질에 따라 뿔·귀·날개를 붙여 만든다. */
 const Globe = (function(){
-  const RD = 16.0, HGT = 3.0, WATER_Y = (Math.round(SEA_ELEV*9)/9-0.40)*3.0 + 0.06, MAX_CREATURES = 1200;
+  const RD = 16.0, HGT = 3.0, WATER_Y = (Math.round(SEA_ELEV*9)/9-0.40)*3.0 + 0.06, MAX_CREATURES = 2600;
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
-  let az=0.72, pol=0.72, dist=54, dragging=false, lx=0, ly=0;
+  let az=0.72, pol=0.72, dist=54, zoomDirty=false, lastZoom=0, dragging=false, lx=0, ly=0;
   const STRIDE = 10;
 
   /* ── 행렬 ────────────────────────────────────────────────── */
@@ -2831,7 +3030,10 @@ const Globe = (function(){
     cv.addEventListener("pointerup",end);
     cv.addEventListener("pointercancel",end);
     cv.addEventListener("pointerleave",end);
-    cv.addEventListener("wheel",e=>{ dist=clamp(dist+Math.sign(e.deltaY)*2.2, 16, 80); e.preventDefault(); },{passive:false});
+    cv.addEventListener("wheel",e=>{
+      dist=clamp(dist+Math.sign(e.deltaY)*2.2, 16, 80);
+      zoomDirty=true; e.preventDefault();
+    },{passive:false});
   }
 
   function buildCreatures(){
@@ -3005,7 +3207,12 @@ const Globe = (function(){
     if(!ok || !inst) return;
     const mode=G.creatureMode||"all";
     const c0=[0,0,0];
-    let budget=MAX_CREATURES;
+    /* 가까이 당길수록 더 촘촘하게, 멀면 성기게 그린다.
+       그래야 확대했을 때 작고 드문 종까지 눈에 들어온다. */
+    const zoom = clamp((80-dist)/(80-16), 0, 1);
+    const capPerSp = Math.round(45 + zoom*zoom*320);
+    const thr = 0.26 - zoom*0.22;
+    let budget=Math.round(MAX_CREATURES*(0.5+zoom*1.1));
     for(let si=0; si<G.species.length; si++){
       const s=G.species[si], it=inst[si];
       it.n=0;
@@ -3019,12 +3226,12 @@ const Globe = (function(){
       const wander = isPlant ? 0 : (0.05 + t.mobility*0.026 + t.youngDispersal*0.006);
       const rate   = isPlant ? 0.22 : (0.10 + t.speed*0.052 + t.metabolism*0.022);
       const bob    = (!isPlant && t.mobility>=9) ? 0.15 : 0;
-      const cap=Math.min(budget, 95);
+      const cap=Math.min(budget, capPerSp);
       const arr=new Float32Array(cap*7);
       let n=0;
       for(let i=0;i<NT && n<cap;i++){
         const v=s.pop[i];
-        if(v<peak*0.16 || v<0.8) continue;
+        if(v<peak*thr || v<0.6) continue;
         tileCenter(i,c0);
         const hsh=(i*2654435761+si*9176)>>>0;
         const o=n*7;
@@ -3070,6 +3277,9 @@ const Globe = (function(){
   }
   function render(){
     if(!ok||!G) return;
+    /* 확대·축소가 멈추면 생물 밀도를 다시 계산한다 */
+    if(zoomDirty && performance.now()-lastZoom>140){ zoomDirty=false; lastZoom=performance.now(); updateCreatures(); }
+    else if(zoomDirty) lastZoom=performance.now();
     const vp=viewProj();
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND); gl.depthMask(true);
@@ -3326,6 +3536,13 @@ function renderStatus(){
   $("#st-div").style.color = dv.H>1.9?"var(--good)":dv.H>1.2?"var(--ink)":"var(--warn)";
   const p=g.player;
   $("#st-mypop").textContent = p.alive ? `${fmt(p.total)}마리 · ${p.tiles}타일` : "멸종";
+  const eb=$("#era-banner");
+  if(g.era){
+    eb.hidden=false;
+    eb.className="era "+(g.era.def.tone||"cold");
+    $("#era-name").textContent=g.era.def.name;
+    $("#era-left").textContent=`${Math.max(0,g.era.endYear-g.year)}년 남음`;
+  } else eb.hidden=true;
   const ev=g.log[0];
   if(ev){
     $("#ev-ic").textContent = EV_ICON[ev.kind]||"🌿";
