@@ -497,6 +497,36 @@ input[type=range]::-moz-range-thumb{
 /* 진화 패널 */
 .ep-head{ display:flex; align-items:baseline; gap:8px; }
 .ep-head .big{ font-size:24px; font-weight:600; color: var(--gold-hi); }
+/* 선택압 — 지금 내 종을 죽이고 있는 것 */
+.pressure{ background:var(--panel-2); border-radius:14px; padding:10px 12px; margin-bottom:9px; }
+.pr-head{ display:flex; align-items:center; gap:7px; }
+.pr-head i{ width:9px; height:9px; border-radius:50%; background:var(--crit); flex:none; }
+.pr-head.calm i{ background:var(--good); }
+.pr-head b{ font-family:var(--f-disp); font-size:15px; }
+.pr-head em{ font-style:normal; margin-left:auto; font-size:11px; color:var(--ink-3);
+  background:#fff; border-radius:999px; padding:2px 9px; }
+.pressure p{ margin:5px 0 0; font-size:11.5px; color:var(--ink-2); line-height:1.5; }
+.pressure p b{ color:var(--gold-hi); font-weight:600; }
+
+.evo-row .tag{
+  font-style:normal; font-size:9.5px; margin-left:5px; padding:1px 6px; border-radius:999px;
+  background:var(--good); color:#fff; font-weight:600; vertical-align:1px;
+}
+.evo-row .tag.anti{ background:var(--line-2); color:var(--ink-2); }
+.evo-row.rec{ background:#EAF8F1; border-radius:8px; }
+.evo-row.anti{ opacity:.72; }
+
+/* 자동 정지 */
+.pausenote{
+  margin-top:6px; background:var(--ink); color:#fff; border-radius:999px;
+  padding:6px 14px; font-size:12px; font-weight:500; box-shadow:var(--shadow); white-space:nowrap;
+}
+.chip .sub{
+  font-style:normal; font-family:var(--f-body); font-weight:400; font-size:10px;
+  color:var(--ink-3); margin-left:5px;
+}
+.chip .sub.warm{ color:var(--crit); font-weight:600; }
+
 .evo-list{ display:flex; flex-direction:column; gap:2px; max-height: 250px; overflow-y:auto; }
 .evo-row{
   display:grid; grid-template-columns: 1fr 26px auto; align-items:center; gap:8px;
@@ -746,11 +776,14 @@ input[type=range]::-moz-range-thumb{
       </div>
       <div class="speedrow">
         <button class="pill" id="btn-pause">❚❚</button>
-        <button class="pill" data-speed="1" aria-pressed="true">×1</button>
-        <button class="pill" data-speed="4">×4</button>
-        <button class="pill" data-speed="16">×16</button>
+        <button class="pill" data-speed="1" title="1년 4초">×1</button>
+        <button class="pill" data-speed="4" aria-pressed="true" title="1년 1초">×4</button>
+        <button class="pill" data-speed="16" title="1년 0.25초">×16</button>
         <button class="pill ghost" id="btn-abort">종료</button>
       </div>
+      <button class="pill" id="btn-autopause" aria-pressed="true"
+              title="진화 포인트·시대 시작·내 종 급감 때 자동으로 멈춥니다">⏸ 사건마다 멈춤</button>
+      <div class="pausenote" id="pausenote" hidden></div>
     </div>
 
     <!-- 왼쪽 아래: 지도 레이어 -->
@@ -762,6 +795,8 @@ input[type=range]::-moz-range-thumb{
           <option value="me">내 종만</option>
           <option value="none">지형만</option>
         </select>
+        <button class="pill" id="btn-mine" aria-pressed="true"
+                title="지형 위에 내 종이 사는 범위를 색으로 덮어 보여줍니다">내 종 범위</button>
         <div class="maplegend" id="map-legend"></div>
       </div>
     </div>
@@ -782,6 +817,7 @@ input[type=range]::-moz-range-thumb{
           <span>진화</span><em class="num" id="ep-count">0</em><i>▾</i>
         </button>
         <div class="panel-body">
+          <div class="pressure" id="pressure"></div>
           <p class="tiny">형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
           <div class="evo-list" id="evo-list"></div>
         </div>
@@ -1473,9 +1509,9 @@ function newGame(playerDef){
   G = {
     world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
-    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5, eraLog:[], peakPop:0,
+    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5, eraLog:[], peakPop:0, autoPause:true,
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
-    running:false, speed:1, over:false, ending:null,
+    running:false, speed:4, over:false, ending:null,
     layer:"terrain", selected:0,
     guildHist:[], totalHist:[], stableRun:0,
   };
@@ -1892,10 +1928,20 @@ function step(){
 function recount(){
   const g=G;
   for(const s of g.species){
-    let tot=0,ti=0;
-    for(let i=0;i<NT;i++){ const v=s.pop[i]; if(v>0.05){ tot+=v; ti++; } else if(v>0) s.pop[i]=0; }
-    s.total=tot; s.tiles=ti; s.biomass=tot*s.d.bodyMass;
+    let tot=0,ti=0,mx=0;
+    for(let i=0;i<NT;i++){ const v=s.pop[i]; if(v>0.05){ tot+=v; ti++; if(v>mx) mx=v; } else if(v>0) s.pop[i]=0; }
+    s.total=tot; s.tiles=ti; s.biomass=tot*s.d.bodyMass; s._max=mx;
     if(s.isPlayer && tot>g.peakPop) g.peakPop=tot;
+    /* 내 종이 무너지고 있으면 알려준다. 지나고 나서 알면 손 쓸 수가 없다. */
+    if(s.isPlayer && s.alive && g.phase!=="placing"){
+      const prev=g._lastWarnPop||0;
+      if(tot>0 && tot < g.peakPop*0.35 && g.year > (g._warnYear||0)+12 && g.peakPop>60){
+        g._warnYear=g.year;
+        logMsg("death", `<b>${s.name}</b>이(가) 최대치의 ${Math.round(tot/g.peakPop*100)}%까지 줄었습니다.`);
+        autoPause("내 종 급감");
+      }
+      g._lastWarnPop=prev;
+    }
     if(s.alive && tot<1 && !(s.isPlayer && g.phase==="placing")){
       s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
       s.pop.fill(0);
@@ -2206,8 +2252,21 @@ function eraTick(){
   g.eraLog.push({name:pick.name, tone:pick.tone, year:g.year});
   logMsg(pick.human?"human":"nature", `<b>${pick.name}</b> 시작. ${pick.intro} (약 ${dur}년)`);
   g._sceneDirty=true;
+  autoPause(pick.name);
 }
 const eraMod = k => (G.era && G.era.def[k]!==undefined) ? G.era.def[k] : (k==="temp"?0:1);
+
+/* 판단이 필요한 순간에는 시간을 멈춘다. 흘러가는 숫자가 아니라 사건이 되게. */
+function autoPause(why){
+  const g=G;
+  if(!g || g.over || !g.autoPause || !g.running) return;
+  g.running=false;
+  g.pauseWhy=why;
+  const b=document.getElementById("btn-pause"); if(b) b.textContent="▶";
+  const n=document.getElementById("pausenote");
+  if(n){ n.textContent=`${why} — 멈췄습니다`; n.hidden=false;
+    clearTimeout(n._t); n._t=setTimeout(()=>{ n.hidden=true; }, 4200); }
+}
 
 /* ── 이벤트 ──────────────────────────────────────────────────── */
 const NATURE_EVENTS=[
@@ -2335,10 +2394,15 @@ function rollEvents(){
   if(g.tick>=g.nextEpTick){
     const mr=g.player.traits.mutationRate;
     g.ep += 1;
-    /* 진화 포인트도 '세대'로 온다. 빨리 번식하는 종일수록 자주 진화한다 */
+    /* 진화 포인트도 '세대'로 온다. 빨리 번식하는 종일수록 자주 진화한다.
+       간격은 1.5~8.5년 그대로 두고, 1년이 흐르는 실제 시간을 늘렸다.
+       그것만으로 ×1에서 6~34초에 한 번이 되어 결정을 내릴 틈이 생긴다. */
     const d=g.player.d;
     g.nextEpTick = g.tick + clamp(Math.round(19/(d.gensPerYear*0.55 + d.heritab*1.4)), 6, 34);
-    if(g.player.alive) logMsg("evo", `진화 포인트 1점을 얻었습니다. (보유 ${g.ep}점)`);
+    if(g.player.alive){
+      logMsg("evo", `진화 포인트 1점을 얻었습니다. (보유 ${g.ep}점)`);
+      autoPause("진화 포인트 도착");
+    }
     /* 높은 돌연변이율 = 통제 불가능한 자동 변이 */
     if(mr>=7 && rnd()<0.22+g.player.d.heritab*0.25 && g.player.alive){
       const k=TRAIT_KEYS[Math.floor(rnd()*TRAIT_KEYS.length)];
@@ -2594,6 +2658,19 @@ function tileRGB(i, layer, veg, sel){
     if(w.farm[i]) col = mix(col,[214,190,110],0.62);
     if(w.poll[i]>8) col = mix(col,[186,96,140], clamp(w.poll[i]/130,0,0.55));
     if(w.road[i]) col = mix(col,[124,122,116],0.45);
+    /* 내 종이 사는 곳에 금빛을 얹는다. 이 게임에서 보고 싶은 건 결국
+       이 금빛이 300년에 걸쳐 넓어지는 모습이다. 짙을수록 빽빽하다. */
+    if(G.showMine!==false){
+      const hl=G.highlight, s=(hl!=null&&G.species[hl])?G.species[hl]:G.player;
+      if(s && s.alive && s._max>0){
+        const v=s.pop[i];
+        if(v>s._max*0.06){
+          const k=clamp(Math.pow(v/s._max,0.55),0,1);
+          if(!s._rgb) s._rgb=hex2rgb(s.color);      // 타일마다 색을 파싱할 이유가 없다
+          col = mix(col, s._rgb, 0.14+k*0.40);
+        }
+      }
+    }
     return col;
   }
   if(layer==="veg"){
@@ -2692,6 +2769,19 @@ function drawMapLegend(){
   }
 }
 function avgTemp(){ let t=0; for(let i=0;i<NT;i++) t+=tileTemp(G.world,i,G.season,G.warming); return t/NT; }
+/* 계절 순간값을 그대로 보여주면 숫자가 1초마다 널뛰어 깜빡이는 것처럼 보인다.
+   기후는 원래 한 해를 묶어서 읽는 것이므로 연평균과 여름·겨울 폭으로 보여준다. */
+function yearTemp(){
+  const g=G; let base=0;
+  for(let i=0;i<NT;i++) base += 4 + g.world.heat[i]*22;
+  base/=NT; base += g.warming;
+  let lo=Infinity, hi=-Infinity, sum=0;
+  for(let s=0;s<TICKS_PER_YEAR;s++){
+    const t=base+SEASON_TEMP[s];
+    sum+=t; if(t<lo) lo=t; if(t>hi) hi=t;
+  }
+  return {mean:sum/TICKS_PER_YEAR, summer:hi, winter:lo};
+}
 function avgMoist(){ let t=0; for(let i=0;i<NT;i++) t+=G.world.moist[i]; return t/NT; }
 function avgPoll(){ let t=0; for(let i=0;i<NT;i++) t+=G.world.poll[i]; return t/NT; }
 
@@ -3481,14 +3571,18 @@ const Globe = (function(){
        어느 종이 어디에 몰려 있는지가 안 보인다. */
     const thr = 0.38 - zoom*0.21;
     let budget=Math.round(MAX_CREATURES*(0.30+zoom*0.62));
-    for(let si=0; si<G.species.length; si++){
+    /* 내 종을 먼저 그린다. 예산이 모자라도 내 종만은 언제나 화면에 있어야 한다. */
+    const order=G.species.map((s,i)=>i).sort((a,b)=>
+      (G.species[b].isPlayer?1:0)-(G.species[a].isPlayer?1:0));
+    for(const si of order){
       const s=G.species[si], it=inst[si];
       it.n=0;
       if(mode==="none" || !s.alive || (mode==="me" && !s.isPlayer)) continue;
       let peak=0; for(let i=0;i<NT;i++) if(s.pop[i]>peak) peak=s.pop[i];
       if(peak<=0.4) continue;
       const t=s.traits;
-      const base=0.10+t.size*0.021;
+      /* 내 종은 조금 크게 그린다. 34종 사이에서 내 종을 눈으로 찾을 수 있어야 한다. */
+      const base=(0.10+t.size*0.021) * (s.isPlayer?1.45:1);
       /* 형질이 움직임을 정한다 — 이동 범위는 이동성, 속도는 순발력과 대사율 */
       const isPlant = (s.diet==="producer");
       const wander = isPlant ? 0 : (0.05 + t.mobility*0.026 + t.youngDispersal*0.006);
@@ -3738,8 +3832,11 @@ function renderSpecies(){
   }).join("");
   tb.querySelectorAll("tr").forEach(tr=>{
     const pick=()=>{
-      G.selected=+tr.dataset.idx; G.layer="species";
-      const s=G.species[G.selected]; let mx=0; for(let i=0;i<NT;i++) if(s.pop[i]>mx) mx=s.pop[i]; s._max=mx;
+      const idx=+tr.dataset.idx;
+      /* 같은 종을 다시 누르면 내 종 표시로 돌아온다 */
+      G.highlight = (G.highlight===idx || G.species[idx].isPlayer) ? null : idx;
+      G.selected=idx; G.layer="species";
+      const s=G.species[idx]; let mx=0; for(let i=0;i<NT;i++) if(s.pop[i]>mx) mx=s.pop[i]; s._max=mx;
       buildLayerTabs(); drawMap(); renderSpecies();
     };
     tr.onclick=pick;
@@ -3748,19 +3845,46 @@ function renderSpecies(){
 }
 
 /* ── 진화 패널 ───────────────────────────────────────────────── */
+const PRESSURE_HINT = {
+  hunger:    "먹이를 충분히 못 구하고 있습니다",
+  hunt:      "사냥이 자주 실패하고 있습니다",
+  predation: "잡아먹히고 있습니다",
+  heat:      "더위에 시달리고 있습니다",
+  cold:      "추위에 시달리고 있습니다",
+  crowd:     "너무 빽빽해 자리가 모자랍니다",
+};
 function renderEvo(){
   $("#ep-count").textContent=G.ep;
   const t=G.player.traits, list=$("#evo-list");
+
+  /* 무엇이 내 종을 죽이고 있는지 먼저 보여준다. 이걸 모르면 형질 33개짜리
+     목록은 그냥 표일 뿐이고, 진화가 판단이 아니라 찍기가 된다. */
+  const P = G.player.alive ? selectionPressure(G.player) : null;
+  const R = P ? EVO_RESPONSE[P[0]] : null;
+  const up = R ? R.up.filter(k=>t[k]<10) : [];
+  const down = R ? R.down : [];
+  $("#pressure").innerHTML = R
+    ? `<div class="pr-head"><i></i><b>${R.ko}</b><em>${["약함","보통","강함","매우 강함"][Math.min(3,Math.floor(P[1]/0.35))]}</em></div>
+       <p>${PRESSURE_HINT[P[0]]}. 아래 <b>추천</b> 형질을 올리면 도움이 됩니다.</p>`
+    : `<div class="pr-head calm"><i></i><b>큰 압력 없음</b></div>
+       <p>지금은 버틸 만합니다. 다음 국면을 대비해 두는 것도 방법입니다.</p>`;
+
+  /* 대응되는 형질을 위로 올린다. 33개를 훑게 하지 않는다. */
+  const rank = k => up.includes(k) ? 0 : (down.includes(k) ? 1 : 2);
+  const keys = TRAIT_KEYS.slice().sort((a,b)=>rank(a)-rank(b));
+
   const keep = list.scrollTop;
-  list.innerHTML = TRAIT_KEYS.map(k=>`
-    <div class="evo-row">
-      <span>${TRAIT_LABEL[k]}</span>
+  list.innerHTML = keys.map(k=>{
+    const good=up.includes(k), bad=down.includes(k);
+    return `
+    <div class="evo-row${good?" rec":bad?" anti":""}">
+      <span>${TRAIT_LABEL[k]}${good?'<em class="tag">추천</em>':bad?'<em class="tag anti">부담</em>':""}</span>
       <span class="v" style="color:${t[k]>=8?"var(--gold-hi)":"var(--ink)"}">${t[k]}</span>
       <span class="ctl">
         <button class="mini" data-k="${k}" data-d="-1" ${(t[k]<=1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 낮추기">−</button>
         <button class="mini" data-k="${k}" data-d="1" ${(t[k]>=10||G.ep<1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 높이기">+</button>
       </span>
-    </div>`).join("");
+    </div>`;}).join("");
   list.scrollTop = keep;
   list.querySelectorAll("button").forEach(b=>{
     b.onclick=()=>{
@@ -3797,7 +3921,10 @@ function renderStatus(){
   const nd=document.getElementById("pie-needle");
   if(nd) nd.setAttribute("transform", `rotate(${g.season*90+45})`);
   $("#fl-pop").textContent = g.player.alive ? fmt(g.player.total) : "0";
-  $("#st-temp").textContent = avgTemp().toFixed(1)+"°C" + (g.warming>0.4?` (+${g.warming.toFixed(1)})`:"");
+  const yt=yearTemp();
+  $("#st-temp").innerHTML = `${yt.mean.toFixed(0)}°C`
+    + `<em class="sub">여름 ${yt.summer.toFixed(0)} · 겨울 ${yt.winter.toFixed(0)}</em>`
+    + (g.warming>0.4?`<em class="sub warm">+${g.warming.toFixed(1)}</em>`:"");
   $("#st-moist").textContent = (avgMoist()*100).toFixed(0)+"%";
   const ap=avgPoll();
   $("#st-poll").textContent = ap.toFixed(1);
@@ -3912,7 +4039,9 @@ function loop(t){
   const dt=Math.min(100, t-lastT); lastT=t;
   if(!G.running || G.phase==="placing") return;
 
-  acc += dt*G.speed/220;
+  /* 1틱 = 한 계절 = 1초. ×1에서 1년이 4초 흐른다.
+     이보다 빠르면 숫자가 깜빡이기만 하고 무슨 일이 일어나는지 읽을 틈이 없다. */
+  acc += dt*G.speed/1000;
   let steps=0;
   while(acc>=1 && steps<8 && !G.over){ step(); acc-=1; steps++; }
   if(!steps || G.over) return;
@@ -4002,6 +4131,16 @@ function bind(){
   $("#btn-start").onclick = startSim;
 
   $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
+  $("#btn-mine").onclick = ()=>{
+    G.showMine = (G.showMine===false);
+    G.highlight = null;
+    $("#btn-mine").setAttribute("aria-pressed", String(G.showMine!==false));
+    drawMap();
+  };
+  $("#btn-autopause").onclick = ()=>{
+    G.autoPause=!G.autoPause;
+    $("#btn-autopause").setAttribute("aria-pressed", String(G.autoPause));
+  };
   $$("[data-toggle]").forEach(b=>b.onclick=()=>{
     document.getElementById(b.dataset.toggle).classList.toggle("collapsed");
     if(b.dataset.toggle==="panel-chart" && G && !G.over) requestAnimationFrame(()=>drawChart("chart","chart-legend",false));
