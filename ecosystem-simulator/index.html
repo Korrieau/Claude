@@ -794,7 +794,7 @@ input[type=range]::-moz-range-thumb{
       <div class="lastev-label" id="ev-label">관측 시작</div>
     </div>
 
-    <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 확대</div>
+    <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 커서 쪽 확대 · 우클릭(또는 Shift) 드래그로 이동 · Home 가운데</div>
     <div class="placebar" id="placebar" hidden>
       <b>시작할 지역을 클릭하세요.</b> 진한 곳일수록 살기 좋습니다 — 하지만 좋은 땅에는 경쟁자도 많습니다.
     </div>
@@ -2781,7 +2781,10 @@ const Globe = (function(){
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
-  let az=0.72, pol=0.72, dist=54, zoomDirty=false, lastZoom=0, dragging=false, lx=0, ly=0;
+  let az=0.72, pol=0.72, dist=54, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
+  /* 카메라가 바라보는 지점. 이게 없으면 확대가 언제나 세계 한가운데로만 파고들어
+     가장자리를 들여다볼 수가 없다. */
+  let tx=0, tz=0;
   const STRIDE = 10;
 
   /* ── 행렬 ────────────────────────────────────────────────── */
@@ -3168,7 +3171,8 @@ const Globe = (function(){
     }
   }
   /* 새 판을 시작할 때는 이어지는 화면이 없으니 바로 맞춘다 */
-  function resetAir(){
+  function resetView(){
+    tx=0; tz=0;
     const L=eraLook(); airLast=0;
     for(let i=0;i<3;i++){ skyCur[i]=L.sky[i]; airCur[i]=L.air[i]; }
   }
@@ -3197,24 +3201,95 @@ const Globe = (function(){
     }catch(err){ console.warn("3D 초기화 실패 — 2D 지도로 대체합니다:", err.message); gl=null; return false; }
   }
 
+  /* 바라보는 지점이 세계 밖으로 나가지 않게 붙든다 */
+  function clampTarget(){
+    const R=CLIP_R()*0.92, d=Math.hypot(tx,tz);
+    if(d>R){ tx=tx/d*R; tz=tz/d*R; }
+  }
+  /* 화면의 한 점이 가리키는 땅 위치. 확대할 때 그 지점으로 파고들기 위해 쓴다. */
+  function groundAt(clientX, clientY){
+    if(!vpCache) return null;
+    const r=cv.getBoundingClientRect();
+    const nx=((clientX-r.left)/r.width)*2-1, ny=-((clientY-r.top)/r.height)*2+1;
+    const inv=invert(vpCache.mvp); if(!inv) return null;
+    const far=applyPoint(inv,[nx,ny,1]), eye=vpCache.eye;
+    const d=[far[0]-eye[0],far[1]-eye[1],far[2]-eye[2]];
+    if(Math.abs(d[1])<1e-6) return null;
+    const t=(0-eye[1])/d[1]; if(t<=0) return null;
+    return [eye[0]+d[0]*t, eye[2]+d[2]*t];
+  }
+
   function bindControls(){
-    const start=e=>{ dragging=true; cv.classList.add("dragging"); lx=e.clientX; ly=e.clientY;
+    const start=e=>{
+      /* 오른쪽·가운데 버튼이나 Shift를 누른 채 끌면 회전이 아니라 이동 */
+      panning = (e.button===1 || e.button===2 || e.shiftKey);
+      dragging = !panning;
+      cv.classList.add("dragging"); lx=e.clientX; ly=e.clientY;
       if(cv.setPointerCapture) cv.setPointerCapture(e.pointerId);
       const h=document.getElementById("viewhint"); if(h) h.style.opacity="0"; };
-    const move=e=>{ if(!dragging) return;
+    const move=e=>{
+      if(panning){
+        /* 끈 만큼 땅이 손을 정확히 따라오게. 화면에 보이는 땅의 폭은
+           2·dist·tan(시야각/2)이므로 픽셀당 거리는 dist에 비례한다. */
+        const k=dist*0.0009;
+        const ddx=(e.clientX-lx)*k, ddy=(e.clientY-ly)*k/Math.max(0.45,Math.sin(pol));
+        tx += -Math.cos(az)*ddx - Math.sin(az)*ddy;
+        tz +=  Math.sin(az)*ddx - Math.cos(az)*ddy;
+        clampTarget();
+        lx=e.clientX; ly=e.clientY; return;
+      }
+      if(!dragging) return;
       az -= (e.clientX-lx)*0.0075;
       pol = clamp(pol - (e.clientY-ly)*0.005, 0.10, 1.30);
       lx=e.clientX; ly=e.clientY; };
-    const end=()=>{ dragging=false; cv.classList.remove("dragging"); };
+    const end=()=>{ dragging=false; panning=false; cv.classList.remove("dragging"); };
     cv.addEventListener("pointerdown",start);
     cv.addEventListener("pointermove",move);
     cv.addEventListener("pointerup",end);
     cv.addEventListener("pointercancel",end);
     cv.addEventListener("pointerleave",end);
+    cv.addEventListener("contextmenu",e=>e.preventDefault());
     cv.addEventListener("wheel",e=>{
+      e.preventDefault();
+      const g=groundAt(e.clientX,e.clientY), d0=dist;
       dist=clamp(dist+Math.sign(e.deltaY)*2.2, 16, 80);
-      zoomDirty=true; e.preventDefault();
+      if(g && dist<d0){
+        /* 커서가 가리키는 곳으로 파고든다 — 언제나 한가운데로만 당겨지면
+           가장자리를 가까이 볼 방법이 없다 */
+        const k=(d0-dist)/d0;
+        tx += (g[0]-tx)*k; tz += (g[1]-tz)*k;
+      } else if(dist>d0){
+        /* 물러날 때는 서서히 가운데로 돌아온다 */
+        const k=(dist-d0)/dist*0.75;
+        tx -= tx*k; tz -= tz*k;
+      }
+      clampTarget();
+      zoomDirty=true;
     },{passive:false});
+
+    /* 키보드로도 움직인다 — 화살표·WASD로 이동, Home으로 가운데 복귀 */
+    window.addEventListener("keydown",e=>{
+      if(!ok || G?.phase==="design") return;
+      const tag=(e.target&&e.target.tagName)||"";
+      if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA") return;
+      const step=dist*0.055;
+      let dx=0, dy=0;
+      if(e.key==="ArrowLeft" ||e.key==="a"||e.key==="A") dx=-1;
+      else if(e.key==="ArrowRight"||e.key==="d"||e.key==="D") dx=1;
+      else if(e.key==="ArrowUp"   ||e.key==="w"||e.key==="W") dy=-1;
+      else if(e.key==="ArrowDown" ||e.key==="s"||e.key==="S") dy=1;
+      else if(e.key==="Home"){ tx=tz=0; e.preventDefault(); return; }
+      else return;
+      tx += Math.cos(az)*dx*step - Math.sin(az)*dy*step;
+      tz += -Math.sin(az)*dx*step - Math.cos(az)*dy*step;
+      clampTarget(); e.preventDefault();
+    });
+  }
+  /* 지역을 고르거나 종을 클릭했을 때 그쪽으로 시선을 옮긴다 */
+  function lookAtTile(i){
+    if(!ok || i<0) return;
+    const c=[0,0,0]; tileCenter(i,c);
+    tx=c[0]; tz=c[2]; clampTarget();
   }
 
   function buildCreatures(){
@@ -3391,9 +3466,11 @@ const Globe = (function(){
     /* 가까이 당길수록 더 촘촘하게, 멀면 성기게 그린다.
        그래야 확대했을 때 작고 드문 종까지 눈에 들어온다. */
     const zoom = clamp((80-dist)/(80-16), 0, 1);
-    const capPerSp = Math.round(45 + zoom*zoom*320);
-    const thr = 0.26 - zoom*0.22;
-    let budget=Math.round(MAX_CREATURES*(0.5+zoom*1.1));
+    const capPerSp = Math.round(26 + zoom*zoom*175);
+    /* 문턱을 제 종의 최대 밀도 기준으로 잡는다. 낮으면 땅이 온통 점으로 덮여
+       어느 종이 어디에 몰려 있는지가 안 보인다. */
+    const thr = 0.38 - zoom*0.21;
+    let budget=Math.round(MAX_CREATURES*(0.30+zoom*0.62));
     for(let si=0; si<G.species.length; si++){
       const s=G.species[si], it=inst[si];
       it.n=0;
@@ -3440,9 +3517,9 @@ const Globe = (function(){
       cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
     }
     gl.viewport(0,0,cv.width,cv.height);
-    const cp=[Math.sin(az)*Math.cos(pol)*dist, Math.sin(pol)*dist+1.2, Math.cos(az)*Math.cos(pol)*dist];
+    const cp=[tx+Math.sin(az)*Math.cos(pol)*dist, Math.sin(pol)*dist+1.2, tz+Math.cos(az)*Math.cos(pol)*dist];
     const P4=perspective(0.66, cv.width/cv.height, 0.5, 320);
-    const V=lookAt(cp,[0,0.3,0],[0,1,0]);
+    const V=lookAt(cp,[tx,0.3,tz],[0,1,0]);
     vpCache={mvp:mul(P4,V), eye:cp};
     return vpCache;
   }
@@ -3581,7 +3658,7 @@ const Globe = (function(){
     return i;
   }
 
-  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetAir,
+  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile,
           get ok(){ return ok; }};
 })();
 
@@ -3868,7 +3945,7 @@ function startSim(){
   $("#globe").hidden = !use3d;
   $("#map").hidden = use3d;
   $("#viewhint").hidden = !use3d;
-  if(use3d){ Globe.resetAir(); Globe.buildCreatures(); Globe.updateTerrain(); Globe.buildScenery(); }
+  if(use3d){ Globe.resetView(); Globe.buildCreatures(); Globe.updateTerrain(); Globe.buildScenery(); }
   buildLayerTabs(); renderStatus(); renderSpecies(); renderEvo(); renderLog();
   drawMap(); drawChart("chart","chart-legend",false);
   acc=0; lastT=performance.now(); lastUI=0;
@@ -3893,6 +3970,7 @@ function attachPlacement(el, tileFrom){
     const i=tileFrom(e);
     if(i<0) return;
     seedPlayerAt(i);
+    if(Globe.ok) Globe.lookAtTile(i);      // 고른 곳으로 시선을 옮겨준다
     setPlacing(false);
     G.layer="terrain"; buildLayerTabs();
     renderStatus(); renderSpecies(); renderLog(); drawMap();
