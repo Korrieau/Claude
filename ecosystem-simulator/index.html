@@ -367,6 +367,11 @@ input[type=range]::-moz-range-thumb{
 .era.hot{ background:#E2743C; }
 .era.human{ background:#7B5CE0; }
 .era.good{ background:#2FA85E; }
+.era.omen{ background:#6B7C72; }
+.seasonlab{
+  margin-top:6px; background:#fff; border-radius:999px; padding:3px 14px;
+  font-family:var(--f-disp); font-size:13px; color:var(--ink-2); box-shadow:var(--shadow);
+}
 
 /* 내 종 현황 카드 */
 .mecard{
@@ -653,6 +658,9 @@ input[type=range]::-moz-range-thumb{
       <h1>번영의 계보<span class="tag">생태 시뮬레이터</span></h1>
       <p class="sub">형질 33개를 배분해 종 하나를 설계하고, 이미 33종이 자리 잡은 땅에 풀어놓습니다.
         300년 뒤 동물 가운데 <b>종합 번영 지수 1위</b>가 되면 승리입니다.</p>
+      <p class="sub">판마다 <b>시나리오 하나</b>가 뽑혀 300년 전체를 지배합니다 — 빙하기, 대가뭄,
+        운석 충돌, 인간의 세기 같은 것들입니다. 무엇인지는 알려주지 않습니다.
+        <b>징후</b>를 읽고 알아채서 그에 맞게 진화시키는 것이 이 게임입니다.</p>
       <div class="hero-steps">
         <span class="step"><b>1</b>형질 설계</span>
         <span class="step"><b>2</b>지역 선택</span>
@@ -1526,6 +1534,7 @@ function newGame(playerDef){
     layer:"terrain", selected:0,
     guildHist:[], totalHist:[], stableRun:0,
   };
+  pickScenario(G);
   buildCompetition(species);
   G.prefMx = buildCompetition.mx; G.nSp = buildCompetition.n;
   logMsg("nature", `이 땅에는 이미 ${species.length-1}종이 자리를 잡고 있습니다. <b>${player.name}</b>을(를) 풀어놓을 지역을 고르세요.`);
@@ -2075,6 +2084,7 @@ function evolveAll(){
    기온·강수·광량·돌연변이율을 통째로 흔들고 땅 자체를 바꾸기도 한다. */
 const ERAS = [
   {k:"iceage", name:"빙하기", tone:"cold", minYear:25, w:1.0, dur:[20,38],
+   omen:["겨울이 예년보다 조금 길어졌습니다.","북쪽 물가에 얼음이 늦게까지 남아 있습니다.","여름에도 서리가 내린 날이 있었습니다."], peak:"얼음이 대륙 한복판까지 내려왔습니다.", lasting:false,
    intro:"기온이 해마다 떨어집니다. 얼음이 남쪽으로 내려오고 있습니다.",
    outro:"얼음이 물러갔습니다. 살아남은 것들이 빈 땅을 채웁니다.",
    temp:-6, moist:0.90, light:0.86,
@@ -2088,6 +2098,7 @@ const ERAS = [
      if(n) g._sceneDirty=true;
    }},
   {k:"warming", name:"급격한 온난화", tone:"hot", minYear:30, w:1.0, dur:[26,48],
+   omen:["겨울이 해마다 짧아지고 있습니다.","고지대의 눈이 여름을 넘기지 못합니다.","봄이 예년보다 보름 빨리 옵니다."], peak:"땅이 마르고 설원이 자취를 감췄습니다.", lasting:true,
    intro:"기온이 치솟습니다. 물이 마르고 얼음이 녹습니다.",
    outro:"기온 상승이 멎었습니다. 그러나 녹은 것은 돌아오지 않습니다.",
    temp:5, moist:0.88, light:1.0,
@@ -2100,6 +2111,7 @@ const ERAS = [
      if(n) g._sceneDirty=true;
    }},
   {k:"impact", name:"운석 충돌", tone:"cold", minYear:35, w:0.55, dur:[6,12],
+   omen:["밤하늘에 못 보던 빛이 하나 늘었습니다.","그 빛이 조금씩 커지고 있습니다.","낮에도 보일 만큼 밝아졌습니다."], peak:"먼지가 해를 완전히 가렸습니다.", lasting:false,
    intro:"하늘이 갈라지고 먼지가 해를 가렸습니다. 광합성이 멈춰갑니다.",
    outro:"먼지가 걷혔습니다. 햇빛이 돌아옵니다.",
    temp:-5, moist:1.0, light:0.66,
@@ -2118,6 +2130,7 @@ const ERAS = [
      g._sceneDirty=true;
    }},
   {k:"volcanic", name:"화산 겨울", tone:"cold", minYear:20, w:0.9, dur:[8,16],
+   omen:["땅이 이따금 흔들립니다.","산 능선에서 김이 오릅니다.","잿가루가 바람에 실려 옵니다."], peak:"하늘이 재로 덮여 한낮이 어둡습니다.", lasting:false,
    intro:"대분화가 일어났습니다. 화산재가 하늘을 덮습니다.",
    outro:"재가 가라앉았습니다. 땅은 오히려 기름집니다.",
    temp:-4, moist:1.05, light:0.76,
@@ -2136,6 +2149,7 @@ const ERAS = [
    },
    end:g=>{ for(let i=0;i<NT;i++) if(!g.world.vd[i]) g.world.baseSoil[i]=Math.min(150,g.world.baseSoil[i]+18); }},
   {k:"megadrought", name:"대가뭄", tone:"hot", minYear:18, w:1.0, dur:[16,32],
+   omen:["비가 오는 날이 줄었습니다.","시내 몇 곳이 여름에 말랐습니다.","저수지 바닥이 드러났습니다."], peak:"습지가 갈라진 흙바닥이 됐습니다.", lasting:true,
    intro:"비가 오지 않습니다. 강이 마르고 호수가 줄어듭니다.",
    outro:"오랜만에 비가 내렸습니다.",
    temp:2.5, moist:0.62, light:1.0,
@@ -2148,6 +2162,7 @@ const ERAS = [
      if(n) g._sceneDirty=true;
    }},
   {k:"greening", name:"대녹화", tone:"good", minYear:15, w:0.8, dur:[18,34],
+   omen:["비가 알맞게 내립니다.","풀이 예년보다 무성합니다.","숲이 빈 땅으로 번져 나갑니다."], peak:"땅이 가장 기름진 때입니다.", lasting:false,
    intro:"비가 넉넉하고 땅이 기름집니다. 초목이 폭발적으로 번집니다.",
    outro:"풍요로운 시절이 끝났습니다.",
    temp:2, moist:1.30, light:1.28,
@@ -2163,6 +2178,7 @@ const ERAS = [
    }},
   /* 사람이 만든 시대 */
   {k:"acidrain", name:"산성비", tone:"human", human:true, w:1.0, dur:[14,28],
+   omen:["빗물에서 쇠 냄새가 납니다.","잎끝이 누렇게 마릅니다.","비 온 자리마다 풀이 죽습니다."], peak:"숲이 통째로 말라 갑니다.", lasting:true,
    intro:"공장 매연이 비에 섞여 내립니다. 숲이 말라갑니다.",
    outro:"산성비가 잦아들었습니다.",
    temp:0, moist:1.0, light:0.88,
@@ -2173,6 +2189,7 @@ const ERAS = [
        w.soil[j]=Math.max(6,w.soil[j]-rrange(1,4));
      } }},
   {k:"radiation", name:"방사능 유출", tone:"human", human:true, w:0.85, dur:[30,70],
+   omen:["강 하류에서 이상한 것이 발견됩니다.","기형인 개체가 눈에 띕니다.","형질이 제멋대로 흔들리기 시작합니다."], peak:"보이지 않는 것이 땅 전체에 내려앉았습니다.", lasting:true,
    intro:"원자로가 터졌습니다. 보이지 않는 것이 땅에 내려앉습니다.",
    outro:"방사선 수치가 배경 수준으로 내려왔습니다.",
    temp:0, moist:1.0, light:1.0, mut:2.6,
@@ -2196,6 +2213,7 @@ const ERAS = [
        g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(2,6));
      } }},
   {k:"searise", name:"해수면 상승", tone:"human", human:true, w:0.9, dur:[24,50],
+   omen:["만조선이 조금 올라왔습니다.","해변 모래가 눈에 띄게 줄었습니다.","저지대에 바닷물이 들어옵니다."], peak:"해안 저지대가 통째로 잠겼습니다.", lasting:true,
    intro:"빙하가 녹아 바닷물이 차오릅니다. 해안이 잠기기 시작합니다.",
    outro:"해수면 상승이 멈췄습니다. 잠긴 땅은 돌아오지 않습니다.",
    temp:5, moist:1.1, light:1.0,
@@ -2218,8 +2236,24 @@ const ERAS = [
      }
      if(n){ g._sceneDirty=true; }
    }},
+  {k:"civil", name:"인간의 세기", tone:"human", human:true, w:1.4,
+   omen:["멀리서 연기가 오릅니다.","숲 가장자리가 베여 나갔습니다.","길이 하나 뚫렸습니다."],
+   intro:"사람이 자리를 잡았습니다. 땅이 밭과 도시로 바뀌어 갑니다.",
+   peak:"도시와 농지가 대륙을 뒤덮었습니다.",
+   outro:"확장이 느려졌습니다. 콘크리트로 덮인 땅은 돌아오지 않습니다.",
+   temp:2.5, moist:0.94, light:0.95, lasting:true},
 ];
 function nbIdx(x,y){ return (x<0||y<0||x>=W||y>=H) ? -1 : y*W+x; }
+
+/* 한 판에 시나리오 하나. 이게 300년 전체의 줄거리가 된다. */
+function pickScenario(g){
+  let tot=0; for(const e of ERAS) tot+=e.w;
+  let r=rnd()*tot, pick=ERAS[0];
+  for(const e of ERAS){ r-=e.w; if(r<=0){ pick=e; break; } }
+  g.era={def:pick, t:0, phase:-1, omenN:0, nextOmen:6, started:false, revealed:false};
+  g.humanArrived = false;
+  g.scenarioHuman = !!pick.human;
+}
 
 /* 시대별 화면 톤 — sky는 하늘색, air는 지형과 생물에 곱하는 공기 색.
    너무 어둡게 하면 밝은 저폴리 맛이 죽고 생물이 안 보인다. 그래서 어둡게 하기보다
@@ -2235,37 +2269,80 @@ const ERA_LOOK = {
   acidrain:    {sky:[0.71,0.74,0.62],    air:[0.94,0.96,0.85]},  /* 매연 섞인 회록색 */
   radiation:   {sky:[0.72,0.67,0.84],    air:[1.00,0.94,1.05]},  /* 어딘가 잘못된 보랏빛 */
   searise:     {sky:[0.62,0.72,0.80],    air:[0.93,0.97,1.02]},  /* 무겁게 내려앉은 회청색 */
+  civil:       {sky:[0.80,0.79,0.74],    air:[0.97,0.96,0.92]},  /* 매연이 옅게 낀 하늘 */
 };
-const eraLook = () => (G.era && ERA_LOOK[G.era.def.k]) || ERA_LOOK._none;
+/* 하늘도 시나리오 세력만큼만 물든다. 전조기엔 거의 평범하고 절정에 가장 짙다. */
+const _lookBuf={sky:[0,0,0], air:[1,1,1]};
+function eraLook(){
+  const s=G && G.era, L=s && ERA_LOOK[s.def.k];
+  if(!L) return ERA_LOOK._none;
+  const t=clamp(s.t||0,0,1), N=ERA_LOOK._none;
+  for(let i=0;i<3;i++){
+    _lookBuf.sky[i]=N.sky[i]+(L.sky[i]-N.sky[i])*t;
+    _lookBuf.air[i]=N.air[i]+(L.air[i]-N.air[i])*t;
+  }
+  return _lookBuf;
+}
 
 function eraTick(){
   const g=G;
-  if(g.era){
-    if(g.era.def.year) g.era.def.year(g);
-    if(g.year>=g.era.endYear){
-      const d=g.era.def;
+  const s=g.era; if(!s) return;
+  const d=s.def, t=scenT(g);
+  s.t=t;
+
+  /* 단계가 넘어갈 때만 알린다 */
+  const ph=scenPhase(g);
+  if(ph!==s.phase){
+    s.phase=ph;
+    if(ph===1){
+      s.revealed=true;
+      g.eraLog.push({name:d.name, tone:d.tone, year:g.year});
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>. ${d.intro}`);
+      autoPause(d.name);
+      g._sceneDirty=true;
+    } else if(ph===2){
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 절정에 다다릅니다. ${d.peak||""}`);
+      autoPause(`${d.name} 절정`);
+    } else if(ph===3){
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>의 기세가 꺾였습니다. ${d.outro}`);
       if(d.end) d.end(g);
-      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 끝났습니다. ${d.outro}`);
-      g.era=null; g.eraCool=g.year+rrange(20,36);
+      autoPause(`${d.name} 여파`);
     }
-    return;
   }
-  if(g.year < (g.eraCool||18)) return;
-  if(rnd() > 0.085) return;
-  const pool=ERAS.filter(e=>(!e.human||g.humanArrived) && g.year>=(e.minYear||0));
-  if(!pool.length) return;
-  let tot=0; for(const e of pool) tot+=e.w;
-  let r=rnd()*tot, pick=pool[0];
-  for(const e of pool){ r-=e.w; if(r<=0){ pick=e; break; } }
-  const dur=Math.round(rrange(pick.dur[0],pick.dur[1]));
-  g.era={def:pick, endYear:g.year+dur, startYear:g.year};
-  if(pick.start) pick.start(g);
-  g.eraLog.push({name:pick.name, tone:pick.tone, year:g.year});
-  logMsg(pick.human?"human":"nature", `<b>${pick.name}</b> 시작. ${pick.intro} (약 ${dur}년)`);
-  g._sceneDirty=true;
-  autoPause(pick.name);
+  /* 전조 — 아직 이름은 모르고 조짐만 보인다 */
+  if(ph===0 && d.omen && g.year>=(s.nextOmen||6)){
+    s.nextOmen=g.year+Math.round(rrange(11,19));
+    logMsg("nature", `징후 — ${d.omen[Math.min(d.omen.length-1, s.omenN||0)]}`);
+    s.omenN=(s.omenN||0)+1;
+    autoPause("징후");
+  }
+  /* 땅을 바꾸는 일은 세력이 셀수록 자주 일어난다 */
+  if(d.year && rnd() < t*t*1.25) d.year(g);
+  if(d.start && !s.started && t>0.18){ s.started=true; d.start(g); }
 }
-const eraMod = k => (G.era && G.era.def[k]!==undefined) ? G.era.def[k] : (k==="temp"?0:1);
+
+/* 시나리오는 한 판의 줄거리다. 전조 → 심화 → 절정 → 여파로 세력이 오르내린다. */
+function scenT(g){
+  const f=g.year/MAX_YEARS;
+  if(f<0.20) return f/0.20*0.25;                      // 전조
+  if(f<0.50) return 0.25+(f-0.20)/0.30*0.40;          // 심화
+  if(f<0.78) return 0.65+(f-0.50)/0.28*0.35;          // 절정
+  const d=g.era.def;
+  return d.lasting ? 1 - (f-0.78)/0.22*0.15           // 되돌릴 수 없는 것은 안 물러난다
+                   : 1 - (f-0.78)/0.22*0.62;          // 여파
+}
+/* 단계는 세력이 아니라 시간으로 정한다. 세력으로 정하면 여파기에 세력이 떨어지면서
+   단계가 거꾸로 심화로 되돌아간다. */
+const scenPhase = g => { const f=g.year/MAX_YEARS;
+  return f<0.20 ? 0 : f<0.50 ? 1 : f<0.78 ? 2 : 3; };
+const PHASE_NAME=["전조","심화","절정","여파"];
+
+/* 시나리오 세력에 비례해 기후를 흔든다. 처음부터 최대로 때리면 대비할 틈이 없다. */
+function eraMod(k){
+  const s=G.era; if(!s || s.def[k]===undefined) return k==="temp"?0:1;
+  const t=s.t||0, v=s.def[k];
+  return k==="temp" ? v*t : 1+(v-1)*t;
+}
 
 /* 판단이 필요한 순간에는 시간을 멈춘다. 흘러가는 숫자가 아니라 사건이 되게. */
 function autoPause(why){
@@ -2427,7 +2504,8 @@ function humanTick(g){
 
 function rollEvents(){
   const g=G;
-  if(!g.humanArrived && g.year>=HUMAN_YEAR){
+  /* 사람은 인간 시나리오에서만 온다. 안 뽑히면 순수한 자연의 판이 된다. */
+  if(g.scenarioHuman && !g.humanArrived && g.year>=HUMAN_YEAR){
     g.humanArrived=true;
     logMsg("human","<b>사람이 이 땅에 정착했습니다.</b> 이제부터 자연은 혼자가 아닙니다.");
   }
@@ -4025,12 +4103,19 @@ function renderStatus(){
   $("#st-div").style.color = dv.H>1.9?"var(--good)":dv.H>1.2?"var(--ink)":"var(--warn)";
   const p=g.player;
   $("#st-mypop").textContent = p.alive ? `${fmt(p.total)}마리 · ${p.tiles}타일` : "멸종";
-  const eb=$("#era-banner");
-  if(g.era){
+  const eb=$("#era-banner"), sc=g.era;
+  if(sc){
     eb.hidden=false;
-    eb.className="era "+(g.era.def.tone||"cold");
-    $("#era-name").textContent=g.era.def.name;
-    $("#era-left").textContent=`${Math.max(0,g.era.endYear-g.year)}년 남음`;
+    if(sc.revealed){
+      eb.className="era "+(sc.def.tone||"cold");
+      $("#era-name").textContent=sc.def.name;
+      $("#era-left").textContent=`${PHASE_NAME[sc.phase]} · ${Math.round((sc.t||0)*100)}%`;
+    } else {
+      /* 아직 이름은 모른다. 조짐만 보인다. */
+      eb.className="era omen";
+      $("#era-name").textContent="징후";
+      $("#era-left").textContent=`무언가 달라지고 있습니다`;
+    }
   } else eb.hidden=true;
   const ev=g.log[0];
   if(ev){
@@ -4048,8 +4133,9 @@ function renderStatus(){
   if(g.events.boom>0) act.push("풍년");
   let phase;
   if(act.length) phase = act.join(" · ") + " 진행 중";
-  else if(!g.humanArrived) phase = `자연 상태 — 인간은 ${HUMAN_YEAR}년경 등장`;
-  else phase = `인간 활동기 ${g.year-HUMAN_YEAR}년차 · 안정 구간 ${g.stableRun}/12`;
+  else if(g.humanArrived) phase = `인간 활동기 ${g.year-HUMAN_YEAR}년차 · 안정 구간 ${g.stableRun}/12`;
+  else if(g.scenarioHuman) phase = `자연 상태 — 인간은 ${HUMAN_YEAR}년경 등장`;
+  else phase = `사람이 닿지 않은 땅 · 안정 구간 ${g.stableRun}/12`;
   $("#st-phase").textContent = phase;
 }
 
