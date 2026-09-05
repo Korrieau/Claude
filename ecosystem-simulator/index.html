@@ -29,7 +29,7 @@
   --crit: #e34948;
 
   /* 기능군 팔레트 — 흰 표면 기준 인접쌍 검증 통과 */
-  --g0: #eda100;  /* 내 종 */
+  --g0: #FF1E8E;  /* 내 종 — 파스텔 지형 위에서 유일하게 형광인 색. 바로 찾을 수 있어야 한다 */
   --g1: #008300;  /* 생산자 */
   --g2: #e87ba4;  /* 분해자 */
   --g3: #2a78d6;  /* 소형 초식 */
@@ -374,10 +374,10 @@ input[type=range]::-moz-range-thumb{
   box-shadow:0 5px 0 #C9D3C4, 0 12px 24px rgba(22,45,32,.16);
 }
 .me-head{ display:flex; align-items:center; gap:7px; }
-.me-dot{ width:10px; height:10px; border-radius:50%; background:var(--gold); flex:none; }
+.me-dot{ width:10px; height:10px; border-radius:50%; background:var(--g0); flex:none; }
 .me-name{ font-family:var(--f-disp); font-size:16px; color:var(--ink); }
 .me-pop{ display:flex; align-items:baseline; gap:5px; margin-top:2px; }
-.me-pop .num{ font-family:var(--f-disp); font-size:38px; line-height:1.05; color:var(--gold); }
+.me-pop .num{ font-family:var(--f-disp); font-size:38px; line-height:1.05; color:var(--g0); }
 .me-unit{ font-size:13px; color:var(--ink-3); }
 .me-rank{ font-size:12.5px; color:var(--ink-2); margin-top:3px; }
 .me-rank b{ font-family:var(--f-disp); font-size:15px; color:var(--ink); }
@@ -398,10 +398,11 @@ input[type=range]::-moz-range-thumb{
   display:flex; align-items:center; justify-content:center; font-size:30px;
   border:2px solid rgba(255,255,255,.55);
 }
+/* 소식은 잘리면 무슨 일이 났는지 알 수가 없다. 줄바꿈해서 다 보여준다. */
 .lastev-label{
-  margin-top:9px; display:inline-block; background:rgba(60,70,64,.62); color:#fff; border-radius:999px;
-  padding:4px 12px; font-size:12px; font-family:var(--f-disp); max-width:230px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  margin-top:9px; display:inline-block; background:rgba(60,70,64,.72); color:#fff; border-radius:14px;
+  padding:6px 13px; font-size:12px; font-family:var(--f-disp); line-height:1.45;
+  max-width:250px; text-align:left; white-space:normal; word-break:keep-all;
 }
 
 .chips{ display:flex; gap:6px; flex-wrap:wrap; }
@@ -507,6 +508,15 @@ input[type=range]::-moz-range-thumb{
   background:#fff; border-radius:999px; padding:2px 9px; }
 .pressure p{ margin:5px 0 0; font-size:11.5px; color:var(--ink-2); line-height:1.5; }
 .pressure p b{ color:var(--gold-hi); font-weight:600; }
+.pr-chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.pr-chip{
+  background:var(--good); color:#fff; border:none; border-radius:999px;
+  padding:4px 11px; font-size:11.5px; font-weight:600; box-shadow:0 2px 0 #148f61;
+  transition:transform .08s;
+}
+.pr-chip:hover:not(:disabled){ transform:translateY(-1px); }
+.pr-chip:active:not(:disabled){ transform:translateY(2px); box-shadow:0 0 0 #148f61; }
+.pr-chip:disabled{ background:var(--panel-3); color:var(--ink-3); box-shadow:none; cursor:not-allowed; }
 
 .evo-row .tag{
   font-style:normal; font-size:9.5px; margin-left:5px; padding:1px 6px; border-radius:999px;
@@ -774,6 +784,7 @@ input[type=range]::-moz-range-thumb{
         <svg class="pie" id="season-pie" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
         <span class="yrnum num" id="st-year">1</span>
       </div>
+      <div class="seasonlab" id="st-season">봄</div>
       <div class="speedrow">
         <button class="pill" id="btn-pause">❚❚</button>
         <button class="pill" data-speed="1" title="1년 4초">×1</button>
@@ -919,7 +930,7 @@ const BIOME_BASE=[ "#79CDEB","#93DCB4","#C4DE79","#71B96A","#F0D79C","#C6BFCB","
 
 /* 기능군 — 색은 다크 표면 인접쌍 검증을 통과한 고정 순서 */
 const GUILDS=[
-  {key:"me",   name:"내 종",      color:"#eda100"},
+  {key:"me",   name:"내 종",      color:"#FF1E8E"},
   {key:"prod", name:"생산자",     color:"#008300"},
   {key:"dec",  name:"분해자",     color:"#e87ba4"},
   {key:"herbS",name:"소형 초식",  color:"#2a78d6"},
@@ -2319,40 +2330,8 @@ const HUMAN_EVENTS=[
    go:g=>{ for(const s of g.species){ if(!s.alive||s.diet==="producer") continue;
      if(s.traits.size>=6){ const f=1-clamp(0.16+(s.traits.size-6)*0.045 - s.traits.intelligence*0.012,0.03,0.42);
        for(let i=0;i<NT;i++) s.pop[i]*=f; } } }},
-  {k:"city", p:0.034, msg:"<b>도시</b>가 들어섰습니다. 건물이 늘어나며 주변 자연이 밀려납니다.",
-   go:g=>{
-     const w=g.world;
-     if(g.cityAt===undefined){
-       /* 첫 도시는 평지에 자리 잡는다 */
-       let best=-1, bs=-1;
-       for(let n=0;n<200;n++){
-         const i=Math.floor(rnd()*NT);
-         if(w.biome[i]===10||w.biome[i]===0||w.biome[i]===12||w.biome[i]===5) continue;
-         const flat=1-Math.abs(w.elev[i]-0.36)*4;
-         const sc=(w.farm[i]?2:0)+(w.biome[i]===2?1.6:0)+(w.biome[i]===11?0.8:0)+flat*1.4+rnd()*0.6;
-         if(sc>bs){ bs=sc; best=i; }
-       }
-       if(best<0) return;
-       g.cityAt=best; g.citySize=0;
-     }
-     /* 이미 있는 도시 가장자리로 번져나간다 */
-     const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
-     let added=0;
-     const R=2+Math.floor(Math.sqrt(g.citySize||0));
-     for(let n=0;n<260 && added<7;n++){
-       const x=cx+Math.round(rrange(-R,R)), y=cy+Math.round(rrange(-R,R));
-       if(x<0||y<0||x>=W||y>=H) continue;
-       const i=y*W+x;
-       if(w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
-       w.biome[i]=9; w.farm[i]=0; w.dist[i]=1;
-       w.soil[i]=12; w.baseSoil[i]=12;
-       w.moist[i]=0.20; w.baseMoist[i]=0.20;
-       w.poll[i]=Math.min(100, w.poll[i]+rrange(10,26));
-       for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.10:0.35;
-       added++;
-     }
-     g.citySize=(g.citySize||0)+added;
-   }},
+  {k:"city", p:0.016, msg:"<b>도시가 크게 확장</b>됐습니다. 건물이 한꺼번에 늘어납니다.",
+   go:g=>{ growCity(g, 4); }},
   {k:"road", p:0.020, msg:"<b>도로 건설</b>로 서식지가 잘려나갔습니다. 이동이 어려워집니다.",
    go:g=>{ const horiz=rnd()<0.5, at=Math.floor(rnd()*(horiz?H:W));
      for(let k=0;k<(horiz?W:H);k++){ const i=horiz? at*W+k : k*W+at;
@@ -2375,12 +2354,84 @@ const HUMAN_EVENTS=[
      g.world.poll[i]*=0.35; g.world.baseMoist[i]=clamp(g.world.baseMoist[i]+0.12,0,1); g.world.detr[i]+=12; } }},
 ];
 
+/* 도시를 세울 자리 — 평지, 물가, 밭 근처가 좋다 */
+function foundCity(g){
+  const w=g.world; let best=-1, bs=-1;
+  for(let n=0;n<400;n++){
+    const i=Math.floor(rnd()*NT);
+    if(w.vd[i]) continue;
+    if(w.biome[i]===10||w.biome[i]===0||w.biome[i]===12||w.biome[i]===5) continue;
+    const flat=1-Math.abs(w.elev[i]-0.36)*4;
+    const sc=(w.farm[i]?2:0)+(w.biome[i]===2?1.6:0)+(w.biome[i]===11?0.8:0)+flat*1.4+rnd()*0.6;
+    if(sc>bs){ bs=sc; best=i; }
+  }
+  if(best<0) return false;
+  g.cityAt=best; g.citySize=0;
+  logMsg("human","<b>도시</b>가 들어섰습니다. 여기서부터 콘크리트가 번져 나갑니다.");
+  return true;
+}
+/* 도시를 가장자리로 넓힌다. n칸을 콘크리트로 덮는다. */
+function growCity(g, n){
+  const w=g.world;
+  if(g.cityAt===undefined && !foundCity(g)) return 0;
+  const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
+  const R=2+Math.floor(Math.sqrt(g.citySize||0));
+  let added=0;
+  for(let k=0;k<340 && added<n;k++){
+    const x=cx+Math.round(rrange(-R,R)), y=cy+Math.round(rrange(-R,R));
+    if(x<0||y<0||x>=W||y>=H) continue;
+    const i=y*W+x;
+    if(w.vd[i]) continue;
+    if(w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
+    w.biome[i]=9; w.farm[i]=0; w.dist[i]=1;
+    w.soil[i]=12; w.baseSoil[i]=12;
+    w.moist[i]=0.20; w.baseMoist[i]=0.20;
+    w.poll[i]=Math.min(100, w.poll[i]+rrange(10,26));
+    for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.10:0.35;
+    added++;
+  }
+  g.citySize=(g.citySize||0)+added;
+  if(added) g._sceneDirty=true;
+  return added;
+}
+
+/* 사람은 사건으로만 오지 않는다. 자리를 잡은 뒤로는 해마다 조금씩 넓혀 간다.
+   예전에는 무작위 사건에만 맡겨 두어서 정착 후 60년이 지나도 도시가 열몇 칸뿐이었다. */
+function humanTick(g){
+  const w=g.world, age=g.year-HUMAN_YEAR;
+  /* 속도는 소수로 쌓아 둔다. 해마다 한 칸씩만 늘려도 260년이면 세계가 콘크리트가 된다.
+     300년 뒤 도시가 육지의 10%쯤 되도록 잡았다. */
+  g._cityAcc=(g._cityAcc||0) + clamp(0.30+age/430, 0.30, 0.90);
+  if(g._cityAcc>=1){ const n=Math.floor(g._cityAcc); g._cityAcc-=n; growCity(g, n); }
+  g._farmAcc=(g._farmAcc||0) + clamp(0.45+age/300, 0.45, 1.4);
+  let farms=Math.floor(g._farmAcc); g._farmAcc-=farms;
+  for(let k=0;k<300 && farms>0;k++){
+    const i=Math.floor(rnd()*NT);
+    if(w.vd[i]||w.farm[i]||w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
+    if(w.biome[i]!==2 && w.biome[i]!==3 && w.biome[i]!==1) continue;
+    /* 도시나 도로 가까이부터 개간된다 */
+    const cx=g.cityAt%W, cy=(g.cityAt/W)|0, x=i%W, y=(i/W)|0;
+    if(!w.road[i] && Math.hypot(x-cx,y-cy) > 6+age*0.22) continue;
+    w.farm[i]=1; w.soil[i]=Math.max(20,w.soil[i]*0.75); w.dist[i]=Math.min(1,w.dist[i]+0.5);
+    for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.45:0.75;
+    farms--;
+  }
+  /* 사람이 사는 땅에는 오염이 쌓인다 */
+  const load=clamp(age/160,0,1);
+  for(let i=0;i<NT;i++){
+    if(w.vd[i]) continue;
+    if(w.biome[i]===9) w.poll[i]=Math.min(100, w.poll[i]+0.30+load*0.55);
+    else if(w.farm[i]||w.road[i]) w.poll[i]=Math.min(100, w.poll[i]+0.08+load*0.18);
+  }
+}
+
 function rollEvents(){
   const g=G;
   if(!g.humanArrived && g.year>=HUMAN_YEAR){
     g.humanArrived=true;
     logMsg("human","<b>사람이 이 땅에 정착했습니다.</b> 이제부터 자연은 혼자가 아닙니다.");
   }
+  if(g.humanArrived && g.season===0) humanTick(g);   // 사람은 사건이 아니라 해마다 번진다
   for(const e of NATURE_EVENTS){
     if(rnd() < e.p*0.72){ e.go(g); logMsg("nature", e.msg); }
   }
@@ -3259,7 +3310,7 @@ const Globe = (function(){
      시대가 바뀌면 하늘색과 공기 색이 3~4초에 걸쳐 서서히 옮겨간다.
      툭 바뀌면 화면이 깨진 것처럼 보인다. */
   const skyCur=[0.756,0.894,0.957], airCur=[1,1,1];
-  let airLast=0;
+  let airLast=0, crDT=0;
   function tickAir(){
     const now=performance.now();
     const dt = airLast ? Math.min(0.1,(now-airLast)/1000) : 0.016;
@@ -3588,25 +3639,41 @@ const Globe = (function(){
       const wander = isPlant ? 0 : (0.05 + t.mobility*0.026 + t.youngDispersal*0.006);
       const rate   = isPlant ? 0.22 : (0.10 + t.speed*0.052 + t.metabolism*0.022);
       const bob    = (!isPlant && t.mobility>=9) ? 0.15 : 0;
+      /* 지난번에 이 칸이 얼마나 자라 있었는지 기억해 둔다. 이게 없으면
+         칸이 문턱을 넘나들 때마다 생물이 툭 나타났다 툭 사라진다. */
+      const was=new Map();
+      if(it.base && it.tiles) for(let q=0;q<it.n;q++) was.set(it.tiles[q], it.base[q*8+7]);
+
       const cap=Math.min(budget, capPerSp);
-      const arr=new Float32Array(cap*7);
+      const arr=new Float32Array((cap+96)*8);
+      const tiles=new Int32Array(cap+96);
       let n=0;
-      for(let i=0;i<NT && n<cap;i++){
-        const v=s.pop[i];
-        if(v<peak*thr || v<0.6) continue;
+      const put=(i,target)=>{
         tileCenter(i,c0);
         const hsh=(i*2654435761+si*9176)>>>0;
-        const o=n*7;
+        const o=n*8;
         arr[o]  =c0[0];
         arr[o+1]=c0[1];
         arr[o+2]=c0[2];
-        arr[o+3]=base*(0.55+0.66*Math.pow(v/peak,0.40));   // 크기
+        arr[o+3]=target;                                   // 목표 크기
         arr[o+4]=((hsh&4095)/4095)*Math.PI*2;              // 위상
         arr[o+5]=wander*(0.6+((hsh>>12&255)/255)*0.8);     // 이동 범위
         arr[o+6]=rate*(0.75+((hsh>>20&255)/255)*0.5);      // 속도
-        n++;
+        arr[o+7]=was.has(i) ? was.get(i) : 0;              // 지금 크기 — 0에서 자라난다
+        tiles[n]=i; n++;
+      };
+      for(let i=0;i<NT && n<cap;i++){
+        const v=s.pop[i];
+        if(v<peak*thr || v<0.6) continue;
+        put(i, base*(0.55+0.66*Math.pow(v/peak,0.40)));
+        was.delete(i);
       }
-      it.n=n; it.base=arr; it.bob=bob; it.plant=isPlant;
+      /* 빠져나간 칸은 바로 지우지 않고 오그라들게 두었다가 사라진다 */
+      for(const [i,cur] of was){
+        if(cur<=0.004 || n>=cap+96) continue;
+        put(i, 0); arr[(n-1)*8+7]=cur;
+      }
+      it.n=n; it.base=arr; it.tiles=tiles; it.bob=bob; it.plant=isPlant;
       budget-=n;
       if(budget<=0) break;
     }
@@ -3672,6 +3739,8 @@ const Globe = (function(){
   function drawCreatures(vp){
     if(!ext || !progC || !inst) return;
     const T = performance.now()/1000;
+    const edt = crDT ? Math.min(0.12, T-crDT) : 0.016; crDT=T;
+    const ease = 1-Math.exp(-edt/0.30);      // 약 1초에 걸쳐 자라난다
     gl.useProgram(progC);
     gl.uniformMatrix4fv(gl.getUniformLocation(progC,"uMVP"),false,vp.mvp);
     const sa=(G.tick/TICKS_PER_YEAR)*0.4;
@@ -3686,7 +3755,7 @@ const Globe = (function(){
       if(!it || !it.n || !md || !md.count) continue;
       const b=it.base, n=it.n, out=instScratch;
       for(let k=0;k<n;k++){
-        const o=k*7, q=k*5;
+        const o=k*8, q=k*5;
         const ph=b[o+4], wr=b[o+5], rt=b[o+6];
         const a = ph + T*rt;
         if(it.plant){
@@ -3698,7 +3767,9 @@ const Globe = (function(){
           out[q+1]= b[o+1] + (it.bob ? Math.abs(Math.sin(a*2.2))*it.bob : 0);
           out[q+3]= a + Math.PI*0.5;                       // 가는 쪽을 바라본다
         }
-        out[q+4]=b[o+3];
+        /* 목표 크기로 서서히 자라거나 오그라든다 — 툭 나타나고 툭 사라지지 않게 */
+        b[o+7] += (b[o+3]-b[o+7])*ease;
+        out[q+4]=b[o+7];
       }
       gl.bindBuffer(gl.ARRAY_BUFFER,it.buf);
       gl.bufferData(gl.ARRAY_BUFFER,out.subarray(0,n*5),gl.DYNAMIC_DRAW);
@@ -3863,16 +3934,17 @@ function renderEvo(){
   const R = P ? EVO_RESPONSE[P[0]] : null;
   const up = R ? R.up.filter(k=>t[k]<10) : [];
   const down = R ? R.down : [];
+  /* 추천 형질은 여기서 바로 올린다. 목록 자체를 재정렬하면 압력이 바뀔 때마다
+     줄이 움직여서 누르려던 항목을 놓친다. 목록 순서는 언제나 고정. */
+  const chips = up.slice(0,4).map(k=>
+    `<button class="pr-chip" data-up="${k}" ${G.ep<1?"disabled":""}>${TRAIT_LABEL[k]} +1</button>`).join("");
   $("#pressure").innerHTML = R
     ? `<div class="pr-head"><i></i><b>${R.ko}</b><em>${["약함","보통","강함","매우 강함"][Math.min(3,Math.floor(P[1]/0.35))]}</em></div>
-       <p>${PRESSURE_HINT[P[0]]}. 아래 <b>추천</b> 형질을 올리면 도움이 됩니다.</p>`
+       <p>${PRESSURE_HINT[P[0]]}.</p><div class="pr-chips">${chips}</div>`
     : `<div class="pr-head calm"><i></i><b>큰 압력 없음</b></div>
        <p>지금은 버틸 만합니다. 다음 국면을 대비해 두는 것도 방법입니다.</p>`;
 
-  /* 대응되는 형질을 위로 올린다. 33개를 훑게 하지 않는다. */
-  const rank = k => up.includes(k) ? 0 : (down.includes(k) ? 1 : 2);
-  const keys = TRAIT_KEYS.slice().sort((a,b)=>rank(a)-rank(b));
-
+  const keys = TRAIT_KEYS;      // 순서 고정
   const keep = list.scrollTop;
   list.innerHTML = keys.map(k=>{
     const good=up.includes(k), bad=down.includes(k);
@@ -3886,18 +3958,25 @@ function renderEvo(){
       </span>
     </div>`;}).join("");
   list.scrollTop = keep;
-  list.querySelectorAll("button").forEach(b=>{
-    b.onclick=()=>{
-      const k=b.dataset.k, d=+b.dataset.d;
-      if(d>0){ if(G.ep<1) return; G.ep--; }
-      else { G.ep+=0.5; }
-      G.player.traits[k]=clamp(G.player.traits[k]+d,1,10);
-      G.ep=Math.floor(G.ep*2)/2;
-      G.player.d=derive(G.player.traits,G.player.diet);
-      logMsg("evo", `<b>${TRAIT_LABEL[k]}</b>을(를) ${d>0?"높였":"낮췄"}습니다 → ${G.player.traits[k]}`);
-      renderEvo(); renderLog();
-    };
+  $("#pressure").querySelectorAll("[data-up]").forEach(b=>{
+    b.onclick=()=>{ raiseTrait(b.dataset.up, 1); };
   });
+  list.querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{ raiseTrait(b.dataset.k, +b.dataset.d); };
+  });
+}
+function raiseTrait(k, d){
+  const g=G;
+  if(!k || !g.player.alive) return;
+  const cur=g.player.traits[k];
+  if(d>0 && (g.ep<1 || cur>=10)) return;
+  if(d<0 && cur<=1) return;
+  if(d>0) g.ep--; else g.ep+=0.5;
+  g.player.traits[k]=clamp(cur+d,1,10);
+  g.ep=Math.floor(g.ep*2)/2;
+  g.player.d=derive(g.player.traits,g.player.diet);
+  logMsg("evo", `<b>${TRAIT_LABEL[k]}</b>을(를) ${d>0?"높였":"낮췄"}습니다 → ${g.player.traits[k]}`);
+  renderEvo(); renderLog();
 }
 
 /* ── 상태바 · 로그 ───────────────────────────────────────────── */
@@ -3914,12 +3993,23 @@ function buildPie(){
   $("#season-pie").innerHTML=out;
 }
 
+const SEASON_NAME=["봄","여름","가을","겨울"];
+/* 바늘은 매 프레임 돈다. 계절마다 90도씩 툭툭 끊어 돌면 시간이 흐르는 게 아니라
+   멈췄다 뛰는 것처럼 보인다. acc는 다음 틱까지의 진행률(0~1)이다. */
+function tickClock(){
+  const g=G; if(!g) return;
+  const frac = g.running ? clamp(acc,0,1) : 0;
+  const nd=document.getElementById("pie-needle");
+  if(nd) nd.setAttribute("transform", `rotate(${(g.season+frac)*90+45})`);
+  const sl=document.getElementById("st-season");
+  if(sl && sl._s!==g.season){ sl._s=g.season; sl.textContent=SEASON_NAME[g.season]; }
+}
+
 const EV_ICON={nature:"🌿", human:"🏭", evo:"🧬", death:"💀"};
 function renderStatus(){
   const g=G;
   $("#st-year").textContent = g.year;
-  const nd=document.getElementById("pie-needle");
-  if(nd) nd.setAttribute("transform", `rotate(${g.season*90+45})`);
+  tickClock();
   $("#fl-pop").textContent = g.player.alive ? fmt(g.player.total) : "0";
   const yt=yearTemp();
   $("#st-temp").innerHTML = `${yt.mean.toFixed(0)}°C`
@@ -4038,6 +4128,7 @@ function loop(t){
   if(G.over) return;
   const dt=Math.min(100, t-lastT); lastT=t;
   if(!G.running || G.phase==="placing") return;
+  tickClock();                        // 바늘은 틱이 아니라 매 프레임 돈다
 
   /* 1틱 = 한 계절 = 1초. ×1에서 1년이 4초 흐른다.
      이보다 빠르면 숫자가 깜빡이기만 하고 무슨 일이 일어나는지 읽을 틈이 없다. */
