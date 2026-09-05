@@ -1049,7 +1049,7 @@ const TUNE = {
   grazeLoss:0.38,           // 뜯긴 에너지가 식물 개체수 감소로 이어지는 비율
   maxPred:0.34, predRefuge:0.36, predHalf:10.3, predConv:0.82,
   starvExp:1.6, starvMul:0.7,
-  stress:0.044, diseaseBase:0.088,
+  stress:0.044, diseaseBase:0.088, diseaseSpike:0.34,
   capA:0.226, capB:7.0, crowdBirth:0.75, birthScale:1.3,
   satLag:0.0,               // 먹이 만족도의 관성 (0이면 지연 없음)
   allee:0.07,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
@@ -1521,6 +1521,7 @@ function makeSpecies(def, isPlayer){
     seedN:def.seed||200,
     total:0, tiles:0, biomass:0, alive:true, extinctYear:null,
     acc:{w:0,sat:0,pred:0,dt:0,crowd:0}, evoCount:0,
+    mort:{age:0,starv:0,stress:0,dis:0,crowd:0,pred:0}, mortYr:null,
     hist:[], color: GUILDS[GI[def.guild]].color, gi: GI[def.guild],
   };
   return s;
@@ -1886,7 +1887,9 @@ function step(){
     const d=s.d, p=s.pop, buf=s.buf, f=s.fit, dm=s.dem, ink=s.ink, pl=s.pl, crd=s.crd;
     const comp=s.comp||[];
     const breed = SEASON_BREED[se];
-    const diseaseP = g.events.disease>0 ? d.disease*3.2 : d.disease*TUNE.diseaseBase;
+    /* 전염병이 돌면 사망률이 32배로 뛰었다. 개체수가 한 해에 반토막 나는데
+       화면에는 아무 이유도 안 보이던 원인이 이것이었다 (급락 연도 사망의 46%). */
+    const diseaseP = d.disease * (TUNE.diseaseBase + (g.events.disease>0 ? TUNE.diseaseSpike : 0));
     const pest = g.events.pesticide>0 && s.traits.size<=4 ? 0.16/(1+s.traits.pollutionTol*0.28) : 0;
     for(let i=0;i<NT;i++){
       const pop=p[i];
@@ -1911,12 +1914,16 @@ function step(){
                 * allee * Math.max(0, 1-crowd*TUNE.crowdBirth);
       if(g.events.boom>0) birth *= 1.25;
 
-      let mort = d.ageDeath
-               + Math.pow(1-sat,TUNE.starvExp) * Math.max(0.05, d.starvRes*TUNE.starvMul)
-               + (1-clamp(f[i],0,1))*TUNE.stress
-               + diseaseP + pest;
-      if(crowd>1) mort += (crowd-1)*0.10;
+      const mStarv = Math.pow(1-sat,TUNE.starvExp) * Math.max(0.05, d.starvRes*TUNE.starvMul);
+      const mStress= (1-clamp(f[i],0,1))*TUNE.stress;
+      const mCrowd = crowd>1 ? (crowd-1)*0.10 : 0;
+      let mort = d.ageDeath + mStarv + mStress + diseaseP + pest + mCrowd;
       mort = clamp(mort, 0, 0.94);
+      /* 무엇이 죽였는지 한 해치를 모은다. 개체수가 반토막 나는데 화면에 아무 이유도
+         안 보이면 플레이어는 배울 수가 없다. */
+      const M=s.mort;
+      M.age+=pop*d.ageDeath; M.starv+=pop*mStarv; M.stress+=pop*mStress;
+      M.dis+=pop*(diseaseP+pest); M.crowd+=pop*mCrowd;
 
       /* 자연선택 측정 — 이 종이 실제로 무엇 때문에 죽고 있는지 기록한다 */
       const A=s.acc;
@@ -1924,7 +1931,9 @@ function step(){
       A.pred+=Math.min(pl[i],pop*0.42);
       A.dt+=(baseTemp[i]-d.optTemp)*pop;
 
-      let died = pop*mort + Math.min(pl[i], pop*0.42);
+      const dPred = Math.min(pl[i], pop*0.42);
+      M.pred+=dPred;
+      let died = pop*mort + dPred;
       died = Math.min(died, pop*0.96);
       let np = pop + birth - died;
       if(np < 0.02) np = 0;
@@ -2099,6 +2108,10 @@ function evolveAll(){
     /* 한 해치 평균을 남겨 두고 비운다. 비우고 나면 자원 패널이 읽을 게 없어서
        언제나 '넉넉'으로 나왔다. */
     if(s.acc.w>0){ s.satYr=s.acc.sat/s.acc.w; s.wYr=s.acc.w; }
+    const M=s.mort, mt=M.age+M.starv+M.stress+M.dis+M.crowd+M.pred;
+    if(mt>0){ s.mortYr={age:M.age/mt, starv:M.starv/mt, stress:M.stress/mt,
+                        dis:M.dis/mt, crowd:M.crowd/mt, pred:M.pred/mt, total:mt}; }
+    M.age=M.starv=M.stress=M.dis=M.crowd=M.pred=0;
     s.acc.w=s.acc.sat=s.acc.pred=s.acc.dt=s.acc.crowd=0;
   }
   /* 형질이 바뀌면 생태 지위도 바뀐다 — 경쟁 관계를 다시 계산 */
@@ -3577,7 +3590,8 @@ const Globe = (function(){
       gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);
       return {buf, count:tris.length, color:hex2rgb(s.color).map(v=>v/255)};
     });
-    inst = G.species.map(()=>({n:0, base:null, buf:gl.createBuffer(), sbuf:gl.createBuffer()}));
+    inst = G.species.map(()=>({ag:[], want:0, base:0.1, spd:1, roam:2, plant:false, bob:0,
+                               buf:gl.createBuffer(), sbuf:gl.createBuffer()}));
   }
 
   /* ── 정점 쓰기 ───────────────────────────────────────────── */
@@ -3722,72 +3736,137 @@ const Globe = (function(){
 
   /* 어느 타일에 몇 마리를 놓을지 정한다. 시뮬레이션이 갱신될 때만 다시 계산한다.
      실제 움직임은 매 프레임 render()에서 이 값에 시간을 곱해 만든다. */
+  /* ── 개체 ──────────────────────────────────────────────────────
+     화면에 보이는 것은 밀도 얼룩이 아니라 개체다. 한 마리 한 마리가 계속 살아
+     있으면서 걸어다니고, 새끼를 낳고, 그 자리에서 죽는다. 예전에는 매 틱마다
+     '밀도가 문턱을 넘은 칸'을 새로 골라 찍었기 때문에 뿅 나타났다 뿅 사라졌다.
+     개체는 시뮬레이션 결과가 아니라 그 표현이다 — 수는 개체군을 따라간다. */
   function updateCreatures(){
     if(!ok || !inst) return;
     const mode=G.creatureMode||"all";
-    const c0=[0,0,0];
-    /* 가까이 당길수록 더 촘촘하게, 멀면 성기게 그린다.
-       그래야 확대했을 때 작고 드문 종까지 눈에 들어온다. */
     const zoom = clamp((80-dist)/(80-16), 0, 1);
-    const capPerSp = Math.round(26 + zoom*zoom*175);
-    /* 문턱을 제 종의 최대 밀도 기준으로 잡는다. 낮으면 땅이 온통 점으로 덮여
-       어느 종이 어디에 몰려 있는지가 안 보인다. */
-    const thr = 0.38 - zoom*0.21;
+    const capPerSp = Math.round(22 + zoom*zoom*150);
     let budget=Math.round(MAX_CREATURES*(0.30+zoom*0.62));
-    /* 내 종을 먼저 그린다. 예산이 모자라도 내 종만은 언제나 화면에 있어야 한다. */
+    /* 내 종을 먼저. 예산이 모자라도 내 종만은 언제나 화면에 있어야 한다. */
     const order=G.species.map((s,i)=>i).sort((a,b)=>
       (G.species[b].isPlayer?1:0)-(G.species[a].isPlayer?1:0));
     for(const si of order){
       const s=G.species[si], it=inst[si];
-      it.n=0;
-      if(mode==="none" || !s.alive || (mode==="me" && !s.isPlayer)) continue;
-      let peak=0; for(let i=0;i<NT;i++) if(s.pop[i]>peak) peak=s.pop[i];
-      if(peak<=0.4) continue;
-      const t=s.traits;
-      /* 내 종은 조금 크게 그린다. 34종 사이에서 내 종을 눈으로 찾을 수 있어야 한다. */
-      const base=(0.10+t.size*0.021) * (s.isPlayer?1.45:1);
-      /* 형질이 움직임을 정한다 — 이동 범위는 이동성, 속도는 순발력과 대사율 */
-      const isPlant = (s.diet==="producer");
-      const wander = isPlant ? 0 : (0.05 + t.mobility*0.026 + t.youngDispersal*0.006);
-      const rate   = isPlant ? 0.22 : (0.10 + t.speed*0.052 + t.metabolism*0.022);
-      const bob    = (!isPlant && t.mobility>=9) ? 0.15 : 0;
-      /* 지난번에 이 칸이 얼마나 자라 있었는지 기억해 둔다. 이게 없으면
-         칸이 문턱을 넘나들 때마다 생물이 툭 나타났다 툭 사라진다. */
-      const was=new Map();
-      if(it.base && it.tiles) for(let q=0;q<it.n;q++) was.set(it.tiles[q], it.base[q*8+7]);
+      if(!it.ag) it.ag=[];
+      const t=s.traits, isPlant=(s.diet==="producer");
+      it.plant=isPlant;
+      it.bob = (!isPlant && t.mobility>=9) ? 0.15 : 0;
+      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.45:1);
+      /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
+      it.spd = isPlant ? 0 : (0.20 + t.speed*0.085 + t.metabolism*0.03);
+      it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18);
 
-      const cap=Math.min(budget, capPerSp);
-      const arr=new Float32Array((cap+96)*8);
-      const tiles=new Int32Array(cap+96);
-      let n=0;
-      const put=(i,target)=>{
-        tileCenter(i,c0);
-        const hsh=(i*2654435761+si*9176)>>>0;
-        const o=n*8;
-        arr[o]  =c0[0];
-        arr[o+1]=c0[1];
-        arr[o+2]=c0[2];
-        arr[o+3]=target;                                   // 목표 크기
-        arr[o+4]=((hsh&4095)/4095)*Math.PI*2;              // 위상
-        arr[o+5]=wander*(0.6+((hsh>>12&255)/255)*0.8);     // 이동 범위
-        arr[o+6]=rate*(0.75+((hsh>>20&255)/255)*0.5);      // 속도
-        arr[o+7]=was.has(i) ? was.get(i) : 0;              // 지금 크기 — 0에서 자라난다
-        tiles[n]=i; n++;
-      };
-      for(let i=0;i<NT && n<cap;i++){
-        const v=s.pop[i];
-        if(v<peak*thr || v<0.6) continue;
-        put(i, base*(0.55+0.66*Math.pow(v/peak,0.40)));
-        was.delete(i);
+      let want=0;
+      if(mode!=="none" && s.alive && !(mode==="me" && !s.isPlayer) && s.total>0.5){
+        /* 개체 하나가 몇 마리를 대신하는지 — 종마다 개체수 규모가 천차만별이라
+           로그로 눌러야 곰팡이 10만과 늑대 30이 한 화면에 같이 보인다. */
+        want = Math.round(clamp(Math.log10(1+s.total)*30-18, 0, capPerSp));
+        want = Math.min(want, budget);
       }
-      /* 빠져나간 칸은 바로 지우지 않고 오그라들게 두었다가 사라진다 */
-      for(const [i,cur] of was){
-        if(cur<=0.004 || n>=cap+96) continue;
-        put(i, 0); arr[(n-1)*8+7]=cur;
+      it.want=want; budget-=want;
+      if(budget<0) budget=0;
+    }
+  }
+
+  /* 개체가 향할 칸을 고른다 — 제 종이 실제로 사는 곳으로 모인다 */
+  function pickTile(s, near){
+    let best=-1, bs=-1;
+    for(let k=0;k<14;k++){
+      let i;
+      if(near>=0 && k<9){
+        const x=(near%W)+Math.round(rrange(-3,3)), y=((near/W)|0)+Math.round(rrange(-3,3));
+        if(x<0||y<0||x>=W||y>=H) continue;
+        i=y*W+x;
+      } else i=Math.floor(Math.random()*NT);
+      if(G.world.vd[i]) continue;
+      const v=s.pop[i]; if(v<=0.05) continue;
+      const sc=v*(0.6+Math.random()*0.8);
+      if(sc>bs){ bs=sc; best=i; }
+    }
+    return best;
+  }
+  function spawnAgent(s, it, si, at){
+    const tile = at>=0 ? at : pickTile(s,-1);
+    if(tile<0) return null;
+    const c=[0,0,0]; tileCenter(tile,c);
+    const ts=TS();
+    const a={
+      x:c[0]+rrange(-ts*0.4,ts*0.4), z:c[2]+rrange(-ts*0.4,ts*0.4), y:c[1],
+      tile, tx:0, tz:0, yaw:Math.random()*6.283,
+      sc:0, tsc:it.base, ph:Math.random()*6.283, dying:false,
+      rest:Math.random()*2,
+    };
+    a.tx=a.x; a.tz=a.z;
+    it.ag.push(a);
+    return a;
+  }
+
+  /* 매 프레임 개체를 움직인다. 목표에 닿으면 다음 칸을 고르고, 그쪽으로 걸어간다. */
+  function stepAgents(edt){
+    const ts=TS();
+    for(let si=0; si<inst.length; si++){
+      const s=G.species[si], it=inst[si];
+      if(!it || !it.ag) continue;
+      const ag=it.ag, want=it.want||0;
+
+      /* 태어나고 죽는 속도를 초당 몇 마리로 묶는다. 한 프레임에 몰아서 처리하면
+         결국 예전처럼 우르르 나타났다 우르르 사라지는 것으로 보인다.
+         차이가 클수록 빨라지되 상한을 둔다. */
+      let live=0; for(let k=0;k<ag.length;k++) if(!ag[k].dying) live++;
+      const gap=want-live;
+      it.rate=(it.rate||0) + edt*clamp(Math.abs(gap)*0.5, 1.5, 14);
+      let quota=Math.floor(it.rate);
+      if(quota>0) it.rate-=quota;
+
+      if(gap>0 && s.alive){
+        const born=Math.min(quota, gap);
+        for(let b=0;b<born;b++){
+          /* 새끼는 어미 옆에서 아주 작게 시작해 자란다 */
+          const parent = ag.length? ag[Math.floor(Math.random()*ag.length)] : null;
+          const a=spawnAgent(s,it,si, parent? parent.tile : -1);
+          if(a && parent){ a.x=parent.x+rrange(-ts*0.5,ts*0.5); a.z=parent.z+rrange(-ts*0.5,ts*0.5);
+                           a.tx=a.x; a.tz=a.z; }
+        }
+      } else if(gap<0){
+        /* 죽음 — 그 자리에서 오그라들어 사라진다 */
+        let kill=Math.min(quota, -gap);
+        for(let k=0;k<ag.length && kill>0;k++) if(!ag[k].dying){ ag[k].dying=true; ag[k].tsc=0; kill--; }
       }
-      it.n=n; it.base=arr; it.tiles=tiles; it.bob=bob; it.plant=isPlant;
-      budget-=n;
-      if(budget<=0) break;
+
+      for(let k=ag.length-1;k>=0;k--){
+        const a=ag[k];
+        a.sc += (a.tsc-a.sc)*edt*2.6;
+        if(a.dying && a.sc<0.004){ ag.splice(k,1); continue; }
+        if(!a.dying) a.tsc=it.base;
+        if(it.plant){ a.yaw=Math.sin(performance.now()/1000*0.9+a.ph)*0.16; continue; }
+
+        const dx=a.tx-a.x, dz=a.tz-a.z, d=Math.hypot(dx,dz);
+        if(d<ts*0.22){
+          /* 도착 — 잠깐 쉬었다가 다음 목적지를 고른다 */
+          a.rest-=edt;
+          if(a.rest<=0){
+            const nt=pickTile(s, a.tile);
+            if(nt>=0){
+              a.tile=nt;
+              const c=[0,0,0]; tileCenter(nt,c);
+              a.tx=c[0]+rrange(-ts*0.42,ts*0.42);
+              a.tz=c[2]+rrange(-ts*0.42,ts*0.42);
+              a.ty=c[1];
+            }
+            a.rest=0.5+Math.random()*2.4;
+          }
+        } else {
+          const v=it.spd*edt;
+          a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+          a.yaw=Math.atan2(dx,dz);
+          if(a.ty!==undefined) a.y += (a.ty-a.y)*Math.min(1,edt*3);
+        }
+      }
     }
   }
 
@@ -3862,27 +3941,26 @@ const Globe = (function(){
     const aP=gl.getAttribLocation(progC,"aPos"), aN=gl.getAttribLocation(progC,"aNrm");
     const aI=gl.getAttribLocation(progC,"aInst"), aS=gl.getAttribLocation(progC,"aScale");
     const uC=gl.getUniformLocation(progC,"uColor");
+
+    stepAgents(edt);          // 개체를 걷게 한다
+
     for(let si=0; si<inst.length; si++){
       const it=inst[si], md=models[si];
-      if(!it || !it.n || !md || !md.count) continue;
-      const b=it.base, n=it.n, out=instScratch;
-      for(let k=0;k<n;k++){
-        const o=k*8, q=k*5;
-        const ph=b[o+4], wr=b[o+5], rt=b[o+6];
-        const a = ph + T*rt;
-        if(it.plant){
-          out[q]=b[o]; out[q+1]=b[o+1]; out[q+2]=b[o+2];
-          out[q+3]=Math.sin(a)*0.16;                       // 바람에 흔들림
-        } else {
-          out[q]  = b[o]   + wr*(Math.cos(a) + 0.42*Math.cos(2.3*a+ph));
-          out[q+2]= b[o+2] + wr*(Math.sin(a) + 0.42*Math.sin(1.7*a+ph));
-          out[q+1]= b[o+1] + (it.bob ? Math.abs(Math.sin(a*2.2))*it.bob : 0);
-          out[q+3]= a + Math.PI*0.5;                       // 가는 쪽을 바라본다
-        }
-        /* 목표 크기로 서서히 자라거나 오그라든다 — 툭 나타나고 툭 사라지지 않게 */
-        b[o+7] += (b[o+3]-b[o+7])*ease;
-        out[q+4]=b[o+7];
+      if(!it || !it.ag || !it.ag.length || !md || !md.count) continue;
+      const ag=it.ag, out=instScratch;
+      let n=0;
+      for(let k=0;k<ag.length && n<MAX_CREATURES;k++){
+        const a=ag[k];
+        if(a.sc<0.002) continue;
+        const q=n*5;
+        out[q]  = a.x;
+        out[q+1]= a.y + (it.bob ? Math.abs(Math.sin(T*3.1+a.ph))*it.bob*a.sc*6 : 0);
+        out[q+2]= a.z;
+        out[q+3]= a.yaw;
+        out[q+4]= a.sc;
+        n++;
       }
+      if(!n) continue;
       gl.bindBuffer(gl.ARRAY_BUFFER,it.buf);
       gl.bufferData(gl.ARRAY_BUFFER,out.subarray(0,n*5),gl.DYNAMIC_DRAW);
       gl.enableVertexAttribArray(aI); gl.vertexAttribPointer(aI,4,gl.FLOAT,false,20,0);
@@ -3946,6 +4024,7 @@ const Globe = (function(){
   }
 
   return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile,
+          _dbg:()=>({inst}),
           get ok(){ return ok; }};
 })();
 
