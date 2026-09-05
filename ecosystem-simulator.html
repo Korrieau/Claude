@@ -1,7 +1,7 @@
 <title>번영의 계보</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Hahmlet:wght@700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 
 <style>
 /* ── 단일 테마: 밝은 테라리움 ──────────────────────────────────────
@@ -38,7 +38,7 @@
   --g6: #1baf7a;  /* 소형 육식 */
   --g7: #e34948;  /* 대형 육식 */
 
-  --f-disp: "Hahmlet", "Nanum Myeongjo", Georgia, serif;
+  --f-disp: "Jua", "Apple SD Gothic Neo", sans-serif;
   --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --f-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
@@ -283,7 +283,7 @@ input[type=range]::-moz-range-thumb{
 #chart, #chart2{ display:block; width:100%; }
 /* ── 인게임 화면: 세계가 꽉 차고 HUD가 그 위에 통통하게 떠 있다 ── */
 .stage{
-  position:relative; background:#B4E1F9; border-radius:20px; overflow:hidden;
+  position:relative; background:#C1E4F4; border-radius:20px; overflow:hidden;
   height: calc(100vh - 56px); min-height: 620px;
   box-shadow: inset 0 0 0 2px rgba(255,255,255,.7), 0 10px 30px rgba(22,45,32,.14);
 }
@@ -297,14 +297,64 @@ input[type=range]::-moz-range-thumb{
 .hud-tl{ top:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:44%; }
 .hud-tr{ top:14px; right:14px; gap:6px; }
 .hud-bl{ bottom:14px; left:14px; flex-direction:column; gap:8px; align-items:flex-start; max-width:52%; }
-.hud-r { top:14px; right:14px; margin-top:52px; flex-direction:column; gap:8px; width:330px; max-height:calc(100% - 80px); }
+.hud-r { top:14px; right:14px; margin-top:176px; flex-direction:column; gap:8px; width:326px; max-height:calc(100% - 210px); }
 .hud-b { bottom:14px; left:50%; transform:translateX(-50%); width:min(560px,62%); }
 
-.clock{
-  background:#fff; border-radius:18px; padding:9px 20px 11px;
-  box-shadow: 0 5px 0 #C9D3C4, 0 12px 22px rgba(22,45,32,.16);
+/* 흰 글씨에 검은 테두리 — 게임 HUD 특유의 두꺼운 외곽선 */
+.outline{
+  color:#fff;
+  text-shadow:
+    -2px -2px 0 #34305A, 0 -3px 0 #34305A, 2px -2px 0 #34305A,
+     3px  0px 0 #34305A, 2px  2px 0 #34305A, 0  3px 0 #34305A,
+    -2px  2px 0 #34305A, -3px 0px 0 #34305A, 0 5px 0 rgba(52,48,90,.28);
 }
-.clock .yr{ font-family:var(--f-disp); font-weight:700; font-size:28px; letter-spacing:-0.01em; }
+
+/* 꽃 배지 — 내 종이 얼마나 불어났는가 */
+.flower{ position:relative; width:186px; height:186px; margin:-14px 0 -10px -16px; }
+.flower-svg{ width:100%; height:100%; display:block;
+  filter: drop-shadow(0 8px 16px rgba(22,45,32,.20)); }
+.flower-val{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; }
+.flower-val .fv{ font-family:var(--f-disp); font-size:34px; line-height:1;
+  color:#fff; text-shadow:
+    -2px -2px 0 #34305A, 0 -3px 0 #34305A, 2px -2px 0 #34305A, 3px 0 0 #34305A,
+     2px  2px 0 #34305A, 0  3px 0 #34305A, -2px 2px 0 #34305A, -3px 0 0 #34305A; }
+.flower-val .fu{ font-family:var(--f-disp); font-size:13px; color:#fff; margin-top:1px;
+  text-shadow:-1.5px -1.5px 0 #34305A, 1.5px -1.5px 0 #34305A,
+    1.5px 1.5px 0 #34305A, -1.5px 1.5px 0 #34305A; }
+.myname{
+  align-self:flex-start; margin:2px 0 0 24px;
+  background:var(--gold); color:#fff; border-radius:999px; padding:5px 15px 6px;
+  font-family:var(--f-disp); font-size:15px;
+  box-shadow:0 4px 0 #A66200, 0 8px 16px rgba(217,130,0,.28);
+}
+.goal{ display:flex; align-items:center; gap:6px; margin:2px 0 2px 24px; }
+.goal{ background:rgba(52,48,90,.82); border-radius:999px; padding:5px 14px 6px; }
+.goal-arrow{ font-family:var(--f-disp); font-size:15px; color:#FFD166; }
+.goal-txt{ font-family:var(--f-disp); font-size:13.5px; color:#fff; }
+.goal-txt b{ font-size:18px; color:#FFD166; }
+
+/* 계절 시계 */
+.hud-tr{ flex-direction:column; align-items:flex-end; gap:8px; }
+.clockwrap{ position:relative; width:92px; height:92px; }
+.pie{ width:100%; height:100%; display:block; filter:drop-shadow(0 5px 12px rgba(22,45,32,.22)); }
+.yrnum{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-disp); font-size:27px; color:#fff;
+  text-shadow:-2px -2px 0 #34305A,0 -3px 0 #34305A,2px -2px 0 #34305A,3px 0 0 #34305A,
+    2px 2px 0 #34305A,0 3px 0 #34305A,-2px 2px 0 #34305A,-3px 0 0 #34305A; }
+.speedrow{ display:flex; gap:6px; }
+
+/* 최근 사건 — 동그란 아이콘과 이름표 */
+.lastev{ position:absolute; left:18px; bottom:152px; z-index:4; text-align:center; pointer-events:none; }
+.lastev-ic{
+  width:64px; height:64px; border-radius:50%; background:rgba(60,70,64,.34);
+  display:flex; align-items:center; justify-content:center; font-size:30px;
+  border:2px solid rgba(255,255,255,.55);
+}
+.lastev-label{
+  margin-top:9px; display:inline-block; background:rgba(60,70,64,.62); color:#fff; border-radius:999px;
+  padding:4px 12px; font-size:12px; font-family:var(--f-disp); max-width:230px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 
 .chips{ display:flex; gap:6px; flex-wrap:wrap; }
 .chip{
@@ -563,10 +613,18 @@ input[type=range]::-moz-range-thumb{
     <canvas id="globe"></canvas>
     <canvas id="map" width="880" height="480" hidden></canvas>
 
-    <!-- 왼쪽 위: 연도와 세계 상태 -->
+    <!-- 왼쪽 위: 꽃 배지 — 내 종이 얼마나 불어났는가 -->
     <div class="hud hud-tl">
-      <div class="clock">
-        <span class="yr num" id="st-year">1년 봄</span>
+      <div class="flower">
+        <svg class="flower-svg" id="flower-svg" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+        <div class="flower-val">
+          <span class="fv num" id="fl-pop">0</span><span class="fu">마리</span>
+        </div>
+      </div>
+      <div class="myname" id="sim-title">내 종</div>
+      <div class="goal">
+        <span class="goal-arrow">↳</span>
+        <span class="goal-txt">동물 <b class="num" id="fl-rank">—</b>위 · 1위 <b class="num" id="fl-top">—</b></span>
       </div>
       <div class="chips">
         <span class="chip"><b>기온</b><span class="num" id="st-temp">—</span></span>
@@ -575,21 +633,23 @@ input[type=range]::-moz-range-thumb{
         <span class="chip"><b>다양성</b><span class="num" id="st-div">—</span></span>
         <span class="chip"><b>생존 종</b><span class="num" id="st-alive">—</span></span>
       </div>
-      <div class="mine" id="mine-card">
-        <span class="dot"></span>
-        <span class="mine-name" id="sim-title">내 종</span>
-        <span class="num" id="st-mypop">—</span>
-      </div>
       <div class="phase" id="st-phase">자연 상태</div>
+      <span class="hidden-sink" id="st-mypop" hidden></span>
     </div>
 
-    <!-- 오른쪽 위: 속도 -->
+    <!-- 오른쪽 위: 계절 시계와 속도 -->
     <div class="hud hud-tr">
-      <button class="pill" id="btn-pause">❚❚</button>
-      <button class="pill" data-speed="1" aria-pressed="true">×1</button>
-      <button class="pill" data-speed="4">×4</button>
-      <button class="pill" data-speed="16">×16</button>
-      <button class="pill ghost" id="btn-abort">종료</button>
+      <div class="clockwrap">
+        <svg class="pie" id="season-pie" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
+        <span class="yrnum num" id="st-year">1</span>
+      </div>
+      <div class="speedrow">
+        <button class="pill" id="btn-pause">❚❚</button>
+        <button class="pill" data-speed="1" aria-pressed="true">×1</button>
+        <button class="pill" data-speed="4">×4</button>
+        <button class="pill" data-speed="16">×16</button>
+        <button class="pill ghost" id="btn-abort">종료</button>
+      </div>
     </div>
 
     <!-- 왼쪽 아래: 지도 레이어 -->
@@ -640,6 +700,11 @@ input[type=range]::-moz-range-thumb{
         <button class="panel-head" data-toggle="panel-log"><span>관측 일지</span><em id="log-count"></em><i>▾</i></button>
         <div class="panel-body"><div class="log" id="log"></div></div>
       </div>
+    </div>
+
+    <div class="lastev">
+      <div class="lastev-ic" id="ev-ic">🌱</div>
+      <div class="lastev-label" id="ev-label">관측 시작</div>
     </div>
 
     <div class="viewhint" id="viewhint">드래그로 회전 · 휠로 확대</div>
@@ -709,8 +774,8 @@ const HUMAN_YEAR=42;                     // 인간 활동이 시작되는 연도
 const SEASONS=["봄","여름","가을","겨울"];
 const SEASON_TEMP=[3,11,2,-9], SEASON_MOIST=[.10,-.06,-.01,-.05], SEASON_BREED=[1.35,1.15,.75,.35];
 
-const BIOMES=["호수","습지","초원","숲","사막","산지","설원","정글","화산","도시"];
-const BIOME_BASE=[ "#22C1F5","#3EDCA2","#9CE535","#28AE46","#FFC53D","#BFB0D2","#FFFFFF","#0B9B48","#E9553C","#E3DED2" ];
+const BIOMES=["호수","습지","초원","숲","사막","산지","설원","정글","화산","도시","바다","해변","강"];
+const BIOME_BASE=[ "#79CDEB","#93DCB4","#C4DE79","#71B96A","#F0D79C","#C6BFCB","#F8FBFC","#57A863","#C97F68","#E4DED2","#6FBEE0","#F2E4B6","#8AD3EE" ];
 
 /* 기능군 — 색은 다크 표면 인접쌍 검증을 통과한 고정 순서 */
 const GUILDS=[
@@ -969,8 +1034,11 @@ function derive(t, diet){
     clamp(0.30 + t.climbSwim*0.035 + t.heatTol*0.035 + t.camouflage*0.020, 0.05, 1), // 정글
     clamp(t.heatTol*0.055 + t.pollutionTol*0.040 - 0.16, 0.02, 1),        // 화산
     clamp(t.intelligence*0.055 + t.pollutionTol*0.045 - 0.22, 0.02, 1),   // 도시
+    clamp(t.climbSwim*0.098 - 0.10, 0.02, 1),                             // 바다
+    clamp(0.34 + t.climbSwim*0.040 + t.droughtTol*0.020, 0.05, 1),        // 해변
+    clamp(0.20 + t.climbSwim*0.070, 0.05, 1),                             // 강
   ];
-  const mean = pref.reduce((a,b)=>a+b,0)/10, b = t.habitatBreadth/16;
+  const mean = pref.reduce((a,b)=>a+b,0)/13, b = t.habitatBreadth/16;
   pref = pref.map(v=>clamp(lerp(v, Math.max(mean,0.55), b), 0.02, 1));
   return {bodyMass,upkeep,juvSurv,birthMax,ageDeath,defense,attack,forage,compPow,
           optTemp,wCold,wHeat,moistOpt,moistW,pollHalf,disease,spread,starvRes,density,smart,
@@ -978,149 +1046,242 @@ function derive(t, diet){
 }
 
 /* ── 세계 생성 ────────────────────────────────────────────────── */
+const SEA_ELEV = 0.30;      // 이 높이 아래는 물에 잠긴다
+
 function makeWorld(){
   const elev=new Float32Array(NT), wet=new Float32Array(NT), heat=new Float32Array(NT);
   const region=new Int8Array(NT);
 
-  /* 세계는 기본적으로 평평한 평원이다. 그 위에 사막·극지·숲·습지 같은
-     지역을 몇 군데 놓고, 산은 따로 몇 덩이만 솟게 한다.
-     노이즈로 흩뿌리면 어디가 무슨 땅인지 안 읽힌다. */
-  const TYPES=[
-    {k:"plain", heat:0.56, wet:0.46, rad:5.5},
-    {k:"forest",heat:0.50, wet:0.74, rad:5.0},
-    {k:"jungle",heat:0.88, wet:0.92, rad:4.4},
-    {k:"desert",heat:0.95, wet:0.08, rad:4.8},
-    {k:"polar", heat:0.03, wet:0.52, rad:4.8},
-    {k:"marsh", heat:0.58, wet:0.94, rad:3.6},
-    {k:"steppe",heat:0.68, wet:0.30, rad:5.0},
-    {k:"volcano",heat:0.86, wet:0.18, rad:3.0},
-  ];
-  /* 사막·극지·정글·화산은 반드시 하나씩 놓는다 — 대륙에 극단이 다 있어야 재미있다 */
-  const picks=["desert","polar","jungle","volcano","marsh"];
-  while(picks.length < 14) picks.push(["plain","forest","steppe","plain","forest"][Math.floor(rnd()*5)]);
-  /* 격자의 y는 원반에서 '중심으로부터의 거리'다. 격자 좌표로 지역을 나누면
-     지역이 원반 위에서 고리처럼 늘어난다. 실제 원반 좌표에서 나눠야 덩어리가 된다. */
-  const px=new Float32Array(NT), pz=new Float32Array(NT);
+  /* 격자를 극좌표로 원반에 편다. y는 중심에서의 거리다. */
+  const px=new Float32Array(NT), pz=new Float32Array(NT), rad=new Float32Array(NT), ang=new Float32Array(NT);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     const i=y*W+x, rr=Math.sqrt((y+0.5)/H), th=(x+0.5)/W*Math.PI*2;
-    px[i]=rr*Math.cos(th); pz[i]=rr*Math.sin(th);
+    px[i]=rr*Math.cos(th); pz[i]=rr*Math.sin(th); rad[i]=rr; ang[i]=th;
   }
-  const regions = picks.map(k=>{
-    const T=TYPES.find(t=>t.k===k);
-    const rr=Math.sqrt(rnd())*0.88, th=rnd()*Math.PI*2;
-    return {T, x:rr*Math.cos(th), z:rr*Math.sin(th),
-            rad:(T.rad/12)*rrange(0.85,1.3), ph:rnd()*Math.PI*2};
-  });
 
+  /* ── 1. 해안선 ────────────────────────────────────────────────
+     대륙을 동그란 원으로 자르면 인공적이다. 각도에 따라 들쭉날쭉하게 만들어
+     만과 반도가 생기게 한다. 바깥은 전부 바다다. */
+  /* 육지·바다는 평면 좌표 노이즈로 나눈다.
+     각도와 반지름으로 만들면 무늬가 동심원 고리로 나와 부자연스럽다.
+     방향이 제각각인 사인파를 겹치면 덩어리진 대륙과 내해가 생긴다. */
+  const waves=[];
+  for(let k=0;k<7;k++) waves.push({d:rnd()*6.28, f:rrange(1.6,6.5), ph:rnd()*6.28, a:rrange(0.3,1)/(1+k*0.45)});
+  const shift=rrange(-0.04,0.14);
+  const landXZ=(X,Z)=>{
+    let n=0;
+    for(const w of waves) n += w.a*Math.sin(w.f*(X*Math.cos(w.d)+Z*Math.sin(w.d))+w.ph);
+    const r2=X*X+Z*Z;
+    return n*0.26 + 0.42 + shift - r2*0.46;      // 바깥일수록 바다가 되기 쉽다
+  };
+  const noiseXZ=(X,Z)=>{
+    let n=0;
+    for(const w of waves) n += w.a*Math.sin(w.f*1.9*(X*Math.cos(w.d+1.1)+Z*Math.sin(w.d+1.1))+w.ph*1.7);
+    return n;
+  };
   for(let i=0;i<NT;i++){
-    let best=0, bestS=-1e9;
+    const land=landXZ(px[i], pz[i]);                      // 양수면 육지
+    if(land<=0){
+      /* 바다 — 바닥을 평평하게 둔다. 물속까지 계단이 지면 지저분하다 */
+      elev[i]=SEA_ELEV - 0.085;
+    } else {
+      const shore=clamp(land/0.05,0,1);
+      elev[i]=clamp(SEA_ELEV + 0.015 + shore*0.040 + noiseXZ(px[i],pz[i])*0.055 + rrange(-0.015,0.015), 0, 1);
+    }
+  }
+  /* 앞바다에 섬 몇 개 */
+  const nIsl=2+Math.floor(rnd()*3);
+  for(let k=0;k<nIsl;k++){
+    const th=rnd()*Math.PI*2, rr=Math.sqrt(rnd())*0.92;
+    const ix=rr*Math.cos(th), iz=rr*Math.sin(th), sz=rrange(0.05,0.095);
+    if(landXZ(ix,iz)>0.02) continue;                      // 바다 위에만 섬을 놓는다
+    for(let i=0;i<NT;i++){
+      const d2=(px[i]-ix)**2+(pz[i]-iz)**2;
+      if(d2>sz*sz*6) continue;
+      elev[i]=clamp(elev[i]+0.13*Math.exp(-d2/(2*sz*sz)),0,1);
+    }
+  }
+
+  /* ── 2. 산맥 ──────────────────────────────────────────────────
+     봉우리를 흩뿌리는 대신 능선을 길게 이어 산맥으로 만든다.
+     능선에서 멀어질수록 완만해져 산기슭이 생긴다. */
+  const ranges=1+Math.floor(rnd()*2);
+  for(let m=0;m<ranges;m++){
+    let cx=0, cz=0, tries=0;
+    do{ const th0=rnd()*Math.PI*2, r0=rrange(0.10,0.55);
+        cx=r0*Math.cos(th0); cz=r0*Math.sin(th0); tries++; }
+    while(landXZ(cx,cz)<0.06 && tries<30);
+    let dir=rnd()*Math.PI*2;
+    const segs=7+Math.floor(rnd()*6), step=rrange(0.055,0.085);
+    const peak=rrange(0.34,0.48), width=rrange(0.055,0.085);
+    const pts=[];
+    for(let k=0;k<segs;k++){
+      pts.push([cx,cz]);
+      dir+=rrange(-0.45,0.45);
+      cx+=Math.cos(dir)*step; cz+=Math.sin(dir)*step;
+      const rl=Math.hypot(cx,cz);
+      if(rl>0.70){ cx*=0.70/rl; cz*=0.70/rl; dir+=Math.PI*0.6; }
+    }
+    for(let i=0;i<NT;i++){
+      let best=1e9;
+      for(let k=0;k<pts.length-1;k++){
+        const ax=pts[k][0], az=pts[k][1], bx=pts[k+1][0], bz=pts[k+1][1];
+        const vx=bx-ax, vz=bz-az, L2=vx*vx+vz*vz || 1e-6;
+        let t=((px[i]-ax)*vx+(pz[i]-az)*vz)/L2; t=clamp(t,0,1);
+        const dx=px[i]-(ax+vx*t), dz=pz[i]-(az+vz*t);
+        const d2=dx*dx+dz*dz; if(d2<best) best=d2;
+      }
+      if(best>width*width*9) continue;
+      /* 능선은 뾰족하게, 기슭은 넓고 완만하게 */
+      const ridge = peak*Math.exp(-best/(2*width*width*0.35));
+      const foot  = peak*0.42*Math.exp(-best/(2*width*width*3.2));
+      elev[i]=clamp(elev[i]+ridge+foot,0,1);
+    }
+  }
+
+  /* ── 3. 기후 지역 ─────────────────────────────────────────── */
+  const TYPES=[
+    {k:"plain", heat:0.56, wet:0.46, rad:0.46},
+    {k:"forest",heat:0.50, wet:0.74, rad:0.42},
+    {k:"jungle",heat:0.90, wet:0.92, rad:0.36},
+    {k:"desert",heat:0.95, wet:0.06, rad:0.40},
+    {k:"polar", heat:0.03, wet:0.52, rad:0.40},
+    {k:"marsh", heat:0.58, wet:0.94, rad:0.30},
+    {k:"steppe",heat:0.68, wet:0.28, rad:0.42},
+  ];
+  const picks=["desert","polar","jungle","marsh"];
+  while(picks.length<11) picks.push(["plain","forest","steppe","plain","forest"][Math.floor(rnd()*5)]);
+  const regions=picks.map(k=>{
+    const T=TYPES.find(t=>t.k===k);
+    let X,Z,tries=0;
+    do{ const rr=Math.sqrt(rnd())*0.80, th=rnd()*Math.PI*2;
+        X=rr*Math.cos(th); Z=rr*Math.sin(th); tries++; }
+    while(landXZ(X,Z)<0.03 && tries<30);                  // 되도록 육지 위에
+    return {T, x:X, z:Z, rad:T.rad*rrange(0.8,1.25), ph:rnd()*6.28};
+  });
+  for(let i=0;i<NT;i++){
+    let best=0,bestS=-1e9;
     for(let k=0;k<regions.length;k++){
       const R=regions[k];
-      const ddx=px[i]-R.x, ddz=pz[i]-R.z;
-      const d=Math.hypot(ddx,ddz);
-      /* 경계에 물결을 줘서 동그랗게 딱 잘리지 않게 한다 */
-      const wob=Math.sin(Math.atan2(ddz,ddx)*3 + R.ph)*0.075;
-      const sc=R.rad + wob - d;
+      const ddx=px[i]-R.x, ddz=pz[i]-R.z, d=Math.hypot(ddx,ddz);
+      const wob=Math.sin(Math.atan2(ddz,ddx)*3+R.ph)*0.07;
+      const sc=R.rad+wob-d;
       if(sc>bestS){ bestS=sc; best=k; }
     }
     region[i]=best;
     const T=regions[best].T;
-    const soften=clamp((bestS+0.16)/0.28, 0, 1);   // 경계 근처는 이웃과 섞인다
-    heat[i]=clamp(lerp(0.52,T.heat,0.35+soften*0.65)+rrange(-0.05,0.05),0,1);
-    wet[i] =clamp(lerp(0.46,T.wet ,0.35+soften*0.65)+rrange(-0.06,0.06),0,1);
-    elev[i]=clamp(0.30+rrange(-0.028,0.028),0,1);   // 기본은 평평한 평원
+    const soften=clamp((bestS+0.16)/0.28,0,1);
+    heat[i]=clamp(lerp(0.52,T.heat,0.35+soften*0.65)+rrange(-0.04,0.04),0,1);
+    wet[i] =clamp(lerp(0.46,T.wet ,0.35+soften*0.65)+rrange(-0.05,0.05),0,1);
   }
 
-  /* 산 — 서너 덩이만 솟게 한다. 능선을 짧게 이어 산맥처럼 보이게 */
-  const nM=3+Math.floor(rnd()*3);
-  for(let m=0;m<nM;m++){
-    const r0=Math.sqrt(rnd())*0.8, t0=rnd()*Math.PI*2;
-    let cx=r0*Math.cos(t0), cz=r0*Math.sin(t0), dir=rnd()*Math.PI*2;
-    const steps=3+Math.floor(rnd()*4);
-    for(let st=0; st<steps; st++){
-      const rad=rrange(0.055,0.10), pk=rrange(0.50,0.80);
-      for(let i=0;i<NT;i++){
-        const d2=(px[i]-cx)**2+(pz[i]-cz)**2;
-        if(d2>rad*rad*6) continue;
-        elev[i]=clamp(elev[i]+pk*Math.exp(-d2/(2*rad*rad)),0,1);
-      }
-      cx+=Math.cos(dir)*rad*1.6; cz+=Math.sin(dir)*rad*1.6;
-      dir+=rrange(-0.6,0.6);
-      const rl=Math.hypot(cx,cz); if(rl>0.9){ cx*=0.9/rl; cz*=0.9/rl; }
-    }
-  }
-  /* 화산 — 원뿔로 솟고 가운데는 분화구로 꺼진다 */
+  /* ── 4. 화산 ─────────────────────────────────────────────── */
   const vol=new Uint8Array(NT);
-  for(const R of regions){
-    if(R.T.k!=="volcano") continue;
+  {
+    const th=rnd()*Math.PI*2, rr=rrange(0.15,0.55);
+    const vx=rr*Math.cos(th), vz=rr*Math.sin(th);
     for(let i=0;i<NT;i++){
-      const d=Math.hypot(px[i]-R.x, pz[i]-R.z);
+      const d=Math.hypot(px[i]-vx, pz[i]-vz);
       if(d>0.13) continue;
-      elev[i]=clamp(elev[i] + 0.72*Math.exp(-d*d/0.0040) - 0.42*Math.exp(-d*d/0.0008), 0, 1);
-      if(d<0.10) vol[i]=1;
+      elev[i]=clamp(elev[i]+0.66*Math.exp(-d*d/0.0038)-0.40*Math.exp(-d*d/0.0007),0,1);
+      if(d<0.085) vol[i]=1;
     }
   }
-  for(let i=0;i<NT;i++) heat[i]=clamp(heat[i]-Math.max(0,elev[i]-0.36)*0.85,0,1);
+  for(let i=0;i<NT;i++) heat[i]=clamp(heat[i]-Math.max(0,elev[i]-0.40)*0.80,0,1);
 
+  /* ── 5. 강 ───────────────────────────────────────────────────
+     산꼭대기에서 시작해 가장 낮은 이웃으로 흘러내린다. 아래로 갈수록
+     물이 모여 넓어지고, 바다에 닿으면 하구에 삼각주가 생긴다.
+     내려갈 곳이 없으면 그 자리가 호수가 된다. */
+  const river=new Uint8Array(NT), lake=new Uint8Array(NT), flow=new Float32Array(NT);
+  const nbrs=i=>{
+    const cx=i%W, cy=(i/W)|0, out=[];
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy) continue;
+      const ny=cy+dy; if(ny<0||ny>=H) continue;
+      out.push(ny*W+((cx+dx)%W+W)%W);
+    }
+    return out;
+  };
+  const springs=[];
+  for(let i=0;i<NT;i++) if(elev[i]>0.60) springs.push(i);
+  springs.sort((a,b)=>elev[b]-elev[a]);
+  const nR=Math.min(springs.length, 5+Math.floor(rnd()*4));
+  for(let k=0;k<nR;k++){
+    let cur=springs[Math.floor(rnd()*Math.min(springs.length,20))];
+    if(river[cur]) continue;
+    let acc=1;
+    const path=[];
+    for(let step=0; step<W*3; step++){
+      if(elev[cur]<SEA_ELEV) break;                     // 바다에 도착
+      river[cur]=1; flow[cur]=Math.max(flow[cur],acc); path.push(cur);
+      elev[cur]=Math.max(SEA_ELEV-0.02, elev[cur]-0.05);
+      let nxt=-1, low=elev[cur];
+      for(const j of nbrs(cur)){
+        if(river[j] && flow[j]>=acc) continue;
+        if(elev[j]<low){ low=elev[j]; nxt=j; }
+      }
+      if(nxt<0){ lake[cur]=1; for(const j of nbrs(cur)) if(elev[j]<elev[cur]+0.02) lake[j]=1; break; }
+      cur=nxt; acc+=1;
+    }
+    /* 하구 삼각주 — 바다에 닿은 자리 주변을 습지로 */
+    if(path.length && elev[cur]<SEA_ELEV){
+      for(const j of nbrs(path[path.length-1])){
+        if(elev[j]>=SEA_ELEV) wet[j]=Math.min(1, wet[j]+0.40);
+      }
+    }
+  }
+  /* 유량이 큰 구간은 강폭이 넓어진다 */
+  for(let i=0;i<NT;i++){
+    if(!river[i] || flow[i]<8) continue;
+    for(const j of nbrs(i)) if(elev[j]>=SEA_ELEV && Math.abs(elev[j]-elev[i])<0.05) river[j]=1;
+  }
+  /* 강가 — 물길 양옆은 축축하다 */
+  const riparian=new Uint8Array(NT);
+  for(let i=0;i<NT;i++){
+    if(!river[i] && !lake[i]) continue;
+    for(const j of nbrs(i)) if(!river[j] && !lake[j]){
+      riparian[j]=1; wet[j]=Math.min(1, wet[j]+0.30);
+    }
+  }
+
+  /* ── 6. 지형 종류 결정 ───────────────────────────────────── */
   const biome=new Uint8Array(NT), soil=new Float32Array(NT), moist=new Float32Array(NT);
   const detr=new Float32Array(NT), poll=new Float32Array(NT), farm=new Uint8Array(NT), road=new Uint8Array(NT);
   const dist=new Float32Array(NT);
-
-  /* 강 — 산꼭대기에서 시작해 가장 낮은 이웃으로 흘러내린다.
-     지나간 자리는 물길, 양옆은 축축한 습지가 된다. */
-  const river=new Uint8Array(NT), riparian=new Uint8Array(NT);
-  const peaks=[];
-  for(let i=0;i<NT;i++) if(elev[i]>0.6) peaks.push(i);
-  peaks.sort((a,b)=>elev[b]-elev[a]);
-  const nR=Math.min(peaks.length, 3+Math.floor(rnd()*3));
-  for(let k=0;k<nR;k++){
-    let cur=peaks[Math.floor(rnd()*Math.min(peaks.length, 12))];
-    if(river[cur]) continue;
-    for(let step=0; step<W*2; step++){
-      river[cur]=1; wet[cur]=1;
-      elev[cur]=Math.max(0.05, elev[cur]-0.07);
-      const cx=cur%W, cy=(cur/W)|0;
-      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-        const ny=cy+dy; if(ny<0||ny>=H) continue;
-        const nx=((cx+dx)%W+W)%W;
-        if(!river[ny*W+nx]){ riparian[ny*W+nx]=1; wet[ny*W+nx]=Math.min(1,wet[ny*W+nx]+0.22); }
-      }
-      let nxt=-1, low=elev[cur];
-      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-        if(!dx&&!dy) continue;
-        const ny=cy+dy; if(ny<0||ny>=H) continue;
-        const nx=((cx+dx)%W+W)%W, j=ny*W+nx;
-        if(river[j]) continue;
-        if(elev[j]<low){ low=elev[j]; nxt=j; }
-      }
-      if(nxt<0){ elev[cur]=Math.max(0.05,elev[cur]-0.06); break; }   // 웅덩이 → 호수
-      cur=nxt;
-      if(cy===0||cy===H-1) break;
-    }
+  const sea=new Uint8Array(NT);
+  for(let i=0;i<NT;i++) if(elev[i]<SEA_ELEV && !river[i] && !lake[i]) sea[i]=1;
+  /* 해변 — 바다에 맞닿은 낮은 육지 */
+  const beach=new Uint8Array(NT);
+  for(let i=0;i<NT;i++){
+    if(sea[i] || elev[i]>SEA_ELEV+0.075) continue;
+    for(const j of nbrs(i)) if(sea[j]){ beach[i]=1; break; }
   }
 
   for(let i=0;i<NT;i++){
     const e=elev[i], w=wet[i], h=heat[i];
     let b;
-    if(river[i]) b=0;
-    else if(e<0.26 && w>0.7) b=0;
-    else if(h<0.20) b=6;                        // 극지 — 설원
-    else if(e>0.52) b=5;                        // 산지
-    else if(riparian[i] || w>0.82) b=1;         // 습지
-    else if(w<0.24) b=4;                        // 사막
-    else if(h>0.78 && w>0.72) b=7;              // 정글
-    else if(w>0.58) b=3;                        // 숲
-    else b=2;                                   // 초원
-    if(vol[i]) b=8;                             // 화산
+    if(sea[i]) b=10;
+    else if(lake[i]) b=0;
+    else if(river[i]) b=12;
+    else if(beach[i]) b=11;
+    else if(vol[i]) b=8;
+    else if(h<0.19) b=6;
+    else if(e>0.58) b=5;
+    else if(riparian[i] || w>0.84) b=1;
+    else if(w<0.22) b=4;
+    else if(h>0.76 && w>0.70) b=7;
+    else if(w>0.58) b=3;
+    else b=2;
     biome[i]=b;
-    moist[i]= b===0?1.0 : b===1?0.88 : b===3?0.62 : b===4?0.12 : b===5?0.34 : b===6?0.40
-            : b===7?0.86 : b===8?0.16 : b===9?0.22 : 0.46;
-    moist[i]=clamp(lerp(moist[i], w, 0.35)+rrange(-0.04,0.04),0,1);
-    soil[i]= b===0?24 : b===1?78 : b===3?72 : b===4?18 : b===5?28 : b===6?20
-           : b===7?92 : b===8?86 : b===9?12 : 58;   // 화산재와 정글 토양은 비옥하다
+    moist[i]= b===10?1.0 : b===0?1.0 : b===12?0.95 : b===1?0.88 : b===11?0.34
+            : b===3?0.62 : b===4?0.10 : b===5?0.32 : b===6?0.38 : b===7?0.88 : b===8?0.16 : b===9?0.20 : 0.46;
+    moist[i]=clamp(lerp(moist[i], w, 0.30)+rrange(-0.035,0.035),0,1);
+    soil[i]= b===10?16 : b===0?26 : b===12?40 : b===1?82 : b===11?20
+           : b===3?74 : b===4?16 : b===5?26 : b===6?18 : b===7?94 : b===8?88 : b===9?12 : 60;
     detr[i]= soil[i]*0.30;
   }
-  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,region,vol,
+  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,region,vol,sea,river,flow,
           baseMoist:Float32Array.from(moist), baseSoil:Float32Array.from(soil)};
 }
 
@@ -2241,7 +2402,7 @@ function drawChart(canvasId, legendId, full){
    · 고도는 위로 밀어올리고, 호수·습지에는 수면을 따로 깐다.
    생물은 몸통·머리·다리·꼬리에 형질에 따라 뿔·귀·날개를 붙여 만든다. */
 const Globe = (function(){
-  const RD = 16.0, HGT = 4.4, WATER_Y = -0.55, MAX_CREATURES = 1000;
+  const RD = 16.0, HGT = 4.4, WATER_Y = (SEA_ELEV-0.40)*4.4 + 0.10, MAX_CREATURES = 1000;
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
@@ -2264,7 +2425,8 @@ const Globe = (function(){
   }
 
   /* ── 격자 → 원반 ─────────────────────────────────────────── */
-  const ringR = y => RD*Math.sqrt((y+4.5)/(H+4.5));    // 등면적 고리 (중심은 넓은 평지로 남긴다)
+  const isWater = b => (b===0||b===10||b===12);
+  const ringR = y => RD*Math.sqrt((y+1.6)/(H+1.6));    // 등면적 고리 (중심에 작은 평지를 남긴다)
   const tileH = i => (G.world.elev[i]-0.40)*HGT;
   function polar(x,y,h,out){
     const r=ringR(y), th=x/W*Math.PI*2;
@@ -2439,11 +2601,11 @@ const Globe = (function(){
       house:     mk(o=>{ box(o,0,0.22,0,0.20,0.22,0.18); taper(o,0,0.50,0,0.24,0.10,0.22,0.25); }),
     };
   })();
-  const SC = {                                  // 장식물 색
-    trunk:[0.55,0.39,0.23], leaf:[0.20,0.66,0.31], jungleLeaf:[0.05,0.55,0.26],
-    conifer:[0.17,0.55,0.38], grass:[0.56,0.85,0.25], reed:[0.66,0.80,0.35],
-    cactus:[0.27,0.66,0.38], rock:[0.65,0.65,0.71], vrock:[0.42,0.29,0.27],
-    snow:[1,1,1], wall:[0.94,0.91,0.86], roof:[0.85,0.44,0.35],
+  const SC = {                                  // 장식물 색 — 무광 파스텔
+    trunk:[0.62,0.47,0.33], leaf:[0.42,0.72,0.42], jungleLeaf:[0.29,0.61,0.36],
+    conifer:[0.36,0.63,0.50], grass:[0.72,0.86,0.47], reed:[0.78,0.86,0.53],
+    cactus:[0.49,0.73,0.52], rock:[0.75,0.74,0.78], vrock:[0.58,0.44,0.40],
+    snow:[0.99,1,1], wall:[0.95,0.93,0.88], roof:[0.86,0.56,0.48],
   };
   /* 지형별로 무엇을 몇 개 세울지 */
   function propsFor(b){
@@ -2517,7 +2679,7 @@ const Globe = (function(){
       float d=max(dot(n,normalize(uLight)),0.0);
       float sky=max(n.y,0.0);
       /* 명암을 거의 주지 않는다. 색이 그대로 살아야 장난감처럼 보인다. */
-      vec3 c = vC*(0.88 + 0.28*d) * (0.96 + 0.08*sky);
+      vec3 c = vC*(0.86 + 0.20*d) * (0.97 + 0.05*sky);
       gl_FragColor = vec4(c, 1.0);
     }`;
   const VS_G = `
@@ -2552,7 +2714,7 @@ const Globe = (function(){
       vec3 n=normalize(vN);
       float d=max(dot(n,normalize(uLight)),0.0);
       float sky=max(n.y,0.0);
-      vec3 c = uColor*(0.92 + 0.20*d) * (0.96 + 0.08*sky);
+      vec3 c = uColor*(0.90 + 0.18*d) * (0.97 + 0.05*sky);
       gl_FragColor=vec4(c,1.0);
     }`;
 
@@ -2584,7 +2746,7 @@ const Globe = (function(){
       ext = gl.getExtension("ANGLE_instanced_arrays");
       if(ext) progC = link(VS_C, FS_C);
       gl.enable(gl.DEPTH_TEST);
-      gl.clearColor(0.706,0.882,0.976,1);   // 맑은 하늘색
+      gl.clearColor(0.756,0.894,0.957,1);   // 맑은 하늘색
       terrBuf=gl.createBuffer(); domeBuf=gl.createBuffer(); waterBuf=gl.createBuffer(); sceneBuf=gl.createBuffer();
       terrData=new Float32Array(NT*30*STRIDE + (W*6)*STRIDE);
       instScratch=new Float32Array(MAX_CREATURES*5);
@@ -2732,7 +2894,7 @@ const Globe = (function(){
           o=pushTri(terrData,o,w0,w3,w2,cr,cg,cb,0);
         }
       }
-      if(layer==="terrain" && w.biome[i]<=1) wat.push(i);
+      if(layer==="terrain" && isWater(w.biome[i])) wat.push(i);
     }
     terrN=o/STRIDE;
     gl.bindBuffer(gl.ARRAY_BUFFER,terrBuf);
@@ -2742,8 +2904,8 @@ const Globe = (function(){
     const wd=new Float32Array(Math.max(1,wat.length)*6*STRIDE); let wo=0;
     for(const i of wat){
       const x=i%W, y=(i/W)|0;
-      /* 물 높이는 그 칸 바닥 바로 위. 호수는 낮게, 산속 개울은 높게 잡힌다 */
-      const wy=tileH(i)+0.16;
+      /* 바다와 호수는 한 높이의 평평한 수면. 강만 지형을 따라 흘러내린다. */
+      const wy = (G.world.biome[i]===12) ? tileH(i)+0.16 : WATER_Y;
       polar(x,  y,  wy,q0); polar(x+1,y,  wy,q1);
       polar(x+1,y+1,wy,q2); polar(x,  y+1,wy,q3);
       const deep=clamp((WATER_Y-tileH(i))/1.2,0,1);
@@ -3071,9 +3233,44 @@ function renderEvo(){
 }
 
 /* ── 상태바 · 로그 ───────────────────────────────────────────── */
+/* 꽃 배지 — 겹겹이 두른 꽃잎 고리. 카타마리의 크기 표시를 그대로 가져왔다. */
+function buildFlower(){
+  const rings=[
+    {R:78, pr:22, n:16, c:"#F2A7BE"},
+    {R:66, pr:20, n:14, c:"#F8CE7A"},
+    {R:54, pr:18, n:12, c:"#AEE07C"},
+    {R:42, pr:16, n:10, c:"#86CDEF"},
+  ];
+  let out="";
+  for(const r of rings){
+    for(let k=0;k<r.n;k++){
+      const a=k/r.n*Math.PI*2;
+      out+=`<circle cx="${(Math.cos(a)*r.R).toFixed(1)}" cy="${(Math.sin(a)*r.R).toFixed(1)}" r="${r.pr}" fill="${r.c}"/>`;
+    }
+  }
+  out+=`<circle cx="0" cy="0" r="52" fill="#A48BDA"/>`;
+  $("#flower-svg").innerHTML=out;
+}
+/* 계절 시계 — 네 계절을 사분면으로 나누고 바늘이 돈다 */
+function buildPie(){
+  const cols=["#AEE07C","#FFD166","#F0A05A","#8FD3F4"];
+  let out=`<circle cx="0" cy="0" r="46" fill="#3C3A55"/>`;
+  for(let k=0;k<4;k++){
+    const a0=-Math.PI/2+k*Math.PI/2, a1=a0+Math.PI/2, R=40;
+    out+=`<path d="M0,0 L${(Math.cos(a0)*R).toFixed(1)},${(Math.sin(a0)*R).toFixed(1)} A${R},${R} 0 0,1 ${(Math.cos(a1)*R).toFixed(1)},${(Math.sin(a1)*R).toFixed(1)} Z" fill="${cols[k]}" opacity="0.92"/>`;
+  }
+  out+=`<circle cx="0" cy="0" r="27" fill="#3C3A55"/>`;
+  out+=`<line id="pie-needle" x1="0" y1="0" x2="0" y2="-40" stroke="#fff" stroke-width="5" stroke-linecap="round"/>`;
+  $("#season-pie").innerHTML=out;
+}
+
+const EV_ICON={nature:"🌿", human:"🏭", evo:"🧬", death:"💀"};
 function renderStatus(){
   const g=G;
-  $("#st-year").textContent = `${g.year}년 ${SEASONS[g.season]}`;
+  $("#st-year").textContent = g.year;
+  const nd=document.getElementById("pie-needle");
+  if(nd) nd.setAttribute("transform", `rotate(${g.season*90+45})`);
+  $("#fl-pop").textContent = g.player.alive ? fmt(g.player.total) : "0";
   $("#st-temp").textContent = avgTemp().toFixed(1)+"°C" + (g.warming>0.4?` (+${g.warming.toFixed(1)})`:"");
   $("#st-moist").textContent = (avgMoist()*100).toFixed(0)+"%";
   const ap=avgPoll();
@@ -3085,7 +3282,11 @@ function renderStatus(){
   $("#st-div").style.color = dv.H>1.9?"var(--good)":dv.H>1.2?"var(--ink)":"var(--warn)";
   const p=g.player;
   $("#st-mypop").textContent = p.alive ? `${fmt(p.total)}마리 · ${p.tiles}타일` : "멸종";
-  $("#st-mypop").style.color = p.alive ? "var(--gold-hi)" : "var(--crit)";
+  const ev=g.log[0];
+  if(ev){
+    $("#ev-ic").textContent = EV_ICON[ev.kind]||"🌿";
+    $("#ev-label").textContent = ev.html.replace(/<[^>]+>/g,"").slice(0,40);
+  }
 
   const act=[];
   if(g.events.drought>0) act.push("가뭄");
@@ -3174,6 +3375,11 @@ function loop(t){
   if(t-lastUI > 240){
     lastUI=t;
     renderSpecies();
+    /* 순위는 초당 네 번만 계산한다 */
+    const pr=prosperity().animals;
+    const me=pr.findIndex(r=>r.s.isPlayer)+1;
+    $("#fl-rank").textContent = G.player.alive ? me : "—";
+    $("#fl-top").textContent = pr[0] ? pr[0].s.name.slice(0,6) : "—";
     const sig = G.ep+"|"+TRAIT_KEYS.map(k=>G.player.traits[k]).join(",")+"|"+G.player.alive;
     if(sig!==evoSig){ evoSig=sig; renderEvo(); }
     if(G._logDirty) renderLog();
@@ -3189,6 +3395,7 @@ function startSim(){
   G.creatureMode = $("#creature-mode").value;
   G.layer="suit";
   show("sim");
+  buildFlower(); buildPie();
   const use3d = Globe.init();
   $("#globe").hidden = !use3d;
   $("#map").hidden = use3d;
