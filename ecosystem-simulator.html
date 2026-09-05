@@ -43,7 +43,8 @@
   --f-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
   --r: 12px;
-  --shadow: 0 6px 0 rgba(22,45,32,.10), 0 10px 24px rgba(22,45,32,.12);
+  --shadow: 0 4px 0 rgba(22,45,32,.13), 0 9px 20px rgba(22,45,32,.13);
+  --c1:#22C1F5; --c2:#9CE535; --c3:#FFC53D; --c4:#E9553C; --c5:#7B5CE0; --c6:#0FBF86;
 }
 
 *{ box-sizing: border-box; }
@@ -221,11 +222,13 @@ input[type=range]::-moz-range-thumb{
 
 .tabs{ display:flex; gap:5px; flex-wrap:wrap; }
 .tab{
-  background:#fff; border:none; border-radius:999px; padding:6px 12px; font-size:12px;
-  font-weight:500; color: var(--ink-2); box-shadow:var(--shadow); line-height:1;
+  background:#fff; border:none; border-radius:999px; padding:7px 13px; font-size:12px;
+  font-weight:700; color: var(--ink-2); line-height:1;
+  box-shadow: 0 3px 0 #C9D3C4, 0 6px 12px rgba(22,45,32,.10);
 }
 .tab:hover{ color: var(--ink); }
-.tab[aria-pressed="true"]{ background: var(--gold); color:#fff; font-weight:600; }
+.tab:active{ transform:translateY(2px); box-shadow:0 1px 0 #C9D3C4; }
+.tab[aria-pressed="true"]{ background: var(--gold); color:#fff; box-shadow:0 3px 0 #A66200; }
 
 #map{ display:block; width:100%; height:auto; border-radius:2px; }
 .maplegend{
@@ -298,44 +301,57 @@ input[type=range]::-moz-range-thumb{
 .hud-b { bottom:14px; left:50%; transform:translateX(-50%); width:min(560px,62%); }
 
 .clock{
-  background:#fff; border-radius:16px; padding:8px 18px 9px; box-shadow:var(--shadow);
+  background:#fff; border-radius:18px; padding:9px 20px 11px;
+  box-shadow: 0 5px 0 #C9D3C4, 0 12px 22px rgba(22,45,32,.16);
 }
-.clock .yr{ font-family:var(--f-disp); font-weight:700; font-size:26px; letter-spacing:-0.01em; }
+.clock .yr{ font-family:var(--f-disp); font-weight:700; font-size:28px; letter-spacing:-0.01em; }
 
 .chips{ display:flex; gap:6px; flex-wrap:wrap; }
 .chip{
-  background:#fff; border-radius:999px; padding:5px 12px; box-shadow:var(--shadow);
+  background:#fff; border-radius:999px; padding:5px 13px 6px;
+  box-shadow: 0 3px 0 rgba(22,45,32,.14), 0 6px 14px rgba(22,45,32,.10);
   font-size:12px; display:inline-flex; gap:7px; align-items:baseline;
+  border-left:5px solid var(--cc,var(--c1));
 }
-.chip b{ color:var(--ink-3); font-weight:500; font-size:10.5px; }
-.chip .num{ font-weight:600; }
+.chip b{ color:var(--ink-3); font-weight:600; font-size:10.5px; }
+.chip .num{ font-weight:700; }
+.chips .chip:nth-child(1){ --cc:var(--c4); }
+.chips .chip:nth-child(2){ --cc:var(--c1); }
+.chips .chip:nth-child(3){ --cc:var(--c5); }
+.chips .chip:nth-child(4){ --cc:var(--c6); }
+.chips .chip:nth-child(5){ --cc:var(--c2); }
 
 .mine{
-  background:var(--gold); color:#fff; border-radius:14px; padding:7px 14px;
-  box-shadow:var(--shadow); display:inline-flex; gap:9px; align-items:center; font-size:13px;
+  background:var(--gold); color:#fff; border-radius:16px; padding:9px 16px 10px;
+  box-shadow: 0 4px 0 #A66200, 0 10px 20px rgba(217,130,0,.30);
+  display:inline-flex; gap:9px; align-items:center; font-size:14px;
 }
 .mine .dot{ width:10px; height:10px; border-radius:50%; background:#fff; flex:none; }
 .mine-name{ font-weight:600; }
 .mine .num{ font-weight:700; }
 .phase{
-  background:rgba(255,255,255,.86); border-radius:999px; padding:5px 13px;
-  font-size:11.5px; color:var(--ink-2); box-shadow:0 3px 10px rgba(22,45,32,.10);
+  background:#fff; border-radius:999px; padding:6px 14px;
+  font-size:12px; font-weight:500; color:var(--ink-2);
+  box-shadow:0 3px 0 rgba(22,45,32,.12), 0 6px 12px rgba(22,45,32,.10);
 }
 
 .pill{
-  background:#fff; border:none; border-radius:999px; padding:8px 15px; font-size:13px;
-  font-weight:600; color:var(--ink-2); box-shadow:var(--shadow); line-height:1;
-  transition: transform .08s, background .12s, color .12s;
+  background:#fff; border:none; border-radius:999px; padding:9px 16px; font-size:13px;
+  font-weight:700; color:var(--ink-2); line-height:1;
+  box-shadow: 0 4px 0 #C9D3C4, 0 8px 16px rgba(22,45,32,.12);
+  transition: transform .08s, background .12s, color .12s, box-shadow .08s;
 }
 .pill:hover{ transform:translateY(-1px); }
-.pill[aria-pressed="true"]{ background:var(--gold); color:#fff; }
+.pill:active{ transform:translateY(3px); box-shadow:0 1px 0 #C9D3C4; }
+.pill[aria-pressed="true"]{ background:var(--gold); color:#fff; box-shadow:0 4px 0 #A66200, 0 8px 16px rgba(217,130,0,.26); }
 .pill.ghost{ background:rgba(255,255,255,.8); color:var(--ink-3); }
 .pill:disabled{ opacity:.45; }
 
-.panel{ background:#fff; border-radius:16px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+.panel{ background:#fff; border-radius:18px; overflow:hidden; display:flex; flex-direction:column; min-height:0;
+  box-shadow: 0 5px 0 #C9D3C4, 0 12px 24px rgba(22,45,32,.14); }
 .panel-head{
   background:none; border:none; width:100%; display:flex; align-items:center; gap:8px;
-  padding:10px 14px; font-family:var(--f-disp); font-weight:700; font-size:14px; text-align:left;
+  padding:11px 15px; font-family:var(--f-disp); font-weight:700; font-size:15px; text-align:left;
 }
 .panel-head em{ font-style:normal; margin-left:auto; color:var(--gold); font-weight:700; font-size:16px; }
 .panel-head i{ font-style:normal; color:var(--ink-3); transition:transform .15s; }
@@ -353,15 +369,16 @@ input[type=range]::-moz-range-thumb{
 }
 .placebar{
   position:absolute; left:50%; transform:translateX(-50%); bottom:76px; z-index:9;
-  background:rgba(255,255,255,.94); border:1px solid var(--line-2); border-radius:4px;
-  padding:9px 16px; font-size:12.5px; color:var(--ink-2); text-align:center;
-  box-shadow:0 6px 20px rgba(22,35,28,.14); pointer-events:none; max-width:88%;
+  background:#fff; border:none; border-radius:18px;
+  padding:12px 22px; font-size:13.5px; color:var(--ink-2); text-align:center;
+  box-shadow:0 5px 0 #C9D3C4, 0 14px 26px rgba(22,35,28,.18); pointer-events:none; max-width:88%;
 }
 .placebar b{ color:var(--ink); font-weight:600; }
 .stage.placing #globe{ cursor:crosshair; }
 .mini-select{
-  background:var(--panel-2); border:1px solid var(--line-2); border-radius:var(--r);
-  color:var(--ink-2); font-family:inherit; font-size:11.5px; padding:3px 6px;
+  background:#fff; border:none; border-radius:999px; font-weight:700;
+  color:var(--ink-2); font-family:inherit; font-size:12px; padding:7px 12px;
+  box-shadow: 0 3px 0 #C9D3C4, 0 6px 12px rgba(22,45,32,.10);
 }
 .chart-legend{
   display:flex; gap:12px; flex-wrap:wrap; padding:10px 16px; border-top:1px solid var(--line);
@@ -1795,6 +1812,7 @@ function rollEvents(){
 
 function logMsg(kind, html){
   const g=G;
+  if(kind==="human") g._sceneDirty=true;      // 사람이 땅을 바꾸면 풍경도 바뀐다
   g.log.unshift({y:g.year, s:SEASONS[g.season], kind, html});
   if(g.log.length>300) g.log.pop();
   g._logDirty=true;
@@ -2094,7 +2112,10 @@ function drawMap2D(){
 
 /* 2D 지도와 3D 반구 중 가능한 쪽으로 그린다 */
 function drawMap(){
-  if(Globe.ok){ Globe.updateTerrain(); Globe.updateCreatures(); }
+  if(Globe.ok){
+    Globe.updateTerrain(); Globe.updateCreatures();
+    if(G._sceneDirty){ Globe.buildScenery(); G._sceneDirty=false; }
+  }
   else drawMap2D();
   drawMapLegend();
 }
@@ -2220,9 +2241,9 @@ function drawChart(canvasId, legendId, full){
    · 고도는 위로 밀어올리고, 호수·습지에는 수면을 따로 깐다.
    생물은 몸통·머리·다리·꼬리에 형질에 따라 뿔·귀·날개를 붙여 만든다. */
 const Globe = (function(){
-  const RD = 16.0, HGT = 4.6, WATER_Y = -0.7, MAX_CREATURES = 1200;
+  const RD = 16.0, HGT = 4.4, WATER_Y = -0.55, MAX_CREATURES = 1000;
   let gl=null, ok=false, prog=null, cv=null;
-  let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0;
+  let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
   let az=0.7, pol=0.66, dist=50, dragging=false, lx=0, ly=0;
   const STRIDE = 10;
@@ -2243,7 +2264,7 @@ const Globe = (function(){
   }
 
   /* ── 격자 → 원반 ─────────────────────────────────────────── */
-  const ringR = y => RD*Math.sqrt((y+2.2)/(H+2.2));    // 등면적 고리 (중심은 넓은 평지로 남긴다)
+  const ringR = y => RD*Math.sqrt((y+4.5)/(H+4.5));    // 등면적 고리 (중심은 넓은 평지로 남긴다)
   const tileH = i => (G.world.elev[i]-0.40)*HGT;
   function polar(x,y,h,out){
     const r=ringR(y), th=x/W*Math.PI*2;
@@ -2308,7 +2329,7 @@ const Globe = (function(){
       pushT(o,ring[j],ring[j2],mid[j2]); pushT(o,ring[j],mid[j2],mid[j]); pushT(o,mid[j],mid[j2],top); }
   }
   /* 상자 — 저폴리 장난감의 기본 부품 */
-  function box(o,cx,cy,cz,sx,sy,sz){
+  function box(o,cx,cy,cz,sx,sy,sz,_ignored){
     const x0=cx-sx,x1=cx+sx, y0=cy-sy,y1=cy+sy, z0=cz-sz,z1=cz+sz;
     const v=[P(x0,y0,z0),P(x1,y0,z0),P(x1,y1,z0),P(x0,y1,z0),
              P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1)];
@@ -2394,6 +2415,94 @@ const Globe = (function(){
     return o;
   }
 
+  /* ── 지형 장식물 ────────────────────────────────────────
+     땅 색만 칠하면 판때기로 보인다. 지형마다 나무·풀·바위를 실제로 세운다.
+     시뮬레이션과 무관한 배경이라 한 번 만들어 두고 계속 쓴다. */
+  const SCENE = (()=>{
+    const mk=fn=>{ const o=[]; fn(o); return o; };
+    const tree = (canopy)=>mk(o=>{
+      box(o,0,0.22,0,0.07,0.22,0.07);                       // 줄기
+      box(o,0,0.52,0,0.30,0.20,0.30,canopy);
+      box(o,0,0.78,0,0.19,0.14,0.19,canopy);
+    });
+    return {
+      broadleaf: mk(o=>{ box(o,0,0.22,0,0.07,0.22,0.07); box(o,0,0.54,0,0.32,0.22,0.32); box(o,0,0.80,0,0.20,0.14,0.20); }),
+      conifer:   mk(o=>{ box(o,0,0.16,0,0.055,0.16,0.055); taper(o,0,0.30,0,0.26,0.26,0.26,0.45); taper(o,0,0.62,0,0.17,0.22,0.17,0.15); }),
+      jungle:    mk(o=>{ box(o,0,0.40,0,0.065,0.40,0.065); box(o,0,0.86,0,0.34,0.13,0.34); box(o,0.10,0.98,0.06,0.20,0.09,0.20); }),
+      bush:      mk(o=>{ box(o,0,0.15,0,0.22,0.15,0.22); box(o,0.06,0.30,0.04,0.13,0.09,0.13); }),
+      grass:     mk(o=>{ box(o,-0.07,0.12,0.02,0.035,0.12,0.035); box(o,0.03,0.16,-0.05,0.035,0.16,0.035); box(o,0.07,0.10,0.06,0.030,0.10,0.030); }),
+      reed:      mk(o=>{ for(let k=0;k<4;k++){ const a=k*1.7; box(o,Math.cos(a)*0.07,0.24,Math.sin(a)*0.07,0.022,0.24,0.022); } }),
+      cactus:    mk(o=>{ box(o,0,0.30,0,0.075,0.30,0.075); box(o,0.14,0.34,0,0.075,0.055,0.055); box(o,0.14,0.44,0,0.055,0.10,0.055); }),
+      rock:      mk(o=>{ taper(o,0,0.13,0,0.20,0.13,0.18,0.55); taper(o,0.12,0.08,0.08,0.10,0.08,0.10,0.6); }),
+      spire:     mk(o=>{ taper(o,0,0.34,0,0.16,0.34,0.15,0.25); }),
+      mound:     mk(o=>{ taper(o,0,0.10,0,0.26,0.10,0.24,0.7); }),
+      house:     mk(o=>{ box(o,0,0.22,0,0.20,0.22,0.18); taper(o,0,0.50,0,0.24,0.10,0.22,0.25); }),
+    };
+  })();
+  const SC = {                                  // 장식물 색
+    trunk:[0.55,0.39,0.23], leaf:[0.20,0.66,0.31], jungleLeaf:[0.05,0.55,0.26],
+    conifer:[0.17,0.55,0.38], grass:[0.56,0.85,0.25], reed:[0.66,0.80,0.35],
+    cactus:[0.27,0.66,0.38], rock:[0.65,0.65,0.71], vrock:[0.42,0.29,0.27],
+    snow:[1,1,1], wall:[0.94,0.91,0.86], roof:[0.85,0.44,0.35],
+  };
+  /* 지형별로 무엇을 몇 개 세울지 */
+  function propsFor(b){
+    switch(b){
+      case 1: return [[SCENE.reed,SC.reed,3,0.7]];
+      case 2: return [[SCENE.grass,SC.grass,4,0.7],[SCENE.bush,SC.leaf,1,0.16]];
+      case 3: return [[SCENE.broadleaf,SC.leaf,3,0.62],[SCENE.grass,SC.grass,2,0.4]];
+      case 4: return [[SCENE.cactus,SC.cactus,2,0.24],[SCENE.rock,SC.rock,2,0.22]];
+      case 5: return [[SCENE.spire,SC.rock,3,0.5],[SCENE.rock,SC.rock,2,0.35]];
+      case 6: return [[SCENE.conifer,SC.conifer,2,0.30],[SCENE.mound,SC.snow,2,0.35]];
+      case 7: return [[SCENE.jungle,SC.jungleLeaf,3,0.62],[SCENE.bush,SC.jungleLeaf,2,0.4]];
+      case 8: return [[SCENE.rock,SC.vrock,3,0.45]];
+      case 9: return [[SCENE.house,SC.wall,3,0.55]];
+      default: return null;
+    }
+  }
+  function buildScenery(){
+    if(!ok) return;
+    const w=G.world, tris=[];
+    const c=[0,0,0];
+    const push=(model,col,i,seed,scale)=>{
+      tileCenter(i,c);
+      const hsh=((i*2654435761)^(seed*374761393))>>>0;
+      const yaw=((hsh&1023)/1023)*Math.PI*2;
+      const jx=(((hsh>>10)&255)/255-0.5)*0.62, jz=(((hsh>>18)&255)/255-0.5)*0.62;
+      const sc=scale*0.46*(0.8+((hsh>>26)&31)/31*0.5);
+      const cy=Math.cos(yaw), sy=Math.sin(yaw);
+      tris.push([model,col,c[0]+jx,c[1],c[2]+jz,cy,sy,sc]);
+    };
+    for(let i=0;i<NT;i++){
+      const list=propsFor(w.biome[i]); if(!list) continue;
+      let seed=1;
+      for(const [model,col,count,prob] of list){
+        for(let k=0;k<count;k++,seed++){
+          const h=((i*2246822519)^(seed*3266489917))>>>0;
+          if((h&1023)/1023 > prob) continue;
+          push(model,col,i,seed, w.biome[i]===7?0.95:1);
+        }
+      }
+    }
+    let total=0; for(const t of tris) total+=t[0].length;
+    const arr=new Float32Array(total*STRIDE);
+    let o=0;
+    const p0=[0,0,0],p1=[0,0,0],p2=[0,0,0];
+    for(const [model,col,ox,oy,oz,cy,sy,sc] of tris){
+      for(let k=0;k<model.length;k+=3){
+        for(let m=0;m<3;m++){
+          const q=model[k+m], t=[p0,p1,p2][m];
+          const X=q[0]*sc, Y=q[1]*sc, Z=q[2]*sc;
+          t[0]=ox + X*cy - Z*sy; t[1]=oy + Y; t[2]=oz + X*sy + Z*cy;
+        }
+        o=pushTri(arr,o,p0,p1,p2,col[0],col[1],col[2],0);
+      }
+    }
+    sceneN=o/STRIDE;
+    gl.bindBuffer(gl.ARRAY_BUFFER,sceneBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,o),gl.STATIC_DRAW);
+  }
+
   /* ── 셰이더 ─────────────────────────────────────────────── */
   const VS = `
     attribute vec3 aPos; attribute vec3 aNrm; attribute vec3 aCol; attribute float aKind;
@@ -2476,8 +2585,8 @@ const Globe = (function(){
       if(ext) progC = link(VS_C, FS_C);
       gl.enable(gl.DEPTH_TEST);
       gl.clearColor(0.706,0.882,0.976,1);   // 맑은 하늘색
-      terrBuf=gl.createBuffer(); domeBuf=gl.createBuffer(); waterBuf=gl.createBuffer();
-      terrData=new Float32Array(NT*6*STRIDE + (W*3 + W*6)*STRIDE);
+      terrBuf=gl.createBuffer(); domeBuf=gl.createBuffer(); waterBuf=gl.createBuffer(); sceneBuf=gl.createBuffer();
+      terrData=new Float32Array(NT*30*STRIDE + (W*6)*STRIDE);
       instScratch=new Float32Array(MAX_CREATURES*5);
       buildDome();
       bindControls();
@@ -2542,22 +2651,8 @@ const Globe = (function(){
     return o;
   }
 
-  /* 꼭짓점 높이는 맞닿은 타일들의 평균으로 잡는다.
-     타일마다 제 높이로 세우면 사이가 벌어져 지형이 조각조각 떠 보인다. */
-  let vh=null, tc=null;
-  function vertHeights(){
-    if(!vh) vh=new Float32Array(W*(H+1));
-    for(let y=0;y<=H;y++)for(let x=0;x<W;x++){
-      let sum=0,n=0;
-      for(let dy=-1;dy<=0;dy++)for(let dx=-1;dx<=0;dx++){
-        const yy=y+dy; if(yy<0||yy>=H) continue;
-        const xx=((x+dx)%W+W)%W;
-        sum+=tileH(yy*W+xx); n++;
-      }
-      vh[y*W+x] = n?sum/n:0;
-    }
-    return vh;
-  }
+  let tc=null;
+  const nb=(x,y)=>{ if(y<0||y>=H) return -1; return y*W+(((x%W)+W)%W); };
 
   function pushTri3(buf,o,p0,p1,p2,c0,c1,c2){
     const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
@@ -2576,12 +2671,10 @@ const Globe = (function(){
   function updateTerrain(){
     if(!ok) return;
     const layer=G.layer, veg=vegField(), sel=G.species[G.selected], w=G.world;
-    const VH=vertHeights();
-    const hAt=(x,y)=>VH[y*W+((x%W)+W)%W];
     let o=0;
     const q0=[0,0,0],q1=[0,0,0],q2=[0,0,0],q3=[0,0,0];
     const wat=[];
-    let cH=0; for(let x=0;x<W;x++) cH+=hAt(x,0); cH/=W;
+    let cH=0; for(let x=0;x<W;x++) cH+=tileH(x); cH/=W;
     const ctr=[0,cH,0], e0=[0,0,0], e1=[0,0,0];
     let cr0=0,cg0=0,cb0=0;
     /* 저폴리 지형 — 칸마다 평평한 면 하나, 색도 하나.
@@ -2594,25 +2687,50 @@ const Globe = (function(){
     }
     for(let x=0;x<W;x++){ cr0+=tc[x*3]; cg0+=tc[x*3+1]; cb0+=tc[x*3+2]; }
     cr0/=W; cg0/=W; cb0/=W;
+    /* 계단형 저폴리 — 칸마다 제 높이로 평평한 면을 놓고,
+       옆 칸이 낮으면 그 사이에 절벽 벽면을 세운다. 이래야 면이 각지게 보인다.
+       꼭짓점 높이를 평균 내면 이어지긴 하지만 죄다 둥글어져 슬라임처럼 된다. */
+    const w0=[0,0,0],w1=[0,0,0],w2=[0,0,0],w3=[0,0,0];
     for(let i=0;i<NT;i++){
-      const x=i%W, y=(i/W)|0;
-      const h00=hAt(x,y), h10=hAt(x+1,y), h11=hAt(x+1,y+1), h01=hAt(x,y+1);
+      const x=i%W, y=(i/W)|0, h=tileH(i);
       const r=tc[i*3], g=tc[i*3+1], b=tc[i*3+2];
-      polar(x,  y,  h00,q0); polar(x+1,y,  h10,q1);
-      polar(x+1,y+1,h11,q2); polar(x,  y+1,h01,q3);
+      polar(x,  y,  h,q0); polar(x+1,y,  h,q1);
+      polar(x+1,y+1,h,q2); polar(x,  y+1,h,q3);
       o=pushTri(terrData,o,q0,q2,q1,r,g,b,0);
       o=pushTri(terrData,o,q0,q3,q2,r,g,b,0);
-      /* 중심의 빈 원은 부채꼴 무늬가 안 보이게 한 가지 색으로 메운다 */
+
+      /* 네 방향 절벽 — 그늘진 면이라 조금 어둡게 */
+      const dr=r*0.74, dg=g*0.72, db=b*0.70;
+      const wall=(pa,pb,hn)=>{
+        if(hn>=h-0.012) return;
+        w0[0]=pa[0]; w0[1]=h;  w0[2]=pa[2];
+        w1[0]=pb[0]; w1[1]=h;  w1[2]=pb[2];
+        w2[0]=pb[0]; w2[1]=hn; w2[2]=pb[2];
+        w3[0]=pa[0]; w3[1]=hn; w3[2]=pa[2];
+        o=pushTri(terrData,o,w0,w2,w1,dr,dg,db,0);
+        o=pushTri(terrData,o,w0,w3,w2,dr,dg,db,0);
+      };
+      const jIn=nb(x,y-1), jOut=nb(x,y+1), jL=nb(x-1,y), jR=nb(x+1,y);
+      wall(q1,q0, jIn <0 ? h : tileH(jIn));            // 안쪽
+      wall(q3,q2, jOut<0 ? -1.7 : tileH(jOut));        // 바깥쪽 (마지막 고리는 받침까지)
+      wall(q0,q3, jL  <0 ? h : tileH(jL));
+      wall(q2,q1, jR  <0 ? h : tileH(jR));
+
+      /* 중심의 빈 원 — 평평한 원판 하나로 덮고, 안쪽 고리와의 높이 차는
+         절벽으로 메운다. 부채꼴을 타일 높이에 맞추면 사이가 벌어져 흰 줄이 생긴다. */
       if(y===0){
-        polar(x,0,h00,e0); polar(x+1,0,h10,e1);
+        polar(x,0,cH,e0); polar(x+1,0,cH,e1);
         o=pushTri(terrData,o,ctr,e0,e1,cr0,cg0,cb0,0);
-      }
-      /* 바깥 고리에 두께를 준다 — 테라리움 받침처럼 */
-      if(y===H-1){
-        polar(x,  H,hAt(x,H),  q0); polar(x+1,H,hAt(x+1,H),q1);
-        const b0=[q0[0],-1.7,q0[2]], b1=[q1[0],-1.7,q1[2]];
-        o=pushTri(terrData,o,q0,b0,b1,r*0.55,g*0.53,b*0.48,0);
-        o=pushTri(terrData,o,q0,b1,q1,r*0.55,g*0.53,b*0.48,0);
+        if(Math.abs(h-cH)>0.012){
+          const lo=Math.min(h,cH), hi=Math.max(h,cH);
+          w0[0]=e0[0]; w0[1]=hi; w0[2]=e0[2];
+          w1[0]=e1[0]; w1[1]=hi; w1[2]=e1[2];
+          w2[0]=e1[0]; w2[1]=lo; w2[2]=e1[2];
+          w3[0]=e0[0]; w3[1]=lo; w3[2]=e0[2];
+          const cr=(h>cH?r:cr0)*0.78, cg=(h>cH?g:cg0)*0.76, cb=(h>cH?b:cb0)*0.74;
+          o=pushTri(terrData,o,w0,w2,w1,cr,cg,cb,0);
+          o=pushTri(terrData,o,w0,w3,w2,cr,cg,cb,0);
+        }
       }
       if(layer==="terrain" && w.biome[i]<=1) wat.push(i);
     }
@@ -2625,7 +2743,7 @@ const Globe = (function(){
     for(const i of wat){
       const x=i%W, y=(i/W)|0;
       /* 물 높이는 그 칸 바닥 바로 위. 호수는 낮게, 산속 개울은 높게 잡힌다 */
-      const wy=tileH(i)+0.13;
+      const wy=tileH(i)+0.16;
       polar(x,  y,  wy,q0); polar(x+1,y,  wy,q1);
       polar(x+1,y+1,wy,q2); polar(x,  y+1,wy,q3);
       const deep=clamp((WATER_Y-tileH(i))/1.2,0,1);
@@ -2736,6 +2854,7 @@ const Globe = (function(){
     const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
     gl.uniform3f(gl.getUniformLocation(prog,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
     if(terrN){ bindAttribs(prog,terrBuf); gl.drawArrays(gl.TRIANGLES,0,terrN); }
+    if(sceneN){ bindAttribs(prog,sceneBuf); gl.drawArrays(gl.TRIANGLES,0,sceneN); }
     drawCreatures(vp);
     /* 반투명 — 수면, 그리고 마지막에 유리 돔 */
     gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
@@ -2843,7 +2962,7 @@ const Globe = (function(){
     return i;
   }
 
-  return {init, buildCreatures, updateTerrain, updateCreatures, render, pick,
+  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick,
           get ok(){ return ok; }};
 })();
 
@@ -3074,7 +3193,7 @@ function startSim(){
   $("#globe").hidden = !use3d;
   $("#map").hidden = use3d;
   $("#viewhint").hidden = !use3d;
-  if(use3d) Globe.buildCreatures();
+  if(use3d){ Globe.buildCreatures(); Globe.updateTerrain(); Globe.buildScenery(); }
   buildLayerTabs(); renderStatus(); renderSpecies(); renderEvo(); renderLog();
   drawMap(); drawChart("chart","chart-legend",false);
   acc=0; lastT=performance.now(); lastUI=0;
