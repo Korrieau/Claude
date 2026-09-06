@@ -612,6 +612,53 @@ input[type=range]::-moz-range-thumb{
 .grade-C b{ background:#9AA79F; box-shadow:0 4px 0 #7B877F; }
 .grade-D b{ background:#B0938A; box-shadow:0 4px 0 #8E756D; }
 
+/* 진화 계통 화면 */
+.treemodal{ position:fixed; inset:0; z-index:60; background:rgba(22,45,32,.42);
+  display:flex; align-items:center; justify-content:center; padding:22px; }
+.tm-box{ background:var(--ground); border-radius:26px; box-shadow:0 18px 50px rgba(22,45,32,.32);
+  width:min(1180px,96vw); max-height:92vh; display:flex; flex-direction:column; overflow:hidden; }
+.tm-head{ display:flex; align-items:center; gap:14px; padding:18px 22px 10px; }
+.tm-head h2{ font-size:24px; }
+.tm-meta{ font-size:13px; color:var(--ink-2); }
+.tm-meta b{ color:var(--gold-hi); font-family:var(--f-disp); font-size:16px; }
+.tm-head .pill{ margin-left:auto; }
+.tm-sub{ margin:0; padding:0 22px 12px; font-size:12.5px; color:var(--ink-2); max-width:70ch; }
+.tm-body{ overflow:auto; padding:0 22px 22px; display:grid; gap:12px;
+  grid-template-columns:repeat(6,minmax(0,1fr)); align-items:start; }
+@media (max-width:1100px){ .tm-body{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:680px){ .tm-body{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.branch{ display:flex; flex-direction:column; gap:8px; }
+.br-head{ border-radius:14px; padding:9px 12px; color:#fff; }
+.br-head b{ font-family:var(--f-disp); font-size:15px; display:block; }
+.br-head span{ font-size:10.5px; opacity:.9; }
+.br-head.c1{background:#22C1F5} .br-head.c2{background:#9CE535} .br-head.c3{background:#FFC53D}
+.br-head.c5{background:#7B5CE0} .br-head.c6{background:#0FBF86} .br-head.c7{background:#E9553C}
+.node{ text-align:left; background:#fff; border:2px solid var(--line); border-radius:16px;
+  padding:10px 12px; box-shadow:0 3px 0 rgba(22,45,32,.08); transition:transform .08s, border-color .12s; }
+.node .nd-top{ display:flex; align-items:baseline; gap:8px; }
+.node .nd-top b{ font-family:var(--f-disp); font-size:14px; }
+.node .nd-top em{ font-style:normal; margin-left:auto; font-size:11px; color:var(--gold-hi); font-weight:600; }
+.node p{ margin:4px 0 0; font-size:11px; color:var(--ink-2); line-height:1.45; }
+.node .nd-gain{ margin-top:6px; font-size:10px; color:var(--ink-3); font-family:var(--f-mono); }
+.node .nd-need{ margin-top:5px; font-size:10px; color:var(--crit); }
+.node.open{ border-color:var(--gold); }
+.node.open:hover{ transform:translateY(-2px); }
+.node.taken{ background:#EAF8F1; border-color:var(--good); }
+.node.taken .nd-top em{ color:var(--good); }
+.node.poor{ opacity:.66; }
+.node.locked{ opacity:.42; }
+.node:disabled{ cursor:default; }
+
+.treebtn{ width:100%; margin-bottom:8px; padding:11px 14px; font-size:14px; }
+.takenrow{ display:flex; flex-wrap:wrap; gap:4px; margin-bottom:9px; }
+.tk{ font-size:10.5px; color:#fff; border-radius:999px; padding:2px 8px; font-weight:600; }
+.tk.c1{background:#22C1F5} .tk.c2{background:#9CE535;color:#2b3d10} .tk.c3{background:#FFC53D;color:#4E3400}
+.tk.c5{background:#7B5CE0} .tk.c6{background:#0FBF86} .tk.c7{background:#E9553C}
+.traitmini{ display:grid; grid-template-columns:1fr 1fr; gap:2px 10px; }
+.traitmini span{ display:flex; align-items:baseline; gap:6px; font-size:11px; }
+.traitmini i{ font-style:normal; color:var(--ink-2); }
+.traitmini b{ margin-left:auto; font-family:var(--f-mono); color:var(--gold-hi); }
+
 /* 식성 전환 */
 .dietswap{ margin-bottom:9px; }
 .ds-head{ display:flex; align-items:baseline; gap:8px; font-size:11.5px; color:var(--ink-2); margin-bottom:5px; }
@@ -857,7 +904,7 @@ input[type=range]::-moz-range-thumb{
         <div class="panel-body">
           <div class="pressure" id="pressure"></div>
           <div class="dietswap" id="dietswap"></div>
-          <p class="tiny">형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
+          <p class="tiny">진화 포인트로 계통을 하나씩 얻습니다. <b>E</b>키로 계통을 열 수 있습니다.</p>
           <div class="evo-list" id="evo-list"></div>
         </div>
       </div>
@@ -888,6 +935,19 @@ input[type=range]::-moz-range-thumb{
       <div class="panel collapsed" id="panel-log">
         <button class="panel-head" data-toggle="panel-log"><span>관측 일지</span><em id="log-count"></em><i>▾</i></button>
         <div class="panel-body"><div class="log" id="log"></div></div>
+      </div>
+    </div>
+
+    <div class="treemodal" id="treemodal" hidden>
+      <div class="tm-box">
+        <header class="tm-head">
+          <h2>진화 계통</h2>
+          <span class="tm-meta">지금 <b id="tree-diet">—</b> · 진화 포인트 <b class="num" id="tree-ep">0</b></span>
+          <button class="pill" id="btn-tree-close">닫기</button>
+        </header>
+        <p class="tm-sub">앞 단계를 얻어야 다음이 열립니다. 포인트로는 전부 얻을 수 없으니
+          무엇을 포기할지가 곧 이 종의 정체가 됩니다.</p>
+        <div class="tm-body" id="tree-body"></div>
       </div>
     </div>
 
@@ -1061,6 +1121,63 @@ const TRAIT_GROUPS=[
 ];
 const TRAIT_KEYS = TRAIT_GROUPS.flatMap(g=>g.traits.map(t=>t[0]));
 const TRAIT_LABEL = {}; TRAIT_GROUPS.forEach(g=>g.traits.forEach(t=>TRAIT_LABEL[t[0]]=t[1]));
+
+/* ── 진화 계통 ────────────────────────────────────────────────────
+   형질을 1칸씩 올리는 대신, 이름 붙은 적응을 하나씩 얻어 간다.
+   앞 단계를 얻어야 다음이 열리므로 판마다 다른 길이 나온다.
+   진화 포인트를 다 쓸 수는 없어서 무엇을 포기할지가 곧 정체성이 된다. */
+const EVO_TREE = [
+  { k:"hunt", name:"사냥", tone:"c7", desc:"잡아서 먹는 쪽으로",
+    nodes:[
+      {k:"h1", n:"예민한 코",   c:2, t:{olfaction:2, vision:1},                 d:"먹이 냄새를 멀리서 맡습니다"},
+      {k:"h2", n:"송곳니",      c:3, t:{aggression:2, speed:1, size:1},        d:"물어뜯는 이빨이 생깁니다", need:["h1"]},
+      {k:"h3", n:"매복",        c:3, t:{camouflage:2, speed:1, nocturnal:2},    d:"숨어 기다렸다 덮칩니다", need:["h2"]},
+      {k:"h4", n:"무리 사냥",   c:4, t:{sociality:3, aggression:1, vision:1},   d:"여럿이 몰아 잡습니다", need:["h2"]},
+      {k:"h5", n:"최상위 포식자", c:5, t:{size:2, aggression:2, stamina:2},     d:"이 땅에서 당신을 사냥할 것은 없습니다", need:["h3","h4"]},
+    ]},
+  { k:"guard", name:"방어", tone:"c1", desc:"잡아먹히지 않는 쪽으로",
+    nodes:[
+      {k:"g1", n:"질긴 가죽",   c:2, t:{armor:2},                               d:"이빨이 잘 안 들어갑니다"},
+      {k:"g2", n:"보호색",      c:2, t:{camouflage:3},                          d:"배경에 묻힙니다", need:["g1"]},
+      {k:"g3", n:"독샘",        c:4, t:{toxicity:4},                            d:"먹으면 탈이 납니다. 가장 확실한 방어입니다", need:["g1"]},
+      {k:"g4", n:"무리 짓기",   c:3, t:{sociality:3, vision:1},                 d:"여럿이면 하필 내가 걸릴 확률이 낮아집니다", need:["g2"]},
+      {k:"g5", n:"가시 갑옷",   c:5, t:{armor:3, toxicity:1, size:1},           d:"건드리는 쪽이 다칩니다", need:["g3","g4"]},
+    ]},
+  { k:"breed", name:"번식", tone:"c3", desc:"많이 남기는 쪽으로",
+    nodes:[
+      {k:"b1", n:"잦은 발정",   c:2, t:{breedFreq:2},                           d:"한 해에 여러 번 낳습니다"},
+      {k:"b2", n:"다산",        c:3, t:{fertility:3},                           d:"한 배에 많이 낳습니다", need:["b1"]},
+      {k:"b3", n:"빠른 성숙",   c:3, t:{maturity:3, growth:1},                  d:"금방 어른이 됩니다", need:["b1"]},
+      {k:"b4", n:"새끼 돌봄",   c:3, t:{parentalCare:3, nesting:2},             d:"적게 낳고 확실히 키웁니다", need:["b2","b3"]},
+      {k:"b5", n:"폭발적 번식", c:5, t:{fertility:2, breedFreq:2, youngDispersal:3}, d:"한 번 자리를 잡으면 순식간에 퍼집니다", need:["b2","b3"]},
+    ]},
+  { k:"endure", name:"내성", tone:"c5", desc:"어디서든 버티는 쪽으로",
+    nodes:[
+      {k:"e1", n:"두꺼운 지방", c:2, t:{coldTol:2, energyStore:2},              d:"추위와 굶주림을 함께 버팁니다"},
+      {k:"e2", n:"물 절약",     c:2, t:{droughtTol:3, heatTol:1},               d:"마른 땅에서도 삽니다"},
+      {k:"e3", n:"체온 조절",   c:3, t:{thermoreg:3, coldTol:1, heatTol:1},     d:"기온이 흔들려도 견딥니다", need:["e1"]},
+      {k:"e4", n:"오염 내성",   c:3, t:{pollutionTol:4, diseaseResist:1},       d:"사람이 망친 땅에서도 삽니다", need:["e2"]},
+      {k:"e5", n:"어디서든",    c:5, t:{habitatBreadth:3, coldTol:1, heatTol:1, droughtTol:1}, d:"가릴 것 없이 어디든 터전이 됩니다", need:["e3","e4"]},
+    ]},
+  { k:"move", name:"이동", tone:"c6", desc:"움직여서 사는 쪽으로",
+    nodes:[
+      {k:"m1", n:"긴 다리",     c:2, t:{speed:2, mobility:1}, d:"빨리 달아납니다"},
+      {k:"m2", n:"지구력",      c:3, t:{stamina:3},                             d:"오래 움직입니다", need:["m1"]},
+      {k:"m3", n:"헤엄과 등반", c:3, t:{climbSwim:4},                           d:"물과 벼랑이 길이 됩니다", need:["m1"]},
+      {k:"m4", n:"새끼 분산",   c:3, t:{youngDispersal:3, mobility:1},          d:"새끼가 멀리 흩어져 자리를 넓힙니다", need:["m2"]},
+      {k:"m5", n:"대이동",      c:5, t:{mobility:4, stamina:1, habitatBreadth:1}, d:"땅이 나빠지면 통째로 옮겨 갑니다", need:["m3","m4"]},
+    ]},
+  { k:"body", name:"몸", tone:"c2", desc:"몸 자체를 바꾸는 쪽으로",
+    nodes:[
+      {k:"y1", n:"느린 대사",   c:2, t:{metabolism:-2, energyStore:2},          d:"덜 먹고 오래 버팁니다"},
+      {k:"y2", n:"큰 몸집",     c:3, t:{size:2, armor:1},                       d:"커지면 웬만해선 안 잡힙니다"},
+      {k:"y3", n:"작고 빠른 몸", c:3, t:{size:-1, metabolism:2, growth:2},      d:"작으면 적게 먹고 빨리 붑니다"},
+      {k:"y4", n:"긴 수명",     c:3, t:{lifespan:3, diseaseResist:1},           d:"한 세대가 오래 갑니다", need:["y1"]},
+      {k:"y5", n:"튼튼한 면역", c:4, t:{diseaseResist:4},                       d:"전염병이 돌아도 덜 죽습니다", need:["y1"]},
+    ]},
+];
+const EVO_NODE={}; for(const br of EVO_TREE) for(const n of br.nodes){ n.br=br.k; EVO_NODE[n.k]=n; }
+
 
 /* 생태 균형 조절값 — 한곳에 모아두면 조정이 쉽다 */
 const TUNE = {
@@ -1598,7 +1715,7 @@ function newGame(playerDef){
     world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
     ep:STARTER.startEP, epSpent:0, nextEpTick:TICKS_PER_YEAR*3, eraLog:[], peakPop:0, autoPause:true,
-    startDiet:playerDef.diet,
+    startDiet:playerDef.diet, taken:{},
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
     running:false, speed:4, over:false, ending:null,
     layer:"terrain", selected:0,
@@ -4201,20 +4318,21 @@ const PRESSURE_HINT = {
 };
 function renderEvo(){
   $("#ep-count").textContent=G.ep;
-  const t=G.player.traits, list=$("#evo-list");
+  const t=G.player.traits;
 
-  /* 무엇이 내 종을 죽이고 있는지 먼저 보여준다. 이걸 모르면 형질 33개짜리
-     목록은 그냥 표일 뿐이고, 진화가 판단이 아니라 찍기가 된다. */
   const P = G.player.alive ? selectionPressure(G.player) : null;
   const R = P ? EVO_RESPONSE[P[0]] : null;
-  const up = R ? R.up.filter(k=>t[k]<10) : [];
-  const down = R ? R.down : [];
-  /* 추천 형질은 여기서 바로 올린다. 목록 자체를 재정렬하면 압력이 바뀔 때마다
-     줄이 움직여서 누르려던 항목을 놓친다. 목록 순서는 언제나 고정. */
-  const chips = up.slice(0,4).map(k=>
-    `<button class="pr-chip" data-up="${k}" ${G.ep<1?"disabled":""}>${TRAIT_LABEL[k]} +1</button>`).join("");
-  /* 지난해에 무엇이 내 종을 죽였는지. 압력 판정은 하나만 짚어 주지만,
-     실제로는 여러 요인이 섞여 있어서 비율로 보는 편이 정확하다. */
+  const up = R ? R.up : [];
+
+  /* 지금 압력에 맞는 노드를 골라 준다 — 그 형질을 올려 주는 노드가 곧 답이다 */
+  const useful = [];
+  for(const br of EVO_TREE) for(const n of br.nodes){
+    if(nodeState(n.k)==="taken") continue;
+    const hit = Object.entries(n.t).filter(([k,v])=>v>0 && up.includes(k)).length;
+    if(hit) useful.push([n, hit, nodeState(n.k)]);
+  }
+  useful.sort((a,b)=> b[1]-a[1] || a[0].c-b[0].c);
+
   const MK={pred:"포식", starv:"굶주림", age:"노화", stress:"환경", dis:"질병", crowd:"과밀"};
   const m=G.player.mortYr;
   let deaths="";
@@ -4224,15 +4342,19 @@ function renderEvo(){
     if(top.length) deaths=`<div class="deaths"><span>지난해 사망</span>`
       + top.map(([k,v])=>`<b>${MK[k]} ${Math.round(v*100)}%</b>`).join("") + `</div>`;
   }
+  const chips = useful.slice(0,3).map(([n,,st])=>
+    `<button class="pr-chip" data-node="${n.k}" ${st==="open"?"":"disabled"}>${n.n} · ${n.c}점</button>`).join("");
 
   $("#pressure").innerHTML = (R
     ? `<div class="pr-head"><i></i><b>${R.ko}</b><em>${["약함","보통","강함","매우 강함"][Math.min(3,Math.floor(P[1]/0.35))]}</em></div>
        <p>${PRESSURE_HINT[P[0]]}.</p><div class="pr-chips">${chips}</div>`
     : `<div class="pr-head calm"><i></i><b>큰 압력 없음</b></div>
        <p>지금은 버틸 만합니다. 다음 국면을 대비해 두는 것도 방법입니다.</p>`) + deaths;
+  $("#pressure").querySelectorAll("[data-node]").forEach(b=>{
+    b.onclick=()=>takeNode(b.dataset.node);
+  });
 
-  /* 식성 전환 — 이 게임에서 가장 큰 결정이다. 굶주릴 때 잡식으로 도망가거나,
-     사체가 쌓이면 분해자로 갈아타거나, 힘이 붙으면 사냥꾼이 된다. */
+  /* 식성 전환 */
   const cur=G.player.diet, nexts=DIET_NEXT[cur]||[];
   $("#dietswap").innerHTML = G.player.alive
     ? `<div class="ds-head"><span>지금 <b>${DIETS[cur].name}</b></span><em>전환 ${DIET_COST}점</em></div>`
@@ -4244,53 +4366,71 @@ function renderEvo(){
     b.onclick=()=>switchDiet(b.dataset.diet);
   });
 
-  const keys = TRAIT_KEYS;      // 순서 고정
-  const keep = list.scrollTop;
-  list.innerHTML = keys.map(k=>{
-    const good=up.includes(k), bad=down.includes(k);
-    return `
-    <div class="evo-row${good?" rec":bad?" anti":""}">
-      <span>${TRAIT_LABEL[k]}${good?'<em class="tag">추천</em>':bad?'<em class="tag anti">부담</em>':""}</span>
-      <span class="v" style="color:${t[k]>=8?"var(--gold-hi)":"var(--ink)"}">${t[k]}</span>
-      <span class="ctl">
-        <button class="mini" data-k="${k}" data-d="-1" ${(t[k]<=1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 낮추기">−</button>
-        <button class="mini" data-k="${k}" data-d="1" ${(t[k]>=10||G.ep<1||!G.player.alive)?"disabled":""} aria-label="${TRAIT_LABEL[k]} 높이기">+</button>
-      </span>
-    </div>`;}).join("");
-  list.scrollTop = keep;
-  $("#pressure").querySelectorAll("[data-up]").forEach(b=>{
-    b.onclick=()=>{ raiseTrait(b.dataset.up, 1); };
-  });
-  list.querySelectorAll("button").forEach(b=>{
-    b.onclick=()=>{ raiseTrait(b.dataset.k, +b.dataset.d); };
+  /* 얻은 것 요약 + 지금 형질 */
+  const taken=Object.keys(G.taken||{}).filter(k=>EVO_NODE[k]);
+  $("#evo-list").innerHTML =
+    `<button class="btn primary treebtn" id="btn-tree">진화 계통 열기 · ${taken.length}개 얻음</button>`
+    + (taken.length ? `<div class="takenrow">`+taken.map(k=>{
+        const n=EVO_NODE[k], br=EVO_TREE.find(b=>b.k===n.br);
+        return `<span class="tk ${br.tone}">${n.n}</span>`; }).join("")+`</div>` : "")
+    + `<div class="traitmini">` + TRAIT_KEYS.filter(k=>t[k]>=5)
+        .sort((a,b)=>t[b]-t[a]).slice(0,10)
+        .map(k=>`<span><i>${TRAIT_LABEL[k]}</i><b>${t[k]}</b></span>`).join("")
+      + `</div>`;
+  const bt=$("#btn-tree"); if(bt) bt.onclick=openTree;
+}
+
+/* ── 진화 계통 화면 ─────────────────────────────────────────── */
+function openTree(){ $("#treemodal").hidden=false; renderTree(); }
+function closeTree(){ $("#treemodal").hidden=true; }
+function renderTree(){
+  const g=G;
+  $("#tree-ep").textContent=g.ep;
+  $("#tree-diet").textContent=DIETS[g.player.diet].name;
+  $("#tree-body").innerHTML = EVO_TREE.map(br=>`
+    <div class="branch">
+      <header class="br-head ${br.tone}"><b>${br.name}</b><span>${br.desc}</span></header>
+      ${br.nodes.map(n=>{
+        const st=nodeState(n.k);
+        const gains=Object.entries(n.t).map(([k,v])=>
+          `${TRAIT_LABEL[k]||k} ${v>0?"+":""}${v}`).join(" · ");
+        const needTxt=(n.need||[]).filter(p=>!g.taken[p])
+          .map(p=>EVO_NODE[p].n).join(", ");
+        return `<button class="node ${st}" data-node="${n.k}" ${st==="open"?"":"disabled"}>
+          <div class="nd-top"><b>${n.n}</b><em>${st==="taken"?"얻음":n.c+"점"}</em></div>
+          <p>${n.d}</p>
+          <div class="nd-gain">${gains}</div>
+          ${needTxt?`<div class="nd-need">${needTxt} 먼저</div>`:""}
+        </button>`;
+      }).join("")}
+    </div>`).join("");
+  $("#tree-body").querySelectorAll("[data-node]").forEach(b=>{
+    b.onclick=()=>takeNode(b.dataset.node);
   });
 }
-function switchDiet(to){
-  const g=G, s=g.player;
-  if(!s.alive || g.ep<DIET_COST) return;
-  if(!(DIET_NEXT[s.diet]||[]).includes(to)) return;
-  const from=s.diet;
-  g.ep-=DIET_COST;
-  s.diet=to; s.d=derive(s.traits,to);
-  /* 먹는 방식이 바뀌면 누구와 경쟁하는지도 바뀐다 */
+
+function nodeState(k){
+  const g=G, n=EVO_NODE[k];
+  if(!n) return "locked";
+  if(g.taken[k]) return "taken";
+  const need=(n.need||[]).every(p=>g.taken[p]);
+  if(!need) return "locked";
+  return g.ep>=n.c ? "open" : "poor";
+}
+function takeNode(k){
+  const g=G, n=EVO_NODE[k];
+  if(!n || !g.player.alive || nodeState(k)!=="open") return;
+  g.ep-=n.c; g.taken[k]=true;
+  const tr=g.player.traits;
+  for(const [tk,dv] of Object.entries(n.t)){
+    if(tr[tk]===undefined) continue;
+    tr[tk]=clamp(tr[tk]+dv,1,10);
+  }
+  g.player.d=derive(tr,g.player.diet);
   buildCompetition(g.species);
   g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
-  logMsg("evo", `<b>${DIETS[from].name}</b>에서 <b>${DIETS[to].name}</b>(으)로 바뀌었습니다.`);
-  autoPause("식성 전환");
-  renderEvo(); renderLog(); renderSpecies();
-}
-function raiseTrait(k, d){
-  const g=G;
-  if(!k || !g.player.alive) return;
-  const cur=g.player.traits[k];
-  if(d>0 && (g.ep<1 || cur>=10)) return;
-  if(d<0 && cur<=1) return;
-  if(d>0) g.ep--; else g.ep+=0.5;
-  g.player.traits[k]=clamp(cur+d,1,10);
-  g.ep=Math.floor(g.ep*2)/2;
-  g.player.d=derive(g.player.traits,g.player.diet);
-  logMsg("evo", `<b>${TRAIT_LABEL[k]}</b>을(를) ${d>0?"높였":"낮췄"}습니다 → ${g.player.traits[k]}`);
-  renderEvo(); renderLog();
+  logMsg("evo", `<b>${n.n}</b>을(를) 얻었습니다 — ${n.d}`);
+  renderEvo(); renderTree(); renderLog();
 }
 
 /* ── 상태바 · 로그 ───────────────────────────────────────────── */
@@ -4543,6 +4683,16 @@ function bind(){
   $("#btn-start").onclick = startSim;
 
   $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
+  $("#btn-tree-close").onclick = closeTree;
+  $("#treemodal").onclick = e=>{ if(e.target.id==="treemodal") closeTree(); };
+  window.addEventListener("keydown", e=>{
+    if(e.key==="Escape" && !$("#treemodal").hidden) closeTree();
+    else if((e.key==="e"||e.key==="E") && G && G.phase!=="design"){
+      const tag=(e.target&&e.target.tagName)||"";
+      if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA") return;
+      $("#treemodal").hidden ? openTree() : closeTree();
+    }
+  });
   $("#btn-mine").onclick = ()=>{
     G.showMine = (G.showMine===false);
     G.highlight = null;
