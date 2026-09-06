@@ -1303,7 +1303,7 @@ const TUNE = {
   starvExp:1.6, starvMul:0.7,
   stress:0.044, diseaseBase:0.088, diseaseSpike:0.34,
   scenPower:1.0,            /* 시나리오가 기후를 흔드는 세기 */
-  epRate:1.0,               /* 진화 포인트가 오는 간격 (작을수록 자주) */
+  epRate:0.75,              /* 진화 포인트가 오는 간격 (작을수록 자주) */
   scenBite:0.15,            /* 절정 이후 해마다 깎이는 토양 */
   scenSpread:1.5,           /* 세력에 비례해 땅을 바꾸는 횟수 */
   capA:0.226, capB:7.0, crowdBirth:0.75, birthScale:1.3,
@@ -1330,7 +1330,7 @@ function baseTraits(v){ const o={}; for(const k of TRAIT_KEYS) o[k]=v; return o;
    300년에 걸쳐 진화 포인트로 무엇이 될지를 직접 만들어 간다. */
 let STARTER={ base:3, size:1, metabolism:5, growth:5, fertility:6, breedFreq:6,
   maturity:7, lifespan:3, mobility:4, habitatBreadth:4, camouflage:4,
-  coldTol:4, heatTol:4, droughtTol:4, mutationRate:4, startEP:8 };
+  coldTol:4, heatTol:4, droughtTol:4, mutationRate:4, startEP:12 };
 try{ window.STARTER=STARTER; }catch(e){}
 function starterTraits(){
   const t=baseTraits(STARTER.base);
@@ -3621,7 +3621,7 @@ const Globe = (function(){
   /* 밝은 하늘빛 환경광 + 한 방향 햇빛. 생물은 채도를 유지해 파스텔 지형 위에서 또렷하게. */
   const FS = `
     precision mediump float;
-    uniform vec3 uLight; uniform vec3 uAir;
+    uniform vec3 uLight; uniform vec3 uAir; uniform vec3 uSeason; uniform float uSeasonAmt;
     varying vec3 vN; varying vec3 vC; varying float vK; varying float vY;
     void main(){
       vec3 n=normalize(vN);
@@ -3629,7 +3629,10 @@ const Globe = (function(){
       float sky=max(n.y,0.0);
       /* 명암을 거의 주지 않는다. 색이 그대로 살아야 장난감처럼 보인다.
          uAir는 그 시대의 공기 색 — 빙하기면 파랗게, 운석 충돌이면 잿빛으로 깔린다. */
-      vec3 c = vC*(0.86 + 0.20*d) * (0.97 + 0.05*sky) * uAir;
+      /* 초목 칸만 계절을 탄다 — 봄 연둣빛, 여름 짙은 초록, 가을 황갈, 겨울 바랜 빛.
+         타일 색을 매 프레임 다시 계산하면 1,700칸이라 무거우므로 셰이더에서 섞는다. */
+      vec3 base = mix(vC, vC*uSeason, vK*uSeasonAmt);
+      vec3 c = base*(0.86 + 0.20*d) * (0.97 + 0.05*sky) * uAir;
       gl_FragColor = vec4(c, 1.0);
     }`;
   const VS_G = `
@@ -3980,6 +3983,9 @@ const Globe = (function(){
       if(w.vd[i]) continue;
       const x=i%W, y=(i/W)|0, h=tileH(i);
       const r=tc[i*3], g=tc[i*3+1], b=tc[i*3+2];
+      const bi=w.biome[i];
+      /* 초목이 있는 칸만 계절을 탄다. 바위·사막·바다는 철이 바뀌어도 그대로다. */
+      const veg = (bi===1||bi===2||bi===3||bi===7) ? 1 : (bi===5||bi===11)?0.25:0;
       const c0=P(x,y), c1=P(x+1,y), c2=P(x+1,y+1), c3=P(x,y+1);
       const far=Math.max(Math.hypot(c0[0],c0[1]),Math.hypot(c1[0],c1[1]),
                          Math.hypot(c2[0],c2[1]),Math.hypot(c3[0],c3[1]));
@@ -3991,7 +3997,7 @@ const Globe = (function(){
       const A=[poly[0][0],h,poly[0][1]];
       for(let k=1;k+1<poly.length;k++){
         const Bp=[poly[k][0],h,poly[k][1]], Cp=[poly[k+1][0],h,poly[k+1][1]];
-        o=pushTri(terrData,o,A,Cp,Bp,r,g,b,0);
+        o=pushTri(terrData,o,A,Cp,Bp,r,g,b,veg);
       }
 
       /* 옆면 — 모서리 바깥이 무엇인지 보고 한 규칙으로 처리한다.
@@ -4084,7 +4090,13 @@ const Globe = (function(){
       if(!it.ag) it.ag=[];
       const t=s.traits, isPlant=(s.diet==="producer");
       it.plant=isPlant;
-      it.bob = (!isPlant && t.mobility>=9) ? 0.15 : 0;
+      /* 움직이는 방식도 형질이 정한다. 다 똑같이 걸어다니면 종이 달라 보이지 않는다. */
+      it.fly   = (!isPlant && t.mobility>=9);                 // 나는 것 — 높이 뜨고 위아래로 크게
+      it.swim  = (!isPlant && t.climbSwim>=7 && t.mobility<9);// 헤엄 — 낮게 미끄러짐
+      it.heavy = (!isPlant && t.size>=7);                     // 큰 몸 — 육중하게 흔들림
+      it.bob = it.fly ? 0.30 : it.heavy ? 0.05 : (t.mobility>=6 ? 0.12 : 0.03);
+      it.bobRate = it.fly ? 5.2 : it.heavy ? 1.4 : 3.1;
+      it.lean  = it.heavy ? 0.16 : it.swim ? 0.10 : 0.05;     // 몸을 기울이는 정도
       it.base= (0.10+t.size*0.021) * (s.isPlayer?1.45:1);
       /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
       it.spd = isPlant ? 0 : (0.20 + t.speed*0.085 + t.metabolism*0.03);
@@ -4341,6 +4353,13 @@ const Globe = (function(){
     const sh=0.85+Math.sin(G.season/TICKS_PER_YEAR*Math.PI*2)*0.30;
     gl.uniform3f(gl.getUniformLocation(prog,"uLight"),Math.cos(sa)*0.7,sh,Math.sin(sa)*0.7);
     gl.uniform3f(gl.getUniformLocation(prog,"uAir"),airCur[0],airCur[1],airCur[2]);
+    /* 계절 사이를 부드럽게 건너간다. 툭툭 바뀌면 깜빡이는 것으로 보인다. */
+    const SEA_COL=[[1.06,1.14,0.86],[0.92,1.06,0.84],[1.18,0.98,0.66],[0.88,0.90,0.95]];
+    const sf=(G.season + (G.running?clamp(acc,0,1):0))%4;
+    const s0=SEA_COL[Math.floor(sf)%4], s1=SEA_COL[(Math.floor(sf)+1)%4], fr=sf-Math.floor(sf);
+    gl.uniform3f(gl.getUniformLocation(prog,"uSeason"),
+      s0[0]+(s1[0]-s0[0])*fr, s0[1]+(s1[1]-s0[1])*fr, s0[2]+(s1[2]-s0[2])*fr);
+    gl.uniform1f(gl.getUniformLocation(prog,"uSeasonAmt"), 0.85);
     if(terrN){ bindAttribs(prog,terrBuf); gl.drawArrays(gl.TRIANGLES,0,terrN); }
     if(sceneN){ bindAttribs(prog,sceneBuf); gl.drawArrays(gl.TRIANGLES,0,sceneN); }
     drawCreatures(vp);
@@ -4383,10 +4402,14 @@ const Globe = (function(){
         const a=ag[k];
         if(a.sc<0.002) continue;
         const q=n*5;
+        const moving = (a.chase>0||a.flee>0) ? 1.7 : 1;
         out[q]  = a.x;
-        out[q+1]= a.y + (it.bob ? Math.abs(Math.sin(T*3.1+a.ph))*it.bob*a.sc*6 : 0);
+        /* 나는 것은 높이 뜨고, 큰 것은 느리게 육중하게, 헤엄치는 것은 거의 안 뜬다 */
+        out[q+1]= a.y + (it.fly ? 0.28*a.sc*6 : 0)
+                + Math.abs(Math.sin(T*it.bobRate*moving + a.ph))*it.bob*a.sc*6;
         out[q+2]= a.z;
-        out[q+3]= a.yaw;
+        /* 달리거나 쫓을 때 몸을 앞으로 기울인다 */
+        out[q+3]= a.yaw + Math.sin(T*it.bobRate*0.5+a.ph)*it.lean*(moving-0.6);
         out[q+4]= a.sc;
         n++;
       }
