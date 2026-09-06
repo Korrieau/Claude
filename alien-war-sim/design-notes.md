@@ -36,7 +36,73 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Session | 15-20 min target, restart from scratch on defeat |
 | Sound | Synthesized SFX only (Web Audio), no asset files |
 
-Open: total wave count, research tree shape, siege identity, endgame asset.
+| Structure | Defense-first: fortifications are the main line, mobile is a small reserve |
+| Bunkers | Empty shells; garrisoned unit decides their behaviour and cannot move |
+| Conduits | Supply conduits power everything; cut one and everything under it goes silent |
+| Mycelium | Blocks construction and corrodes conduits it covers |
+| Turrets | Overheat and fall silent under sustained fire |
+| Armor | Deploys in place as an emplacement, relocates slowly under its own power |
+
+Open: total wave count, build placement rules, building during a wave,
+turret vs garrison weighting, research tree shape, mining node layout.
+
+## The chain
+
+Ground, supply and firepower form one chain, and it breaks as one:
+
+Mycelium spreads -> it covers conduits -> conduits corrode -> turrets go
+silent -> the line collapses. Pushing the mycelium back needs Incinerator
+Nests, which themselves need a live conduit.
+
+## Core loop
+
+1. Extend conduits to reach mining nodes, which lengthens the line
+2. Build emplacements along that conduit for firepower
+3. Mycelium advances and eats both ground and conduits
+4. Burn it back to reclaim buildable ground
+5. Next wave, stronger
+
+A short line is safe but poor. A long line is rich but fragile. That
+scale gets re-weighed every single wave.
+
+## Defense layers
+
+Four layers, each doing a different job:
+
+1. Delay - trench, razor lattice, excavation trench, vitrified ground, guide rail
+2. Firepower - autogun nest, bunker, arc tower, incinerator nest, mortar pit, AA turret, rail emplacement, auto-miner
+3. Support - ammo store, relay post, repair crane, power pylon, shield generator
+4. Last resort - blast door, incineration sprayer
+
+Armor emplacements: Regulator (quad, deploys on mycelium), Pylon Battery
+(arcing), Bolt Lancer (hover, fastest to relocate), Disperser (AA),
+Bulwark (deployable barrier), Atlas (endgame walking fortress).
+
+Mobile reserve, five only: Drop Crew, Regulator, Bulwark, Repair Drone,
+Salvage Drone.
+
+Garrison units: Security Team, Incineration Crew, Blasting Crew,
+Resonance Tech.
+
+## Enemy behaviours
+
+Threat comes from behaviour, not stat lines:
+
+- climbs corpse piles to cross walls
+- front rank overlaps into a living shield
+- past a density threshold the swarm climbs over turrets
+- Acid Polyps target conduits first
+- under Hive Mind control the swarm pulls back and re-charges
+
+## Projectiles
+
+| Type | Property | Used by |
+|---|---|---|
+| Hitscan | instant, tracer only | autogun, rail emplacement |
+| Ballistic | slow solid shot, dodgeable | Regulator main gun |
+| Arcing | telegraphed impact ring, clears walls | mortar pit, Pylon Battery |
+| Sustained cone | per-tick, friendly fire | incinerator nest |
+| Chain | bounces scale with density | arc tower |
 
 ## Mycelial system
 
