@@ -1271,28 +1271,9 @@ const TUNE = {
 };
 window.TUNE = TUNE;
 
-const BUDGET = 260;
 /* 1~7은 선형, 8부터 급격히 비싸짐 */
-function traitCost(v){ return v + Math.max(0,v-7)*4 + Math.max(0,v-9)*6; }
 
 /* 상충 조합 추가 비용 */
-function couplingPenalties(t){
-  const p=[];
-  const add=(cost,level,text)=>{ if(cost>0) p.push({cost,level,text}); };
-  add(Math.max(0,t.coldTol+t.heatTol-12)*3,"warn",`내한성과 내열성을 동시에 높였습니다 — 양극단 적응은 생리적으로 비쌉니다`);
-  add(Math.max(0,(t.size-5)*(t.speed-5))*1.5,"warn",`덩치가 크면서 빠르기까지 하기는 어렵습니다`);
-  add(Math.max(0,(t.fertility-5)*(t.parentalCare-5))*1.6,"warn",`많이 낳으면서 잘 키울 수는 없습니다 (r/K 상충)`);
-  add(Math.max(0,t.armor+t.toxicity+t.camouflage-15)*2.2,"warn",`방어 수단 세 가지에 중복 투자했습니다`);
-  add(Math.max(0,(t.habitatBreadth-5)*((t.droughtTol+t.climbSwim)/2-5))*1.4,"warn",`제너럴리스트이면서 특수 환경에 특화할 수는 없습니다`);
-  add(Math.max(0,(t.metabolism-5)*(t.energyStore-5))*1.2,"warn",`대사율이 높으면 에너지를 저장해둘 수가 없습니다`);
-  add(Math.max(0,(t.sociality-5)*(t.territoriality-5))*1.5,"warn",`무리 생활과 세력권 방어는 양립하기 어렵습니다`);
-  return p;
-}
-function totalCost(t){
-  let c=0; for(const k of TRAIT_KEYS) c+=traitCost(t[k]);
-  for(const p of couplingPenalties(t)) c+=p.cost;
-  return Math.round(c);
-}
 
 /* 프리셋 */
 function baseTraits(v){ const o={}; for(const k of TRAIT_KEYS) o[k]=v; return o; }
@@ -1316,44 +1297,6 @@ const START_DIETS=[
   {k:"herbivore",  name:"풀을 뜯는 것",     lv:"어려움", desc:"식물을 먹습니다. 먹이는 흔하지만 모두의 먹잇감입니다."},
   {k:"carnivore",  name:"사냥하는 것",      lv:"가장 어려움", desc:"동물을 사냥합니다. 처음엔 사냥할 힘조차 없습니다."},
 ];
-const PRESETS={
-  rstrat:{diet:"herbivore", name:"회색등 초원쥐", t:{size:1,metabolism:7,lifespan:3,growth:9,energyStore:5,thermoreg:4,
-    fertility:8,breedFreq:7,parentalCare:4,maturity:8,youngDispersal:6,mutationRate:6,
-    vision:4,olfaction:6,nocturnal:7,intelligence:3,sociality:5,
-    armor:2,toxicity:1,camouflage:7,aggression:2,speed:6,stamina:4,
-    mobility:5,climbSwim:2,territoriality:1,habitatBreadth:8,nesting:6,
-    coldTol:4,heatTol:4,droughtTol:4,pollutionTol:5,diseaseResist:5}},
-  kstrat:{diet:"herbivore", name:"큰뿔 들사슴", t:{size:8,metabolism:3,lifespan:8,growth:3,energyStore:7,thermoreg:6,
-    fertility:2,breedFreq:2,parentalCare:8,maturity:2,youngDispersal:4,mutationRate:2,
-    vision:6,olfaction:5,nocturnal:3,intelligence:5,sociality:7,
-    armor:5,toxicity:1,camouflage:3,aggression:4,speed:6,stamina:7,
-    mobility:5,climbSwim:3,territoriality:3,habitatBreadth:4,nesting:2,
-    coldTol:6,heatTol:3,droughtTol:3,pollutionTol:3,diseaseResist:5}},
-  apex:{diet:"carnivore", name:"검은등 사냥개", t:{size:7,metabolism:6,lifespan:6,growth:5,energyStore:5,thermoreg:5,
-    fertility:3,breedFreq:3,parentalCare:6,maturity:4,youngDispersal:5,mutationRate:3,
-    vision:8,olfaction:8,nocturnal:5,intelligence:7,sociality:8,
-    armor:4,toxicity:1,camouflage:4,aggression:9,speed:8,stamina:8,
-    mobility:7,climbSwim:3,territoriality:5,habitatBreadth:5,nesting:3,
-    coldTol:5,heatTol:4,droughtTol:3,pollutionTol:3,diseaseResist:4}},
-  toxic:{diet:"herbivore", name:"붉은띠 독나방", t:{size:2,metabolism:5,lifespan:5,growth:6,energyStore:5,thermoreg:4,
-    fertility:7,breedFreq:6,parentalCare:3,maturity:6,youngDispersal:5,mutationRate:4,
-    vision:4,olfaction:6,nocturnal:6,intelligence:3,sociality:3,
-    armor:3,toxicity:10,camouflage:6,aggression:1,speed:3,stamina:4,
-    mobility:5,climbSwim:4,territoriality:2,habitatBreadth:7,nesting:5,
-    coldTol:4,heatTol:5,droughtTol:4,pollutionTol:6,diseaseResist:5}},
-  decomp:{diet:"detritivore", name:"흰실 부식균", t:{size:1,metabolism:5,lifespan:5,growth:8,energyStore:6,thermoreg:3,
-    fertility:7,breedFreq:9,parentalCare:3,maturity:8,youngDispersal:6,mutationRate:5,
-    vision:2,olfaction:8,nocturnal:8,intelligence:4,sociality:3,
-    armor:2,toxicity:3,camouflage:5,aggression:3,speed:1,stamina:4,
-    mobility:5,climbSwim:4,territoriality:1,habitatBreadth:9,nesting:2,
-    coldTol:5,heatTol:5,droughtTol:7,pollutionTol:6,diseaseResist:6}},
-  general:{diet:"omnivore", name:"들녘 잡식조", t:{size:4,metabolism:5,lifespan:5,growth:5,energyStore:5,thermoreg:6,
-    fertility:5,breedFreq:5,parentalCare:5,maturity:5,youngDispersal:5,mutationRate:5,
-    vision:6,olfaction:6,nocturnal:4,intelligence:7,sociality:5,
-    armor:3,toxicity:1,camouflage:5,aggression:4,speed:5,stamina:5,
-    mobility:7,climbSwim:5,territoriality:3,habitatBreadth:8,nesting:5,
-    coldTol:5,heatTol:5,droughtTol:5,pollutionTol:5,diseaseResist:5}},
-};
 
 /* ── 토착 종 21개 ──────────────────────────────────────────────── */
 function T(o){ return Object.assign(baseTraits(4), {toxicity:1}, o); }
@@ -3004,13 +2947,6 @@ function refreshDesign(){
   $("#constraints").innerHTML = cons.slice(0,7).map(c=>`<div class="cons ${c.lvl}">${c.html}</div>`).join("");
 }
 
-function applyPreset(key){
-  if(key==="custom") return;
-  const p=PRESETS[key];
-  design.traits=Object.assign({},p.t); design.diet=p.diet; design.name=p.name;
-  $("#sp-name").value=p.name;
-  buildDiets(); refreshDesign();
-}
 
 /* ── 지도 렌더 ───────────────────────────────────────────────── */
 const LAYERS=[
