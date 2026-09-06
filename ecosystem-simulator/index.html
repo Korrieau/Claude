@@ -580,6 +580,12 @@ input[type=range]::-moz-range-thumb{
   animation:cineRise .6s cubic-bezier(.2,.9,.3,1) both; }
 @keyframes cineRise{ from{transform:translateY(14px); opacity:0} to{transform:none; opacity:1} }
 .cine-sub{ font-size:15px; opacity:.94; max-width:34ch; margin:0 auto; line-height:1.6; }
+/* 손에 쥐는 화면에서는 56px 제목이 가로로 넘친다 */
+@media (max-height:520px), (max-width:720px){
+  .cine-title{ font-size:34px; }
+  .cine-sub{ font-size:13px; max-width:28ch; }
+  .toasts{ bottom:58px; }
+}
 
 .toasts{ position:absolute; left:50%; transform:translateX(-50%); bottom:74px; z-index:28;
   display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
@@ -1353,7 +1359,7 @@ const TUNE = {
   stress:0.044, diseaseBase:0.088, diseaseSpike:0.34,
   scenPower:1.0,            /* 시나리오가 기후를 흔드는 세기 */
   epRate:0.75,              /* 진화 포인트가 오는 간격 (작을수록 자주) */
-  stressScen:1.8,           /* 시나리오가 셀수록 환경이 더 죽인다 */
+  stressScen:2.4,           /* 시나리오가 셀수록 환경이 더 죽인다 */
   scenBite:0.15,            /* 절정 이후 해마다 깎이는 토양 */
   scenSpread:1.5,           /* 세력에 비례해 땅을 바꾸는 횟수 */
   capA:0.226, capB:7.0, crowdBirth:0.75, birthScale:1.3,
@@ -1518,6 +1524,19 @@ const elevLv = e => Math.round(e*ELEV_LEVELS);
 
 /* ── 세계 생성 ────────────────────────────────────────────────── */
 const SEA_ELEV = 0.30;      // 이 높이 아래는 물에 잠긴다
+
+/* 칸마다 이웃 8칸과의 평균 높이차를 잰다. 고도가 바뀌면 다시 불러야 한다. */
+function measureRough(elev, rough){
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x; let sum=0, c=0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy) continue;
+      const nx=x+dx, ny=y+dy; if(nx<0||ny<0||nx>=W||ny>=H) continue;
+      sum+=Math.abs(elev[ny*W+nx]-elev[i]); c++;
+    }
+    rough[i]= c? sum/c : 0;
+  }
+}
 
 function makeWorld(){
   const elev=new Float32Array(NT), wet=new Float32Array(NT), heat=new Float32Array(NT);
@@ -1723,17 +1742,10 @@ function makeWorld(){
   /* 다리 — 물이나 골짜기를 건너는 도로 칸 */
   const bridge=new Uint8Array(NT);
   /* 험한 정도 — 옆 칸들과의 평균 높이차. 벼랑과 너덜이 많은 땅일수록 크다.
-     평지는 0에 가깝고 산등성이는 0.15를 넘는다. */
+     평지는 0에 가깝고 산등성이는 0.15를 넘는다.
+     고도가 다 정해진 뒤에 재야 한다 — 바닷바닥을 평평하게 고르기 전에 재면
+     해안선이 통째로 벼랑으로 잡힌다. */
   const rough=new Float32Array(NT);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-    const i=y*W+x; let sum=0, c=0;
-    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-      if(!dx&&!dy) continue;
-      const nx=x+dx, ny=y+dy; if(nx<0||ny<0||nx>=W||ny>=H) continue;
-      sum+=Math.abs(elev[ny*W+nx]-elev[i]); c++;
-    }
-    rough[i]= c? sum/c : 0;
-  }
   const dist=new Float32Array(NT);
   /* 원 밖은 아예 세계가 아니다. 아무것도 살지 않고 그려지지도 않는다. */
   const vd=new Uint8Array(NT);
@@ -1744,6 +1756,7 @@ function makeWorld(){
   /* 산·섬·강이 고도를 건드린 뒤에도 바닷바닥은 평평해야 한다.
      물속에 계단이 지면 지저분하게 보인다. */
   for(let i=0;i<NT;i++) if(sea[i]) elev[i]=SEA_ELEV-0.085;
+  measureRough(elev, rough);
   /* 해변 — 바다에 맞닿은 낮은 육지 */
   const beach=new Uint8Array(NT);
   for(let i=0;i<NT;i++){
@@ -2622,7 +2635,7 @@ const ERAS = [
        }
        if(!coastal) continue;
        w.biome[j]=10; w.baseSoil[j]=16; w.baseMoist[j]=1; w.soil[j]=16; w.moist[j]=1;
-       w.elev[j]=SEA_ELEV-0.085; w.sea[j]=1;
+       w.elev[j]=SEA_ELEV-0.085; w.sea[j]=1; g._roughDirty=1;
        for(const s of g.species) if(s.diet!=="producer"||true) s.pop[j]*=0.05;
        n++;
      }
@@ -2832,11 +2845,11 @@ const HUMAN_EVENTS=[
      if(s.traits.size>=6){ const f=1-clamp(0.16+(s.traits.size-6)*0.045 - s.traits.intelligence*0.012,0.03,0.42);
        for(let i=0;i<NT;i++) s.pop[i]*=f; } } }},
   {k:"city", p:0.016, msg:"<b>도시가 크게 확장</b>됐습니다. 건물이 한꺼번에 늘어납니다.",
-   go:g=>{ growCity(g, 4); }},
+   go:g=>{ growCity(g, 8*AREA_K); }},
   {k:"road", p:0.020, msg:"<b>간선도로 개통</b>. 도시에서 뻗은 길이 서식지를 갈라놓습니다.",
    go:g=>{ if(g.cityAt===undefined||!g.spokes) return;
      /* 새 길 하나가 도심에서 뻗고, 기존 길도 한꺼번에 늘어난다 */
-     if(g.spokes.length<10)
+     if(g.spokes.length<Math.round(10*RAD_K))
        g.spokes.push({ox:g.cityAt%W, oy:(g.cityAt/W)|0, a:rnd()*6.283, ph:rnd()*6.28, len:1});
      for(const sp of g.spokes) if(!sp.dead) paveSpoke(g, sp, sp.len+rrange(3,6)); }},
   {k:"invasive", p:0.016, msg:"<b>외래종 유입</b>. 기존 종의 자원을 빠르게 잠식합니다.",
@@ -2883,7 +2896,7 @@ function foundCity(g){
     if(sc>bs){ bs=sc; best=i; }
   }
   if(best<0) return false;
-  g.cityAt=best; g.citySize=0; g.urbN=[0,0,0,0]; g.metro=false;
+  g.cityAt=best; g.urbN=[0,0,0,0]; g.metro=false;
   /* 처음부터 세 갈래 길이 난다. 도시는 길과 함께 자란다. */
   g.spokes=[];
   const a0=rnd()*Math.PI*2;
@@ -2942,7 +2955,6 @@ function growCity(g, n){
     const next=w.urb[i]+1;
     if(setUrb(g, i, next)){ added++; work += next===3 ? 3 : next===2 ? 1.8 : 1; }
   }
-  g.citySize=(g.citySize||0)+added;
   if(added) g._sceneDirty=true;
   /* 도심이 충분히 두꺼워지면 대도시다 */
   if(!g.metro && g.urbN && g.urbN[3]>=8){
@@ -2990,17 +3002,17 @@ function humanTick(g){
   const w=g.world, age=g.year-HUMAN_YEAR;
   /* 속도는 소수로 쌓아 둔다. 해마다 한 칸씩만 늘려도 260년이면 세계가 콘크리트가 된다.
      300년 뒤 도시가 육지의 10%쯤 되도록 잡았다. */
-  g._cityAcc=(g._cityAcc||0) + clamp(0.30+age/430, 0.30, 0.90);
+  g._cityAcc=(g._cityAcc||0) + clamp(0.30+age/430, 0.30, 0.90)*AREA_K;
   if(g._cityAcc>=1){ const n=Math.floor(g._cityAcc); g._cityAcc-=n; growCity(g, n); }
   if(g.cityAt===undefined) return;
   const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
 
   /* 길이 먼저 뻗고 농지가 그 길을 따라온다 */
-  const grow=clamp(0.30+age/220, 0.30, 1.4);
+  const grow=clamp(0.30+age/220, 0.30, 1.4)*RAD_K;
   for(const sp of (g.spokes||[])) if(!sp.dead) paveSpoke(g, sp, sp.len+grow);
   /* 도시가 커지면 곁가지가 난다 — 큰길에서 갈라져 나오는 지선.
      큰길이 세계 끝에 닿아 더 못 뻗으면, 대신 지선이 자주 갈라져 망이 촘촘해진다. */
-  if(g.spokes && g.spokes.length<16 && age>25){
+  if(g.spokes && g.spokes.length<Math.round(16*RAD_K) && age>25){
     const stuck=g.spokes.every(s=>s.dead);
     if(rnd() < (stuck?0.34:0.06)){
     const live=g.spokes.filter(s=>s.len>4);
@@ -3014,7 +3026,7 @@ function humanTick(g){
   }
 
   /* 농촌 — 교외 바깥, 길가부터 갈린다 */
-  g._farmAcc=(g._farmAcc||0) + clamp(0.45+age/300, 0.45, 1.4);
+  g._farmAcc=(g._farmAcc||0) + clamp(0.45+age/300, 0.45, 1.4)*AREA_K;
   let farms=Math.floor(g._farmAcc); g._farmAcc-=farms;
   const R=cityR(g), reach=R+5+age*0.14;
   for(let k=0;k<400 && farms>0;k++){
@@ -3058,6 +3070,8 @@ function rollEvents(){
     cinematic(`${g.year}년`, "사람이 왔다", "도시가 들어서고 길과 밭이 그 도시에서 퍼져 나갑니다.", 3200);
   }
   if(g.humanArrived && g.season===0) humanTick(g);   // 사람은 사건이 아니라 해마다 번진다
+  /* 해수면 상승처럼 고도를 바꾼 해에는 험한 정도를 다시 잰다 */
+  if(g._roughDirty){ g._roughDirty=0; measureRough(g.world.elev, g.world.rough); }
   for(const e of NATURE_EVENTS){
     if(rnd() < e.p*0.72){ e.go(g); logMsg("nature", e.msg); }
   }
@@ -3369,7 +3383,8 @@ function drawMap2D(){
     ctx.fillStyle=rgb(col);
     ctx.fillRect(Math.round(x*cs), Math.round(y*cs), Math.ceil(cs), Math.ceil(cs));
     if(layer==="terrain" && w.road[i]){
-      ctx.fillStyle="rgba(200,200,190,.30)";
+      /* 다리는 물 위를 지나므로 더 밝게 — 지도에서 도로가 끊기지 않고 이어져 보인다 */
+      ctx.fillStyle = w.bridge[i] ? "rgba(246,244,236,.85)" : "rgba(200,200,190,.30)";
       ctx.fillRect(Math.round(x*cs), Math.round(y*cs+cs*0.42), Math.ceil(cs), Math.max(1,cs*0.16));
     }
   }
@@ -3855,7 +3870,9 @@ const Globe = (function(){
       const hsh=((i*2654435761)^(seed*374761393))>>>0;
       const yaw=((hsh&1023)/1023)*Math.PI*2;
       const jx=(((hsh>>10)&255)/255-0.5)*0.62, jz=(((hsh>>18)&255)/255-0.5)*0.62;
-      const sc=scale*0.46*(0.8+((hsh>>26)&31)/31*0.5);
+      /* 장식 크기는 칸 크기를 따라가야 한다. 절대 길이로 잡아 두면 격자를 키웠을 때
+         나무와 건물만 그대로 커서 칸을 넘어 겹친다. 0.69는 48격자에서의 칸 크기다. */
+      const sc=scale*0.46*(TS()/0.6667)*(0.8+((hsh>>26)&31)/31*0.5);
       const cy=Math.cos(yaw), sy=Math.sin(yaw);
       tris.push([model,col,c[0]+jx,c[1],c[2]+jz,cy,sy,sc]);
     };
@@ -3872,7 +3889,8 @@ const Globe = (function(){
       }
       top=Math.max(top, WATER_Y+0.06);
       const yaw = vert>horiz ? Math.PI/2 : 0;
-      tris.push([SCENE.bridge, SC.bridge, c[0], top, c[2], Math.cos(yaw), Math.sin(yaw), 0.5]);
+      /* 상판이 칸을 딱 덮게 — 모델의 가로 폭(2.3)으로 나눈다 */
+      tris.push([SCENE.bridge, SC.bridge, c[0], top, c[2], Math.cos(yaw), Math.sin(yaw), TS()/2.3]);
     };
     for(let i=0;i<NT;i++){
       if(w.bridge[i]) pushBridge(i);
@@ -4408,10 +4426,13 @@ const Globe = (function(){
       it.bob = it.fly ? 0.30 : it.heavy ? 0.05 : (t.mobility>=6 ? 0.12 : 0.03);
       it.bobRate = it.fly ? 5.2 : it.heavy ? 1.4 : 3.1;
       it.lean  = it.heavy ? 0.16 : it.swim ? 0.10 : 0.05;     // 몸을 기울이는 정도
-      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.45:1);
+      /* 생물 크기와 걸음 폭도 칸 크기를 따라간다. 절대 길이로 두면 격자를 키웠을 때
+         혼자만 커져서 한 칸에 코끼리가 서 있는 꼴이 된다. */
+      const TSK = TS()/0.6667;
+      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.45:1) * TSK;
       /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
-      it.spd = isPlant ? 0 : (0.20 + t.speed*0.085 + t.metabolism*0.03);
-      it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18);
+      it.spd = isPlant ? 0 : (0.20 + t.speed*0.085 + t.metabolism*0.03) * TSK;
+      it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18) * TSK;
       it.social = (isPlant || t.sociality<5) ? 0 : (t.sociality-4)*0.09;
 
       let want=0;
@@ -4526,7 +4547,7 @@ const Globe = (function(){
       const ag=it.ag, want=it.want||0;
       const hunter = (s.diet==="carnivore"||s.diet==="omnivore");
       const prey   = (s.diet!=="producer");
-      const sight  = 0.9 + (s.traits.vision||3)*0.14;
+      const sight  = (0.9 + (s.traits.vision||3)*0.14) * (TS()/0.6667);   // 시야도 칸 크기 기준
 
       let live=0; for(let k=0;k<ag.length;k++) if(!ag[k].dying) live++;
       const gap=want-live;
