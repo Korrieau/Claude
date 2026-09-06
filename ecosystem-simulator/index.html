@@ -557,6 +557,15 @@ input[type=range]::-moz-range-thumb{
 .rivalrow b{ margin-left:auto; font-weight:600; }
 .rivalrow em{ font-style:normal; color:var(--ink-3); font-size:10px; min-width:9em; text-align:right; }
 
+/* 이주 */
+.migbox{ background:#FFF4DE; border-radius:10px; padding:7px 11px 9px; margin-bottom:9px; font-size:11.5px; }
+.migbox .r1{ display:flex; align-items:baseline; gap:6px; color:var(--ink-2); }
+.migbox .r1 b{ margin-left:auto; font-family:var(--f-disp); color:var(--gold-hi); font-size:14px; }
+.migbar{ height:6px; border-radius:999px; background:#F0DFBC; overflow:hidden; margin:5px 0 7px; }
+.migbar i{ display:block; height:100%; background:var(--gold); border-radius:999px; transition:width .4s; }
+.migbox .pill{ padding:5px 11px; font-size:11px; }
+.stage.picking #globe{ cursor:crosshair; }
+
 /* 다음 진화 포인트까지 */
 .epnext{ background:var(--panel-2); border-radius:10px; padding:6px 11px;
   margin-bottom:8px; font-size:11.5px; color:var(--ink-2); }
@@ -1071,6 +1080,7 @@ input[type=range]::-moz-range-thumb{
           <option value="me">내 종만</option>
           <option value="none">지형만</option>
         </select>
+        <button class="pill" id="btn-migrate" title="갈 곳을 찍으면 개체군이 그쪽으로 옮겨갑니다 (M)">이주 지시</button>
         <button class="pill" id="btn-findme" title="내 종이 가장 빽빽한 곳으로 카메라를 옮깁니다 (F)">내 종 찾기</button>
         <button class="pill" id="btn-mine" aria-pressed="true"
                 title="지형 위에 내 종이 사는 범위를 색으로 덮어 보여줍니다">내 종 범위</button>
@@ -1083,6 +1093,7 @@ input[type=range]::-moz-range-thumb{
       <div class="panel" id="panel-read">
         <button class="panel-head" data-toggle="panel-read"><span>상황 판독</span><i>▾</i></button>
         <div class="panel-body">
+          <div id="mig-box"></div>
           <div id="scen-bar"></div>
           <div id="fit-table"></div>
           <div id="pop-cast"></div>
@@ -1412,7 +1423,7 @@ const TUNE = {
   starvExp:1.6, starvMul:0.7,
   stress:0.044, diseaseBase:0.088, diseaseSpike:0.34,
   scenPower:1.0,            /* 시나리오가 기후를 흔드는 세기 */
-  epRate:0.75,              /* 진화 포인트가 오는 간격 (작을수록 자주) */
+  epRate:0.66,              /* 진화 포인트가 오는 간격 (작을수록 자주) */
   stressScen:2.4,           /* 시나리오가 셀수록 환경이 더 죽인다 */
   scenBite:0.15,            /* 절정 이후 해마다 깎이는 토양 */
   scenSpread:1.5,           /* 세력에 비례해 땅을 바꾸는 횟수 */
@@ -1420,6 +1431,9 @@ const TUNE = {
   satLag:0.0,               // 먹이 만족도의 관성 (0이면 지연 없음)
   allee:0.07,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
   compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
+  migPull:2.6,              /* 이주 지시가 확산의 방향을 얼마나 끄는가 */
+  migMove:1.6,              /* 이주 중에는 얼마나 더 활발히 옮겨다니는가 */
+  migRate:0.72,             /* 해마다 개체군의 몇 할이 한 칸씩 나아가는가 */
   succession:0.45,          // 천이 — 교란지에서 개척종이 받는 이점
   bergmann:0.30,            // 베르그만 법칙 강도
   dilution:0.030,           // 무리 희석 효과 강도
@@ -1922,6 +1936,7 @@ function newGame(playerDef){
     world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
     ep:STARTER.startEP, epSpent:0, nextEpTick:TICKS_PER_YEAR*3, eraLog:[], peakPop:0, autoPause:true,
+    migrateTo:-1, migrateFrom:-1, migrateYear:0,
     startDiet:playerDef.diet, taken:{},
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
     running:false, speed:4, over:false, ending:null,
@@ -2018,6 +2033,27 @@ function seedPlayerAt(center){
 }
 
 /* 서식 적합도 (0~1) */
+/* dy년 뒤 이 칸의 적합도. 지금 좋은 곳이 그때도 좋다는 보장이 없다 —
+   빙하 전선 앞의 초원은 지금 최고지만 20년 뒤엔 설원이다. */
+function futureScore(s,w,i,dy){
+  if(w.vd && w.vd[i]) return 0;
+  const d=s.d, g=G;
+  const y=Math.min(MAX_YEARS, g.year+dy);
+  const sc=g.era;
+  const t = sc ? scenTAt(y)*TUNE.scenPower : 0;
+  const dT = (sc && sc.def.temp!==undefined) ? sc.def.temp*t : 0;
+  const mMul = (sc && sc.def.moist!==undefined) ? 1+(sc.def.moist-1)*t : 1;
+  const warm = g.warming + (g.warming/Math.max(1,g.year))*(y-g.year);
+  const T0 = 4 + w.heat[i]*22 + warm + dT;
+  const dt = T0 - d.optTemp;
+  const tf = Math.exp(-(dt*dt)/(2*(dt<0?d.wCold:d.wHeat)**2));
+  const M0 = clamp(w.moist[i]*mMul, 0, 1);
+  const dm = M0-d.moistOpt;
+  const mf = Math.exp(-(dm*dm)/(2*d.moistW*d.moistW));
+  const pf = 1/(1+Math.pow(w.poll[i]/d.pollHalf,2));
+  const rk = w.rough ? clamp(1-Math.max(0, w.rough[i]-d.climbSlope)*7.5, 0.14, 1) : 1;
+  return tf*mf*pf*rk*d.pref[w.biome[i]];
+}
 function habitatScore(s,w,i){
   if(w.vd && w.vd[i]) return 0;
   const d=s.d;
@@ -2097,6 +2133,15 @@ function step(){
       const succ = dz>0.02 ? clamp(1 + TUNE.succession*dz*(d.pioneer-0.45)*2.6, 0.45, 1.85) : 1;
       /* 네 요소를 곱하면 '괜찮은 환경'도 0.4까지 떨어진다. 제곱근으로 눌러 실제 체감에 맞춘다 */
       f[i] = Math.pow(tf*mf*pf*d.pref[w.biome[i]], 0.45)*farmPen*roadPen*rockPen*succ;
+      /* 이주 중인 개체군은 떠나는 땅에 눌러앉지 않는다 — 다만 살짝만.
+         처음엔 적합도를 0.16까지 깎았는데, 적합도는 성장뿐 아니라 생존도 정해서
+         이주를 지시하는 순간 종이 굶어 죽었다. 측정: 30년 만에 개체수 0.
+         떠나는 땅에서 덜 불어나게만 하고, 죽이지는 않는다. */
+      if(s.isPlayer && g.migrateTo>=0){
+        const tx2=g.migrateTo%W, tz2=(g.migrateTo/W)|0;
+        const dd=Math.hypot((i%W)-tx2, ((i/W)|0)-tz2);
+        if(dd>5) f[i] *= 0.72;
+      }
       dm[i] = p[i]>0.0001 ? p[i]*d.upkeep : 0;
     }
   }
@@ -2329,8 +2374,19 @@ function step(){
         const i=y*W+x, v=p[i]; if(v<=0.02){ out[i]+=v; continue; }
         /* 밀도 의존 분산 — 자리가 넉넉하면 굳이 떠나지 않는다.
            이게 없으면 개체군이 나쁜 타일로 계속 새어 나가 굶어 죽는다. */
-        const move=v*sp*clamp(0.10+crd[i]*1.1, 0.10, 1); out[i]+=v-move;
+        const mgBoost = (s.isPlayer && g.migrateTo>=0) ? TUNE.migMove : 1;
+        const move=v*Math.min(0.9, sp*mgBoost)*clamp(0.10+crd[i]*1.1, 0.10, 1); out[i]+=v-move;
         const ev=w.elev[i];
+        /* 이주 — 플레이어가 가리킨 쪽으로 개체군이 쏠린다.
+           지금까지 개체군은 적합도만 따라 저절로 퍼졌고, 플레이어에게는
+           '어디서 살 것인가'를 정할 수단이 아예 없었다. 지형도 기후대도
+           빙하 전선도 다 만들어 두고 배경으로만 쓴 셈이다. */
+        let mgx=0, mgz=0, mgw=0;
+        if(s.isPlayer && g.migrateTo>=0){
+          const tx2=g.migrateTo%W, tz2=(g.migrateTo/W)|0;
+          const ddx=tx2-x, ddz=tz2-y, dd=Math.hypot(ddx,ddz);
+          if(dd>0.5){ mgx=ddx/dd; mgz=ddz/dd; mgw=1; }
+        }
         let tw=0, c=0;
         for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
           if(!dx&&!dy) continue;
@@ -2342,7 +2398,13 @@ function step(){
              등반이 낮은 종에게 산등성이는 그림이 아니라 벽이다. */
           const over=Math.abs(w.elev[j]-ev)-d.climbSlope;
           const climbPass = over>0 ? Math.max(0.02, 1-over*12) : 1;
-          const attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010) * climbPass;
+          let attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010) * climbPass;
+          /* 가리킨 방향의 칸이 더 끌린다. 험한 땅은 여전히 막는다 —
+             산맥 너머로 가라고 지시해도 못 넘는 종은 못 넘는다. */
+          if(mgw){
+            const dot = (dx*mgx + dy*mgz) / Math.hypot(dx,dy);
+            attract *= 1 + Math.max(0,dot)*TUNE.migPull;
+          }
           nj[c]=j; na[c]=attract; c++; tw+=attract;
         }
         if(tw<=0){ out[i]+=move; continue; }
@@ -3177,6 +3239,50 @@ function markChanges(g){
   }
 }
 
+/* ── 이주 ────────────────────────────────────────────────────────
+   확산에 방향만 주는 것으로는 개체군이 움직이지 않는다. 재어 보니
+   50년에 중심이 0.1칸 옮겨갔다 — 퍼지기는 해도 떠나지는 않기 때문이다.
+   그래서 이주는 확산이 아니라 실제 이동으로 다룬다. 해마다 개체군의
+   일부가 목적지 쪽 한 칸으로 옮겨가고, 그 길이 험하거나 살 수 없는 땅이면
+   옮겨가는 도중에 죽는다. 산맥을 넘으라고 지시할 수는 있지만 공짜는 아니다. */
+function migrateTick(g){
+  const p=g.player, w=g.world;
+  if(g.migrateTo<0 || !p || !p.alive) return;
+  const tx=g.migrateTo%W, tz=(g.migrateTo/W)|0;
+  const add=new Float64Array(NT);
+  let lost=0, moved=0;
+  for(let i=0;i<NT;i++){
+    const v=p.pop[i]; if(v<=0.05) continue;
+    const x=i%W, y=(i/W)|0;
+    const ddx=tx-x, ddz=tz-y, dd=Math.hypot(ddx,ddz);
+    if(dd<2.5) continue;                       // 다 온 무리는 자리를 잡는다
+    /* 목적지 쪽 이웃 세 칸 중 갈 만한 곳으로 */
+    const ax=Math.round(ddx/dd), az=Math.round(ddz/dd);
+    let best=-1, bs=-1;
+    for(const [ox,oz] of [[ax,az],[ax,0],[0,az]]){
+      if(!ox && !oz) continue;
+      const nx=x+ox, ny=y+oz;
+      if(nx<0||ny<0||nx>=W||ny>=H) continue;
+      const j=ny*W+nx; if(w.vd[j]) continue;
+      const sc=habitatScore(p,w,j)+0.02;
+      if(sc>bs){ bs=sc; best=j; }
+    }
+    if(best<0) continue;
+    const go=v*TUNE.migRate;
+    /* 도중에 죽는다 — 살 수 없는 땅과 벼랑이 값을 치르게 한다 */
+    const step=Math.abs(w.elev[best]-w.elev[i])-p.d.climbSlope;
+    const climb=step>0 ? Math.max(0.15,1-step*9) : 1;
+    /* 해마다 옮겨가는 무리의 4분의 1이 죽으면 30년이면 종이 사라진다.
+       측정으로 확인했다 — 이주 지시가 곧 자살이었다. 길이 험할 때만 값을 치른다. */
+    const surv=clamp(0.90+bs*0.10,0.75,1)*climb;
+    add[best]+=go*surv; p.pop[i]-=go;
+    lost+=go*(1-surv); moved+=go;
+  }
+  for(let i=0;i<NT;i++) if(add[i]>0) p.pop[i]+=add[i];
+  if(lost>1 && g.year%5===0)
+    logMsg("death", `이주 도중 <b>${fmt(Math.round(lost))}</b>마리가 길에서 죽었습니다.`);
+}
+
 function rollEvents(){
   const g=G;
   /* 사람은 인간 시나리오에서만 온다. 안 뽑히면 순수한 자연의 판이 된다. */
@@ -3186,7 +3292,7 @@ function rollEvents(){
     cinematic(`${g.year}년`, "사람이 왔다", "도시가 들어서고 길과 밭이 그 도시에서 퍼져 나갑니다.", 3200);
   }
   if(g.humanArrived && g.season===0) humanTick(g);   // 사람은 사건이 아니라 해마다 번진다
-  if(g.season===0) markChanges(g);
+  if(g.season===0){ markChanges(g); migrateTick(g); }
   /* 해수면 상승처럼 고도를 바꾼 해에는 험한 정도를 다시 잰다 */
   if(g._roughDirty){ g._roughDirty=0; measureRough(g.world.elev, g.world.rough); }
   for(const e of NATURE_EVENTS){
@@ -3404,7 +3510,8 @@ const LAYERS=[
   {k:"moist",   n:"수분"},
   {k:"poll",    n:"오염"},
   {k:"species", n:"종 분포"},
-  {k:"suit",    n:"내 종 적합도"},
+  {k:"suit",    n:"지금 적합도"},
+  {k:"suit20",  n:"20년 뒤 적합도"},
 ];
 function buildLayerTabs(){
   const el=$("#layer-tabs"); el.innerHTML="";
@@ -3461,7 +3568,7 @@ function tileRGB(i, layer, veg, sel){
         if(v>s._max*0.06){
           const k=clamp(Math.pow(v/s._max,0.55),0,1);
           if(!s._rgb) s._rgb=hex2rgb(s.color);      // 타일마다 색을 파싱할 이유가 없다
-          col = mix(col, s._rgb, 0.14+k*0.40);
+          col = mix(col, s._rgb, (s.isPlayer?0.26:0.14)+k*(s.isPlayer?0.52:0.40));
         }
       }
     }
@@ -3485,6 +3592,12 @@ function tileRGB(i, layer, veg, sel){
   if(layer==="suit"){
     /* 내가 설계한 종이 이 칸에서 얼마나 잘 살 수 있는지 */
     const v=clamp(habitatScore(G.player, w, i)/0.75, 0, 1);
+    return mix([236,232,214], [26,140,86], Math.pow(v,0.75));
+  }
+  if(layer==="suit20"){
+    /* 20년 뒤 이 칸이 어떨지. 이주는 지금이 아니라 앞날을 보고 정하는 것이다.
+       시나리오 세력이 시간만의 함수라 기온과 습도를 미리 계산할 수 있다. */
+    const v=clamp(futureScore(G.player, w, i, 20)/0.75, 0, 1);
     return mix([236,232,214], [26,140,86], Math.pow(v,0.75));
   }
   const p=sel.pop[i], mx=Math.max(1,sel._max||1);
@@ -3690,7 +3803,7 @@ const Globe = (function(){
      개체 크기와 무관하게 늘 같은 크기라, 몸집 1짜리로 시작해도 눈에 띈다.
      2천 마리가 돌아다니는 화면에서 제 종을 색만으로 찾는 건 무리다. */
   let markBuf=null, markCount=0, markInst=null;
-  let az=0.72, pol=0.72, dist=45, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
+  let az=0.72, pol=0.72, dist=45, distWant=45, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
   /* 카메라가 바라보는 지점. 이게 없으면 확대가 언제나 세계 한가운데로만 파고들어
      가장자리를 들여다볼 수가 없다. */
   let tx=0, tz=0;
@@ -4265,9 +4378,9 @@ const Globe = (function(){
         const d=Math.hypot(a.x-b.x,a.y-b.y), cx=(a.x+b.x)/2, cy=(a.y+b.y)/2;
         if(pinchD>0){
           /* 두 손가락을 벌리면 가까이, 오므리면 멀리 */
-          const g0=groundAt(cx,cy), d0=dist;
-          dist=clamp(dist*(pinchD/Math.max(1,d)), 5.5, 80);
-          if(g0 && dist<d0){ const kk=(d0-dist)/d0; tx+=(g0[0]-tx)*kk; tz+=(g0[1]-tz)*kk; }
+          const g0=groundAt(cx,cy), d0=distWant;
+          distWant=clamp(distWant*(pinchD/Math.max(1,d)), 4.5, 78);
+          if(g0){ const kk=(d0-distWant)/Math.max(d0,0.001); tx+=(g0[0]-tx)*kk; tz+=(g0[1]-tz)*kk; }
           zoomDirty=true;
         }
         pinchD=d; doPan(cx,cy); clampTarget();
@@ -4290,17 +4403,19 @@ const Globe = (function(){
     cv.addEventListener("pointercancel",end);
     cv.addEventListener("pointerleave",end);
     cv.addEventListener("contextmenu",e=>e.preventDefault());
+    /* 줌은 목표 거리를 정하고 카메라가 그리로 미끄러지게 한다.
+       한 칸씩 툭툭 끊기면 어디를 보고 있었는지 놓친다. */
     cv.addEventListener("wheel",e=>{
       e.preventDefault();
-      const g=groundAt(e.clientX,e.clientY), d0=dist;
-      /* 멀리서는 성큼, 가까이서는 잘게 — 비율로 움직여야 손에 붙는다 */
-      dist=clamp(dist*(e.deltaY>0?1.12:0.893), 5.5, 80);
-      if(g && dist<d0){
-        const k=(d0-dist)/d0;
+      /* 트랙패드는 잘게, 휠은 크게 들어온다. 실제 값에 비례시켜야 둘 다 자연스럽다. */
+      const raw = e.deltaMode===1 ? e.deltaY*16 : e.deltaY;
+      const f = Math.exp(clamp(raw,-260,260)*0.0016);
+      const g=groundAt(e.clientX,e.clientY), d0=distWant;
+      distWant=clamp(distWant*f, 4.5, 78);
+      /* 커서가 가리키는 땅을 붙잡고 확대·축소한다 */
+      if(g){
+        const k=(d0-distWant)/Math.max(d0,0.001);
         tx += (g[0]-tx)*k; tz += (g[1]-tz)*k;
-      } else if(dist>d0){
-        const k=(dist-d0)/dist*0.75;
-        tx -= tx*k; tz -= tz*k;
       }
       clampTarget();
       zoomDirty=true;
@@ -4355,7 +4470,7 @@ const Globe = (function(){
     if(!ok || i<0) return;
     const c=[0,0,0]; tileCenter(i,c);
     tx=c[0]; tz=c[2];
-    if(near){ dist=Math.min(dist, 13); zoomDirty=true; }
+    if(near){ distWant=Math.min(distWant, 11); zoomDirty=true; }
     clampTarget();
   }
 
@@ -4591,7 +4706,7 @@ const Globe = (function(){
       /* 생물 크기와 걸음 폭도 칸 크기를 따라간다. 절대 길이로 두면 격자를 키웠을 때
          혼자만 커져서 한 칸에 코끼리가 서 있는 꼴이 된다. */
       const TSK = TS()/0.6667;
-      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.9:1) * TSK;
+      it.base= (0.10+t.size*0.021) * (s.isPlayer?2.6:1) * TSK;
       /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
       /* 예전 값은 초당 한 칸 넘게 움직여서 전부 전력질주로 보였다.
          짐승은 대개 서 있거나 어슬렁거리고, 쫓고 쫓길 때만 빨라진다.
@@ -4955,6 +5070,10 @@ const Globe = (function(){
   /* ── 렌더 ────────────────────────────────────────────────── */
   let vpCache=null;
   function viewProj(){
+    /* 목표 거리로 미끄러진다. 값을 바로 대입하면 툭툭 끊겨서
+       어디를 보고 있었는지 놓친다. */
+    if(Math.abs(distWant-dist)>0.005){ dist += (distWant-dist)*0.22; zoomDirty=true; }
+    else dist=distWant;
     const w=cv.clientWidth||760, h=cv.clientHeight||500;
     const dpr=Math.min(2, window.devicePixelRatio||1);
     if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){
@@ -5083,10 +5202,10 @@ const Globe = (function(){
         const a=ag[k]; if(a.sc<0.002) continue;
         const q=n*5;
         markInst[q]=a.x;
-        markInst[q+1]=a.y + a.sc*2.4 + 0.30 + bobT;   // 몸 위에 띄운다
+        markInst[q+1]=a.y + a.sc*2.4 + 0.42 + bobT;   // 몸 위에 띄운다
         markInst[q+2]=a.z;
         markInst[q+3]=0;
-        markInst[q+4]=0.17;                            // 늘 같은 크기
+        markInst[q+4]=0.26;                            // 늘 같은 크기
         n++;
       }
       if(n){
@@ -5345,6 +5464,41 @@ function renderResources(){
    그걸 내 종의 적정값과 나란히 놓으면, 무엇을 언제까지 진화시켜야 하는지가 보인다. */
 
 /* dy년 뒤의 기후. 온난화는 지금까지의 속도가 이어진다고 본다. */
+/* ── 이주 ──────────────────────────────────────────────────────
+   "어디서 살 것인가"가 이 게임의 결정이어야 한다. 지형·기후대·빙하 전선을
+   다 만들어 놓고 플레이어가 개입할 수 없으면 전부 배경일 뿐이다. */
+function setMigrate(i){
+  const g=G, p=g.player;
+  if(!p||!p.alive) return;
+  let from=-1, mx=0;
+  for(let k=0;k<NT;k++) if(p.pop[k]>mx){ mx=p.pop[k]; from=k; }
+  g.migrateTo=i; g.migrateFrom=from; g.migrateYear=g.year;
+  const b=BIOME_NAME[g.world.biome[i]]||"그곳";
+  logMsg("evo", `<b>이주</b>를 시작합니다 — ${b} 방면. 개체군이 그쪽으로 옮겨갑니다.`);
+  toast(`${b} 방면으로 이주 시작`,"이주","#D98200");
+  if(Globe.ok) Globe.lookAtTile(i);
+  drawMap();
+}
+function stopMigrate(quiet){
+  if(G.migrateTo<0) return;
+  G.migrateTo=-1;
+  if(!quiet) logMsg("evo","이주를 <b>멈췄습니다</b>.");
+  drawMap();
+}
+/* 얼마나 갔나 — 목적지 근처에 있는 개체의 비율 */
+function migrateProgress(){
+  const g=G, p=g.player;
+  if(g.migrateTo<0||!p||!p.alive||p.total<=0) return 0;
+  const tx=g.migrateTo%W, tz=(g.migrateTo/W)|0;
+  let near=0;
+  for(let i=0;i<NT;i++){
+    const v=p.pop[i]; if(v<=0) continue;
+    if(Math.hypot((i%W)-tx, ((i/W)|0)-tz) <= 4) near+=v;
+  }
+  return clamp(near/p.total,0,1);
+}
+
+
 function climateAt(year){
   const g=G, sc=g.era;
   const t = sc ? scenTAt(year)*TUNE.scenPower : 0;
@@ -5446,6 +5600,22 @@ function renderReadout(){
 
   /* ── 3. 이 추세면 어떻게 되나 ── */
   const c=popCast();
+  /* 이주 진행 — 어디로 가는 중이고 얼마나 갔는지 */
+  const mig=$("#mig-box");
+  if(mig){
+    if(g.migrateTo>=0){
+      const pr=migrateProgress();
+      const b=BIOME_NAME[g.world.biome[g.migrateTo]]||"목적지";
+      mig.innerHTML=`<div class="migbox"><div class="r1"><span>이주 중 · ${b} 방면</span>`
+       +`<b>${(pr*100).toFixed(0)}%</b></div>`
+       +`<div class="migbar"><i style="width:${(pr*100).toFixed(0)}%"></i></div>`
+       +`<button class="pill sm" id="btn-mig-stop">이주 멈추기</button></div>`;
+      const bs=$("#btn-mig-stop"); if(bs) bs.onclick=()=>stopMigrate();
+      if(pr>0.72){ stopMigrate(true); logMsg("evo","이주가 <b>끝났습니다</b>. 개체군이 새 땅에 자리 잡았습니다.");
+        toast("이주 완료","이주","#2FA85E"); }
+    } else mig.innerHTML="";
+  }
+
   /* 다음 진화 포인트까지 — 안 보이면 안 늘어나는 것처럼 느껴진다.
      포인트는 '해'가 아니라 '세대'로 온다. 빨리 번식하는 종일수록 자주 진화한다. */
   const epLeft=Math.max(0,(g.nextEpTick-g.tick))/TICKS_PER_YEAR;
@@ -5903,6 +6073,15 @@ function attachPlacement(el, tileFrom){
   el.addEventListener("pointermove", e=>{ dx+=Math.abs(e.clientX-px); dy+=Math.abs(e.clientY-py); px=e.clientX; py=e.clientY; });
   el.addEventListener("pointerup", e=>{
     if(!G || dx+dy>6) return;
+    /* 이주 지시 — 갈 곳을 찍는다 */
+    if(G.pickMigrate && G.phase!=="placing"){
+      const i=tileFrom(e);
+      if(i>=0 && !G.world.vd[i]) setMigrate(i);
+      G.pickMigrate=false;
+      $("#stage").classList.remove("picking");
+      $("#btn-migrate").setAttribute("aria-pressed","false");
+      return;
+    }
     if(G.phase==="placing"){
       const i=tileFrom(e);
       if(i<0) return;
@@ -5951,6 +6130,11 @@ function bind(){
       if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA") return;
       findMine();
     }
+    else if((e.key==="m"||e.key==="M") && G && G.phase!=="design"){
+      const tag=(e.target&&e.target.tagName)||"";
+      if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA") return;
+      toggleMigrate();
+    }
   });
   $("#btn-mine").onclick = ()=>{
     G.showMine = (G.showMine===false);
@@ -5970,6 +6154,13 @@ function bind(){
     toast("내 종이 가장 빽빽한 곳입니다","위치","#FF1E8E");
   }
   $("#btn-findme").onclick = findMine;
+  function toggleMigrate(){
+    if(G.migrateTo>=0){ stopMigrate(); $("#btn-migrate").setAttribute("aria-pressed","false"); return; }
+    G.pickMigrate=!G.pickMigrate;
+    $("#stage").classList.toggle("picking", G.pickMigrate);
+    $("#btn-migrate").setAttribute("aria-pressed", String(G.pickMigrate));
+  }
+  $("#btn-migrate").onclick = toggleMigrate;
   $("#btn-autopause").onclick = ()=>{
     G.autoPause=!G.autoPause;
     $("#btn-autopause").setAttribute("aria-pressed", String(G.autoPause));
