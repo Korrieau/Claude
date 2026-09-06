@@ -58,7 +58,24 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Defense weighting | Garrison-led; auto turrets support, never carry |
 | Mining nodes | One safe node near base, the rest outside the line |
 
+| Structure aggro | Enemies attack only what blocks their path |
+| Total blocking | Not allowed; a build that leaves no route is refused |
+| Wave tempo | Paused prep phase, the player calls the next wave |
+| Early call bonus | Supply proportional to the prep time left unused |
+| Defeat | The control hub is destroyed |
+| Garrison death | The structure survives, only the crew is lost |
+| Resource split | Supply builds, crystal upgrades |
+| Blight spread | Radial from spawn spires |
+
 Design is closed. Remaining work is build and balance.
+
+## Routing, not walling
+
+Because total blocking is refused and enemies only attack what blocks
+them, walls are not a way to stop the swarm - they are a consumable that
+buys time and bends the route. The player's real job is to make the open
+path long and to line it with firepower. Conduits and emplacements placed
+off the route are safe; anything left on it gets chewed.
 
 ## Prototype scope - stage one
 
