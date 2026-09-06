@@ -375,6 +375,7 @@ input[type=range]::-moz-range-thumb{
 .era.good{ background:#2FA85E; }
 .era.omen{ background:#6B7C72; }
 .seasonlab{
+  min-width:4.2em; text-align:center;
   margin-top:6px; background:#fff; border-radius:999px; padding:3px 14px;
   font-family:var(--f-disp); font-size:13px; color:var(--ink-2); box-shadow:var(--shadow);
 }
@@ -388,10 +389,11 @@ input[type=range]::-moz-range-thumb{
 .me-dot{ width:10px; height:10px; border-radius:50%; background:var(--g0); flex:none; }
 .me-name{ font-family:var(--f-disp); font-size:16px; color:var(--ink); }
 .me-pop{ display:flex; align-items:baseline; gap:5px; margin-top:2px; }
-.me-pop .num{ font-family:var(--f-disp); font-size:38px; line-height:1.05; color:var(--g0); }
+.me-pop .num{ font-family:var(--f-disp); font-size:38px; line-height:1.05; color:var(--g0);
+  min-width:2.6em; display:inline-block; }
 .me-unit{ font-size:13px; color:var(--ink-3); }
 .me-rank{ font-size:12.5px; color:var(--ink-2); margin-top:3px; }
-.me-rank b{ font-family:var(--f-disp); font-size:15px; color:var(--ink); }
+.me-rank b{ font-family:var(--f-disp); font-size:15px; color:var(--ink); min-width:1.6em; display:inline-block; text-align:center; }
 .me-sep{ margin:0 6px; color:var(--line-2); }
 
 /* 계절 시계 */
@@ -424,7 +426,8 @@ input[type=range]::-moz-range-thumb{
   border-left:5px solid var(--cc,var(--c1));
 }
 .chip b{ color:var(--ink-3); font-weight:600; font-size:11px; }
-.chip .num{ font-weight:700; font-size:12.5px; }
+/* 숫자가 매 틱 바뀌는데 폭이 같이 변하면 옆의 칩들이 계속 밀린다 */
+.chip .num{ font-weight:700; font-size:12.5px; min-width:3.1em; text-align:right; display:inline-block; }
 .chips .chip:nth-child(1){ --cc:var(--c4); }
 .chips .chip:nth-child(2){ --cc:var(--c1); }
 .chips .chip:nth-child(3){ --cc:var(--c5); }
@@ -466,7 +469,9 @@ input[type=range]::-moz-range-thumb{
   transition: background .12s;
 }
 .panel-head:hover{ background:var(--panel-2); }
-.panel-head em{ font-style:normal; margin-left:auto; color:var(--gold); font-weight:700; font-size:16px; }
+/* 숫자가 바뀔 때마다 너비가 흔들리면 옆의 것들이 같이 밀린다 */
+.panel-head em{ font-style:normal; margin-left:auto; color:var(--gold); font-weight:700; font-size:16px;
+  min-width:1.5em; text-align:right; }
 .panel-head i{
   font-style:normal; color:var(--ink-2); transition:transform .15s; margin-left:auto;
   width:20px; height:20px; border-radius:50%; background:var(--panel-2);
@@ -650,7 +655,8 @@ input[type=range]::-moz-range-thumb{
 .node.locked{ opacity:.42; }
 .node:disabled{ cursor:default; }
 
-.treebtn{ width:100%; margin-bottom:8px; padding:11px 14px; font-size:14px; }
+.treebtn{ width:100%; margin:0 0 9px; padding:11px 14px; font-size:14px; }
+.treefab{ display:none; }
 .takenrow{ display:flex; flex-wrap:wrap; gap:4px; margin-bottom:9px; }
 .tk{ font-size:10.5px; color:#fff; border-radius:999px; padding:2px 8px; font-weight:600; }
 .tk.c1{background:#22C1F5} .tk.c2{background:#9CE535;color:#2b3d10} .tk.c3{background:#FFC53D;color:#4E3400}
@@ -792,6 +798,15 @@ input[type=range]::-moz-range-thumb{
   .tab, .pill{ padding:5px 9px; font-size:11px; }
   /* 손가락으로 누를 수 있는 크기 */
   .pill, .btn, .ds-btn, .pr-chip{ min-height:32px; }
+  /* 계통 열기는 패널을 스크롤해야 닿는 자리에 있었다. 낮은 화면에서는
+     패널이 잘리므로 언제나 닿는 곳에 따로 띄운다. */
+  /* 다른 HUD와 겹치면 그쪽이 탭을 가로챈다. 레이어 탭과 같은 기둥에 두어
+     겹칠 수 없게 했다 — 자리를 좌표로 잡으면 화면 크기마다 새로 깨진다. */
+  .treefab{ display:inline-flex; align-items:center; gap:7px; background:var(--gold);
+    color:#fff; font-weight:700; font-family:var(--f-disp); box-shadow:0 4px 0 #A66200;
+    align-self:flex-start; }
+  .treefab b{ font-size:14px; min-width:1.4em; text-align:center; }
+  .treebtn{ display:none; }
   .node{ padding:9px 10px; }
   .tm-box{ width:96vw; max-height:94vh; border-radius:18px; }
   .tm-head{ padding:12px 14px 6px; }
@@ -949,6 +964,7 @@ input[type=range]::-moz-range-thumb{
 
     <!-- 왼쪽 아래: 지도 레이어 -->
     <div class="hud hud-bl">
+      <button class="pill treefab" id="btn-tree-fab">진화 계통 <b class="num" id="fab-ep">0</b></button>
       <div class="tabs" id="layer-tabs"></div>
       <div class="rowline">
         <select id="creature-mode" class="mini-select" aria-label="생물 표시">
@@ -969,6 +985,7 @@ input[type=range]::-moz-range-thumb{
           <span>진화</span><em class="num" id="ep-count">0</em><i>▾</i>
         </button>
         <div class="panel-body">
+          <button class="btn primary treebtn" id="btn-tree">진화 계통 열기</button>
           <div class="pressure" id="pressure"></div>
           <div class="dietswap" id="dietswap"></div>
           <p class="tiny">진화 포인트로 계통을 하나씩 얻습니다. <b>E</b>키로 계통을 열 수 있습니다.</p>
@@ -4367,6 +4384,7 @@ const PRESSURE_HINT = {
 };
 function renderEvo(){
   $("#ep-count").textContent=G.ep;
+  const fab=$("#fab-ep"); if(fab) fab.textContent=G.ep;
   const t=G.player.traits;
 
   const P = G.player.alive ? selectionPressure(G.player) : null;
@@ -4417,16 +4435,16 @@ function renderEvo(){
 
   /* 얻은 것 요약 + 지금 형질 */
   const taken=Object.keys(G.taken||{}).filter(k=>EVO_NODE[k]);
+  const bt0=$("#btn-tree");
+  if(bt0) bt0.textContent = `진화 계통 열기 · ${taken.length}개 얻음`;
   $("#evo-list").innerHTML =
-    `<button class="btn primary treebtn" id="btn-tree">진화 계통 열기 · ${taken.length}개 얻음</button>`
-    + (taken.length ? `<div class="takenrow">`+taken.map(k=>{
+    (taken.length ? `<div class="takenrow">`+taken.map(k=>{
         const n=EVO_NODE[k], br=EVO_TREE.find(b=>b.k===n.br);
         return `<span class="tk ${br.tone}">${n.n}</span>`; }).join("")+`</div>` : "")
     + `<div class="traitmini">` + TRAIT_KEYS.filter(k=>t[k]>=5)
         .sort((a,b)=>t[b]-t[a]).slice(0,10)
         .map(k=>`<span><i>${TRAIT_LABEL[k]}</i><b>${t[k]}</b></span>`).join("")
       + `</div>`;
-  const bt=$("#btn-tree"); if(bt) bt.onclick=openTree;
 }
 
 /* ── 진화 계통 화면 ─────────────────────────────────────────── */
@@ -4747,6 +4765,8 @@ function bind(){
   $("#btn-start").onclick = startSim;
 
   $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
+  $("#btn-tree").onclick = openTree;
+  $("#btn-tree-fab").onclick = openTree;
   $("#btn-tree-close").onclick = closeTree;
   $("#treemodal").onclick = e=>{ if(e.target.id==="treemodal") closeTree(); };
   window.addEventListener("keydown", e=>{
