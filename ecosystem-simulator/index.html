@@ -1433,6 +1433,7 @@ const TUNE = {
   compet:0.30,              // 로트카–볼테라 종간 경쟁 강도
   migPull:2.6,              /* 이주 지시가 확산의 방향을 얼마나 끄는가 */
   migMove:1.6,              /* 이주 중에는 얼마나 더 활발히 옮겨다니는가 */
+  mvp:45,                   /* 최소존속개체군 기준 (0이면 규칙 없음) */
   migRate:0.72,             /* 해마다 개체군의 몇 할이 한 칸씩 나아가는가 */
   succession:0.45,          // 천이 — 교란지에서 개척종이 받는 이점
   bergmann:0.30,            // 베르그만 법칙 강도
@@ -1456,9 +1457,22 @@ let STARTER={ base:3, size:1, metabolism:5, growth:5, fertility:6, breedFreq:6,
   maturity:7, lifespan:3, mobility:4, habitatBreadth:4, camouflage:4,
   coldTol:4, heatTol:4, droughtTol:4, mutationRate:4, startEP:12 };
 try{ window.STARTER=STARTER; }catch(e){}
-function starterTraits(){
+/* 먹는 방식마다 처음 몸이 조금씩 다르다.
+   전에는 넷 다 똑같은 형질로 시작해서, 사냥하는 것을 골라도 공격성 3에 순발력 3이라
+   사냥할 수단이 아예 없었다. 측정: 육식 생존 0/10, 평균 38년.
+   어려움은 생태에서 와야지 시작부터 불가능하면 그건 함정이지 난이도가 아니다.
+   그래도 밑그림일 뿐이고, 무엇이 될지는 300년 동안 직접 정한다. */
+const DIET_START = {
+  detritivore: {pollutionTol:+2, diseaseResist:+1},
+  omnivore:    {habitatBreadth:+2, olfaction:+1},
+  herbivore:   {growth:+1, fertility:+1, camouflage:+1},
+  carnivore:   {aggression:+3, speed:+2, vision:+1, metabolism:+1},
+};
+function starterTraits(diet){
   const t=baseTraits(STARTER.base);
   for(const k of TRAIT_KEYS) if(STARTER[k]!==undefined) t[k]=STARTER[k];
+  const bias = DIET_START[diet || (typeof design!=="undefined" && design.diet)] || null;
+  if(bias) for(const k in bias) if(t[k]!==undefined) t[k]=clamp(t[k]+bias[k],1,10);
   return t;
 }
 /* 시작 식성이 곧 난이도다. 자동 플레이 320판 기준 생존률이 분해자 65~88%,
@@ -2453,7 +2467,7 @@ function recount(){
        이게 없으면 서식지가 다 사라진 종도 한두 마리로 300년을 연명해서
        끝까지 살아남는 것이 아무 의미도 없어진다 — 실제로 27종 중 21종이 살아남았다. */
     if(s.alive && !(s.isPlayer && g.phase==="placing")){
-      const mvp = 45 * (1 + s.d.bodyMass*0.6);          // 몸이 클수록 더 많은 개체가 필요하다
+      const mvp = TUNE.mvp * (1 + s.d.bodyMass*0.6);     // 몸이 클수록 더 많은 개체가 필요하다
       if(tot < mvp) s.lowRun=(s.lowRun||0)+1; else s.lowRun=0;
       const doomed = tot<1 || s.lowRun >= 10*TICKS_PER_YEAR;   // 열 해를 못 벗어나면 끝이다
       if(doomed){
@@ -3443,7 +3457,7 @@ function show(which){
 }
 
 /* ── 설계 화면 ───────────────────────────────────────────────── */
-let design = { name:"이름 없는 것", diet:"detritivore", traits: starterTraits() };
+let design = { name:"이름 없는 것", diet:"detritivore", traits: starterTraits("detritivore") };
 
 function buildDiets(){
   const el=$("#diets"); el.innerHTML="";
@@ -3462,7 +3476,7 @@ function buildDiets(){
 
 function refreshDesign(){
   /* 예산도 배분도 없다. 고르는 것은 먹는 방식 하나뿐이고, 나머지는 진화로 만든다. */
-  design.traits = starterTraits();
+  design.traits = starterTraits(design.diet);
   const t=design.traits;
   $("#btn-start").disabled = false;
   $("#btn-start").textContent = "이 생물로 시작";
