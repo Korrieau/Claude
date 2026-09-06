@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OUTPOST — 방어 시뮬레이터</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#141312;color:#d8d2c8;
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;
+    -webkit-font-smoothing:antialiased;user-select:none}
+  #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+  #stage{flex:1 1 0;min-height:0;position:relative}
+  canvas{display:block;position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+
+  /* ---- top readout ---- */
+  #top{display:flex;align-items:stretch;gap:1px;background:#0d0c0b;
+    border-bottom:1px solid #2e2a24;flex:none}
+  .cell{padding:7px 12px;background:#1a1816;display:flex;flex-direction:column;gap:2px;min-width:78px}
+  .cell .k{font-size:9px;letter-spacing:.14em;color:#6e675d}
+  .cell .v{font-size:15px;color:#e6e0d6;font-variant-numeric:tabular-nums}
+  .v.supply{color:#e8951f}
+  .v.crystal{color:#4fd6c8}
+  .v.danger{color:#e05a3c}
+  #top .grow{flex:1;background:#141312}
+  .btn{background:#26221d;border:1px solid #3a352d;color:#cfc8bc;padding:6px 11px;
+    cursor:pointer;font:inherit;letter-spacing:.05em}
+  .btn:hover{background:#332d26;border-color:#544c40}
+  .btn.on{background:#e8951f;border-color:#e8951f;color:#1a1512}
+  .btn:disabled{opacity:.35;cursor:default}
+  #speeds{display:flex;align-items:center;gap:4px;padding:6px 10px;background:#1a1816}
+
+  /* ---- wave banner ---- */
+  #wavebar{position:absolute;top:52px;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:10px;background:#1a1816ee;border:1px solid #3a352d;
+    padding:8px 12px;z-index:5}
+  #wavebar .lab{font-size:10px;color:#8d8578;letter-spacing:.1em}
+  #callBtn{background:#e8951f;border-color:#e8951f;color:#1a1512;font-weight:bold}
+  #callBtn:hover{background:#f5a838}
+
+  /* ---- build bar ---- */
+  #build{display:flex;gap:1px;background:#0d0c0b;border-top:1px solid #2e2a24;
+    flex:none;overflow-x:auto}
+  .bcard{background:#1a1816;border:none;border-top:2px solid transparent;color:#cfc8bc;
+    padding:7px 10px;cursor:pointer;font:inherit;text-align:left;min-width:104px;
+    display:flex;flex-direction:column;gap:3px}
+  .bcard:hover{background:#26221d}
+  .bcard.sel{background:#2f2924;border-top-color:#e8951f}
+  .bcard.poor{opacity:.4}
+  .bcard .n{font-size:11px;color:#e6e0d6}
+  .bcard .c{font-size:10px;color:#8d8578}
+  .bcard .k{font-size:9px;color:#5d574d}
+  .bcard .c .s{color:#e8951f}
+  .bcard .c .y{color:#4fd6c8}
+
+  /* ---- inspector ---- */
+  #insp{position:absolute;right:0;top:52px;width:216px;background:#1a1816f2;
+    border-left:1px solid #2e2a24;border-bottom:1px solid #2e2a24;padding:11px;
+    display:none;z-index:5}
+  #insp h3{font-size:13px;color:#e8951f;margin-bottom:2px;font-weight:normal}
+  #insp .sub{font-size:10px;color:#6e675d;margin-bottom:9px;letter-spacing:.08em}
+  #insp .row{display:flex;justify-content:space-between;padding:3px 0;
+    border-bottom:1px solid #24211d;font-size:11px}
+  #insp .row span:first-child{color:#8d8578}
+  #insp .acts{display:flex;gap:5px;margin-top:10px}
+  #insp .acts .btn{flex:1;text-align:center;padding:6px 4px;font-size:11px}
+
+  /* ---- log ---- */
+  #log{position:absolute;left:10px;bottom:66px;width:290px;z-index:5;
+    display:flex;flex-direction:column-reverse;gap:2px;pointer-events:none}
+  #log div{background:#0d0c0baa;padding:3px 7px;font-size:10px;color:#9a9184;
+    border-left:2px solid #3a352d}
+  #log div.hot{color:#e8951f;border-left-color:#e8951f}
+  #log div.bad{color:#e05a3c;border-left-color:#e05a3c}
+
+  /* ---- overlays ---- */
+  #over{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:#0d0c0be8;z-index:20;flex-direction:column;gap:5px}
+  #over h1{font-size:30px;color:#e05a3c;letter-spacing:.2em;font-weight:normal}
+  #over .st{font-size:13px;color:#9a9184}
+  #over .btn{margin-top:14px;padding:9px 22px}
+  #hint{position:absolute;left:10px;top:60px;font-size:10px;color:#5d574d;
+    line-height:1.7;z-index:4;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="top">
+    <div class="cell"><div class="k">물자</div><div class="v supply" id="uSup">0</div></div>
+    <div class="cell"><div class="k">결정</div><div class="v crystal" id="uCry">0</div></div>
+    <div class="cell"><div class="k">웨이브</div><div class="v" id="uWave">0</div></div>
+    <div class="cell"><div class="k">누적 처치</div><div class="v" id="uKill">0</div></div>
+    <div class="cell"><div class="k">관제동</div><div class="v" id="uHub">100%</div></div>
+    <div class="cell"><div class="k">오염</div><div class="v" id="uBlight">0%</div></div>
+    <div class="grow"></div>
+    <div id="speeds">
+      <button class="btn" data-sp="0">일시정지</button>
+      <button class="btn on" data-sp="1">1x</button>
+      <button class="btn" data-sp="2">2x</button>
+      <button class="btn" data-sp="3">3x</button>
+    </div>
+  </div>
+
+  <div id="stage"><canvas id="cv"></canvas></div>
+
+  <div id="build"></div>
+</div>
+
+<div id="wavebar">
+  <div class="lab" id="wlab">대기 중</div>
+  <button class="btn" id="callBtn">다음 웨이브 소집</button>
+</div>
+
+<div id="insp">
+  <h3 id="iName"></h3>
+  <div class="sub" id="iCode"></div>
+  <div id="iRows"></div>
+  <div class="acts">
+    <button class="btn" id="iUp">강화</button>
+    <button class="btn" id="iSell">철거</button>
+  </div>
+</div>
+
+<div id="hint">
+  좌클릭 설치 · 우클릭드래그 이동 · 휠 확대<br>
+  1~9 자산선택 · ESC 취소 · U 강화 · X 철거 · SPACE 웨이브 소집
+</div>
+
+<div id="log"></div>
+
+<div id="over">
+  <h1>관제동 상실</h1>
+  <div class="st" id="oStat"></div>
+  <button class="btn" id="oBtn">재가동</button>
+</div>
+
+<script>
+"use strict";
+// ============================================================================
+// OUTPOST - top-down defense prototype
+// Fixed 60Hz logic tick, decoupled render. Grid world, Dijkstra flow field,
+// separation-steered swarm, pooled projectiles and particles, persistent
+// ground decal layer.
+// ============================================================================
+
+const TILE = 20, GW = 76, GH = 48;
+const WW = GW * TILE, WH = GH * TILE;
+const TICK = 1 / 60;
+
+// ---- terrain codes -------------------------------------------------------
+const T_OPEN = 0, T_ROCK = 1, T_NODE = 2;
+
+// ---- palette -------------------------------------------------------------
+const C = {
+  ground: '#23211e', groundAlt: '#262320', grid: '#2b2823',
+  rock: '#33302b', rockTop: '#403c35',
+  node: '#2f4a48', nodeGlow: '#4fd6c8',
+  blight: 'rgba(46,120,112,0.34)', blightEdge: '#4fd6c8',
+  wallSide: '#4c473f', wallTop: '#6d675c',
+  metalSide: '#3f4a52', metalTop: '#68767f',
+  hazard: '#e8951f',
+  human: '#cfe8ff', humanBody: '#9fb4c4',
+  tracer: '#dfefff', flame: '#ff9a3c', shell: '#ffd9a0',
+  foe: '#9d8f7c', foeDark: '#6d6357', foeGlow: '#4fd6c8',
+  hub: '#e8951f',
+};
+
+// ============================================================================
+// Catalogue
+// ============================================================================
+// kind: wall | post | turret | arty | util
+// Every building upgrades in place through three tiers.
+const DEFS = {
+  wall: {
+    name: '장벽', code: 'TB-1', kind: 'wall', key: '1',
+    cost: [[25, 0], [45, 0], [90, 10]],
+    hp: [340, 820, 1900], height: [6, 9, 12],
+    desc: '진로를 비싸게 만든다. 적은 돌아가거나 갈아먹는다.'
+  },
+  trench: {
+    name: '참호 · 소총반', code: 'GP-1', kind: 'post', key: '2',
+    cost: [[70, 0], [130, 10], [240, 30]],
+    hp: [260, 520, 1000], height: [4, 6, 8],
+    crew: [3, 4, 5], crewKind: 'rifle',
+    range: [6.5, 7.5, 8.5], dmg: [7, 11, 16], rof: [0.34, 0.28, 0.22],
+    desc: '보병이 늘어서서 사격한다. 값싸고 선으로 그을 수 있다.'
+  },
+  torch: {
+    name: '참호 · 화염반', code: 'GP-2', kind: 'post', key: '3',
+    cost: [[110, 0], [190, 20], [330, 50]],
+    hp: [300, 600, 1150], height: [4, 6, 8],
+    crew: [2, 3, 3], crewKind: 'flame',
+    range: [3.6, 4.2, 4.8], dmg: [10, 16, 24], rof: [0.09, 0.08, 0.07],
+    burnsBlight: true,
+    desc: '밀집한 것을 태우고 오염을 밀어낸다. 아군도 다친다.'
+  },
+  bunker: {
+    name: '벙커', code: 'GP-3', kind: 'post', key: '4',
+    cost: [[180, 10], [320, 40], [560, 90]],
+    hp: [900, 1900, 3600], height: [10, 13, 16],
+    crew: [4, 5, 6], crewKind: 'rifle',
+    range: [8.5, 9.5, 11], dmg: [11, 17, 25], rof: [0.3, 0.24, 0.19],
+    desc: '보병을 넣으면 사거리와 생존이 크게 오른다. 대신 못 움직인다.'
+  },
+  autogun: {
+    name: 'AR-2 자동 방어탑', code: 'DT-1', kind: 'turret', key: '5',
+    cost: [[130, 10], [230, 40], [420, 90]],
+    hp: [420, 820, 1500], height: [9, 12, 15],
+    range: [7.5, 8.5, 9.5], dmg: [9, 14, 21], rof: [0.1, 0.085, 0.07],
+    power: true, heatUp: [0.045, 0.04, 0.034], heatDown: [0.30, 0.34, 0.4],
+    desc: '연사가 강하지만 과열된다. 식는 동안은 침묵한다.'
+  },
+  mortar: {
+    name: '곡사 포대', code: 'DT-4', kind: 'arty', key: '6',
+    cost: [[260, 40], [450, 100], [780, 200]],
+    hp: [380, 720, 1350], height: [8, 10, 13],
+    range: [15, 17, 19], minRange: 5.5, dmg: [46, 74, 116], splash: [2.2, 2.6, 3.1],
+    rof: [3.0, 2.5, 2.1], power: true, proj: 'mortar',
+    desc: '벽 너머로 떨어진다. 착탄까지 시간이 걸린다.'
+  },
+  siege: {
+    name: 'SD-3 시즈 드릴', code: 'SD-3', kind: 'arty', key: '7',
+    cost: [[480, 120], [800, 240], [1300, 420]],
+    hp: [640, 1250, 2300], height: [11, 14, 18],
+    range: [24, 27, 30], minRange: 8, dmg: [110, 175, 270],
+    rof: [5.2, 4.4, 3.6], power: true, proj: 'rail', deploy: 5,
+    desc: '드릴을 박고 전개한다. 일직선상 전부를 관통한다.'
+  },
+  gen: {
+    name: '발전기', code: 'IN-2', kind: 'util', key: '8',
+    cost: [[100, 0], [190, 20], [340, 50]],
+    hp: [300, 600, 1150], height: [8, 10, 12],
+    powerR: [8.5, 11, 14],
+    desc: '반경 안의 화기에 전력을 준다. 없으면 침묵한다.'
+  },
+  extractor: {
+    name: '결정 추출기', code: 'IN-3', kind: 'util', key: '9',
+    cost: [[150, 0], [260, 30], [440, 70]],
+    hp: [340, 680, 1300], height: [9, 11, 14],
+    yield: [0.34, 0.62, 1.05], power: true, onNode: true,
+    desc: '채굴 지점 위에만 선다. 결정은 전선 밖에 있다.'
+  },
+};
+const BUILD_ORDER = ['wall', 'trench', 'torch', 'bunker', 'autogun', 'mortar', 'siege', 'gen', 'extractor'];
+
+// ---- creatures -----------------------------------------------------------
+const FOES = {
+  scurry:  { name: '스커리',  hp: 26,  spd: 46, r: 3.4, dmg: 6,  atk: 0.5, bounty: 1, wall: 1.0, col: '#b5a894' },
+  drifter: { name: '드리프터', hp: 62,  spd: 30, r: 4.4, dmg: 11, atk: 0.7, bounty: 2, wall: 1.0, col: '#9d8f7c' },
+  crawler: { name: '크롤러',  hp: 210, spd: 19, r: 6.0, dmg: 26, atk: 1.0, bounty: 5, wall: 1.2, col: '#8a7f6d', armor: 3 },
+  rammer:  { name: '램머',    hp: 150, spd: 38, r: 5.2, dmg: 48, atk: 0.8, bounty: 4, wall: 6.0, col: '#c07a4a' },
+  brute:   { name: '브루트',  hp: 760, spd: 15, r: 8.5, dmg: 70, atk: 1.2, bounty: 14, wall: 2.0, col: '#7a6f5e', armor: 8, big: 1 },
+  spire:   { name: '자실체',  hp: 900, spd: 0,  r: 9.0, dmg: 0,  atk: 1.0, bounty: 40, wall: 1.0, col: '#2f6f66', armor: 4, big: 1, static: 1 },
+};
+
+// ============================================================================
+// World state
+// ============================================================================
+const terrain = new Uint8Array(GW * GH);
+const buildAt = new Int32Array(GW * GH).fill(-1);
+const blight  = new Float32Array(GW * GH);
+const dist    = new Float32Array(GW * GH);
+const nextIdx = new Int32Array(GW * GH);
+
+let buildings = [], foes = [], projs = [], parts = [];
+let hub = null, waveTotal = 1;
+
+let supply = 620, crystal = 40, wave = 0, kills = 0, blightPct = 0;
+let phase = 'prep';        // prep | wave | dead
+let prepLeft = 0, prepMax = 0;
+let spawnQueue = [], spawnTimer = 0;
+let speed = 1, shake = 0, timeAcc = 0, lastMs = 0, elapsed = 0;
+let selected = null, ghost = null, hoverIdx = -1;
+let flowDirty = true;
+
+const idx = (x, y) => y * GW + x;
+const inb = (x, y) => x >= 0 && y >= 0 && x < GW && y < GH;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+// ============================================================================
+// Map generation - three approach corridors converging on the hub
+// ============================================================================
+const SPAWNS = [];
+function buildMap() {
+  // Open field first. The swarm must arrive as a mass, not a queue, so the
+  // approach lanes are wide and the ground near the hub is a broad plain.
+  terrain.fill(T_OPEN);
+  const hx = (GW * 0.76) | 0, hy = (GH / 2) | 0;
+
+  // two ridges split the western half into three wide lanes
+  const ridge = (yc, x0, x1) => {
+    for (let x = x0; x < x1; x++) {
+      const th = 2.4 + Math.sin(x * 0.21) * 1.5 + Math.sin(x * 0.07) * 1.2;
+      const yy = yc + Math.sin(x * 0.11) * 2.4;
+      for (let y = Math.round(yy - th); y <= Math.round(yy + th); y++)
+        if (inb(x, y)) terrain[idx(x, y)] = T_ROCK;
+    }
+  };
+  ridge(GH * 0.32, 6, (GW * 0.62) | 0);
+  ridge(GH * 0.68, 6, (GW * 0.62) | 0);
+
+  // scattered cover so the plain is not featureless
+  for (let i = 0; i < 30; i++) {
+    const px = rnd(4, GW - 6), py = rnd(3, GH - 3);
+    blob(px, py, rnd(1.4, 3.2));
+  }
+
+  // clear a plain around the hub and a gate in front of it
+  carveDisc(hx, hy, 10);
+  carveDisc(hx - 12, hy, 8);
+
+  SPAWNS.push({ x: 1, y: (GH * 0.13) | 0 });
+  SPAWNS.push({ x: 1, y: (GH * 0.5) | 0 });
+  SPAWNS.push({ x: 1, y: (GH * 0.87) | 0 });
+  for (const s of SPAWNS) carveDisc(s.x + 2, s.y, 5);
+
+  // hard border
+  for (let x = 0; x < GW; x++) { terrain[idx(x, 0)] = T_ROCK; terrain[idx(x, GH - 1)] = T_ROCK; }
+  for (let y = 0; y < GH; y++) { terrain[idx(GW - 1, y)] = T_ROCK; terrain[idx(0, y)] = T_ROCK; }
+  for (const s of SPAWNS) for (let d = -3; d <= 3; d++)
+    if (inb(1, s.y + d)) terrain[idx(1, s.y + d)] = T_OPEN;
+
+  // crystal nodes: one safe near the hub, the rest out in the open
+  placeNode(hx - 5, hy + 4);
+  let placed = 0, tries = 0;
+  while (placed < 6 && tries++ < 4000) {
+    const x = (rnd(3, GW - 4)) | 0, y = (rnd(3, GH - 4)) | 0;
+    if (terrain[idx(x, y)] !== T_OPEN) continue;
+    const d = Math.hypot(x - hx, y - hy);
+    if (d < 13 || d > 42) continue;
+    let near = false;
+    for (const n of nodes) if (Math.hypot(n.x - x, n.y - y) < 8) near = true;
+    if (near) continue;
+    placeNode(x, y); placed++;
+  }
+
+  hub = mkBuilding('hub', hx, hy);
+  return { hx, hy };
+}
+const nodes = [];
+function placeNode(x, y) {
+  x |= 0; y |= 0;
+  if (!inb(x, y)) return;
+  terrain[idx(x, y)] = T_NODE;
+  nodes.push({ x, y });
+}
+function blob(cx, cy, r) {
+  const r2 = r * r;
+  for (let y = Math.floor(cy - r); y <= cy + r; y++)
+    for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+      if (!inb(x, y)) continue;
+      if ((x - cx) ** 2 + (y - cy) ** 2 <= r2) terrain[idx(x, y)] = T_ROCK;
+    }
+}
+function carveDisc(cx, cy, r) {
+  const r2 = r * r;
+  for (let y = Math.floor(cy - r); y <= cy + r; y++)
+    for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+      if (!inb(x, y)) continue;
+      if ((x - cx) ** 2 + (y - cy) ** 2 <= r2 && terrain[idx(x, y)] === T_ROCK)
+        terrain[idx(x, y)] = T_OPEN;
+    }
+}
+
+// ============================================================================
+// Buildings
+// ============================================================================
+function mkBuilding(type, gx, gy) {
+  const d = type === 'hub' ? null : DEFS[type];
+  const b = {
+    type, gx, gy, tier: 0, dead: false,
+    x: gx * TILE + TILE / 2, y: gy * TILE + TILE / 2,
+    hp: type === 'hub' ? 6000 : d.hp[0], hpMax: type === 'hub' ? 6000 : d.hp[0],
+    heat: 0, cd: 0, powered: type === 'hub', aim: 0,
+    deploy: (d && d.deploy) ? d.deploy : 0, deployMax: (d && d.deploy) ? d.deploy : 0,
+    crew: [], flash: 0,
+  };
+  if (d && d.crew) refillCrew(b);
+  buildings.push(b);
+  buildAt[idx(gx, gy)] = buildings.length - 1;
+  flowDirty = true;
+  return b;
+}
+function refillCrew(b) {
+  const d = DEFS[b.type];
+  const want = d.crew[b.tier];
+  while (b.crew.length < want) {
+    const a = (b.crew.length / want) * Math.PI * 2;
+    b.crew.push({
+      ox: Math.cos(a) * TILE * 0.24, oy: Math.sin(a) * TILE * 0.24,
+      cd: Math.random() * 0.4, aim: 0, flash: 0, alive: true, respawn: 0,
+    });
+  }
+}
+function buildingCost(type, tier) { return DEFS[type].cost[tier]; }
+
+function canPlace(type, gx, gy) {
+  if (!inb(gx, gy)) return false;
+  const t = terrain[idx(gx, gy)];
+  const d = DEFS[type];
+  if (d.onNode) { if (t !== T_NODE) return false; }
+  else if (t !== T_OPEN) return false;
+  if (buildAt[idx(gx, gy)] >= 0) return false;
+  if (blight[idx(gx, gy)] > 0.25) return false;
+  return true;
+}
+function tryPlace(type, gx, gy) {
+  if (!canPlace(type, gx, gy)) return false;
+  const [cs, cc] = buildingCost(type, 0);
+  if (supply < cs || crystal < cc) { log('자원 부족', 'bad'); return false; }
+  supply -= cs; crystal -= cc;
+  mkBuilding(type, gx, gy);
+  return true;
+}
+function upgrade(b) {
+  if (b.type === 'hub') return;
+  const d = DEFS[b.type];
+  if (b.tier >= 2) return;
+  const [cs, cc] = d.cost[b.tier + 1];
+  if (supply < cs || crystal < cc) { log('강화 자원 부족', 'bad'); return; }
+  supply -= cs; crystal -= cc;
+  const frac = b.hp / b.hpMax;
+  b.tier++;
+  b.hpMax = d.hp[b.tier]; b.hp = b.hpMax * Math.max(frac, 0.55);
+  if (d.crew) refillCrew(b);
+  if (d.deploy) { b.deploy = d.deploy * 0.5; b.deployMax = d.deploy; }
+  flowDirty = true;
+  log(`${d.name} → 등급 ${b.tier + 1}`, 'hot');
+}
+function sell(b) {
+  if (b.type === 'hub') return;
+  const d = DEFS[b.type];
+  let s = 0, c = 0;
+  for (let t = 0; t <= b.tier; t++) { s += d.cost[t][0]; c += d.cost[t][1]; }
+  supply += (s * 0.5) | 0; crystal += (c * 0.5) | 0;
+  killBuilding(b);
+}
+function killBuilding(b) {
+  b.dead = true;
+  buildAt[idx(b.gx, b.gy)] = -1;
+  flowDirty = true;
+  if (selected === b) { selected = null; refreshInsp(); }
+}
+
+// power propagation from hub + generators
+function recalcPower() {
+  for (const b of buildings) {
+    if (b.dead || b.type === 'hub') continue;
+    const d = DEFS[b.type];
+    if (!d.power) { b.powered = true; continue; }
+    let ok = Math.hypot(b.gx - hub.gx, b.gy - hub.gy) <= 10.5;
+    if (!ok) for (const g of buildings) {
+      if (g.dead || g.type !== 'gen') continue;
+      if (Math.hypot(b.gx - g.gx, b.gy - g.gy) <= DEFS.gen.powerR[g.tier]) { ok = true; break; }
+    }
+    b.powered = ok;
+  }
+}
+
+// ============================================================================
+// Flow field - Dijkstra from the hub. Walls are passable at a high cost, so
+// the swarm routes around them when it is cheaper and chews through when it
+// is not. That single rule gives "attack only what blocks you".
+// ============================================================================
+const heapV = new Float64Array(GW * GH), heapI = new Int32Array(GW * GH);
+let heapN = 0;
+function hpush(v, i) {
+  let n = heapN++; heapV[n] = v; heapI[n] = i;
+  while (n > 0) { const p = (n - 1) >> 1; if (heapV[p] <= heapV[n]) break;
+    const tv = heapV[p], ti = heapI[p]; heapV[p] = heapV[n]; heapI[p] = heapI[n];
+    heapV[n] = tv; heapI[n] = ti; n = p; }
+}
+function hpop() {
+  const top = heapI[0]; heapN--;
+  if (heapN > 0) {
+    heapV[0] = heapV[heapN]; heapI[0] = heapI[heapN];
+    let n = 0;
+    for (;;) { const l = n * 2 + 1, r = l + 1; let s = n;
+      if (l < heapN && heapV[l] < heapV[s]) s = l;
+      if (r < heapN && heapV[r] < heapV[s]) s = r;
+      if (s === n) break;
+      const tv = heapV[s], ti = heapI[s]; heapV[s] = heapV[n]; heapI[s] = heapI[n];
+      heapV[n] = tv; heapI[n] = ti; n = s; }
+  }
+  return top;
+}
+function tileCost(i) {
+  if (terrain[i] === T_ROCK) return -1;
+  const bi = buildAt[i];
+  if (bi < 0) return 1;
+  const b = buildings[bi];
+  if (!b || b.dead) return 1;
+  if (b.type === 'hub') return 1;
+  // chewing cost scales with how much health is in the way
+  return 1 + b.hp / 26;
+}
+function computeFlow() {
+  dist.fill(Infinity); nextIdx.fill(-1); heapN = 0;
+  const h = idx(hub.gx, hub.gy);
+  dist[h] = 0; hpush(0, h);
+  const NB = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  while (heapN > 0) {
+    const cur = hpop();
+    const cx = cur % GW, cy = (cur / GW) | 0, cd = dist[cur];
+    for (let k = 0; k < 8; k++) {
+      const nx = cx + NB[k][0], ny = cy + NB[k][1];
+      if (!inb(nx, ny)) continue;
+      const ni = idx(nx, ny);
+      const c = tileCost(ni);
+      if (c < 0) continue;
+      if (k >= 4) { // no diagonal squeeze through rock corners
+        if (tileCost(idx(cx + NB[k][0], cy)) < 0 || tileCost(idx(cx, cy + NB[k][1])) < 0) continue;
+      }
+      const step = c * (k >= 4 ? 1.414 : 1);
+      const nd = cd + step;
+      if (nd < dist[ni]) { dist[ni] = nd; nextIdx[ni] = cur; hpush(nd, ni); }
+    }
+  }
+  flowDirty = false;
+}
+
+// ============================================================================
+// Spatial hash
+// ============================================================================
+const CELL = 34, HW = Math.ceil(WW / CELL), HH = Math.ceil(WH / CELL);
+let hash = new Array(HW * HH); for (let i = 0; i < hash.length; i++) hash[i] = [];
+function rehash() {
+  for (let i = 0; i < hash.length; i++) if (hash[i].length) hash[i].length = 0;
+  for (const f of foes) {
+    if (f.dead) continue;
+    const cx = clamp((f.x / CELL) | 0, 0, HW - 1), cy = clamp((f.y / CELL) | 0, 0, HH - 1);
+    hash[cy * HW + cx].push(f);
+  }
+}
+function nearFoes(x, y, r, out) {
+  out.length = 0;
+  const x0 = clamp(((x - r) / CELL) | 0, 0, HW - 1), x1 = clamp(((x + r) / CELL) | 0, 0, HW - 1);
+  const y0 = clamp(((y - r) / CELL) | 0, 0, HH - 1), y1 = clamp(((y + r) / CELL) | 0, 0, HH - 1);
+  const r2 = r * r;
+  for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+    const arr = hash[cy * HW + cx];
+    for (let i = 0; i < arr.length; i++) {
+      const f = arr[i];
+      if ((f.x - x) ** 2 + (f.y - y) ** 2 <= r2) out.push(f);
+    }
+  }
+  return out;
+}
+
+// ============================================================================
+// Waves
+// ============================================================================
+function waveComp(n) {
+  const q = [];
+  const push = (t, c) => { for (let i = 0; i < c; i++) q.push(t); };
+  push('scurry', Math.round(16 + n * 7 + n * n * 0.34));
+  if (n >= 2) push('drifter', Math.round(4 + n * 3 + n * n * 0.09));
+  if (n >= 5) push('crawler', Math.round(2 + (n - 4) * 1.5));
+  if (n >= 7) push('rammer', Math.round(1 + (n - 6) * 1.1));
+  if (n >= 11) push('brute', Math.round(1 + (n - 10) * 0.55));
+  for (let i = q.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; const t = q[i]; q[i] = q[j]; q[j] = t; }
+  return q;
+}
+function startWave() {
+  if (phase !== 'prep') return;
+  const bonus = Math.round(prepLeft * 8);
+  if (bonus > 0) { supply += bonus; log(`조기 소집 보너스 +${bonus} 물자`, 'hot'); }
+  wave++;
+  spawnQueue = waveComp(wave);
+  waveTotal = spawnQueue.length;
+  spawnTimer = 0;
+  phase = 'wave';
+  log(`웨이브 ${wave} — 개체 ${spawnQueue.length}`, 'hot');
+  // a new spire is planted every few waves
+  if (wave % 4 === 0) plantSpire();
+  syncUI();
+}
+function endWave() {
+  phase = 'prep';
+  prepMax = prepLeft = 26;
+  log(`웨이브 ${wave} 종료 · 구역 확보`, 'hot');
+  syncUI();
+}
+function plantSpire() {
+  let best = null, bestD = -1;
+  for (let t = 0; t < 400; t++) {
+    const x = (rnd(2, GW - 3)) | 0, y = (rnd(2, GH - 3)) | 0;
+    if (terrain[idx(x, y)] !== T_OPEN || buildAt[idx(x, y)] >= 0) continue;
+    const d = Math.hypot(x - hub.gx, y - hub.gy);
+    if (d < 14) continue;
+    if (d > bestD && d < 40) { bestD = d; best = { x, y }; }
+  }
+  if (!best) return;
+  spawnFoe('spire', best.x, best.y);
+  const f = foes[foes.length - 1];
+  f.x = best.x * TILE + TILE / 2; f.y = best.y * TILE + TILE / 2;
+  f.hp = f.hpMax = 900 + wave * 130;
+  log('자실체 발생 — 오염이 퍼지기 시작합니다', 'bad');
+}
+
+// ============================================================================
+// Spawning + creature update
+// ============================================================================
+function spawnFoe(type, gx, gy) {
+  const d = FOES[type];
+  const scale = 1 + Math.max(0, wave - 6) * 0.055;
+  foes.push({
+    type, x: gx * TILE + TILE / 2 + rnd(-8, 8), y: gy * TILE + TILE / 2 + rnd(-8, 8),
+    vx: 0, vy: 0, hp: d.hp * scale, hpMax: d.hp * scale, dead: false,
+    cd: rnd(0, 0.5), face: 0, hitT: 0, wob: Math.random() * 6.28,
+  });
+}
+
+const tmp = [];
+function updateFoes(dt) {
+  for (let i = 0; i < foes.length; i++) {
+    const f = foes[i];
+    if (f.dead) continue;
+    const d = FOES[f.type];
+    f.hitT = Math.max(0, f.hitT - dt);
+    f.cd -= dt;
+
+    // static creatures do not path; they seed the ground and vent broods
+    if (d.static) {
+      f.age = (f.age || 0) + dt;
+      f.spawnCd = (f.spawnCd || 0) - dt;
+      if (phase === 'wave' && f.spawnCd <= 0) {
+        f.spawnCd = Math.max(0.8, 2.6 - wave * 0.05);
+        spawnFoe('scurry', (f.x / TILE) | 0, (f.y / TILE) | 0);
+      }
+      continue;
+    }
+
+    const gx = clamp((f.x / TILE) | 0, 0, GW - 1), gy = clamp((f.y / TILE) | 0, 0, GH - 1);
+    const here = idx(gx, gy);
+    const nx = nextIdx[here];
+
+    // target the structure standing in the way
+    let blockB = null;
+    if (nx >= 0) {
+      const bi = buildAt[nx];
+      if (bi >= 0 && buildings[bi] && !buildings[bi].dead) blockB = buildings[bi];
+    }
+    const bHere = buildAt[here] >= 0 ? buildings[buildAt[here]] : null;
+    if (bHere && !bHere.dead && bHere.type !== 'hub') blockB = bHere;
+
+    if (blockB) {
+      const ddx = blockB.x - f.x, ddy = blockB.y - f.y;
+      const dd = Math.hypot(ddx, ddy);
+      if (dd < TILE * 0.85 + d.r) {
+        f.face = Math.atan2(ddy, ddx);
+        if (f.cd <= 0) {
+          f.cd = d.atk;
+          const mult = blockB.type === 'wall' ? d.wall : 1;
+          damageBuilding(blockB, d.dmg * mult);
+          burst(f.x + Math.cos(f.face) * d.r, f.y + Math.sin(f.face) * d.r, 3, '#c9a06a', 40);
+        }
+        f.vx *= 0.7; f.vy *= 0.7;
+        f.x += f.vx * dt; f.y += f.vy * dt;
+        continue;
+      }
+    }
+
+    // steer along the flow field
+    let tx = hub.x, ty = hub.y;
+    if (nx >= 0) { tx = (nx % GW) * TILE + TILE / 2; ty = ((nx / GW) | 0) * TILE + TILE / 2; }
+    let dx = tx - f.x, dy = ty - f.y;
+    let m = Math.hypot(dx, dy) || 1; dx /= m; dy /= m;
+
+    // separation keeps the mass readable instead of a single stacked blob
+    let sx = 0, sy = 0;
+    nearFoes(f.x, f.y, d.r * 2.6, tmp);
+    for (let k = 0; k < tmp.length; k++) {
+      const o = tmp[k]; if (o === f) continue;
+      const ox = f.x - o.x, oy = f.y - o.y;
+      const od = Math.hypot(ox, oy) || 0.01;
+      const want = d.r + FOES[o.type].r;
+      if (od < want) { sx += ox / od * (want - od); sy += oy / od * (want - od); }
+    }
+    f.wob += dt * 3.4;
+    const wob = Math.sin(f.wob) * 0.16;
+    const spd = d.spd * (1 + (blight[here] > 0.4 ? 0.28 : 0));
+    f.vx = (dx + sx * 0.5 - dy * wob) * spd;
+    f.vy = (dy + sy * 0.5 + dx * wob) * spd;
+    f.face = Math.atan2(f.vy, f.vx);
+    f.x = clamp(f.x + f.vx * dt, 2, WW - 2);
+    f.y = clamp(f.y + f.vy * dt, 2, WH - 2);
+
+    // reached the hub
+    if (Math.hypot(f.x - hub.x, f.y - hub.y) < TILE * 1.4) {
+      if (f.cd <= 0) { f.cd = d.atk; damageBuilding(hub, d.dmg); shake = Math.min(9, shake + 1.4); }
+    }
+  }
+  if (foes.length > 1200) foes = foes.filter(f => !f.dead);
+}
+
+function hurtFoe(f, amount, kx, ky) {
+  const d = FOES[f.type];
+  const dmg = Math.max(1, amount - (d.armor || 0));
+  f.hp -= dmg; f.hitT = 0.09;
+  if (kx !== undefined && !d.big) { f.x += kx * 1.6; f.y += ky * 1.6; }
+  if (f.hp <= 0 && !f.dead) {
+    f.dead = true; kills++;
+    supply += d.bounty;
+    corpse(f.x, f.y, d.r, d.col);
+    burst(f.x, f.y, d.big ? 16 : 6, d.col, d.big ? 120 : 70);
+    if (d.big) shake = Math.min(10, shake + 2.2);
+  }
+}
+
+function damageBuilding(b, amount) {
+  b.hp -= amount;
+  // garrisons bleed people, not just structure
+  if (b.crew && b.crew.length && Math.random() < amount / 240) {
+    const live = b.crew.filter(s => s.alive);
+    if (live.length) {
+      const s = live[(Math.random() * live.length) | 0];
+      s.alive = false; s.respawn = 6;
+      burst(b.x + s.ox, b.y + s.oy, 5, '#c04a3a', 55);
+    }
+  }
+  if (b.hp <= 0) {
+    if (b.type === 'hub') { die(); return; }
+    burst(b.x, b.y, 22, '#8d8578', 130);
+    scorch(b.x, b.y, TILE * 0.9);
+    shake = Math.min(10, shake + 1.6);
+    log(`${DEFS[b.type].name} 상실`, 'bad');
+    killBuilding(b);
+  }
+}
+
+// ============================================================================
+// Firing
+// ============================================================================
+function pickTarget(x, y, range, minRange) {
+  nearFoes(x, y, range * TILE, tmp);
+  let best = null, bestD = Infinity;
+  const min2 = minRange ? (minRange * TILE) ** 2 : 0;
+  for (let i = 0; i < tmp.length; i++) {
+    const f = tmp[i]; if (f.dead) continue;
+    const d2 = (f.x - x) ** 2 + (f.y - y) ** 2;
+    if (d2 < min2) continue;
+    // prefer whatever is closest to the hub, i.e. the most urgent
+    const pri = d2 - (FOES[f.type].big ? 90000 : 0);
+    if (pri < bestD) { bestD = pri; best = f; }
+  }
+  return best;
+}
+
+function updateBuildings(dt) {
+  for (const b of buildings) {
+    if (b.dead) continue;
+    const d = DEFS[b.type];
+    b.flash = Math.max(0, b.flash - dt * 7);
+    if (b.type === 'hub') continue;
+
+    if (b.deploy > 0) { b.deploy -= dt; continue; }
+
+    if (d.yield) {
+      if (b.powered) crystal += d.yield[b.tier] * dt;
+      continue;
+    }
+    if (!d.range) continue;
+    if (d.power && !b.powered) continue;
+
+    // ---- garrison posts: every soldier fires on their own ----
+    if (d.crew) {
+      const want = d.crew[b.tier];
+      for (const s of b.crew) {
+        if (!s.alive) { s.respawn -= dt; if (s.respawn <= 0 && supply >= 12) { supply -= 12; s.alive = true; } continue; }
+        s.flash = Math.max(0, s.flash - dt * 9);
+        s.cd -= dt;
+        const sx = b.x + s.ox, sy = b.y + s.oy;
+        const t = pickTarget(sx, sy, d.range[b.tier]);
+        if (!t) continue;
+        s.aim = Math.atan2(t.y - sy, t.x - sx);
+        if (s.cd > 0) continue;
+        s.cd = d.rof[b.tier] * rnd(0.85, 1.15);
+        s.flash = 1;
+        if (d.crewKind === 'flame') {
+          coneHit(sx, sy, s.aim, d.range[b.tier] * TILE, 0.42, d.dmg[b.tier], d.burnsBlight);
+          for (let i = 0; i < 3; i++) flameParticle(sx, sy, s.aim, d.range[b.tier] * TILE);
+        } else {
+          fire('tracer', sx, sy, t, d.dmg[b.tier]);
+          shellEject(sx, sy, s.aim);
+        }
+      }
+      while (b.crew.length < want) refillCrew(b);
+      continue;
+    }
+
+    // ---- machines ----
+    b.cd -= dt;
+    if (d.heatUp) {
+      if (b.heat >= 1) { b.heat -= d.heatDown[b.tier] * dt; if (b.heat > 0.28) continue; b.heat = 0.27; }
+      else b.heat = Math.max(0, b.heat - d.heatDown[b.tier] * 0.55 * dt);
+    }
+    const t = pickTarget(b.x, b.y, d.range[b.tier], d.minRange);
+    if (!t) continue;
+    b.aim = Math.atan2(t.y - b.y, t.x - b.x);
+    if (b.cd > 0) continue;
+    b.cd = d.rof[b.tier];
+    b.flash = 1;
+    if (d.heatUp) b.heat = Math.min(1, b.heat + d.heatUp[b.tier] * 8);
+
+    if (d.proj === 'mortar') {
+      fireMortar(b.x, b.y, t.x, t.y, d.dmg[b.tier], d.splash[b.tier] * TILE);
+      shake = Math.min(8, shake + 0.5);
+    } else if (d.proj === 'rail') {
+      fireRail(b.x, b.y, b.aim, d.dmg[b.tier], d.range[b.tier] * TILE);
+      shake = Math.min(10, shake + 2.4);
+    } else {
+      fire('tracer', b.x, b.y, t, d.dmg[b.tier]);
+      shellEject(b.x, b.y, b.aim);
+    }
+  }
+  buildings = buildings.filter(b => !b.dead || b.type === 'hub');
+  // rebuild index map after compaction
+  buildAt.fill(-1);
+  for (let i = 0; i < buildings.length; i++) {
+    const b = buildings[i];
+    if (!b.dead) buildAt[idx(b.gx, b.gy)] = i;
+  }
+}
+
+function coneHit(x, y, ang, len, halfArc, dmg, burns) {
+  nearFoes(x, y, len, tmp);
+  for (let i = 0; i < tmp.length; i++) {
+    const f = tmp[i]; if (f.dead) continue;
+    let a = Math.atan2(f.y - y, f.x - x) - ang;
+    while (a > Math.PI) a -= 6.2832; while (a < -Math.PI) a += 6.2832;
+    if (Math.abs(a) < halfArc) hurtFoe(f, dmg * 0.5, Math.cos(ang) * 0.5, Math.sin(ang) * 0.5);
+  }
+  if (burns) {
+    const bx = clamp(((x + Math.cos(ang) * len * 0.6) / TILE) | 0, 0, GW - 1);
+    const by = clamp(((y + Math.sin(ang) * len * 0.6) / TILE) | 0, 0, GH - 1);
+    for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
+      const j = idx(clamp(bx + ox, 0, GW - 1), clamp(by + oy, 0, GH - 1));
+      blight[j] = Math.max(0, blight[j] - 0.9 * TICK);
+    }
+  }
+}
+
+// ============================================================================
+// Projectiles
+// ============================================================================
+function fire(kind, x, y, target, dmg) {
+  projs.push({ kind, x, y, sx: x, sy: y, t: target, dmg, life: 0.5,
+    vx: 0, vy: 0, spd: 900 });
+}
+function fireMortar(x, y, tx, ty, dmg, splash) {
+  const dur = 1.05 + Math.hypot(tx - x, ty - y) / 900;
+  projs.push({ kind: 'mortar', x, y, sx: x, sy: y, tx, ty, dmg, splash, life: dur, max: dur });
+}
+function fireRail(x, y, ang, dmg, len) {
+  const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
+  projs.push({ kind: 'rail', x, y, ex, ey, life: 0.34, max: 0.34 });
+  // instant piercing hit along the beam
+  const steps = (len / 7) | 0;
+  const seen = new Set();
+  for (let i = 0; i < steps; i++) {
+    const px = x + Math.cos(ang) * i * 7, py = y + Math.sin(ang) * i * 7;
+    nearFoes(px, py, 13, tmp);
+    for (let k = 0; k < tmp.length; k++) {
+      const f = tmp[k];
+      if (f.dead || seen.has(f)) continue;
+      seen.add(f);
+      hurtFoe(f, dmg, Math.cos(ang) * 3, Math.sin(ang) * 3);
+      burst(f.x, f.y, 4, '#dfefff', 90);
+    }
+  }
+}
+function updateProjs(dt) {
+  for (let i = projs.length - 1; i >= 0; i--) {
+    const p = projs[i];
+    p.life -= dt;
+    if (p.kind === 'tracer') {
+      if (!p.t || p.t.dead) { projs.splice(i, 1); continue; }
+      const dx = p.t.x - p.x, dy = p.t.y - p.y, m = Math.hypot(dx, dy) || 1;
+      const step = p.spd * dt;
+      if (m <= step) {
+        hurtFoe(p.t, p.dmg, dx / m, dy / m);
+        burst(p.t.x, p.t.y, 2, '#ffe6c0', 60);
+        projs.splice(i, 1); continue;
+      }
+      p.x += dx / m * step; p.y += dy / m * step;
+      if (p.life <= 0) projs.splice(i, 1);
+    } else if (p.kind === 'mortar') {
+      if (p.life <= 0) {
+        nearFoes(p.tx, p.ty, p.splash, tmp);
+        for (let k = 0; k < tmp.length; k++) {
+          const f = tmp[k]; if (f.dead) continue;
+          const d = Math.hypot(f.x - p.tx, f.y - p.ty);
+          const fall = 1 - d / p.splash;
+          hurtFoe(f, p.dmg * Math.max(0.25, fall), (f.x - p.tx) / (d || 1) * 4, (f.y - p.ty) / (d || 1) * 4);
+        }
+        burst(p.tx, p.ty, 26, '#ffb257', 190);
+        scorch(p.tx, p.ty, p.splash * 0.8);
+        shake = Math.min(10, shake + 2);
+        projs.splice(i, 1);
+      }
+    } else if (p.life <= 0) projs.splice(i, 1);
+  }
+}
+
+// ============================================================================
+// Particles + persistent ground decals
+// ============================================================================
+function burst(x, y, n, col, spd) {
+  for (let i = 0; i < n; i++) {
+    if (parts.length > 1600) break;
+    const a = Math.random() * 6.2832, s = rnd(spd * 0.3, spd);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rnd(0.18, 0.5), max: 0.5, col, r: rnd(1, 2.4) });
+  }
+}
+function flameParticle(x, y, ang, len) {
+  if (parts.length > 1600) return;
+  const a = ang + rnd(-0.38, 0.38), s = rnd(len * 1.1, len * 2.0);
+  parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rnd(0.16, 0.3), max: 0.3,
+    col: Math.random() < 0.4 ? '#ffd07a' : '#ff8a2c', r: rnd(2, 4.6) });
+}
+function shellEject(x, y, ang) {
+  if (parts.length > 1600) return;
+  const a = ang + Math.PI / 2 + rnd(-0.3, 0.3);
+  parts.push({ x, y, vx: Math.cos(a) * 55, vy: Math.sin(a) * 55, life: 0.45, max: 0.45, col: C.shell, r: 0.9 });
+}
+function updateParts(dt) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt;
+    if (p.life <= 0) { parts.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= 0.88; p.vy *= 0.88;
+  }
+}
+
+// persistent ground layer: corpses, scorch marks. Drawn once, never cleared.
+const gc = document.createElement('canvas');
+gc.width = WW; gc.height = WH;
+const gx2 = gc.getContext('2d');
+function corpse(x, y, r, col) {
+  gx2.globalAlpha = 0.5;
+  gx2.fillStyle = col;
+  gx2.beginPath();
+  gx2.ellipse(x, y, r * rnd(0.8, 1.25), r * rnd(0.5, 0.85), Math.random() * 3.14, 0, 6.2832);
+  gx2.fill();
+  gx2.globalAlpha = 0.22; gx2.fillStyle = '#2f6f66';
+  gx2.beginPath(); gx2.ellipse(x + rnd(-3, 3), y + rnd(-3, 3), r * 1.5, r * 1.1, 0, 0, 6.2832); gx2.fill();
+  gx2.globalAlpha = 1;
+}
+function scorch(x, y, r) {
+  gx2.globalAlpha = 0.42; gx2.fillStyle = '#141210';
+  gx2.beginPath(); gx2.arc(x, y, r, 0, 6.2832); gx2.fill();
+  gx2.globalAlpha = 1;
+}
+
+// ============================================================================
+// Blight
+// ============================================================================
+let blightTick = 0;
+function updateBlight(dt) {
+  blightTick -= dt;
+  if (blightTick > 0) return;
+  blightTick = 0.5;
+  for (const s of foes) {
+    if (s.dead || !FOES[s.type].static) continue;
+    const sgx = (s.x / TILE) | 0, sgy = (s.y / TILE) | 0;
+    const R = 3 + Math.min(10, (s.age || 0) * 0.12);
+    for (let y = Math.max(1, (sgy - R) | 0); y <= Math.min(GH - 2, sgy + R); y++)
+      for (let x = Math.max(1, (sgx - R) | 0); x <= Math.min(GW - 2, sgx + R); x++) {
+        if (terrain[idx(x, y)] === T_ROCK) continue;
+        const d = Math.hypot(x - sgx, y - sgy);
+        if (d > R) continue;
+        blight[idx(x, y)] = Math.min(1, blight[idx(x, y)] + 0.05 * (1 - d / R));
+      }
+  }
+  let n = 0, tot = 0;
+  for (let i = 0; i < blight.length; i++) { if (terrain[i] !== T_ROCK) { tot++; if (blight[i] > 0.25) n++; } }
+  blightPct = tot ? n / tot : 0;
+}
+
+// ============================================================================
+// Main loop
+// ============================================================================
+function step(dt) {
+  elapsed += dt;
+  if (flowDirty) computeFlow();
+  recalcPower();
+  supply += 3.4 * dt;
+
+  rehash();
+  updateBuildings(dt);
+  updateFoes(dt);
+  updateProjs(dt);
+  updateParts(dt);
+  updateBlight(dt);
+
+  if (phase === 'prep') {
+    prepLeft = Math.max(0, prepLeft - dt);
+    if (prepLeft <= 0) startWave();
+  } else if (phase === 'wave') {
+    spawnTimer -= dt;
+    if (spawnQueue.length && spawnTimer <= 0) {
+      // density spikes toward the tail of a wave
+      const prog = 1 - spawnQueue.length / Math.max(1, waveTotal);
+      // late in a wave the density spikes, so every wave ends on the back foot
+      spawnTimer = clamp(0.26 - wave * 0.007, 0.035, 0.26) * (prog > 0.7 ? 0.35 : 1);
+      const n = (prog > 0.7 ? 4 : 2) + ((wave / 6) | 0);
+      for (let i = 0; i < n && spawnQueue.length; i++) {
+        const s = SPAWNS[(Math.random() * SPAWNS.length) | 0];
+        spawnFoe(spawnQueue.pop(), s.x, s.y);
+      }
+    }
+    if (!spawnQueue.length) {
+      // spires are terrain, not part of the wave count
+      let alive = 0;
+      for (const f of foes) if (!f.dead && !FOES[f.type].static) alive++;
+      if (alive === 0) endWave();
+    }
+  }
+
+  foes = foes.filter(f => !f.dead || Math.random() > 0.35);
+  shake = Math.max(0, shake - dt * 14);
+  if (flowRefresh -= dt, flowRefresh <= 0) { flowRefresh = 0.7; flowDirty = true; }
+}
+let flowRefresh = 0.7;
+
+function die() {
+  phase = 'dead';
+  document.getElementById('over').style.display = 'flex';
+  document.getElementById('oStat').textContent =
+    `웨이브 ${wave} 도달 · 누적 처치 ${kills} · 경과 ${(elapsed / 60) | 0}분`;
+}
+
+// ============================================================================
+// Camera + rendering
+// ============================================================================
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let cam = { x: WW * 0.55, y: WH / 2, z: 1.15 };
+function resize() {
+  const st = document.getElementById('stage').getBoundingClientRect();
+  cv.width = Math.max(320, st.width | 0);
+  cv.height = Math.max(240, st.height | 0);
+}
+window.addEventListener('resize', resize);
+new ResizeObserver(resize).observe(document.getElementById('stage'));
+
+function w2s(wx, wy) { return [(wx - cam.x) * cam.z + cv.width / 2, (wy - cam.y) * cam.z + cv.height / 2]; }
+function s2w(sx, sy) { return [(sx - cv.width / 2) / cam.z + cam.x, (sy - cv.height / 2) / cam.z + cam.y]; }
+
+function draw() {
+  const w = cv.width, h = cv.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#141312'; ctx.fillRect(0, 0, w, h);
+
+  const sh = shake > 0 ? shake : 0;
+  ctx.save();
+  ctx.translate(w / 2 + rnd(-sh, sh), h / 2 + rnd(-sh, sh));
+  ctx.scale(cam.z, cam.z);
+  ctx.translate(-cam.x, -cam.y);
+
+  // visible tile window
+  const [vx0, vy0] = s2w(0, 0), [vx1, vy1] = s2w(w, h);
+  const tx0 = clamp((vx0 / TILE | 0) - 1, 0, GW - 1), tx1 = clamp((vx1 / TILE | 0) + 1, 0, GW - 1);
+  const ty0 = clamp((vy0 / TILE | 0) - 1, 0, GH - 1), ty1 = clamp((vy1 / TILE | 0) + 1, 0, GH - 1);
+
+  // ---- ground ----
+  ctx.fillStyle = C.ground;
+  ctx.fillRect(tx0 * TILE, ty0 * TILE, (tx1 - tx0 + 1) * TILE, (ty1 - ty0 + 1) * TILE);
+  for (let y = ty0; y <= ty1; y++) for (let x = tx0; x <= tx1; x++) {
+    if (((x * 7 + y * 13) % 11) === 0) {
+      ctx.fillStyle = C.groundAlt; ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+    }
+  }
+  // decals
+  ctx.drawImage(gc, 0, 0);
+
+  // grid
+  if (cam.z > 0.75) {
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1 / cam.z; ctx.beginPath();
+    for (let x = tx0; x <= tx1 + 1; x++) { ctx.moveTo(x * TILE, ty0 * TILE); ctx.lineTo(x * TILE, (ty1 + 1) * TILE); }
+    for (let y = ty0; y <= ty1 + 1; y++) { ctx.moveTo(tx0 * TILE, y * TILE); ctx.lineTo((tx1 + 1) * TILE, y * TILE); }
+    ctx.stroke();
+  }
+
+  // blight
+  for (let y = ty0; y <= ty1; y++) for (let x = tx0; x <= tx1; x++) {
+    const b = blight[idx(x, y)];
+    if (b <= 0.02) continue;
+    ctx.fillStyle = `rgba(58,150,138,${b * 0.4})`;
+    ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+    if (b > 0.5) {
+      ctx.fillStyle = `rgba(79,214,200,${(b - 0.5) * 0.5})`;
+      ctx.fillRect(x * TILE + TILE * 0.35, y * TILE + TILE * 0.35, TILE * 0.3, TILE * 0.3);
+    }
+  }
+
+  // crystal nodes
+  for (const n of nodes) {
+    if (n.x < tx0 || n.x > tx1 || n.y < ty0 || n.y > ty1) continue;
+    const cx = n.x * TILE + TILE / 2, cy = n.y * TILE + TILE / 2;
+    ctx.fillStyle = C.node; ctx.fillRect(n.x * TILE + 2, n.y * TILE + 2, TILE - 4, TILE - 4);
+    ctx.fillStyle = C.nodeGlow;
+    ctx.globalAlpha = 0.55 + Math.sin(elapsed * 2 + n.x) * 0.2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 5); ctx.lineTo(cx + 4, cy); ctx.lineTo(cx, cy + 5); ctx.lineTo(cx - 4, cy);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- rock, drawn with extruded sides ----
+  for (let y = ty0; y <= ty1; y++) for (let x = tx0; x <= tx1; x++) {
+    if (terrain[idx(x, y)] !== T_ROCK) continue;
+    const px = x * TILE, py = y * TILE;
+    const below = inb(x, y + 1) && terrain[idx(x, y + 1)] !== T_ROCK;
+    ctx.fillStyle = C.rockTop; ctx.fillRect(px, py, TILE, TILE);
+    if (below) { ctx.fillStyle = C.rock; ctx.fillRect(px, py + TILE, TILE, 5); }
+  }
+
+  // ---- buildings ----
+  for (const b of buildings) { if (!b.dead) drawBuilding(b); }
+
+  // ---- foes ----
+  for (const f of foes) {
+    if (f.dead) continue;
+    if (f.x < vx0 - 30 || f.x > vx1 + 30 || f.y < vy0 - 30 || f.y > vy1 + 30) continue;
+    const d = FOES[f.type];
+    if (d.static) {
+      drawShadow(f.x, f.y, 11);
+      ctx.fillStyle = f.hitT > 0 ? '#ffffff' : '#1f4b47';
+      ctx.beginPath(); ctx.moveTo(f.x, f.y - 21); ctx.lineTo(f.x + 10, f.y + 7);
+      ctx.lineTo(f.x - 10, f.y + 7); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.nodeGlow; ctx.globalAlpha = 0.5 + Math.sin(elapsed * 3 + f.x) * 0.28;
+      ctx.beginPath(); ctx.moveTo(f.x, f.y - 17); ctx.lineTo(f.x + 4.5, f.y + 3);
+      ctx.lineTo(f.x - 4.5, f.y + 3); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      bar(f.x - 14, f.y + 11, 28, 3, f.hp / f.hpMax, '#4fd6c8');
+      continue;
+    }
+    if (d.big || d.r > 5) drawShadow(f.x, f.y, d.r * 1.1);
+    ctx.save();
+    ctx.translate(f.x, f.y); ctx.rotate(f.face);
+    ctx.fillStyle = f.hitT > 0 ? '#ffffff' : d.col;
+    ctx.beginPath(); ctx.ellipse(0, 0, d.r * 1.35, d.r * 0.85, 0, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = f.hitT > 0 ? '#ffffff' : C.foeDark;
+    ctx.beginPath(); ctx.ellipse(-d.r * 0.5, 0, d.r * 0.6, d.r * 0.65, 0, 0, 6.2832); ctx.fill();
+    // infected crystal marker
+    ctx.fillStyle = C.foeGlow; ctx.globalAlpha = 0.8;
+    ctx.fillRect(d.r * 0.5, -0.9, 1.8, 1.8);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    if (d.big) bar(f.x - 12, f.y - d.r - 7, 24, 2.5, f.hp / f.hpMax, '#e05a3c');
+  }
+
+  // ---- projectiles ----
+  for (const p of projs) {
+    if (p.kind === 'tracer') {
+      const dx = p.x - p.sx, dy = p.y - p.sy, m = Math.hypot(dx, dy) || 1;
+      ctx.strokeStyle = C.tracer; ctx.globalAlpha = 0.85; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - dx / m * 11, p.y - dy / m * 11); ctx.stroke();
+      ctx.globalAlpha = 1;
+    } else if (p.kind === 'mortar') {
+      const t = 1 - p.life / p.max;
+      const cx = p.x + (p.tx - p.x) * t, cy = p.y + (p.ty - p.y) * t;
+      const zz = Math.sin(t * Math.PI) * 46;
+      // telegraph ring
+      ctx.strokeStyle = '#e8951f'; ctx.globalAlpha = 0.3 + t * 0.55; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(p.tx, p.ty, p.splash * (1.25 - t * 0.25), 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = 1;
+      // shadow shrinks as the shell climbs, grows as it falls
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.beginPath(); ctx.arc(cx, cy, 3.2 - zz * 0.02, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = '#ffd9a0';
+      ctx.beginPath(); ctx.arc(cx, cy - zz, 2.6, 0, 6.2832); ctx.fill();
+    } else if (p.kind === 'rail') {
+      const a = p.life / p.max;
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4.5 * a;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.ex, p.ey); ctx.stroke();
+      ctx.strokeStyle = '#8fd4ff'; ctx.lineWidth = 11 * a; ctx.globalAlpha = a * 0.25;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.ex, p.ey); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---- particles ----
+  for (const p of parts) {
+    ctx.globalAlpha = clamp(p.life / p.max, 0, 1);
+    ctx.fillStyle = p.col;
+    ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
+  }
+  ctx.globalAlpha = 1;
+
+  // ---- placement ghost ----
+  if (ghost && hoverIdx >= 0) {
+    const gxp = hoverIdx % GW, gyp = (hoverIdx / GW) | 0;
+    const ok = canPlace(ghost, gxp, gyp);
+    const d = DEFS[ghost];
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = ok ? '#e8951f' : '#e05a3c';
+    ctx.fillRect(gxp * TILE + 2, gyp * TILE + 2, TILE - 4, TILE - 4);
+    ctx.globalAlpha = 1;
+    if (d.range) {
+      ctx.strokeStyle = ok ? 'rgba(232,149,31,.5)' : 'rgba(224,90,60,.5)';
+      ctx.lineWidth = 1.2; ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.arc(gxp * TILE + TILE / 2, gyp * TILE + TILE / 2, d.range[0] * TILE, 0, 6.2832); ctx.stroke();
+      if (d.minRange) { ctx.beginPath(); ctx.arc(gxp * TILE + TILE / 2, gyp * TILE + TILE / 2, d.minRange * TILE, 0, 6.2832); ctx.stroke(); }
+      ctx.setLineDash([]);
+    }
+    if (d.powerR) {
+      ctx.strokeStyle = 'rgba(79,214,200,.45)'; ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.arc(gxp * TILE + TILE / 2, gyp * TILE + TILE / 2, d.powerR[0] * TILE, 0, 6.2832); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // ---- selection ring ----
+  if (selected && !selected.dead) {
+    const d = DEFS[selected.type];
+    ctx.strokeStyle = '#e8951f'; ctx.lineWidth = 1.6;
+    ctx.strokeRect(selected.gx * TILE + 1, selected.gy * TILE + 1, TILE - 2, TILE - 2);
+    if (d && d.range) {
+      ctx.strokeStyle = 'rgba(232,149,31,.4)'; ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.arc(selected.x, selected.y, d.range[selected.tier] * TILE, 0, 6.2832); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawShadow(x, y, r) {
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.beginPath(); ctx.ellipse(x + 2, y + 3, r, r * 0.62, 0, 0, 6.2832); ctx.fill();
+}
+function bar(x, y, w, h, f, col) {
+  ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = col; ctx.fillRect(x, y, w * clamp(f, 0, 1), h);
+}
+
+function drawBuilding(b) {
+  const px = b.gx * TILE, py = b.gy * TILE;
+  const cx = b.x, cy = b.y;
+
+  if (b.type === 'hub') {
+    drawShadow(cx, cy, 22);
+    ctx.fillStyle = '#3a352d'; ctx.fillRect(px - TILE, py - TILE + 14, TILE * 3, TILE * 3);
+    ctx.fillStyle = '#585044'; ctx.fillRect(px - TILE, py - TILE, TILE * 3, TILE * 3);
+    ctx.fillStyle = C.hazard;
+    for (let i = 0; i < 5; i++) ctx.fillRect(px - TILE + i * 12, py - TILE, 6, 4);
+    ctx.fillStyle = '#7d7365'; ctx.fillRect(px - 9, py - 9, 38, 38);
+    ctx.fillStyle = C.hazard; ctx.globalAlpha = 0.6 + Math.sin(elapsed * 3) * 0.3;
+    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 6.2832); ctx.fill();
+    ctx.globalAlpha = 1;
+    bar(cx - 30, py - TILE - 9, 60, 4, b.hp / b.hpMax, b.hp / b.hpMax > 0.35 ? '#e8951f' : '#e05a3c');
+    return;
+  }
+
+  const d = DEFS[b.type];
+  const hgt = d.height[b.tier];
+  const deploying = b.deploy > 0;
+  const metal = b.type === 'autogun' || b.type === 'siege' || b.type === 'mortar' || b.type === 'gen' || b.type === 'extractor';
+  const inset = b.type === 'wall' ? 0 : 2;
+
+  drawShadow(cx, cy, TILE * 0.5);
+  // extruded side face - this is what gives the flat view its thickness
+  ctx.fillStyle = metal ? C.metalSide : C.wallSide;
+  ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2 + hgt);
+  // top face
+  ctx.fillStyle = metal ? C.metalTop : C.wallTop;
+  ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
+
+  // tier pips along the top edge
+  ctx.fillStyle = C.hazard;
+  for (let i = 0; i <= b.tier; i++) ctx.fillRect(px + 3 + i * 4, py + 3, 2.5, 2.5);
+
+  if (!b.powered && DEFS[b.type].power) {
+    ctx.fillStyle = 'rgba(224,90,60,0.35)';
+    ctx.fillRect(px + inset, py + inset, TILE - inset * 2, TILE - inset * 2);
+  }
+
+  if (deploying) {
+    ctx.strokeStyle = C.hazard; ctx.lineWidth = 2;
+    const f = 1 - b.deploy / b.deployMax;
+    ctx.beginPath(); ctx.arc(cx, cy, 11, -1.57, -1.57 + f * 6.2832); ctx.stroke();
+    return;
+  }
+
+  // ---- garrison: individual soldiers, each aiming and firing ----
+  if (d.crew) {
+    for (const s of b.crew) {
+      if (!s.alive) continue;
+      const sx = cx + s.ox, sy = cy + s.oy;
+      ctx.fillStyle = C.humanBody;
+      ctx.beginPath(); ctx.arc(sx, sy, 2.1, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = C.human; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(s.aim) * 4.6, sy + Math.sin(s.aim) * 4.6); ctx.stroke();
+      if (s.flash > 0.2) {
+        ctx.fillStyle = d.crewKind === 'flame' ? C.flame : '#fff3d0';
+        ctx.globalAlpha = s.flash;
+        ctx.beginPath();
+        ctx.arc(sx + Math.cos(s.aim) * 5.6, sy + Math.sin(s.aim) * 5.6, d.crewKind === 'flame' ? 3.4 : 2.2, 0, 6.2832);
+        ctx.fill(); ctx.globalAlpha = 1;
+      }
+    }
+  } else if (d.range) {
+    // ---- machines: a barrel that tracks its target ----
+    const len = b.type === 'siege' ? 17 : b.type === 'mortar' ? 10 : 12;
+    ctx.strokeStyle = '#8d9aa3'; ctx.lineWidth = b.type === 'siege' ? 4.5 : 3;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(b.aim) * len, cy + Math.sin(b.aim) * len); ctx.stroke();
+    ctx.fillStyle = '#5d6970';
+    ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, 6.2832); ctx.fill();
+    if (b.flash > 0.15) {
+      ctx.fillStyle = '#fff0c8'; ctx.globalAlpha = b.flash;
+      ctx.beginPath(); ctx.arc(cx + Math.cos(b.aim) * (len + 2), cy + Math.sin(b.aim) * (len + 2), 4, 0, 6.2832);
+      ctx.fill(); ctx.globalAlpha = 1;
+    }
+    if (d.heatUp && b.heat > 0.05) bar(px + 2, py - 4, TILE - 4, 2.5, b.heat, b.heat >= 1 ? '#e05a3c' : '#e8951f');
+  }
+
+  if (b.hp < b.hpMax * 0.98) bar(px + 2, py + TILE + hgt + 1, TILE - 4, 2.5, b.hp / b.hpMax, '#8ab04f');
+}
+
+// ============================================================================
+// UI
+// ============================================================================
+const $ = id => document.getElementById(id);
+function log(msg, cls) {
+  const el = document.createElement('div');
+  if (cls) el.className = cls;
+  el.textContent = msg;
+  $('log').prepend(el);
+  while ($('log').children.length > 7) $('log').lastChild.remove();
+  setTimeout(() => el.remove(), 7000);
+}
+function buildBar() {
+  const bar = $('build'); bar.innerHTML = '';
+  for (const t of BUILD_ORDER) {
+    const d = DEFS[t];
+    const [cs, cc] = d.cost[0];
+    const el = document.createElement('button');
+    el.className = 'bcard';
+    el.dataset.t = t;
+    el.innerHTML = `<div class="n">${d.name}</div>
+      <div class="c"><span class="s">${cs}</span>${cc ? ` · <span class="y">${cc}</span>` : ''}</div>
+      <div class="k">[${d.key}] ${d.code}</div>`;
+    el.onclick = () => selectGhost(t);
+    bar.appendChild(el);
+  }
+}
+function selectGhost(t) {
+  ghost = (ghost === t) ? null : t;
+  selected = null;
+  for (const el of document.querySelectorAll('.bcard')) el.classList.toggle('sel', el.dataset.t === ghost);
+  refreshInsp();
+}
+function syncUI() {
+  $('uSup').textContent = supply | 0;
+  $('uCry').textContent = crystal | 0;
+  $('uWave').textContent = wave;
+  $('uKill').textContent = kills;
+  const hf = hub ? hub.hp / hub.hpMax : 1;
+  $('uHub').textContent = Math.max(0, Math.round(hf * 100)) + '%';
+  $('uHub').className = 'v' + (hf < 0.4 ? ' danger' : '');
+  $('uBlight').textContent = Math.round(blightPct * 100) + '%';
+  $('uBlight').className = 'v' + (blightPct > 0.4 ? ' danger' : '');
+
+  for (const el of document.querySelectorAll('.bcard')) {
+    const [cs, cc] = DEFS[el.dataset.t].cost[0];
+    el.classList.toggle('poor', supply < cs || crystal < cc);
+  }
+  if (phase === 'prep') {
+    $('wlab').textContent = `준비 — 자동 소집까지 ${Math.ceil(prepLeft)}초`;
+    $('callBtn').style.display = '';
+    $('callBtn').textContent = `다음 웨이브 소집  +${Math.round(prepLeft * 8)} 물자`;
+  } else if (phase === 'wave') {
+    let alive = 0; for (const f of foes) if (!f.dead) alive++;
+    $('wlab').textContent = `웨이브 ${wave} 진행 중 — 잔존 ${alive + spawnQueue.length}`;
+    $('callBtn').style.display = 'none';
+  }
+}
+function refreshInsp() {
+  const el = $('insp');
+  if (!selected || selected.dead || selected.type === 'hub') { el.style.display = 'none'; return; }
+  const b = selected, d = DEFS[b.type];
+  el.style.display = 'block';
+  $('iName').textContent = `${d.name}  Ⅰ${'Ⅰ'.repeat(b.tier)}`;
+  $('iCode').textContent = `${d.code} · 등급 ${b.tier + 1}/3`;
+  const rows = [];
+  rows.push(['내구', `${b.hp | 0} / ${b.hpMax}`]);
+  if (d.range) rows.push(['사거리', d.range[b.tier].toFixed(1) + (d.minRange ? ` (최소 ${d.minRange})` : '')]);
+  if (d.dmg) rows.push(['피해', d.dmg[b.tier]]);
+  if (d.crew) rows.push(['인원', `${b.crew.filter(s => s.alive).length} / ${d.crew[b.tier]}`]);
+  if (d.powerR) rows.push(['전력 반경', d.powerR[b.tier]]);
+  if (d.yield) rows.push(['산출', d.yield[b.tier].toFixed(2) + '/초']);
+  if (d.power) rows.push(['전력', b.powered ? '정상' : '차단']);
+  $('iRows').innerHTML = rows.map(r =>
+    `<div class="row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('') +
+    `<div class="row" style="border:none;padding-top:7px;color:#6e675d">${d.desc}</div>`;
+  const up = $('iUp');
+  if (b.tier >= 2) { up.textContent = '최대 등급'; up.disabled = true; }
+  else { const [cs, cc] = d.cost[b.tier + 1]; up.disabled = false;
+    up.textContent = `강화 ${cs}${cc ? '/' + cc : ''}`; }
+}
+
+// ---- input ---------------------------------------------------------------
+let panning = false, panSX = 0, panSY = 0, panCX = 0, panCY = 0;
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('mousedown', e => {
+  if (e.button === 2 || e.button === 1) {
+    panning = true; panSX = e.clientX; panSY = e.clientY; panCX = cam.x; panCY = cam.y;
+    cv.style.cursor = 'grabbing';
+  } else if (e.button === 0) {
+    const r = cv.getBoundingClientRect();
+    const [wx, wy] = s2w(e.clientX - r.left, e.clientY - r.top);
+    const gxp = (wx / TILE) | 0, gyp = (wy / TILE) | 0;
+    if (!inb(gxp, gyp)) return;
+    if (ghost) {
+      if (tryPlace(ghost, gxp, gyp) && !e.shiftKey) { /* keep ghost for chaining */ }
+    } else {
+      const bi = buildAt[idx(gxp, gyp)];
+      selected = bi >= 0 ? buildings[bi] : null;
+      refreshInsp();
+    }
+  }
+});
+window.addEventListener('mouseup', () => { panning = false; cv.style.cursor = 'crosshair'; });
+window.addEventListener('mousemove', e => {
+  if (panning) {
+    cam.x = panCX - (e.clientX - panSX) / cam.z;
+    cam.y = panCY - (e.clientY - panSY) / cam.z;
+    cam.x = clamp(cam.x, 0, WW); cam.y = clamp(cam.y, 0, WH);
+  }
+  const r = cv.getBoundingClientRect();
+  const [wx, wy] = s2w(e.clientX - r.left, e.clientY - r.top);
+  const gxp = (wx / TILE) | 0, gyp = (wy / TILE) | 0;
+  hoverIdx = inb(gxp, gyp) ? idx(gxp, gyp) : -1;
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const f = e.deltaY > 0 ? 0.88 : 1.14;
+  cam.z = clamp(cam.z * f, 0.42, 2.6);
+}, { passive: false });
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'Escape') { selectGhost(null); ghost = null;
+    for (const el of document.querySelectorAll('.bcard')) el.classList.remove('sel');
+    selected = null; refreshInsp(); return; }
+  if (e.code === 'Space') { e.preventDefault(); if (phase === 'prep') startWave(); return; }
+  if (e.key === 'u' || e.key === 'U') { if (selected) { upgrade(selected); refreshInsp(); } return; }
+  if (e.key === 'x' || e.key === 'X') { if (selected) { sell(selected); } return; }
+  const t = BUILD_ORDER.find(k => DEFS[k].key === e.key);
+  if (t) selectGhost(t);
+});
+
+for (const btn of document.querySelectorAll('#speeds .btn')) {
+  btn.onclick = () => {
+    speed = +btn.dataset.sp;
+    for (const o of document.querySelectorAll('#speeds .btn')) o.classList.remove('on');
+    btn.classList.add('on');
+  };
+}
+$('callBtn').onclick = () => startWave();
+$('iUp').onclick = () => { if (selected) { upgrade(selected); refreshInsp(); } };
+$('iSell').onclick = () => { if (selected) sell(selected); };
+$('oBtn').onclick = () => location.reload();
+
+// ============================================================================
+// Boot
+// ============================================================================
+function init() {
+  resize();
+  const { hx, hy } = buildMap();
+  cam.x = hx * TILE; cam.y = hy * TILE;
+  computeFlow();
+  buildBar();
+  prepMax = prepLeft = 45;
+  log('구역 도착 — 관제동 가동', 'hot');
+  log('참호부터 세우십시오. 진입로는 세 곳입니다.');
+  requestAnimationFrame(frame);
+}
+function frame(ms) {
+  if (!lastMs) lastMs = ms;
+  let dtms = Math.min(90, ms - lastMs); lastMs = ms;
+  if (phase !== 'dead') {
+    timeAcc += (dtms / 1000) * speed;
+    let guard = 0;
+    while (timeAcc >= TICK && guard++ < 12) { step(TICK); timeAcc -= TICK; }
+  }
+  draw();
+  syncUI();
+  requestAnimationFrame(frame);
+}
+// debug probe (used by the harness, harmless in normal play)
+window.__dbg = () => ({
+  wave, phase, kills, supply: supply | 0, crystal: crystal | 0,
+  foes: foes.filter(f => !f.dead).length,
+  buildings: buildings.filter(b => !b.dead).length,
+  hub: hub ? Math.round(hub.hp) : null, blight: +(blightPct * 100).toFixed(1),
+  parts: parts.length, projs: projs.length,
+});
+init();
+</script>
+</body>
+</html>
