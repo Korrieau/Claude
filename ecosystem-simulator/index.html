@@ -650,6 +650,8 @@ input[type=range]::-moz-range-thumb{
   padding:6px 8px 6px 14px; box-shadow:var(--shadow); font-size:13px;
 }
 .followbar .fb-dot{ width:11px; height:11px; border-radius:50%; }
+.followbar .fb-act{ background:var(--gold); color:#fff; border-radius:999px;
+  padding:3px 11px; font-size:11.5px; font-weight:600; min-width:4.5em; text-align:center; }
 .followbar b{ font-family:var(--f-disp); }
 .followbar span:not(.fb-dot){ color:var(--ink-3); font-size:11.5px; }
 .pausenote{
@@ -1158,6 +1160,7 @@ input[type=range]::-moz-range-thumb{
       <span class="fb-dot" id="fb-dot"></span>
       <b id="fb-name">—</b>
       <span id="fb-diet"></span>
+      <span class="fb-act" id="fb-act"></span>
       <button class="pill ghost" id="fb-stop">그만 따라가기</button>
     </div>
 
@@ -4598,6 +4601,19 @@ const Globe = (function(){
         (0.022 + t.speed*0.034 + t.mobility*0.009) * (1 - Math.min(t.size,10)*0.045) * TSK;
       /* 굼뜬 것은 오래 쉬고, 부산한 것은 자주 옮긴다 */
       it.rest = isPlant ? 9 : clamp(3.4 - t.speed*0.16 - t.metabolism*0.12, 0.5, 3.2);
+
+      /* ── 형질이 행동을 정한다 ────────────────────────────────
+         지금까지는 쫓기·달아나기·무리 짓기 셋뿐이라 스물두 개 형질 중
+         셋만 움직임에 쓰였다. 나머지가 다 그림이었다. */
+      it.size    = t.size;
+      it.hide    = t.camouflage;                    // 높으면 달아나지 않고 얼어붙는다
+      it.stalk   = (!isPlant && (t.aggression>=6) && t.camouflage>=5 && t.speed<=7); // 매복형
+      it.chaseMax= 0.5 + t.stamina*0.32;            // 지구력이 추격 시간을 정한다
+      it.terr    = t.territoriality;                // 세력권이 넓으면 멀리 안 간다
+      it.care    = t.parentalCare;
+      /* 걸음걸이 — 작고 빠른 것은 톡톡 튀며 가고, 큰 것은 꾸준히 밀고 간다 */
+      it.burst   = (!isPlant && t.speed>=6 && t.size<=4);
+      it.gaitRate= 3.0 + t.speed*0.55;
       it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18) * TSK;
       it.social = (isPlant || t.sociality<5) ? 0 : (t.sociality-4)*0.09;
 
@@ -4801,7 +4817,8 @@ const Globe = (function(){
           const parent = ag.length? ag[Math.floor(Math.random()*ag.length)] : null;
           const a=spawnAgent(s,it,si, parent? parent.tile : -1);
           if(a && parent){ a.x=parent.x+rrange(-ts*0.5,ts*0.5); a.z=parent.z+rrange(-ts*0.5,ts*0.5);
-                           a.tx=a.x; a.tz=a.z; }
+                           a.tx=a.x; a.tz=a.z;
+                           a.kid = it.care>0 ? 2+it.care*0.8 : 0; }   // 한동안 어미 곁에
         }
       } else if(gap<0){
         let kill=Math.min(quota, -gap);
@@ -4818,36 +4835,66 @@ const Globe = (function(){
         if(a.flee>0)  a.flee =Math.max(0,a.flee -edt);
         if(it.plant){ a.yaw=Math.sin(performance.now()/1000*0.9+a.ph)*0.16; continue; }
 
-        /* 도망이 먼저다. 쫓기는 중에 밥 생각을 하지는 않는다. */
+        if(a.freeze>0) a.freeze=Math.max(0,a.freeze-edt);
+        if(a.kid>0)    a.kid   =Math.max(0,a.kid-edt);
+        a.act = "";
+
+        /* ── 위협 판단 ──────────────────────────────────────────
+           몸집이 비슷하거나 큰 것만 위협이다. 들소가 족제비를 보고
+           달아나면 그건 생태가 아니라 버그처럼 보인다. */
         let urgent=false;
         if(prey){
           const th=lookAround(a.x,a.z,"h",si);
           if(th && th.d<sight){
-            const dx=a.x-th.o.x, dz=a.z-th.o.z, d=Math.max(0.01,th.d);
-            const v=it.spd*mdt*3.4;                    // 달아날 때는 전력으로
-            a.x+=dx/d*v; a.z+=dz/d*v;
-            a.flee=0.5; urgent=true;
+            const oIt=inst[th.o.si];
+            const bigEnough = !oIt || oIt.size >= it.size-1.5;
+            if(bigEnough){
+              if(it.hide>=6 && th.d>sight*0.42){
+                /* 위장이 좋으면 뛰지 않고 얼어붙는다. 움직이면 들킨다. */
+                a.freeze=0.9; a.tx=a.x; a.tz=a.z; a.act="숨음";
+              }else{
+                const dx=a.x-th.o.x, dz=a.z-th.o.z, d=Math.max(0.01,th.d);
+                const v=it.spd*mdt*3.4;                  // 달아날 때는 전력으로
+                a.x+=dx/d*v; a.z+=dz/d*v;
+                a.flee=0.5; a.act="도주";
+              }
+              urgent=true;
+            }
           }
         }
         if(!urgent && hunter && !(a.eat>0)){
           const tp=lookAround(a.x,a.z,"p",si);
-          if(tp && tp.d<sight*1.1 && tp.d>0.02){
-            const dx=tp.o.x-a.x, dz=tp.o.z-a.z, d=tp.d;
-            /* 따라잡으면 잡는다. 쫓기만 하고 아무 일도 안 일어나면
-               보는 재미가 없다. */
-            if(d < ts*0.30 && !tp.o.dying){
-              tp.o.dying=true; tp.o.tsc=0;
-              a.eat=1.1;                                // 잠깐 멈춰 먹는다
-              a.tx=a.x; a.tz=a.z;
-            } else {
-              const v=it.spd*mdt*3.0;                  // 쫓을 때도 전력으로
-              a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
-              a.chase=0.5;
+          if(tp && tp.d>0.02){
+            const oIt=inst[tp.o.si];
+            /* 최적 채이 — 제 몸에 비해 너무 큰 것은 건드리지 않는다 */
+            const catchable = !oIt || oIt.size <= it.size+2.5;
+            const near = it.stalk ? ts*0.95 : sight*1.1;   // 매복형은 코앞까지 기다린다
+            if(catchable && tp.d<near){
+              const dx=tp.o.x-a.x, dz=tp.o.z-a.z, d=tp.d;
+              if(d < ts*0.30 && !tp.o.dying){
+                tp.o.dying=true; tp.o.tsc=0;
+                a.eat=1.1; a.tx=a.x; a.tz=a.z; a.chaseLeft=0;
+              } else {
+                if(a.chaseLeft===undefined || a.chase<=0) a.chaseLeft=it.chaseMax;
+                if(a.chaseLeft>0){
+                  a.chaseLeft-=edt;
+                  const v=it.spd*mdt*(it.stalk?5.0:3.0);   // 매복형은 한 번에 덮친다
+                  a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+                  a.chase=0.5; a.act=it.stalk?"덮침":"추격";
+                }else{
+                  /* 지구력이 다했다. 숨을 고른다 */
+                  a.rest=1.2+Math.random(); a.act="지침";
+                }
+              }
+              urgent=true;
+            }else if(it.stalk){
+              /* 매복 중 — 움직이지 않고 기다린다 */
+              a.tx=a.x; a.tz=a.z; a.act="매복"; urgent=true;
             }
-            urgent=true;
           }
         }
-        if(a.eat>0){ a.eat-=edt; a.tx=a.x; a.tz=a.z; urgent=true; }
+        if(a.eat>0){ a.eat-=edt; a.tx=a.x; a.tz=a.z; urgent=true; a.act="먹는 중"; }
+        if(a.freeze>0){ a.tx=a.x; a.tz=a.z; urgent=true; if(!a.act) a.act="숨음"; }
         if(urgent){
           if(!(a.eat>0)){ a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6; }
           separate(a, si, ts); keepInside(a);
@@ -4855,14 +4902,18 @@ const Globe = (function(){
           faceMove(a, _px, _pz, edt);
           continue;
         }
-        /* 무리 짓기 — 사회성이 높으면 같은 종 쪽으로 조금씩 끌린다 */
-        if(it.social>0){
+        /* 무리 짓기 — 사회성이 높으면 같은 종 쪽으로 조금씩 끌린다.
+           새끼는 부모 돌봄이 좋을수록 더 오래 무리에 붙어 있는다. */
+        const herdW = it.social + (a.kid>0 ? it.care*0.05 : 0);
+        if(herdW>0){
           const h=herdPull(a.x,a.z,si);
           if(h){
             const dx=h.x-a.x, dz=h.z-a.z, d=Math.hypot(dx,dz);
-            if(d>ts*1.6){                       // 너무 가까우면 더 붙지 않는다
-              const v=it.spd*mdt*it.social;
+            const comfy = a.kid>0 ? ts*0.7 : ts*1.6;   // 새끼는 바짝 붙는다
+            if(d>comfy){
+              const v=it.spd*mdt*herdW;
               a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+              if(!a.act && d>ts*2.5) a.act="무리로";
             }
           }
         }
@@ -4876,7 +4927,9 @@ const Globe = (function(){
         if(d<ts*0.22){
           a.rest-=edt;
           if(a.rest<=0){
-            const nt=pickTile(s, a.tile, it);
+            /* 세력권이 강하면 제 구역을 잘 안 벗어난다 */
+            const nt = (it.terr>=6 && Math.random() < it.terr*0.07) ? a.tile
+                     : pickTile(s, a.tile, it);
             if(nt>=0){
               a.tile=nt;
               const c=[0,0,0]; tileCenter(nt,c);
@@ -4886,9 +4939,15 @@ const Globe = (function(){
             a.rest=(it.rest||1.5)*(0.5+Math.random());
           }
         } else {
-          const v=it.spd*mdt;
+          /* 걸음걸이 — 작고 빠른 것은 톡톡 튀며 가고 큰 것은 꾸준히 민다 */
+          const gait = it.burst
+            ? (Math.sin(performance.now()/1000*it.gaitRate + a.ph) > -0.2 ? 1.8 : 0.15)
+            : 1;
+          const v=it.spd*mdt*gait;
           a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+          if(!a.act) a.act="이동";
         }
+        if(!a.act) a.act = hunter ? "살핌" : "먹이 찾음";
       }
     }
   }
@@ -4986,17 +5045,19 @@ const Globe = (function(){
         const a=ag[k];
         if(a.sc<0.002) continue;
         const q=n*5;
-        const moving = (a.chase>0||a.flee>0) ? 1.7 : 1;
+        const still = (a.freeze>0 || a.act==="매복");
+        const moving = still ? 0 : (a.chase>0||a.flee>0) ? 1.7 : 1;
         out[q]  = a.x;
         /* 나는 것은 높이 뜨고, 큰 것은 느리게 육중하게, 헤엄치는 것은 거의 안 뜬다 */
         /* 나는 것만 제 몸 높이만큼 뜬다. 나머지는 발이 땅에 붙어 있어야 한다. */
         out[q+1]= a.y + (it.fly ? 1.1*a.sc : 0)
-                + Math.abs(Math.sin(T*it.bobRate*moving + a.ph))*it.bob*a.sc*1.6;
+                + (still ? 0 : Math.abs(Math.sin(T*it.bobRate*moving + a.ph))*it.bob*a.sc*1.6);
         out[q+2]= a.z;
         /* 셰이더가 Y축 회전만 하므로 '앞으로 기울이기'를 yaw에 더하고 있었다.
            그건 기울어지는 게 아니라 좌우로 도리질하는 것이다. 걷어냈다. */
         out[q+3]= a.yaw;
-        out[q+4]= a.sc;
+        /* 숨거나 매복 중이면 몸을 낮춘다 — 멈춘 게 눈에 보여야 행동이 읽힌다 */
+        out[q+4]= a.sc * (still ? 0.72 : 1);
         n++;
       }
       if(!n) continue;
@@ -5094,6 +5155,7 @@ const Globe = (function(){
 
   return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile, rebuildOne,
           agentAt, setFollow, setFollowCb, isFollowing:()=>!!follow,
+          followed:()=>follow&&follow.a,
           _dbg:()=>({inst, models}),
           get ok(){ return ok; }};
 })();
@@ -5209,6 +5271,14 @@ function toast(text, tag, color){
   box.appendChild(el);
   setTimeout(()=>{ el.classList.add("fade"); setTimeout(()=>el.remove(), 520); }, 2600);
   while(box.children.length>4) box.firstChild.remove();
+}
+/* 따라가는 개체가 지금 무엇을 하고 있는지. 행동이 형질에서 나온다는 걸
+   눈으로만이 아니라 글자로도 확인할 수 있어야 한다. */
+function followAct(){
+  const el=document.getElementById("fb-act"); if(!el) return;
+  const a = (Globe.followed && Globe.followed()) || null;
+  const t = a && a.act ? a.act : "";
+  if(el._t!==t){ el._t=t; el.textContent=t; el.style.display=t?"":"none"; }
 }
 function showFollow(s){
   const el=$("#followbar");
@@ -5764,6 +5834,7 @@ function loop(t){
   const dt=Math.min(100, t-lastT); lastT=t;
   if(!G.running || G.phase==="placing") return;
   tickClock();                        // 바늘은 틱이 아니라 매 프레임 돈다
+  followAct();                        // 따라가는 개체가 지금 뭘 하는지
 
   /* 1틱 = 한 계절 = 1초. ×1에서 1년이 4초 흐른다.
      이보다 빠르면 숫자가 깜빡이기만 하고 무슨 일이 일어나는지 읽을 틈이 없다. */
