@@ -4409,6 +4409,21 @@ function renderTree(){
   });
 }
 
+/* 식성 전환 — 이 게임에서 가장 큰 결정이다. 굶주릴 때 잡식으로 도망가거나,
+   사체가 쌓이면 분해자로 갈아타거나, 힘이 붙으면 사냥꾼이 된다. */
+function switchDiet(to){
+  const g=G, s=g.player;
+  if(!s.alive || g.ep<DIET_COST) return;
+  if(!(DIET_NEXT[s.diet]||[]).includes(to)) return;
+  const from=s.diet;
+  g.ep-=DIET_COST;
+  s.diet=to; s.d=derive(s.traits,to);
+  buildCompetition(g.species);
+  g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
+  logMsg("evo", `<b>${DIETS[from].name}</b>에서 <b>${DIETS[to].name}</b>(으)로 바뀌었습니다.`);
+  autoPause("식성 전환");
+  renderEvo(); renderLog(); renderSpecies();
+}
 function nodeState(k){
   const g=G, n=EVO_NODE[k];
   if(!n) return "locked";
