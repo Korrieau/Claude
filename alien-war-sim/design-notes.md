@@ -55,7 +55,32 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Score | Cumulative kills |
 | Mining and blight | Flavour only, no mechanical link |
 
-Open: turret vs garrison weighting, mining node layout, prototype scope.
+| Defense weighting | Garrison-led; auto turrets support, never carry |
+| Mining nodes | One safe node near base, the rest outside the line |
+
+Design is closed. Remaining work is build and balance.
+
+## Prototype scope - stage one
+
+Only what is needed to answer one question: does "a short line survives,
+a long line earns" actually feel good in the hand?
+
+In scope:
+- one tile-grid map, three approach corridors
+- supply conduits: connection check, destructible, corroded by blight
+- garrisons: trench (a line) and bunker (a point)
+- garrison crews: Security (fire) and Purification (cone, burns blight)
+- one auto turret, AR-2, as support only
+- three creatures: Drifter (mass), Burrower (passes walls), Spawn Spire
+- blight spread: denies construction, corrodes conduits
+- turret overheat
+- two resources: supply over time, crystal from extractors
+- endless waves, cumulative kill count
+- unrestricted building mid-wave, 3x speed toggle
+- work-order UI, synthesised SFX
+
+Out of scope for now: armor emplacements, the full build tree, strategic
+assets, the remaining creatures.
 
 ## Setting
 
