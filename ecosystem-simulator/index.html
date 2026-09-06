@@ -524,6 +524,39 @@ input[type=range]::-moz-range-thumb{
   background:#fff; border-radius:999px; padding:2px 9px; }
 .pressure p{ margin:5px 0 0; font-size:11.5px; color:var(--ink-2); line-height:1.5; }
 .pressure p b{ color:var(--gold-hi); font-weight:600; }
+/* 상황 판독 — 지금 어디쯤이고 어디로 가는지 */
+.rd-h{ display:flex; align-items:baseline; gap:8px; font-size:11.5px; color:var(--ink-2); margin-bottom:5px; }
+.rd-h b{ color:var(--ink); font-family:var(--f-disp); font-size:13.5px; }
+.rd-h em{ font-style:normal; margin-left:auto; color:var(--ink-3); font-size:10.5px; font-family:var(--f-mono); }
+.scenbar{ position:relative; display:flex; height:20px; border-radius:999px; overflow:hidden; background:var(--panel-3); }
+.scenbar .sg{ display:flex; align-items:center; justify-content:center; font-size:9.5px; color:var(--ink-3);
+  border-right:1px solid #fff; }
+.scenbar .sg.past{ background:#DCE4D8; color:var(--ink-2); }
+.scenbar .sg.now{ background:var(--gold); color:#fff; font-weight:600; }
+.scenbar .mk{ position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink); border-radius:2px; }
+.rd-note{ margin:5px 0 0; font-size:11px; color:var(--ink-2); line-height:1.5; }
+.rd-note b{ color:var(--gold-hi); font-weight:600; }
+.fitt{ width:100%; border-collapse:collapse; font-size:11.5px; }
+.fitt th{ font-family:var(--f-mono); font-size:9px; letter-spacing:.08em; color:var(--ink-3);
+  font-weight:500; text-align:right; padding:2px 4px; border-bottom:1px solid var(--line); }
+.fitt th:first-child, .fitt td:first-child{ text-align:left; }
+.fitt td{ padding:4px; border-bottom:1px solid var(--panel-2); text-align:right; }
+.fitt td:first-child{ color:var(--ink-2); }
+.fitt .c-ok{ color:var(--ink); }
+.fitt .c-warn{ color:var(--warn); font-weight:500; }
+.fitt .c-bad{ color:var(--crit); font-weight:600; }
+.fitt tr.v-bad td{ background:#FFF1F1; }
+.fitt em.dn{ font-style:normal; color:var(--crit); }
+.rd-cast{ margin:8px 0 0; font-size:11.5px; color:var(--ink-2); line-height:1.5;
+  background:var(--panel-2); border-radius:10px; padding:7px 10px; }
+.rd-cast.bad{ background:#FFF1F1; color:#8d2b2a; }
+.rd-cast.ok{ background:#EAF8F1; }
+.rd-cast b{ color:inherit; font-weight:700; }
+.rivalrow{ display:flex; align-items:center; gap:7px; font-size:11.5px; padding:3px 0; }
+.rivalrow i{ width:8px; height:8px; border-radius:2px; flex:none; }
+.rivalrow b{ margin-left:auto; font-weight:600; }
+.rivalrow em{ font-style:normal; color:var(--ink-3); font-size:10px; min-width:9em; text-align:right; }
+
 /* 자원 패널 */
 .resrow{ display:grid; grid-template-columns:56px 1fr 46px; align-items:center; gap:8px; margin-bottom:6px; }
 .resrow .k{ font-size:11.5px; color:var(--ink-2); }
@@ -1037,6 +1070,14 @@ input[type=range]::-moz-range-thumb{
 
     <!-- 오른쪽: 접었다 펴는 패널들 -->
     <div class="hud hud-r">
+      <div class="panel" id="panel-read">
+        <button class="panel-head" data-toggle="panel-read"><span>상황 판독</span><i>▾</i></button>
+        <div class="panel-body">
+          <div id="scen-bar"></div>
+          <div id="fit-table"></div>
+          <div id="pop-cast"></div>
+        </div>
+      </div>
       <div class="panel" id="panel-evo">
         <button class="panel-head" data-toggle="panel-evo">
           <span>진화</span><em class="num" id="ep-count">0</em><i>▾</i>
@@ -1054,6 +1095,7 @@ input[type=range]::-moz-range-thumb{
         <div class="panel-body">
           <p class="tiny">모든 동물이 여기서 나눠 먹습니다. 재생되지만 한정돼 있습니다.</p>
           <div id="res-bars"></div>
+          <div id="res-rivals"></div>
           <div class="res-plants" id="res-plants"></div>
         </div>
       </div>
@@ -1741,6 +1783,10 @@ function makeWorld(){
   const urb=new Uint8Array(NT);
   /* 다리 — 물이나 골짜기를 건너는 도로 칸 */
   const bridge=new Uint8Array(NT);
+  /* 최근에 바뀐 땅 — 얼마나 최근인지를 1에서 0으로 식는 값으로 들고 있다.
+     시나리오가 땅을 갉아먹는 걸 눈으로 좇을 수 있어야 한다. 어느 날 지도를
+     다시 봤더니 설원이 늘어 있는 것과, 설원이 번지는 걸 지켜보는 건 다르다. */
+  const changed=new Float32Array(NT), biomePrev=new Uint8Array(NT);
   /* 험한 정도 — 옆 칸들과의 평균 높이차. 벼랑과 너덜이 많은 땅일수록 크다.
      평지는 0에 가깝고 산등성이는 0.15를 넘는다.
      고도가 다 정해진 뒤에 재야 한다 — 바닷바닥을 평평하게 고르기 전에 재면
@@ -1787,7 +1833,7 @@ function makeWorld(){
            : b===3?74 : b===4?16 : b===5?26 : b===6?18 : b===7?94 : b===8?88 : b===9?12 : 60;
     detr[i]= soil[i]*0.30;
   }
-  return {elev,rough,wet,heat,biome,soil,moist,detr,poll,farm,road,urb,bridge,dist,region,vol,sea,river,flow,vd,
+  return {elev,rough,wet,heat,biome,soil,moist,detr,poll,farm,road,urb,bridge,changed,biomePrev,dist,region,vol,sea,river,flow,vd,
           baseMoist:Float32Array.from(moist), baseSoil:Float32Array.from(soil)};
 }
 
@@ -2328,10 +2374,19 @@ function recount(){
       }
       g._lastWarnPop=prev;
     }
-    if(s.alive && tot<1 && !(s.isPlayer && g.phase==="placing")){
-      s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
-      s.pop.fill(0);
-      logMsg(s.isPlayer?"death":"death", `<b>${s.name}</b> 멸종. (${g.year}년)`);
+    /* 최소존속개체군 — 몇 마리로는 종이 이어지지 않는다.
+       짝을 못 찾고, 근친이 쌓이고, 한 번의 흉년이 마지막이 된다.
+       이게 없으면 서식지가 다 사라진 종도 한두 마리로 300년을 연명해서
+       끝까지 살아남는 것이 아무 의미도 없어진다 — 실제로 27종 중 21종이 살아남았다. */
+    if(s.alive && !(s.isPlayer && g.phase==="placing")){
+      const mvp = 45 * (1 + s.d.bodyMass*0.6);          // 몸이 클수록 더 많은 개체가 필요하다
+      if(tot < mvp) s.lowRun=(s.lowRun||0)+1; else s.lowRun=0;
+      const doomed = tot<1 || s.lowRun >= 10*TICKS_PER_YEAR;   // 열 해를 못 벗어나면 끝이다
+      if(doomed){
+        s.alive=false; s.extinctYear=g.year; s.total=0; s.tiles=0; s.biomass=0;
+        s.pop.fill(0);
+        logMsg("death", `<b>${s.name}</b> 멸종. (${g.year}년)`);
+      }
     }
   }
 }
@@ -2492,12 +2547,17 @@ const ERAS = [
    intro:"기온이 해마다 떨어집니다. 얼음이 남쪽으로 내려오고 있습니다.",
    outro:"얼음이 물러갔습니다. 살아남은 것들이 빈 땅을 채웁니다.",
    temp:-6, moist:0.90, light:0.86,
-   year:g=>{ /* 추운 곳부터 설원으로 덮인다 */
-     const w=g.world; let n=0;
+   /* 얼음의 전선이 세력을 따라 계속 남쪽으로 내려온다.
+      예전에는 heat<0.42인 칸만 얼려서, 그 칸이 다 얼고 나면(80년쯤)
+      세력이 아무리 세져도 지도가 두 세기 동안 한 칸도 안 바뀌었다.
+      관찰할 변화가 없으면 시나리오는 하늘색일 뿐이다. */
+   year:g=>{
+     const w=g.world, t=(g.era&&g.era.t)||0; let n=0;
+     const line=0.28+t*0.46;                      // 세력이 셀수록 따뜻한 땅까지 얼어붙는다
      for(let i=0;i<NT && n<14;i++){
        const j=Math.floor(rnd()*NT);
        if(w.vd[j]||w.biome[j]===10||w.biome[j]===9) continue;
-       if(w.heat[j]<0.42 && w.biome[j]!==6){ w.biome[j]=6; w.baseSoil[j]=18; n++; }
+       if(w.heat[j]<line && w.biome[j]!==6){ w.biome[j]=6; w.baseSoil[j]=18; n++; }
      }
      if(n) g._sceneDirty=true;
    }},
@@ -2506,11 +2566,17 @@ const ERAS = [
    intro:"기온이 치솟습니다. 물이 마르고 얼음이 녹습니다.",
    outro:"기온 상승이 멎었습니다. 그러나 녹은 것은 돌아오지 않습니다.",
    temp:5, moist:0.88, light:1.0,
-   year:g=>{ const w=g.world; let n=0;
+   /* 눈부터 녹고, 그다음에는 숲과 초원이 마른다. 녹을 눈이 없다고 멈추면
+      온난화가 100년째 아무 일도 안 하는 시나리오가 된다. */
+   year:g=>{ const w=g.world, t=(g.era&&g.era.t)||0; let n=0;
      for(let i=0;i<NT && n<10;i++){
        const j=Math.floor(rnd()*NT);
        if(w.vd[j]) continue;
        if(w.biome[j]===6){ w.biome[j]=2; w.baseSoil[j]=52; n++; }
+       else if(t>0.45 && w.biome[j]===3 && w.heat[j]>0.62-t*0.18 && rnd()<0.5){
+         w.biome[j]=2; w.baseSoil[j]=44; n++; }                    // 숲이 초원으로
+       else if(t>0.75 && w.biome[j]===2 && w.heat[j]>0.70-t*0.20){
+         w.biome[j]=4; w.baseSoil[j]=20; w.baseMoist[j]=0.14; n++; } // 초원이 사막으로
      }
      if(n) g._sceneDirty=true;
    }},
@@ -2562,6 +2628,9 @@ const ERAS = [
        const j=Math.floor(rnd()*NT);
        if(w.vd[j]) continue;
        if(w.biome[j]===1||w.biome[j]===2){ w.biome[j]=4; w.baseMoist[j]=0.12; w.baseSoil[j]=18; n++; }
+       /* 습지와 초원이 다 마른 뒤에는 숲이 초원이 된다. 그래야 가뭄이 계속 나아간다 */
+       else if(((g.era&&g.era.t)||0)>0.55 && (w.biome[j]===3||w.biome[j]===7)){
+         w.biome[j]=2; w.baseMoist[j]=0.26; w.baseSoil[j]=36; n++; }
      }
      if(n) g._sceneDirty=true;
    }},
@@ -2626,7 +2695,11 @@ const ERAS = [
      for(let i=0;i<NT && n<10;i++){
        const j=Math.floor(rnd()*NT);
        if(w.vd[j]||w.biome[j]===10) continue;
-       if(w.biome[j]!==11 && w.biome[j]!==1) continue;
+       /* 해수면이 실제로 올라간다. 해변과 습지만 잠기게 두면 그 칸이 다 잠긴 뒤로는
+          바다가 두 세기 동안 한 뼘도 안 올라온다. 세력을 따라 수위선이 올라가고,
+          그보다 낮은 땅은 무엇이든 잠긴다. */
+       const line = SEA_ELEV + 0.012 + ((g.era&&g.era.t)||0)*0.075;
+       if(w.elev[j] > line) continue;
        let coastal=false;
        const cx=j%W, cy=(j/W)|0;
        for(let dy=-1;dy<=1&&!coastal;dy++)for(let dx=-1;dx<=1;dx++){
@@ -2738,8 +2811,12 @@ function eraTick(){
 
   /* 절정을 넘어서면 땅 자체가 메마른다. 먹이 기반이 줄어야 모두가 함께 쪼그라들고,
      그게 '가혹해진다'의 실체다. 기온만 흔드는 것으로는 개체군이 옮겨가면 그만이다. */
-  if(t>0.6 && !d.kind_good){
-    const w=g.world, bite=(t-0.6)*TUNE.scenBite;
+  /* 마지막 구간에서 먹이 기반 자체가 무너진다. 세력에 비례해 조금씩 깎으면
+     세계가 넓어서 어느 종이든 피난처를 찾고, 27종 중 20종이 끝까지 살아남는다.
+     그러면 '끝까지 살아남았다'가 아무 뜻도 없다. 제곱으로 걸어서
+     앞구간은 거의 건드리지 않고 파국에서만 땅이 죽게 한다. */
+  if(t>0.55 && !d.kind_good){
+    const ov=t-0.55, w=g.world, bite=ov*ov*TUNE.scenBite*9;   /* 해마다 한 번 도는 값이다 */
     for(let i=0;i<NT;i++){
       if(w.vd[i]||w.biome[i]===10) continue;
       w.baseSoil[i]=Math.max(6, w.baseSoil[i]-bite);
@@ -2749,15 +2826,19 @@ function eraTick(){
 }
 
 /* 시나리오는 한 판의 줄거리다. 전조 → 심화 → 절정 → 여파로 세력이 오르내린다. */
-function scenT(g){
+/* 세력은 시간만의 함수다. 그래서 몇 년 뒤가 어떨지 정확히 계산할 수 있고,
+   그게 이 게임에서 '예측'이 성립하는 근거다. */
+function scenTAt(year){
   /* 물러나지 않는다. 이 게임은 평화로운 생태계를 만드는 게 아니라
      끝까지 가혹해지는 환경을 살아남는 것이다. 마지막 구간이 가장 혹독하다. */
-  const f=g.year/MAX_YEARS;
+  const f=clamp(year,0,MAX_YEARS)/MAX_YEARS;
   if(f<0.20) return f/0.20*0.22;                      // 전조
   if(f<0.50) return 0.22+(f-0.20)/0.30*0.38;          // 심화
   if(f<0.80) return 0.60+(f-0.50)/0.30*0.40;          // 절정
   return 1.00+(f-0.80)/0.20*0.45;                     // 파국 — 1을 넘어선다
 }
+const scenT = g => scenTAt(g.year);
+const PHASE_END=[0.20,0.50,0.80,1.00];                // 각 구간이 끝나는 지점
 /* 단계는 세력이 아니라 시간으로 정한다. */
 const scenPhase = g => { const f=g.year/MAX_YEARS;
   return f<0.20 ? 0 : f<0.50 ? 1 : f<0.80 ? 2 : 3; };
@@ -3060,6 +3141,30 @@ function nearHuman(w,x,y){
   return false;
 }
 
+/* 작년과 견줘 지형이 바뀐 칸을 표시하고, 얼마나 바뀌었는지 알린다.
+   23군데에서 지형을 고치고 있어서 일일이 표시하는 대신 해마다 한 번 견준다. */
+const BIOME_NAME=["호수","습지","초원","숲","사막","산지","설원","정글","화산","도시","바다","해변","강"];
+function markChanges(g){
+  const w=g.world, cur=w.biome, prev=w.biomePrev, ch=w.changed;
+  const tally={};
+  let n=0;
+  for(let i=0;i<NT;i++){
+    ch[i]*=0.80;                       // 열 해쯤 지나면 자국이 사라진다
+    if(w.vd[i]) continue;
+    if(cur[i]!==prev[i]){
+      ch[i]=1; prev[i]=cur[i]; n++;
+      tally[cur[i]]=(tally[cur[i]]||0)+1;
+    }
+    if(ch[i]<0.02) ch[i]=0;
+  }
+  g.changedYr=n;
+  if(n) g._sceneDirty=true;          // 지형이 바뀌면 그 위에 선 것도 바뀌어야 한다
+  if(n>=6){
+    const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0];
+    if(top) toast(`땅 ${n}칸이 <b>${BIOME_NAME[top[0]]}</b>(으)로 바뀌었습니다`,"변화","#7B5CE0");
+  }
+}
+
 function rollEvents(){
   const g=G;
   /* 사람은 인간 시나리오에서만 온다. 안 뽑히면 순수한 자연의 판이 된다. */
@@ -3069,6 +3174,7 @@ function rollEvents(){
     cinematic(`${g.year}년`, "사람이 왔다", "도시가 들어서고 길과 밭이 그 도시에서 퍼져 나갑니다.", 3200);
   }
   if(g.humanArrived && g.season===0) humanTick(g);   // 사람은 사건이 아니라 해마다 번진다
+  if(g.season===0) markChanges(g);
   /* 해수면 상승처럼 고도를 바꾼 해에는 험한 정도를 다시 잰다 */
   if(g._roughDirty){ g._roughDirty=0; measureRough(g.world.elev, g.world.rough); }
   for(const e of NATURE_EVENTS){
@@ -3177,12 +3283,17 @@ const ENDINGS={
   silence:{cls:"bad", eyebrow:"패배", title:"침묵의 땅",
     body:"모든 동물이 사라졌습니다. 남은 것은 식물과 흙뿐입니다. 먹이사슬의 어느 한 칸이 무너지면 위쪽은 통째로 따라 무너집니다."},
   timeout:{cls:"good", eyebrow:"승리", title:"살아남았다",
-    body:"300년이 지났습니다. 아무것도 아니었던 것이 끝까지 버텼습니다. 그 사이 수많은 종이 사라졌고, 당신은 남았습니다."},
+    body:"300년이 지났습니다. 아무것도 아니었던 것이 끝까지 버텼습니다."},
 };
-/* 생존이 승패를 가르고, 얼마나 잘 살아남았는지는 등급으로 매긴다 */
+/* 승리는 '살아남은 종에 드는 것'이다. 등급은 얼마나 잘 살아남았는지를 매기되,
+   같이 남은 종이 적을수록 더 값어치가 있다 — 절반이 사라진 판에서 남는 것과
+   다 같이 남는 판에서 남는 것은 다르다. */
 function survivalGrade(score, rank, total){
   const rel = total>1 ? 1-(rank-1)/(total-1) : 1;
-  const v = score*0.55 + rel*45;
+  /* 이번 판에서 몇 종이나 끝을 봤나 */
+  const nAll=G.species.length, nLive=G.species.filter(s=>s.alive).length;
+  const scarcity = clamp(1-(nLive-1)/Math.max(1,nAll-1), 0, 1);   // 적게 남을수록 1에 가깝다
+  const v = score*0.50 + rel*38 + scarcity*22;
   return v>=52 ? {g:"S", t:"이 땅의 주인이 되었습니다"}
        : v>=42 ? {g:"A", t:"넉넉히 살아남았습니다"}
        : v>=33 ? {g:"B", t:"제 자리를 지켰습니다"}
@@ -3322,6 +3433,8 @@ function tileRGB(i, layer, veg, sel){
     if(w.dist[i]>0.15) col = mix(col,[196,178,142], clamp(w.dist[i]*0.5,0,0.45));
     if(w.farm[i]) col = mix(col,[214,190,110],0.62);
     /* 도시 등급이 색으로 읽혀야 한다 — 교외는 옅은 회록, 도심은 짙은 회색 */
+    /* 최근에 바뀐 땅은 잠깐 밝게 남는다 — 무엇이 번지고 있는지 눈으로 좇게 */
+    if(w.changed[i]>0.02) col = mix(col,[255,236,170], w.changed[i]*0.55);
     if(w.urb[i]===1) col = mix(col,[168,170,158],0.42);
     else if(w.urb[i]===2) col = mix(col,[140,141,138],0.35);
     else if(w.urb[i]===3) col = mix(col,[92,94,98],0.55);
@@ -3441,10 +3554,20 @@ function drawMapLegend(){
 function avgTemp(){ let t=0; for(let i=0;i<NT;i++) t+=tileTemp(G.world,i,G.season,G.warming); return t/NT; }
 /* 계절 순간값을 그대로 보여주면 숫자가 1초마다 널뛰어 깜빡이는 것처럼 보인다.
    기후는 원래 한 해를 묶어서 읽는 것이므로 연평균과 여름·겨울 폭으로 보여준다. */
+/* 세계 평균 기온의 밑값. 지형은 안 바뀌므로 한 번만 잰다. */
+function baseTempAvg(){
+  const g=G;
+  if(g._baseT===undefined){
+    let b=0; for(let i=0;i<NT;i++) b += 4 + g.world.heat[i]*22;
+    g._baseT=b/NT;
+  }
+  return g._baseT;
+}
 function yearTemp(){
-  const g=G; let base=0;
-  for(let i=0;i<NT;i++) base += 4 + g.world.heat[i]*22;
-  base/=NT; base += g.warming;
+  const g=G;
+  /* 시나리오가 기온을 얼마나 밀고 있는지를 빼먹고 있었다. 빙하기가 와도
+     화면의 기온은 그대로여서, 정작 읽어야 할 숫자가 거짓말을 하고 있었다. */
+  let base=baseTempAvg() + g.warming + eraMod("temp");
   let lo=Infinity, hi=-Infinity, sum=0;
   for(let s=0;s<TICKS_PER_YEAR;s++){
     const t=base+SEASON_TEMP[s];
@@ -4938,6 +5061,7 @@ function renderSpecies(){
       return b.s.total-a.s.total;
     });
   renderResources();
+  renderReadout();
   tb.innerHTML = rows.map(({s,idx})=>{
     const h=s.hist, prev=h.length>6?h[h.length-6]:h[0]||0;
     let cls="flat", ar="—";
@@ -5048,6 +5172,139 @@ function renderResources(){
   $("#res-plants").innerHTML = ps.map(s=>
     `<span class="plantchip${s.alive?"":" dead"}"><i style="background:${s.color}"></i>${s.name}
      <b class="num">${s.alive?fmt(s.total):"멸종"}</b></span>`).join("");
+}
+
+/* ── 상황 판독 ───────────────────────────────────────────────────
+   시뮬레이션 게임의 재미는 지금 무슨 일이 벌어지는지 읽고 몇 수 앞을 내다보는 데 있다.
+   '지난해 무엇이 나를 죽였나'만 알려주면 대응은 되지만 예측은 안 된다.
+   시나리오 세력이 시간만의 함수라 몇 년 뒤 기온과 습도를 정확히 계산할 수 있다.
+   그걸 내 종의 적정값과 나란히 놓으면, 무엇을 언제까지 진화시켜야 하는지가 보인다. */
+
+/* dy년 뒤의 기후. 온난화는 지금까지의 속도가 이어진다고 본다. */
+function climateAt(year){
+  const g=G, sc=g.era;
+  const t = sc ? scenTAt(year)*TUNE.scenPower : 0;
+  const dT = (sc && sc.def.temp!==undefined) ? sc.def.temp*t : 0;
+  const mMul = (sc && sc.def.moist!==undefined) ? 1+(sc.def.moist-1)*t : 1;
+  const warm = g.warming + (g.warming/Math.max(1,g.year))*(year-g.year);
+  return { temp: baseTempAvg()+warm+dT, moistMul: mMul };
+}
+
+/* 이 추세면 몇 년 뒤 몇 마리가 되는가 — 최근 12년의 로그 기울기 */
+function popCast(){
+  const p=G.player; if(!p||!p.alive) return null;
+  const h=p.hist, n=h.length, span=Math.min(48, n-1);   // 48틱 = 12년
+  if(span<12) return null;
+  const a=h[n-1-span], b=h[n-1];
+  if(a<=1||b<=1) return null;
+  const rate=Math.log(b/a)/(span/TICKS_PER_YEAR);       // 연간 지수 증가율
+  if(!isFinite(rate)) return null;
+  const yrsLeft=MAX_YEARS-G.year;
+  if(rate < -0.008){
+    const toDeath=Math.log(30/b)/rate;                   // 30마리를 사실상 끝으로 본다
+    return {rate, dying:true, years:Math.max(1,Math.round(toDeath)),
+            at20:Math.round(b*Math.exp(rate*Math.min(20,yrsLeft)))};
+  }
+  return {rate, dying:false, at20:Math.round(b*Math.exp(rate*Math.min(20,yrsLeft)))};
+}
+
+function renderReadout(){
+  const g=G, p=g.player;
+  if(!p) return;
+
+  /* ── 1. 시나리오가 어디까지 왔나 ── */
+  const f=g.year/MAX_YEARS, sc=g.era;
+  const ph=scenPhase(g);
+  const nextEnd=PHASE_END[ph]*MAX_YEARS;
+  const toNext=Math.max(0, Math.round(nextEnd-g.year));
+  const segs=[[0,0.20,"전조"],[0.20,0.50,"심화"],[0.50,0.80,"절정"],[0.80,1,"파국"]];
+  const name = (sc && sc.revealed) ? sc.def.name : "아직 정체를 모릅니다";
+  $("#scen-bar").innerHTML =
+    `<div class="rd-h"><b>${name}</b><em>${g.year} / ${MAX_YEARS}년</em></div>`
+  + `<div class="scenbar">`
+  + segs.map((sg,k)=>`<span class="sg${k===ph?" now":""}${k<ph?" past":""}"
+       style="flex:${(sg[1]-sg[0])*100}">${sg[2]}</span>`).join("")
+  + `<i class="mk" style="left:${(f*100).toFixed(1)}%"></i></div>`
+  + `<p class="rd-note">${ph<3
+      ? `<b>${segs[ph+1][2]}</b> 구간까지 <b>${toNext}년</b>. 갈수록 나빠집니다.`
+      : `마지막 구간입니다. 회복은 없습니다.`}</p>`;
+
+  /* ── 2. 내 종과 지금 세계가 얼마나 어긋나 있나 ── */
+  const d=p.d, yt=yearTemp(), now=climateAt(g.year), soon=climateAt(Math.min(MAX_YEARS,g.year+20));
+  const mNow=avgMoist(), mSoon=clamp(mNow*(soon.moistMul/Math.max(0.01,now.moistMul)),0,1);
+  const poll=avgPoll();
+  /* 내가 사는 곳이 얼마나 험한가 */
+  let rgh=0, rw=0;
+  if(g.world.rough) for(let i=0;i<NT;i++){ const v=p.pop[i]; if(v>0.05){ rgh+=g.world.rough[i]*v; rw+=v; } }
+  const roughMine = rw>0 ? rgh/rw : 0;
+
+  /* 판정은 눈대중이 아니라 시뮬레이션이 실제로 쓰는 적합도 식 그대로 낸다.
+     처음엔 '허용 폭의 몇 배나 벗어났나'로 냈더니 폭이 넓은 형질에서 늘 '여유'가 떠서
+     아무것도 알려주지 않았다. 화면의 판정과 실제로 죽는 이유가 같아야 한다. */
+  const tempFit=T=>{ const dt=T-d.optTemp, w2=(dt<0?d.wCold:d.wHeat); return Math.exp(-(dt*dt)/(2*w2*w2)); };
+  const moistFit=M=>{ const dm=M-d.moistOpt; return Math.exp(-(dm*dm)/(2*d.moistW*d.moistW)); };
+  const pollFit=P=>1/(1+Math.pow(P/d.pollHalf,2));
+  const rockFit=R=>clamp(1-Math.max(0,R-d.climbSlope)*7.5,0.14,1);
+  const rows=[
+    ["기온", `${d.optTemp.toFixed(0)}°C`,
+      `${yt.mean.toFixed(0)}°C`, `${soon.temp.toFixed(0)}°C`,
+      tempFit(yt.mean), tempFit(soon.temp)],
+    ["습도", `${(d.moistOpt*100).toFixed(0)}%`,
+      `${(mNow*100).toFixed(0)}%`, `${(mSoon*100).toFixed(0)}%`,
+      moistFit(mNow), moistFit(mSoon)],
+    ["오염", `견딤 ${d.pollHalf.toFixed(0)}`,
+      poll.toFixed(0), "—", pollFit(poll), pollFit(poll)],
+    ["지형", `경사 ${(d.climbSlope*100).toFixed(0)}%`,
+      `주변 ${(roughMine*100).toFixed(0)}%`, "—",
+      rockFit(roughMine), rockFit(roughMine)],
+  ];
+  /* 먹이 — 실제로 가장 많이 죽는 이유가 굶주림인데 표에 없었다.
+     기후는 다 '잘 맞음'인데 개체수가 무너지는 화면은 아무것도 설명하지 못한다. */
+  if(p.diet!=="producer" && p.satYr!==undefined){
+    const sat=clamp(p.satYr,0,1);
+    rows.push(["먹이", "배부름 1.0", sat.toFixed(2), "—", sat, sat]);
+  }
+  /* 적합도 1이 최적, 0이 못 삶 */
+  const verdict=v=> v>0.80 ? ["잘 맞음","ok"] : v>0.55 ? ["견딜 만","ok"]
+                  : v>0.30 ? ["빠듯","warn"] : ["못 버팀","bad"];
+  $("#fit-table").innerHTML =
+    `<div class="rd-h" style="margin-top:10px"><b>내 종 vs 지금 세계</b><em>20년 뒤까지</em></div>`
+  + `<table class="fitt"><thead><tr><th></th><th>내 값</th><th>지금</th><th>20년 뒤</th><th></th></tr></thead><tbody>`
+  + rows.map(r=>{
+      const [nowTxt,nowCls]=verdict(r[4]), [soonTxt,soonCls]=verdict(r[5]);
+      const worsening = r[5]<r[4]-0.06;
+      return `<tr class="v-${soonCls}"><td>${r[0]}</td><td>${r[1]}</td>`
+        + `<td class="c-${nowCls}">${r[2]}</td>`
+        + `<td class="c-${soonCls}">${r[3]}${worsening?' <em class="dn">↓</em>':''}</td>`
+        + `<td class="c-${soonCls}">${soonTxt}</td></tr>`;
+    }).join("")
+  + `</tbody></table>`;
+
+  /* ── 3. 이 추세면 어떻게 되나 ── */
+  const c=popCast();
+  $("#pop-cast").innerHTML = !c ? "" :
+    c.dying
+      ? `<p class="rd-cast bad">지금 추세가 이어지면 <b>${c.years}년 뒤 멸종</b>합니다.
+         (해마다 ${Math.abs(c.rate*100).toFixed(0)}%씩 줄어드는 중)</p>`
+      : `<p class="rd-cast${c.rate>0.02?" ok":""}">지금 추세면 20년 뒤 약 <b>${fmt(c.at20)}마리</b>.
+         (해마다 ${c.rate>=0?"+":""}${(c.rate*100).toFixed(0)}%)</p>`;
+
+  /* ── 4. 내 먹이를 누가 빼앗아 가나 ── */
+  const box=$("#res-rivals");
+  if(box){
+    const rivals=(p.comp||[]).filter(([o])=>o.alive&&o.total>1)
+      .map(([o,a])=>[o,a*Math.log(1+o.total)])
+      .sort((x,y)=>y[1]-x[1]).slice(0,4);
+    box.innerHTML = !rivals.length ? "" :
+      `<div class="rd-h" style="margin-top:9px"><b>내 자리를 두고 다투는 종</b></div>`
+      + rivals.map(([o,w])=>{
+          const ov=(p.comp.find(c=>c[0]===o)[1]/TUNE.compet*100);
+          return `<div class="rivalrow"><i style="background:${o.color}"></i>
+            <span>${o.name}</span>
+            <b class="num">${fmt(o.total)}</b>
+            <em>지위 ${ov.toFixed(0)}% 겹침</em></div>`;
+        }).join("");
+  }
 }
 
 /* ── 진화 패널 ───────────────────────────────────────────────── */
@@ -5308,8 +5565,11 @@ function renderResult(){
   const box=$("#ending");
   box.className = "ending "+e.cls;
   let verdict;
+  /* 승리의 알맹이는 등수가 아니라 '몇 종이 사라진 판에서 남았나'다 */
+  const nAll=g.species.length, nLive=g.species.filter(s=>s.alive).length;
   if(won) verdict = `<b>${g.player.name}</b>은(는) 아무것도 아닌 것에서 시작해 `
     + `<b>${DIETS[g.player.diet].name}</b>이(가) 되어 300년을 버텼습니다. `
+    + `<b>${nAll}종 가운데 ${nLive}종만 끝을 봤고, 그 안에 들었습니다.</b> `
     + `동물 ${g.rivalCount}종 가운데 ${g.myRank}위.`;
   else verdict = `<b>${g.player.name}</b>은(는) ${g.player.extinctYear}년에 사라졌습니다. `
     + `${MAX_YEARS}년 가운데 ${g.player.extinctYear}년까지.`;
