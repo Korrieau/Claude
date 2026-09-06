@@ -51,8 +51,11 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Enemy identity | Infected native wildlife, crystal-borne, not invaders |
 | UI tone | Work order and gauge readout, dry, no fanfare |
 
-Open: mining-spreads-blight dilemma, endless difficulty curve, score
-basis, turret vs garrison weighting, mining node layout.
+| Difficulty | Fixed per-wave formula, new creatures introduced on a cycle |
+| Score | Cumulative kills |
+| Mining and blight | Flavour only, no mechanical link |
+
+Open: turret vs garrison weighting, mining node layout, prototype scope.
 
 ## Setting
 
@@ -66,8 +69,13 @@ Tone is dry industrial labour, not heroism. Assets carry model numbers
 Excavator). A cleared wave reads like a log line, not a victory screen.
 
 Note on references: Arknights lore does tie Originium to disease, but
-Endfield has no "mining spreads contamination" mechanic. That idea is
-ours, not borrowed, and is still undecided.
+Endfield has no "mining spreads contamination" mechanic. We keep that
+link as flavour in the fiction only - extraction never feeds the blight
+numerically.
+
+Difficulty is a fixed formula so runs stay comparable: wave N sets count
+and composition, and a new creature type enters on a set cycle. Nothing
+scales to how well the player is doing.
 
 ## Enemy identity
 
