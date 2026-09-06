@@ -597,6 +597,26 @@ input[type=range]::-moz-range-thumb{
 .ending.bad{ border-left-color: var(--crit); }
 .ending.good{ border-left-color: var(--good); }
 .ending .eyebrow{ margin-bottom:4px; }
+.grade{ display:flex; align-items:center; gap:12px; margin:10px 0 12px; }
+.grade b{ font-family:var(--f-disp); font-size:40px; line-height:1; width:64px; height:64px;
+  border-radius:20px; display:flex; align-items:center; justify-content:center; color:#fff; }
+.grade span{ font-size:14px; color:var(--ink-2); }
+.grade-S b{ background:#F3C13C; color:#4E3400; box-shadow:0 4px 0 #C99A18; }
+.grade-A b{ background:var(--good); box-shadow:0 4px 0 #148f61; }
+.grade-B b{ background:#4C8FD6; box-shadow:0 4px 0 #3872AF; }
+.grade-C b{ background:#9AA79F; box-shadow:0 4px 0 #7B877F; }
+.grade-D b{ background:#B0938A; box-shadow:0 4px 0 #8E756D; }
+
+/* 식성 전환 */
+.dietswap{ margin-bottom:9px; }
+.ds-head{ display:flex; align-items:baseline; gap:8px; font-size:11.5px; color:var(--ink-2); margin-bottom:5px; }
+.ds-head b{ color:var(--ink); font-weight:600; }
+.ds-head em{ font-style:normal; margin-left:auto; color:var(--ink-3); font-size:10.5px; }
+.ds-row{ display:flex; flex-wrap:wrap; gap:5px; }
+.ds-btn{ background:var(--panel-2); border:2px solid var(--line); border-radius:999px;
+  padding:4px 11px; font-size:11.5px; font-weight:500; color:var(--ink-2); transition:transform .08s; }
+.ds-btn:hover:not(:disabled){ border-color:var(--gold); color:var(--ink); transform:translateY(-1px); }
+.ds-btn:disabled{ opacity:.4; cursor:not-allowed; }
 .ending h2{ font-size:30px; margin-bottom:8px; }
 .ending p{ margin:0; color: var(--ink-2); max-width: 68ch; }
 .ending .verdict{ font-size:15px; color: var(--ink); margin-top:12px; }
@@ -676,84 +696,54 @@ input[type=range]::-moz-range-thumb{
 <section id="scr-design" class="screen on">
   <div class="hero">
     <div>
-      <h1>번영의 계보<span class="tag">생태 시뮬레이터</span></h1>
-      <p class="sub">형질 33개를 배분해 종 하나를 설계하고, 이미 33종이 자리 잡은 땅에 풀어놓습니다.
-        300년 뒤 동물 가운데 <b>종합 번영 지수 1위</b>가 되면 승리입니다.</p>
-      <p class="sub">판마다 <b>시나리오 하나</b>가 뽑혀 300년 전체를 지배합니다 — 빙하기, 대가뭄,
-        운석 충돌, 인간의 세기 같은 것들입니다. 무엇인지는 알려주지 않습니다.
-        <b>징후</b>를 읽고 알아채서 그에 맞게 진화시키는 것이 이 게임입니다.</p>
+      <h1>번영의 계보<span class="tag">생존 시뮬레이터</span></h1>
+      <p class="sub">당신은 <b>아무것도 아닌 생물</b>입니다. 작고, 느리고, 잘하는 게 없습니다.
+        이미 33종이 자리 잡은 땅에서 <b>300년을 살아남으면 승리</b>입니다.</p>
+      <p class="sub">판마다 <b>시나리오 하나</b>가 뽑혀 300년을 지배하고, 갈수록 가혹해집니다 —
+        빙하기, 대가뭄, 운석 충돌, 인간의 세기 같은 것들입니다. 무엇인지는 알려주지 않습니다.
+        <b>징후</b>를 읽고 알아채서, 진화 포인트로 <b>그때그때 필요한 생물이 되는 것</b>이 이 게임입니다.
+        사냥꾼이 될 수도, 청소부가 될 수도 있습니다. 식성까지 바꿀 수 있습니다.</p>
       <div class="hero-steps">
-        <span class="step"><b>1</b>형질 설계</span>
-        <span class="step"><b>2</b>지역 선택</span>
-        <span class="step"><b>3</b>관측</span>
-        <span class="step"><b>4</b>진화 포인트로 조정</span>
-        <span class="step"><b>5</b>번영 판정</span>
+        <span class="step"><b>1</b>먹는 방식 선택</span>
+        <span class="step"><b>2</b>터전 고르기</span>
+        <span class="step"><b>3</b>징후 읽기</span>
+        <span class="step"><b>4</b>진화</span>
+        <span class="step"><b>5</b>300년 생존</span>
       </div>
     </div>
     <div class="hero-facts">
-      <div class="fact"><div class="v">34</div><div class="k">경쟁 종</div></div>
-      <div class="fact"><div class="v">33</div><div class="k">형질</div></div>
-      <div class="fact"><div class="v">300</div><div class="k">관측 연수</div></div>
+      <div class="fact"><div class="v">33</div><div class="k">경쟁 종</div></div>
+      <div class="fact"><div class="v">300</div><div class="k">살아남을 햇수</div></div>
     </div>
   </div>
 
   <div class="design-grid">
     <div>
       <div class="card" style="margin-bottom:14px">
-        <header><h3>종 정보</h3><span class="eyebrow">1틱 = 한 계절</span></header>
+        <header><h3>시작</h3><span class="eyebrow">여기서부터 만들어 갑니다</span></header>
         <div class="body">
-          <div class="identity" style="margin-bottom:16px">
-            <div class="field">
-              <label for="sp-name">종 이름</label>
-              <input type="text" id="sp-name" value="회색등 초원쥐" maxlength="18">
-            </div>
-            <div class="field">
-              <label for="preset">설계 프리셋</label>
-              <select id="preset">
-                <option value="custom">직접 설계</option>
-                <option value="rstrat" selected>소형 다산형 — 작고 빨리 번식</option>
-                <option value="kstrat">대형 K전략 — 크고 오래 살고 적게 낳음</option>
-                <option value="apex">최상위 포식자 — 사냥에 전부 투자</option>
-                <option value="toxic">독성 방어형 — 안 잡아먹히는 데 투자</option>
-                <option value="decomp">분해자 — 사체를 먹고 조용히 퍼짐</option>
-                <option value="general">제너럴리스트 — 어디서든 그럭저럭</option>
-              </select>
-            </div>
+          <div class="field" style="margin-bottom:16px">
+            <label for="sp-name">종 이름</label>
+            <input type="text" id="sp-name" value="이름 없는 것" maxlength="18">
           </div>
-
-          <div class="eyebrow" style="margin-bottom:7px">식성</div>
+          <div class="eyebrow" style="margin-bottom:7px">무엇을 먹고 시작할까요</div>
           <div class="diets" id="diets"></div>
+          <p class="footnote">식성은 나중에 진화 포인트로 바꿀 수 있습니다.
+            굶주리면 잡식으로 도망가고, 시체가 쌓이면 분해자로 갈아탈 수 있습니다.</p>
         </div>
       </div>
 
       <div class="card">
-        <header>
-          <h3>형질 배분</h3>
-          <div class="btnrow">
-            <button class="btn ghost" id="btn-reset">전부 3으로</button>
-            <button class="btn ghost" id="btn-random">무작위</button>
-          </div>
-        </header>
-        <div class="body" id="trait-groups"></div>
-      </div>
-    </div>
-
-    <div style="position:sticky; top:14px">
-      <div class="card" style="margin-bottom:14px">
-        <header><h3>예산</h3></header>
+        <header><h3>시작 능력</h3><span class="eyebrow">형질은 모두 1~4</span></header>
         <div class="body">
-          <div class="budget">
-            <div class="row">
-              <span class="big num" id="budget-left">—</span>
-              <span style="color:var(--ink-2); font-size:12px">남은 포인트 / <span class="num" id="budget-total">260</span></span>
-            </div>
-            <div class="gauge" id="budget-gauge"><i style="width:0%"></i></div>
-          </div>
+          <p class="tiny">이게 전부입니다. 나머지는 300년 동안 직접 만듭니다.</p>
           <div class="stats" id="derived"></div>
           <div class="constraints" id="constraints"></div>
         </div>
       </div>
+    </div>
 
+    <div style="position:sticky; top:14px">
       <details class="card theory" style="margin-bottom:14px">
         <summary>적용된 생태 이론 14가지</summary>
         <div class="body">
@@ -776,8 +766,20 @@ input[type=range]::-moz-range-thumb{
         </div>
       </details>
 
-      <button class="btn primary" id="btn-start" style="width:100%">이 종으로 시작</button>
-      <p class="footnote">모든 형질은 1~10. 8 이상은 포인트가 급격히 비싸집니다. 상충하는 형질을 동시에 올리면 추가 비용이 붙습니다.</p>
+      <div class="card" style="margin-bottom:14px">
+        <header><h3>규칙</h3></header>
+        <div class="body">
+          <dl class="theory-list">
+            <dt>이기는 법</dt><dd>300년 뒤에도 살아 있으면 승리입니다. 얼마나 잘 버텼는지는 S~D 등급으로 매깁니다.</dd>
+            <dt>지는 법</dt><dd>내 종이 멸종하면 끝입니다. 되돌릴 수 없습니다.</dd>
+            <dt>유일한 자원</dt><dd>진화 포인트뿐입니다. 세대가 지날 때마다 들어오고, 형질 1칸이나 식성 전환에 씁니다.</dd>
+            <dt>갈수록 나빠집니다</dt><dd>시나리오는 물러나지 않습니다. 마지막 60년이 가장 혹독합니다.</dd>
+            <dt>상대도 진화합니다</dt><dd>토착종도 자기를 죽이는 것에 맞춰 형질을 바꿉니다. 제자리에 있으려면 계속 달려야 합니다 (붉은 여왕).</dd>
+          </dl>
+        </div>
+      </div>
+      <button class="btn primary" id="btn-start" style="width:100%">이 생물로 시작</button>
+      <p class="footnote">형질은 1~10이고 전부 낮은 값에서 시작합니다. 무엇이 될지는 300년 동안 직접 정합니다.</p>
     </div>
   </div>
 </section>
@@ -849,6 +851,7 @@ input[type=range]::-moz-range-thumb{
         </button>
         <div class="panel-body">
           <div class="pressure" id="pressure"></div>
+          <div class="dietswap" id="dietswap"></div>
           <p class="tiny">형질 하나를 1칸 올리거나 내립니다. 내리면 절반이 환급됩니다.</p>
           <div class="evo-list" id="evo-list"></div>
         </div>
@@ -986,6 +989,15 @@ const DIETS={
   detritivore:{name:"분해자",  desc:"사체와 부식물을 먹습니다. 경쟁이 거의 없습니다"},
 };
 const PLAYER_DIETS=["herbivore","carnivore","omnivore","detritivore"];
+/* 식성은 한 번에 건너뛸 수 없다. 풀을 뜯던 것이 갑자기 사냥꾼이 되지는 않는다.
+   잡식을 거쳐야 하고, 그 전환 자체가 진화 포인트를 크게 먹는다. */
+const DIET_NEXT={
+  herbivore:  ["omnivore"],
+  detritivore:["omnivore"],
+  omnivore:   ["herbivore","carnivore","detritivore"],
+  carnivore:  ["omnivore"],
+};
+const DIET_COST=5;
 /* 식성 아이콘 — 저폴리 톤에 맞춘 단순 도형 */
 const DIET_ICON={
   herbivore:  `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,3 17,11 10,17 3,11" fill="#2a78d6"/><polygon points="10,3 17,11 10,11" fill="#5a9ae4"/></svg>`,
@@ -1093,6 +1105,24 @@ function totalCost(t){
 
 /* 프리셋 */
 function baseTraits(v){ const o={}; for(const k of TRAIT_KEYS) o[k]=v; return o; }
+
+/* 시작은 아무것도 아닌 생물이다. 작고, 느리고, 잘하는 게 없다.
+   300년에 걸쳐 진화 포인트로 무엇이 될지를 직접 만들어 간다. */
+let STARTER={ base:3, size:1, metabolism:5, growth:5, fertility:6, breedFreq:6,
+  maturity:7, lifespan:3, mobility:4, habitatBreadth:4, camouflage:4,
+  coldTol:4, heatTol:4, droughtTol:4, mutationRate:4, startEP:8 };
+try{ window.STARTER=STARTER; }catch(e){}
+function starterTraits(){
+  const t=baseTraits(STARTER.base);
+  for(const k of TRAIT_KEYS) if(STARTER[k]!==undefined) t[k]=STARTER[k];
+  return t;
+}
+const START_DIETS=[
+  {k:"herbivore",  name:"풀을 뜯는 것", desc:"식물을 먹습니다. 먹이가 흔한 대신 모두의 먹잇감입니다."},
+  {k:"detritivore",name:"썩은 것을 먹는 것", desc:"사체와 부식물을 먹습니다. 경쟁이 적고 조용합니다."},
+  {k:"omnivore",   name:"가리지 않는 것", desc:"둘 다 먹습니다. 효율은 낮지만 굶지 않습니다."},
+  {k:"carnivore",  name:"사냥하는 것", desc:"동물을 사냥합니다. 처음엔 사냥할 힘이 없습니다."},
+];
 const PRESETS={
   rstrat:{diet:"herbivore", name:"회색등 초원쥐", t:{size:1,metabolism:7,lifespan:3,growth:9,energyStore:5,thermoreg:4,
     fertility:8,breedFreq:7,parentalCare:4,maturity:8,youngDispersal:6,mutationRate:6,
@@ -1560,7 +1590,8 @@ function newGame(playerDef){
   G = {
     world, species, player, tick:0, year:1, season:0, phase:"placing",
     warming:0, globalPoll:0, humanArrived:false,
-    ep:0, epSpent:0, nextEpTick:TICKS_PER_YEAR*5, eraLog:[], peakPop:0, autoPause:true,
+    ep:STARTER.startEP, epSpent:0, nextEpTick:TICKS_PER_YEAR*3, eraLog:[], peakPop:0, autoPause:true,
+    startDiet:playerDef.diet,
     log:[], events:{drought:0,flood:0,heat:0,cold:0,disease:0,pesticide:0,boom:0,protect:0},
     running:false, speed:4, over:false, ending:null,
     layer:"terrain", selected:0,
@@ -1574,7 +1605,7 @@ function newGame(playerDef){
   if(rival) logMsg("nature", `가장 강한 경쟁 상대는 <b>${rival[0].name}</b>입니다. 생태 지위가 ${(rival[1]/TUNE.compet*100).toFixed(0)}% 겹칩니다.`);
   recount();
   snapshot();
-  window.G = G; window.TUNE = TUNE;   // 개발·디버깅용 핸들
+  window.G = G; window.TUNE = TUNE; window.STARTER = STARTER;   // 개발·디버깅용 핸들
   return G;
 }
 
@@ -2375,19 +2406,18 @@ function eraTick(){
 
 /* 시나리오는 한 판의 줄거리다. 전조 → 심화 → 절정 → 여파로 세력이 오르내린다. */
 function scenT(g){
+  /* 물러나지 않는다. 이 게임은 평화로운 생태계를 만드는 게 아니라
+     끝까지 가혹해지는 환경을 살아남는 것이다. 마지막 구간이 가장 혹독하다. */
   const f=g.year/MAX_YEARS;
-  if(f<0.20) return f/0.20*0.25;                      // 전조
-  if(f<0.50) return 0.25+(f-0.20)/0.30*0.40;          // 심화
-  if(f<0.78) return 0.65+(f-0.50)/0.28*0.35;          // 절정
-  const d=g.era.def;
-  return d.lasting ? 1 - (f-0.78)/0.22*0.15           // 되돌릴 수 없는 것은 안 물러난다
-                   : 1 - (f-0.78)/0.22*0.62;          // 여파
+  if(f<0.20) return f/0.20*0.22;                      // 전조
+  if(f<0.50) return 0.22+(f-0.20)/0.30*0.38;          // 심화
+  if(f<0.80) return 0.60+(f-0.50)/0.30*0.40;          // 절정
+  return 1.00+(f-0.80)/0.20*0.45;                     // 파국 — 1을 넘어선다
 }
-/* 단계는 세력이 아니라 시간으로 정한다. 세력으로 정하면 여파기에 세력이 떨어지면서
-   단계가 거꾸로 심화로 되돌아간다. */
+/* 단계는 세력이 아니라 시간으로 정한다. */
 const scenPhase = g => { const f=g.year/MAX_YEARS;
-  return f<0.20 ? 0 : f<0.50 ? 1 : f<0.78 ? 2 : 3; };
-const PHASE_NAME=["전조","심화","절정","여파"];
+  return f<0.20 ? 0 : f<0.50 ? 1 : f<0.80 ? 2 : 3; };
+const PHASE_NAME=["전조","심화","절정","파국"];
 
 /* 시나리오 세력에 비례해 기후를 흔든다. 처음부터 최대로 때리면 대비할 틈이 없다. */
 function eraMod(k){
@@ -2616,7 +2646,8 @@ function checkEnd(){
   if(animals.length===0){ finish("silence"); return; }
   if(g.tick>=MAX_TICKS){ finish("timeout"); return; }
 
-  /* 균형: 최근 10년(40틱) 총 개체수 변동계수 6% 미만 + 생존 종 5개 이상 + 그 사이 멸종 없음 */
+  /* 평형으로 일찍 끝내지 않는다. 안정은 승리가 아니라 잠깐 숨 돌리는 구간일 뿐이고,
+     이 게임은 마지막 파국까지 버텨야 끝난다. 안정 구간은 표시용으로만 센다. */
   if(g.year>=45 && g.totalHist.length>=22){
     const win = g.totalHist.slice(-22);
     const mean = win.reduce((a,b)=>a+b,0)/win.length;
@@ -2624,7 +2655,6 @@ function checkEnd(){
     const cv = mean>0 ? sd/mean : 1;
     const aliveN = g.species.filter(s=>s.alive).length;
     if(cv<0.055 && aliveN>=6) g.stableRun++; else g.stableRun=0;
-    if(g.stableRun>=12){ finish("balance"); return; }
   }
 }
 
@@ -2665,15 +2695,23 @@ function prosperity(){
 }
 
 const ENDINGS={
-  extinct:{cls:"bad", eyebrow:"배드 엔딩", title:"계보의 끝",
-    body:"당신의 종은 살아남지 못했습니다. 마지막 개체가 사라진 뒤에도 이 땅의 다른 생물들은 계속 살아갑니다. 생태계는 어떤 종 하나가 없어도 굴러갑니다 — 그게 자연의 냉정한 부분입니다."},
-  silence:{cls:"bad", eyebrow:"배드 엔딩", title:"침묵의 땅",
+  extinct:{cls:"bad", eyebrow:"패배", title:"계보의 끝",
+    body:"당신의 종은 끝까지 버티지 못했습니다. 마지막 개체가 사라진 뒤에도 이 땅의 다른 생물들은 계속 살아갑니다. 생태계는 어떤 종 하나가 없어도 굴러갑니다 — 그게 자연의 냉정한 부분입니다."},
+  silence:{cls:"bad", eyebrow:"패배", title:"침묵의 땅",
     body:"모든 동물이 사라졌습니다. 남은 것은 식물과 흙뿐입니다. 먹이사슬의 어느 한 칸이 무너지면 위쪽은 통째로 따라 무너집니다."},
-  balance:{cls:"good", eyebrow:"관측 종료 · 균형 도달", title:"평형",
-    body:"10년 넘게 전체 개체수 변동이 6% 아래로 유지됐습니다. 생태계가 안정 상태에 들어섰다고 판단해 관측을 마칩니다. 이제부터는 큰 변화 없이 같은 리듬이 반복됩니다."},
-  timeout:{cls:"", eyebrow:"관측 종료 · 기간 만료", title:"300년",
-    body:"관측 기간이 끝났습니다. 균형에 도달하지는 않았지만, 이 시점의 판세로 번영도를 판정합니다."},
+  timeout:{cls:"good", eyebrow:"승리", title:"살아남았다",
+    body:"300년이 지났습니다. 아무것도 아니었던 것이 끝까지 버텼습니다. 그 사이 수많은 종이 사라졌고, 당신은 남았습니다."},
 };
+/* 생존이 승패를 가르고, 얼마나 잘 살아남았는지는 등급으로 매긴다 */
+function survivalGrade(score, rank, total){
+  const rel = total>1 ? 1-(rank-1)/(total-1) : 1;
+  const v = score*0.55 + rel*45;
+  return v>=52 ? {g:"S", t:"이 땅의 주인이 되었습니다"}
+       : v>=42 ? {g:"A", t:"넉넉히 살아남았습니다"}
+       : v>=33 ? {g:"B", t:"제 자리를 지켰습니다"}
+       : v>=25 ? {g:"C", t:"간신히 버텼습니다"}
+       :         {g:"D", t:"버티기만 했습니다"};
+}
 
 function finish(kind){
   const g=G; if(g.over) return;
@@ -2699,7 +2737,7 @@ function show(which){
 }
 
 /* ── 설계 화면 ───────────────────────────────────────────────── */
-let design = { name: PRESETS.rstrat.name, diet: PRESETS.rstrat.diet, traits: Object.assign({},PRESETS.rstrat.t) };
+let design = { name:"이름 없는 것", diet:"herbivore", traits: starterTraits() };
 
 function buildDiets(){
   const el=$("#diets"); el.innerHTML="";
@@ -2713,40 +2751,12 @@ function buildDiets(){
   }
 }
 
-function buildTraits(){
-  const wrap=$("#trait-groups"); wrap.innerHTML="";
-  for(const g of TRAIT_GROUPS){
-    const sec=document.createElement("div"); sec.className="trait-group";
-    sec.innerHTML=`<h4>${g.name}</h4>`;
-    const grid=document.createElement("div"); grid.className="traits";
-    for(const [key,label,hint] of g.traits){
-      const row=document.createElement("div"); row.className="trait";
-      row.innerHTML=`<div class="tname">${label}<span class="hint">${hint}</span></div>`;
-      const inp=document.createElement("input");
-      inp.type="range"; inp.min=1; inp.max=10; inp.step=1; inp.value=design.traits[key];
-      inp.setAttribute("aria-label", label);
-      const val=document.createElement("div"); val.className="tval num"; val.textContent=design.traits[key];
-      /* 채워진 구간을 색으로 보여준다 — 값 하나하나가 눈에 들어와야 배분이 쉽다 */
-      const fill=()=>inp.style.setProperty("--p", ((inp.value-1)/9*100).toFixed(1)+"%");
-      fill();
-      inp.oninput=()=>{ design.traits[key]=+inp.value; val.textContent=inp.value; fill(); $("#preset").value="custom"; refreshDesign(); };
-      row.appendChild(inp); row.appendChild(val); grid.appendChild(row);
-    }
-    sec.appendChild(grid); wrap.appendChild(sec);
-  }
-}
-
 function refreshDesign(){
-  const t=design.traits, cost=totalCost(t), left=BUDGET-cost;
-  $("#budget-left").textContent = left;
-  $("#budget-total").textContent = BUDGET;
-  const gg=$("#budget-gauge");
-  gg.classList.toggle("over", left<0);
-  gg.closest(".budget").classList.toggle("over", left<0);
-  gg.firstElementChild.style.width = clamp(cost/BUDGET*100,0,100)+"%";
-  $("#btn-start").disabled = left<0;
-  $("#btn-start").textContent = left<0 ? `포인트 ${-left} 초과` : "이 종으로 시작";
-
+  /* 예산도 배분도 없다. 고르는 것은 먹는 방식 하나뿐이고, 나머지는 진화로 만든다. */
+  design.traits = starterTraits();
+  const t=design.traits;
+  $("#btn-start").disabled = false;
+  $("#btn-start").textContent = "이 생물로 시작";
   const d=derive(t,design.diet);
   const yrs = (1/Math.max(d.ageDeath,0.001)/TICKS_PER_YEAR).toFixed(1);
   const stats=[
@@ -2769,13 +2779,11 @@ function refreshDesign(){
 
   /* 제약 · 경고 */
   const cons=[];
-  for(const p of couplingPenalties(t)) cons.push({lvl:"warn", html:`${p.text} <b>+${Math.round(p.cost)}p</b>`});
-  if(d.upkeep>2.6) cons.push({lvl:"crit", html:`유지비가 매우 높습니다. <b>기근 한 번에 무너질</b> 수 있습니다.`});
-  if(d.birthMax<0.012) cons.push({lvl:"crit", html:`번식이 너무 느립니다. 개체수가 줄면 <b>회복이 거의 불가능</b>합니다.`});
-  if(design.diet==="carnivore" && d.attack<2.5) cons.push({lvl:"crit", html:`육식인데 사냥 지수가 낮습니다. <b>공격성·순발력·체격</b> 중 하나는 올려야 합니다.`});
-  if(design.diet==="carnivore" && t.size<=2) cons.push({lvl:"warn", html:`몸집이 작으면 <b>작은 먹이만</b> 잡을 수 있습니다.`});
-  if(d.defense<4 && design.diet!=="producer") cons.push({lvl:"warn", html:`방어 지수가 낮습니다. 포식자에게 <b>일방적으로 소모</b>될 수 있습니다.`});
-  if(t.pollutionTol<=3) cons.push({lvl:"warn", html:`오염 내성이 낮습니다. ${HUMAN_YEAR}년쯤 <b>인간이 등장</b>하면 위험합니다.`});
+  if(design.diet==="carnivore") cons.push({lvl:"crit", html:`사냥할 힘이 아직 없습니다. <b>공격성·순발력·체격</b>을 올리기 전까지는 굶습니다. 가장 어려운 시작입니다.`});
+  if(design.diet==="detritivore") cons.push({lvl:"good", html:`경쟁이 가장 적습니다. 다만 사체가 쌓이는 만큼만 먹을 수 있습니다.`});
+  if(design.diet==="herbivore") cons.push({lvl:"warn", html:`먹이는 흔하지만 <b>모두의 먹잇감</b>입니다. 방어를 올리지 않으면 잡아먹힙니다.`});
+  if(design.diet==="omnivore") cons.push({lvl:"good", html:`효율은 낮아도 <b>굶어 죽지는 않습니다</b>. 무난한 시작입니다.`});
+  cons.push({lvl:"warn", html:`방어도 사냥도 못 하는 상태로 시작합니다. 첫 <b>진화 포인트</b>를 어디에 쓸지가 중요합니다.`});
   if(t.habitatBreadth>=8) cons.push({lvl:"good", html:`서식지 폭이 넓어 <b>여러 지형에 퍼질</b> 수 있습니다.`});
   if(t.toxicity>=8) cons.push({lvl:"good", html:`독성이 높아 <b>거의 잡아먹히지 않습니다.</b>`});
   if(t.mutationRate>=7) cons.push({lvl:"warn", html:`돌연변이율이 높습니다. 진화 포인트를 자주 받지만 <b>형질이 제멋대로</b> 바뀝니다.`});
@@ -2788,7 +2796,7 @@ function applyPreset(key){
   const p=PRESETS[key];
   design.traits=Object.assign({},p.t); design.diet=p.diet; design.name=p.name;
   $("#sp-name").value=p.name;
-  buildDiets(); buildTraits(); refreshDesign();
+  buildDiets(); refreshDesign();
 }
 
 /* ── 지도 렌더 ───────────────────────────────────────────────── */
@@ -4213,6 +4221,19 @@ function renderEvo(){
     : `<div class="pr-head calm"><i></i><b>큰 압력 없음</b></div>
        <p>지금은 버틸 만합니다. 다음 국면을 대비해 두는 것도 방법입니다.</p>`) + deaths;
 
+  /* 식성 전환 — 이 게임에서 가장 큰 결정이다. 굶주릴 때 잡식으로 도망가거나,
+     사체가 쌓이면 분해자로 갈아타거나, 힘이 붙으면 사냥꾼이 된다. */
+  const cur=G.player.diet, nexts=DIET_NEXT[cur]||[];
+  $("#dietswap").innerHTML = G.player.alive
+    ? `<div class="ds-head"><span>지금 <b>${DIETS[cur].name}</b></span><em>전환 ${DIET_COST}점</em></div>`
+      + `<div class="ds-row">` + nexts.map(k=>
+        `<button class="ds-btn" data-diet="${k}" ${G.ep<DIET_COST?"disabled":""}
+                 title="${DIETS[k].desc}">${DIETS[k].name}(으)로</button>`).join("") + `</div>`
+    : "";
+  $("#dietswap").querySelectorAll("[data-diet]").forEach(b=>{
+    b.onclick=()=>switchDiet(b.dataset.diet);
+  });
+
   const keys = TRAIT_KEYS;      // 순서 고정
   const keep = list.scrollTop;
   list.innerHTML = keys.map(k=>{
@@ -4233,6 +4254,20 @@ function renderEvo(){
   list.querySelectorAll("button").forEach(b=>{
     b.onclick=()=>{ raiseTrait(b.dataset.k, +b.dataset.d); };
   });
+}
+function switchDiet(to){
+  const g=G, s=g.player;
+  if(!s.alive || g.ep<DIET_COST) return;
+  if(!(DIET_NEXT[s.diet]||[]).includes(to)) return;
+  const from=s.diet;
+  g.ep-=DIET_COST;
+  s.diet=to; s.d=derive(s.traits,to);
+  /* 먹는 방식이 바뀌면 누구와 경쟁하는지도 바뀐다 */
+  buildCompetition(g.species);
+  g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
+  logMsg("evo", `<b>${DIETS[from].name}</b>에서 <b>${DIETS[to].name}</b>(으)로 바뀌었습니다.`);
+  autoPause("식성 전환");
+  renderEvo(); renderLog(); renderSpecies();
 }
 function raiseTrait(k, d){
   const g=G;
@@ -4342,32 +4377,40 @@ function renderLog(){
 function renderResult(){
   const g=G, e=ENDINGS[g.ending], pr=g.result;
   const rows=pr.animals, me=rows.find(r=>r.s.isPlayer);
-  const won = g.myRank===1 && g.player.alive;
+  const won = g.player.alive;                   // 살아남았으면 이긴 것이다
+  const grade = won ? survivalGrade(me?me.score:0, g.myRank, g.rivalCount) : null;
 
   const box=$("#ending");
-  box.className = "ending "+(won?"good":e.cls);
+  box.className = "ending "+e.cls;
   let verdict;
-  if(!g.player.alive) verdict = `<b>${g.player.name}</b>은(는) ${g.player.extinctYear}년에 사라졌습니다.`;
-  else if(won) verdict = `<b>승리.</b> ${g.player.name}이(가) 동물 ${g.rivalCount}종 가운데 번영 지수 <b>1위</b>가 되었습니다. (지수 ${me.score.toFixed(1)})`;
-  else verdict = `<b>${g.myRank}위 / ${g.rivalCount}종.</b> ${g.player.name}은(는) 살아남았지만 최고는 아니었습니다. 1위는 <b>${rows[0].s.name}</b>입니다. (내 지수 ${me.score.toFixed(1)} · 1위 ${rows[0].score.toFixed(1)})`;
+  if(won) verdict = `<b>${g.player.name}</b>은(는) 아무것도 아닌 것에서 시작해 `
+    + `<b>${DIETS[g.player.diet].name}</b>이(가) 되어 300년을 버텼습니다. `
+    + `동물 ${g.rivalCount}종 가운데 ${g.myRank}위.`;
+  else verdict = `<b>${g.player.name}</b>은(는) ${g.player.extinctYear}년에 사라졌습니다. `
+    + `${MAX_YEARS}년 가운데 ${g.player.extinctYear}년까지.`;
   box.innerHTML = `<div class="eyebrow">${e.eyebrow}</div>
-    <h2>${won?"번영":e.title}</h2><p>${e.body}</p><div class="verdict">${verdict}</div>`;
+    <h2>${e.title}</h2>${grade?`<div class="grade grade-${grade.g}"><b>${grade.g}</b><span>${grade.t}</span></div>`:""}
+    <p>${e.body}</p><div class="verdict">${verdict}</div>`;
 
   /* 한 판 요약 */
   const deadCnt = g.species.filter(s=>!s.alive && s.diet!=="producer").length;
-  const stat=(k,v,s,cls="")=>`<div class="res-stat ${cls}"><div class="k">${k}</div>
-    <div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const stat=(k,v,sub,cls="")=>`<div class="res-stat ${cls}"><div class="k">${k}</div>
+    <div class="v">${v}</div><div class="s">${sub}</div></div>`;
+  const sc=g.era?g.era.def:null;
   $("#res-summary").innerHTML =
-    stat("최종 순위", g.player.alive?`${g.myRank}<small> / ${g.rivalCount}</small>`:"—",
-         g.player.alive?"동물 종 기준":"멸종", won?"hi":(g.player.alive?"":"bad")) +
-    stat("번영 지수", me?me.score.toFixed(1):"0.0", `1위 ${rows[0]?rows[0].score.toFixed(1):"—"}`) +
+    stat("생존", won?`${MAX_YEARS}<small>년</small>`:`${g.player.extinctYear}<small>년</small>`,
+         won?"끝까지 버팀":"거기서 끝났다", won?"hi":"bad") +
+    stat("등급", grade?grade.g:"—", grade?grade.t:"살아남지 못함", won?"hi":"bad") +
+    stat("최종 식성", DIETS[g.player.diet].name, `${DIETS[g.startDiet||g.player.diet].name}(으)로 시작`) +
     stat("최대 개체수", fmt(g.peakPop), `마지막 ${fmt(g.player.total)}`) +
-    stat("관측 기간", `${g.year}<small>년</small>`, `시대 ${g.eraLog.length}회`) +
-    stat("멸종한 동물", `${deadCnt}<small>종</small>`, `동물 ${g.rivalCount}종 가운데`, deadCnt?"bad":"");
+    stat("멸종한 동물", `${deadCnt}<small>종</small>`, `동물 ${g.rivalCount+deadCnt}종 가운데`, deadCnt?"bad":"");
 
-  $("#era-history").innerHTML = g.eraLog.length
-    ? g.eraLog.map(x=>`<div class="era-line"><i class="${x.tone||""}"></i>${x.name}<time>${x.year}년</time></div>`).join("")
-    : `<div class="era-none">큰 국면 없이 지나갔습니다.</div>`;
+  $("#era-history-card").querySelector("h3").textContent="이번 판의 시나리오";
+  $("#era-history").innerHTML = sc
+    ? `<div class="era-line"><i class="${sc.tone||""}"></i><b>${sc.name}</b></div>
+       <p class="tiny" style="margin:6px 0 0">${sc.intro}</p>
+       <p class="tiny" style="margin:6px 0 0;color:var(--ink-3)">${sc.peak||""}</p>`
+    : `<div class="era-none">시나리오 없음.</div>`;
 
   const max=Math.max(rows[0].score, pr.base.length?pr.base[0].score:0)||1;
   const line = r=>{
@@ -4485,17 +4528,8 @@ function attachPlacement(el, tileFrom){
 }
 
 function bind(){
-  buildDiets(); buildTraits(); refreshDesign();
+  buildDiets(); refreshDesign();
 
-  $("#preset").onchange = e=>applyPreset(e.target.value);
-  $("#sp-name").oninput = e=>{ design.name=e.target.value; };
-  $("#btn-reset").onclick = ()=>{ design.traits=baseTraits(3); $("#preset").value="custom"; buildTraits(); refreshDesign(); };
-  $("#btn-random").onclick = ()=>{
-    let t;
-    do{ t=baseTraits(3); for(const k of TRAIT_KEYS) t[k]=1+Math.floor(Math.random()*10); }
-    while(totalCost(t)>BUDGET);
-    design.traits=t; $("#preset").value="custom"; buildTraits(); refreshDesign();
-  };
   $("#btn-start").onclick = startSim;
 
   $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
