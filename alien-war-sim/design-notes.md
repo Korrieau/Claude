@@ -26,10 +26,10 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Losses | Paid reinforcement; a wiped squad is gone for good |
 | Unlocks | Research, spent from resources |
 | Pacing | Paused prep phase between waves |
-| Victory | Campaign clear, then endless mode unlocks |
+| Victory | Endless survival, no campaign clear |
 | Vision | Full map visible, spawn holes pre-warned |
-| Art | Silhouettes, night + neon palette |
-| Enemy AI | Beast swarm; Hive Mind switches it to focused |
+| Art | Silhouettes, earth grey plus industrial hazard orange, blight glows pale teal |
+| Enemy AI | Beast swarm; the Collective Mind switches it to focused |
 | Friendly fire | Fire and explosives only, scalable multiplier |
 | Resources | Supply (income over time) + Alloy (captured mining nodes) |
 | Squad skill | One per squad, auto-recharging |
@@ -43,8 +43,49 @@ hitscan, direct fire, or cones. Screen position must equal hit position.
 | Turrets | Overheat and fall silent under sustained fire |
 | Armor | Deploys in place as an emplacement, relocates slowly under its own power |
 
-Open: total wave count, build placement rules, building during a wave,
-turret vs garrison weighting, research tree shape, mining node layout.
+| Unit control | None at all. The player places, builds and researches, never orders |
+| Placement | Tile grid |
+| Building mid-wave | Allowed with no restriction |
+| Unlocks | Build tree only, no chapters |
+| Manual assets | Four |
+| Enemy identity | Infected native wildlife, crystal-borne, not invaders |
+| UI tone | Work order and gauge readout, dry, no fanfare |
+
+Open: mining-spreads-blight dilemma, endless difficulty curve, score
+basis, turret vs garrison weighting, mining node layout.
+
+## Setting
+
+A frontier development company lands on a sick world to extract crystal.
+The player is an administrator, not a commander: they sit in a control
+room, place assets and set production. That is exactly why no unit can be
+ordered around - it is the job description, not a limitation.
+
+Tone is dry industrial labour, not heroism. Assets carry model numbers
+(AR-2 Auto Defence Tower, PS-7 Purification Incinerator, HW-9 Walking
+Excavator). A cleared wave reads like a log line, not a victory screen.
+
+Note on references: Arknights lore does tie Originium to disease, but
+Endfield has no "mining spreads contamination" mechanic. That idea is
+ours, not borrowed, and is still undecided.
+
+## Enemy identity
+
+Not invaders. Native wildlife that crystal infection turned, plus crystal
+growths that move on their own.
+
+Infected (were animals): Drifter (herd swarm), Burrower (passes under
+walls), Carrier (spreads blight on death), Crustform (front armour only).
+
+Crystalline (never alive): Shard (slow, hard), Spawn Spire (static, the
+spawn hole), Resonator (ranged), Drifting Node (airborne).
+
+Long infected (large): Buried Beast (crushes structures in its path),
+Collective Mind (syncs the swarm from scattered to focused), Progenitor
+(moves and plants new spires).
+
+After the build tree is exhausted, progression continues as endless
+per-asset upgrades.
 
 ## The chain
 
