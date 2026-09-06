@@ -1256,6 +1256,8 @@ const TUNE = {
   starvExp:1.6, starvMul:0.7,
   stress:0.044, diseaseBase:0.088, diseaseSpike:0.34,
   scenPower:1.0,            /* 시나리오가 기후를 흔드는 세기 */
+  scenBite:0.15,            /* 절정 이후 해마다 깎이는 토양 */
+  scenSpread:1.5,           /* 세력에 비례해 땅을 바꾸는 횟수 */
   capA:0.226, capB:7.0, crowdBirth:0.75, birthScale:1.3,
   satLag:0.0,               // 먹이 만족도의 관성 (0이면 지연 없음)
   allee:0.07,               // 알리 효과 — 저밀도에서 번식이 무너지는 임계
@@ -2591,8 +2593,25 @@ function eraTick(){
     autoPause("징후");
   }
   /* 땅을 바꾸는 일은 세력이 셀수록 자주 일어난다 */
-  if(d.year && rnd() < t*t*1.25) d.year(g);
+  /* 세력에 비례해 땅을 빼앗는다. 예전에는 세력과 무관하게 한 해에 한 번,
+     그것도 몇 칸만 바꿔서 기후 수치를 두 배로 올려도 생존률이 그대로였다.
+     시나리오가 압력이 되려면 살 수 있는 땅 자체가 줄어들어야 한다. */
+  if(d.year){
+    let reps = t<0.25 ? (rnd()<t*3?1:0) : Math.round(t*t*TUNE.scenSpread);
+    for(let q=0;q<reps;q++) d.year(g);
+  }
   if(d.start && !s.started && t>0.18){ s.started=true; d.start(g); }
+
+  /* 절정을 넘어서면 땅 자체가 메마른다. 먹이 기반이 줄어야 모두가 함께 쪼그라들고,
+     그게 '가혹해진다'의 실체다. 기온만 흔드는 것으로는 개체군이 옮겨가면 그만이다. */
+  if(t>0.6 && !d.kind_good){
+    const w=g.world, bite=(t-0.6)*TUNE.scenBite;
+    for(let i=0;i<NT;i++){
+      if(w.vd[i]||w.biome[i]===10) continue;
+      w.baseSoil[i]=Math.max(6, w.baseSoil[i]-bite);
+      w.soil[i]=Math.max(5, w.soil[i]-bite);
+    }
+  }
 }
 
 /* 시나리오는 한 판의 줄거리다. 전조 → 심화 → 절정 → 여파로 세력이 오르내린다. */
