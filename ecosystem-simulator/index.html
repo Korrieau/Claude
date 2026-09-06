@@ -1708,7 +1708,7 @@ function makeSpecies(def, isPlayer){
     ink:new Float32Array(NT), pl:new Float32Array(NT), satSm:new Float32Array(NT).fill(1),
     seedN:def.seed||200,
     total:0, tiles:0, biomass:0, alive:true, extinctYear:null,
-    acc:{w:0,sat:0,pred:0,dt:0,crowd:0}, evoCount:0,
+    acc:{w:0,sat:0,pred:0,dt:0,crowd:0,dry:0,poll:0,dis:0}, evoCount:0,
     mort:{age:0,starv:0,stress:0,dis:0,crowd:0,pred:0}, mortYr:null,
     hist:[], color: GUILDS[GI[def.guild]].color, gi: GI[def.guild],
   };
@@ -2119,6 +2119,9 @@ function step(){
       A.w+=pop; A.sat+=sat*pop; A.crowd+=crowd*pop;
       A.pred+=Math.min(pl[i],pop*0.42);
       A.dt+=(baseTemp[i]-d.optTemp)*pop;
+      A.dry+=Math.max(0, d.moistOpt-w.moist[i])*pop;
+      A.poll+=w.poll[i]*pop;
+      A.dis+=(diseaseP+pest)*pop;
 
       const dPred = Math.min(pl[i], pop*0.42);
       M.pred+=dPred;
@@ -2230,17 +2233,26 @@ const EVO_RESPONSE = {
   cold:      {up:["coldTol","thermoreg","size"], down:["heatTol"], ko:"추위"},
   crowd:     {up:["mobility","habitatBreadth","youngDispersal"], down:["territoriality","size"], ko:"과밀"},
   hunt:      {up:["aggression","speed","vision","stamina"], down:["energyStore","parentalCare"], ko:"사냥 실패"},
+  drought:   {up:["droughtTol","energyStore","mobility"], down:["metabolism","size"], ko:"메마름"},
+  pollution: {up:["pollutionTol","diseaseResist","mobility"], down:["metabolism","size"], ko:"오염"},
+  disease:   {up:["diseaseResist","thermoreg"], down:["sociality","fertility"], ko:"전염병"},
 };
 
 function selectionPressure(s){
   const a=s.acc; if(a.w<=0) return null;
   const sat=a.sat/a.w, pred=a.pred/a.w, dt=a.dt/a.w, crowd=a.crowd/a.w;
+  const dry=a.dry/a.w, poll=a.poll/a.w, dis=a.dis/a.w;
   const hungerKey = (s.diet==="carnivore") ? "hunt" : "hunger";
+  /* 가뭄·오염·질병이 없으면 대가뭄·산성비·방사능·인간의 세기 시나리오에서
+     압력이 '없음'으로만 나온다. 시나리오가 무엇으로 때리든 읽을 수 있어야 한다. */
   const list=[
     [hungerKey, (1-sat)*1.25],
     ["predation", pred*3.4],
     [dt>0?"heat":"cold", Math.min(1, Math.abs(dt)/9)*0.95],
     ["crowd", clamp(crowd-0.55,0,1)*0.85],
+    ["drought", clamp(dry/0.34,0,1)*1.05],
+    ["pollution", clamp(poll/46,0,1)*1.15],
+    ["disease", clamp(dis/0.09,0,1)*0.9],
   ];
   list.sort((x,y)=>y[1]-x[1]);
   return list[0][1] > 0.30 ? list[0] : null;
@@ -2301,7 +2313,7 @@ function evolveAll(){
     if(mt>0){ s.mortYr={age:M.age/mt, starv:M.starv/mt, stress:M.stress/mt,
                         dis:M.dis/mt, crowd:M.crowd/mt, pred:M.pred/mt, total:mt}; }
     M.age=M.starv=M.stress=M.dis=M.crowd=M.pred=0;
-    s.acc.w=s.acc.sat=s.acc.pred=s.acc.dt=s.acc.crowd=0;
+    s.acc.w=s.acc.sat=s.acc.pred=s.acc.dt=s.acc.crowd=s.acc.dry=s.acc.poll=s.acc.dis=0;
   }
   /* 형질이 바뀌면 생태 지위도 바뀐다 — 경쟁 관계를 다시 계산 */
   if(g.year%5===0) buildCompetition(g.species);
@@ -4381,6 +4393,9 @@ const PRESSURE_HINT = {
   heat:      "더위에 시달리고 있습니다",
   cold:      "추위에 시달리고 있습니다",
   crowd:     "너무 빽빽해 자리가 모자랍니다",
+  drought:   "땅이 말라 물이 모자랍니다",
+  pollution: "오염된 땅에서 버티고 있습니다",
+  disease:   "병으로 쓰러지고 있습니다",
 };
 function renderEvo(){
   $("#ep-count").textContent=G.ep;
