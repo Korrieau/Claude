@@ -161,6 +161,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 }
 .diet[aria-pressed="true"] .ic{ box-shadow:0 0 0 3px var(--gold); }
 .diet b{ display:block; font-family:var(--f-disp); font-weight:700; font-size:15px; }
+.diet b{ display:flex; flex-wrap:wrap; align-items:center; gap:5px; }
+.diet .lv{ font-style:normal; font-family:var(--f-body); font-size:9.5px; font-weight:600;
+  padding:2px 7px; border-radius:999px; color:#fff; white-space:nowrap; }
+.lv-0{ background:var(--good); } .lv-1{ background:#4C8FD6; }
+.lv-2{ background:var(--warn); } .lv-3{ background:var(--crit); }
 .diet span{ display:block; color:var(--ink-2); font-size:11px; line-height:1.45; margin-top:3px; }
 
 /* 형질 그룹 */
@@ -907,8 +912,8 @@ input[type=range]::-moz-range-thumb{
   <div class="result-grid">
     <div class="card">
       <header>
-        <h3>종합 번영 지수</h3>
-        <span class="eyebrow">개체수(로그)·서식지·바이오매스(로그)·안정성 각 25</span>
+        <h3>이 땅의 동물들</h3>
+        <span class="eyebrow">등급을 매긴 근거 — 개체수·서식지·바이오매스·안정성</span>
       </header>
       <div class="tbl-wrap" style="max-height:none">
         <table class="sp-table res-table">
@@ -1117,11 +1122,13 @@ function starterTraits(){
   for(const k of TRAIT_KEYS) if(STARTER[k]!==undefined) t[k]=STARTER[k];
   return t;
 }
+/* 시작 식성이 곧 난이도다. 자동 플레이 320판 기준 생존률이 분해자 65~88%,
+   잡식 38~50%, 초식·육식 13~50%로 갈렸다. 그대로 표시해 준다. */
 const START_DIETS=[
-  {k:"herbivore",  name:"풀을 뜯는 것", desc:"식물을 먹습니다. 먹이가 흔한 대신 모두의 먹잇감입니다."},
-  {k:"detritivore",name:"썩은 것을 먹는 것", desc:"사체와 부식물을 먹습니다. 경쟁이 적고 조용합니다."},
-  {k:"omnivore",   name:"가리지 않는 것", desc:"둘 다 먹습니다. 효율은 낮지만 굶지 않습니다."},
-  {k:"carnivore",  name:"사냥하는 것", desc:"동물을 사냥합니다. 처음엔 사냥할 힘이 없습니다."},
+  {k:"detritivore",name:"썩은 것을 먹는 것", lv:"쉬움",   desc:"사체와 부식물을 먹습니다. 경쟁이 거의 없고 조용합니다."},
+  {k:"omnivore",   name:"가리지 않는 것",   lv:"보통",   desc:"둘 다 먹습니다. 효율은 낮지만 굶어 죽지는 않습니다."},
+  {k:"herbivore",  name:"풀을 뜯는 것",     lv:"어려움", desc:"식물을 먹습니다. 먹이는 흔하지만 모두의 먹잇감입니다."},
+  {k:"carnivore",  name:"사냥하는 것",      lv:"가장 어려움", desc:"동물을 사냥합니다. 처음엔 사냥할 힘조차 없습니다."},
 ];
 const PRESETS={
   rstrat:{diet:"herbivore", name:"회색등 초원쥐", t:{size:1,metabolism:7,lifespan:3,growth:9,energyStore:5,thermoreg:4,
@@ -2737,15 +2744,18 @@ function show(which){
 }
 
 /* ── 설계 화면 ───────────────────────────────────────────────── */
-let design = { name:"이름 없는 것", diet:"herbivore", traits: starterTraits() };
+let design = { name:"이름 없는 것", diet:"detritivore", traits: starterTraits() };
 
 function buildDiets(){
   const el=$("#diets"); el.innerHTML="";
-  for(const k of PLAYER_DIETS){
+  for(const sd of START_DIETS){
+    const k=sd.k;
     const b=document.createElement("button");
     b.className="diet"; b.type="button"; b.dataset.diet=k;
     b.setAttribute("aria-pressed", String(design.diet===k));
-    b.innerHTML=`<span class="ic">${DIET_ICON[k]}</span><b>${DIETS[k].name}</b><span>${DIETS[k].desc}</span>`;
+    b.innerHTML=`<span class="ic">${DIET_ICON[k]}</span>`
+      + `<b>${sd.name}<em class="lv lv-${["쉬움","보통","어려움","가장 어려움"].indexOf(sd.lv)}">${sd.lv}</em></b>`
+      + `<span>${sd.desc}</span>`;
     b.onclick=()=>{ design.diet=k; buildDiets(); refreshDesign(); };
     el.appendChild(b);
   }
