@@ -564,6 +564,40 @@ input[type=range]::-moz-range-thumb{
 .evo-row.anti{ opacity:.72; }
 
 /* 자동 정지 */
+/* ── 연출 ────────────────────────────────────────────────────
+   시대가 바뀌고 진화를 하고 종이 무너지는 순간이 로그 한 줄로 지나가면
+   아무것도 일어나지 않은 것처럼 느껴진다. */
+.cine{ position:absolute; inset:0; z-index:30; display:flex; align-items:center;
+  justify-content:center; pointer-events:none;
+  background:linear-gradient(180deg,rgba(22,45,32,0) 20%,rgba(22,45,32,.34) 50%,rgba(22,45,32,0) 80%);
+  animation:cineIn .5s ease both; }
+.cine.out{ animation:cineOut .6s ease both; }
+@keyframes cineIn{ from{opacity:0} to{opacity:1} }
+@keyframes cineOut{ from{opacity:1} to{opacity:0} }
+.cine-in{ text-align:center; color:#fff; text-shadow:0 3px 14px rgba(0,0,0,.5); }
+.cine-kicker{ font-family:var(--f-mono); font-size:12px; letter-spacing:.28em; opacity:.9; }
+.cine-title{ font-family:var(--f-disp); font-size:56px; line-height:1.1; margin:6px 0 8px;
+  animation:cineRise .6s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes cineRise{ from{transform:translateY(14px); opacity:0} to{transform:none; opacity:1} }
+.cine-sub{ font-size:15px; opacity:.94; max-width:34ch; margin:0 auto; line-height:1.6; }
+
+.toasts{ position:absolute; left:50%; transform:translateX(-50%); bottom:74px; z-index:28;
+  display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
+.toast{ background:#fff; border-radius:999px; padding:8px 16px; box-shadow:var(--shadow);
+  font-size:13px; display:flex; align-items:center; gap:8px; animation:toastIn .35s ease both; }
+.toast b{ font-family:var(--f-disp); }
+.toast .tag{ font-size:10.5px; color:#fff; border-radius:999px; padding:2px 8px; font-weight:600; }
+.toast.fade{ animation:toastOut .5s ease both; }
+@keyframes toastIn{ from{transform:translateY(10px); opacity:0} to{transform:none; opacity:1} }
+@keyframes toastOut{ from{opacity:1} to{transform:translateY(-6px); opacity:0} }
+
+/* 내 종이 무너지는 중이면 화면 가장자리가 붉게 맥동한다 */
+.danger{ position:absolute; inset:0; z-index:20; pointer-events:none; opacity:0;
+  box-shadow:inset 0 0 90px 20px rgba(227,73,72,.55); transition:opacity .6s ease; }
+.danger.on{ opacity:1; animation:pulse 2.4s ease-in-out infinite; }
+.danger.hard{ box-shadow:inset 0 0 140px 34px rgba(227,73,72,.72); animation-duration:1.1s; }
+@keyframes pulse{ 0%,100%{opacity:.42} 50%{opacity:1} }
+
 .followbar{
   position:absolute; left:50%; transform:translateX(-50%); top:14px; z-index:6;
   display:flex; align-items:center; gap:9px; background:#fff; border-radius:999px;
@@ -1052,6 +1086,17 @@ input[type=range]::-moz-range-thumb{
       </div>
     </div>
 
+    <!-- 큰 순간을 크게 보여주는 자리 -->
+    <div class="cine" id="cine" hidden>
+      <div class="cine-in">
+        <div class="cine-kicker" id="cine-kicker"></div>
+        <div class="cine-title" id="cine-title"></div>
+        <div class="cine-sub" id="cine-sub"></div>
+      </div>
+    </div>
+    <div class="toasts" id="toasts"></div>
+    <div class="danger" id="danger"></div>
+
     <div class="followbar" id="followbar" hidden>
       <span class="fb-dot" id="fb-dot"></span>
       <b id="fb-name">—</b>
@@ -1135,8 +1180,12 @@ const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const lerp=(a,b,t)=>a+(b-a)*t;
 
 /* ── 세계 상수 ────────────────────────────────────────────────── */
-const W=48, H=48, NT=W*H;   // 정사각 격자 — 칸이 늘어나지 않는다
-const WORLD_R = 23.2;        // 이 반지름 밖은 세계가 아니다 (칸 단위)
+const W=64, H=64, NT=W*H;   // 정사각 격자 — 칸이 늘어나지 않는다
+/* 격자를 키우면 칸 하나가 세계에서 차지하는 몫이 줄어든다. '몇 칸을 바꾼다'로 적힌
+   사건과 시나리오가 그만큼 약해지므로, 넓이(칸 수)와 거리(반지름)에 맞춰 늘린다.
+   48격자에 맞춰 잡아 둔 수치를 그대로 쓰면서 세계만 키우기 위한 환산 계수다. */
+const AREA_K = NT/2304, RAD_K = Math.sqrt(AREA_K);
+const WORLD_R = 31.0;        // 이 반지름 밖은 세계가 아니다 (칸 단위)
 /* 원 안쪽인지 — 칸은 정사각으로 두고 바깥 테두리만 원으로 잘라낸다 */
 function inWorld(x,y){ return Math.hypot(x+0.5-W/2, y+0.5-H/2) <= WORLD_R; }
 const TICKS_PER_YEAR=4, MAX_YEARS=300, MAX_TICKS=MAX_YEARS*TICKS_PER_YEAR;
@@ -1220,7 +1269,7 @@ const TRAIT_GROUPS=[
  ]},
  {name:"이동 · 서식", traits:[
    ["mobility","이동 범위","새 타일로 퍼지는 속도"],
-   ["climbSwim","등반 · 수영","산지와 물가에 진출"],
+   ["climbSwim","등반 · 수영","산지와 물가에 진출. 낮으면 벼랑과 골짜기를 못 넘는다"],
    ["territoriality","세력권","자원을 독점하지만 밀도 상한이 낮아짐"],
    ["habitatBreadth","서식지 폭","아무 데나 살 수 있지만 어디서도 최고는 아님"],
    ["nesting","은신처 구축","새끼와 자신을 재난에서 보호"],
@@ -1452,10 +1501,20 @@ function derive(t, diet){
   ];
   const mean = pref.reduce((a,b)=>a+b,0)/13, b = t.habitatBreadth/16;
   pref = pref.map(v=>clamp(lerp(v, Math.max(mean,0.55), b), 0.02, 1));
+  /* 넘을 수 있는 벼랑의 높이 — 지도에 보이는 계단 몇 칸까지 오를 수 있는가.
+     바위산양과 물새는 산등성이를 그냥 넘고, 늑대는 골짜기를 돌아가야 한다.
+     이게 없으면 산맥이 그림일 뿐이고 지형이 게임에 아무 영향도 주지 않는다. */
+  /* 옆 칸과의 높이차가 이 값을 넘으면 벼랑이다. 실제 지형의 경사 분포에 맞춰 잡았다 —
+     이웃 칸 높이차는 85%가 0.07 아래, 99%가 0.21 아래다. 그래서
+     늑대(0.10)는 산등성이 언저리에서 막히고 바위산양(0.17)은 넘어간다. */
+  const climbSlope = clamp(0.020 + t.climbSwim*0.016 + t.mobility*0.004 - t.size*0.002, 0.03, 0.26);
   return {bodyMass,upkeep,juvSurv,birthMax,ageDeath,defense,attack,forage,compPow,
           optTemp,wCold,wHeat,moistOpt,moistW,pollHalf,disease,spread,starvRes,density,smart,
-          pioneer,alleeK,gensPerYear,heritab,pref};
+          pioneer,alleeK,gensPerYear,heritab,climbSlope,pref};
 }
+/* 지도에 그려지는 것과 같은 계단 높이. 눈에 보이는 벼랑이 실제로 벽이어야 한다 */
+const ELEV_LEVELS = 9;
+const elevLv = e => Math.round(e*ELEV_LEVELS);
 
 /* ── 세계 생성 ────────────────────────────────────────────────── */
 const SEA_ELEV = 0.30;      // 이 높이 아래는 물에 잠긴다
@@ -1659,6 +1718,22 @@ function makeWorld(){
   /* ── 6. 지형 종류 결정 ───────────────────────────────────── */
   const biome=new Uint8Array(NT), soil=new Float32Array(NT), moist=new Float32Array(NT);
   const detr=new Float32Array(NT), poll=new Float32Array(NT), farm=new Uint8Array(NT), road=new Uint8Array(NT);
+  /* 도시 밀도 등급 — 0 없음 / 1 교외 / 2 시가지 / 3 도심 */
+  const urb=new Uint8Array(NT);
+  /* 다리 — 물이나 골짜기를 건너는 도로 칸 */
+  const bridge=new Uint8Array(NT);
+  /* 험한 정도 — 옆 칸들과의 평균 높이차. 벼랑과 너덜이 많은 땅일수록 크다.
+     평지는 0에 가깝고 산등성이는 0.15를 넘는다. */
+  const rough=new Float32Array(NT);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x; let sum=0, c=0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy) continue;
+      const nx=x+dx, ny=y+dy; if(nx<0||ny<0||nx>=W||ny>=H) continue;
+      sum+=Math.abs(elev[ny*W+nx]-elev[i]); c++;
+    }
+    rough[i]= c? sum/c : 0;
+  }
   const dist=new Float32Array(NT);
   /* 원 밖은 아예 세계가 아니다. 아무것도 살지 않고 그려지지도 않는다. */
   const vd=new Uint8Array(NT);
@@ -1699,7 +1774,7 @@ function makeWorld(){
            : b===3?74 : b===4?16 : b===5?26 : b===6?18 : b===7?94 : b===8?88 : b===9?12 : 60;
     detr[i]= soil[i]*0.30;
   }
-  return {elev,wet,heat,biome,soil,moist,detr,poll,farm,road,dist,region,vol,sea,river,flow,vd,
+  return {elev,rough,wet,heat,biome,soil,moist,detr,poll,farm,road,urb,bridge,dist,region,vol,sea,river,flow,vd,
           baseMoist:Float32Array.from(moist), baseSoil:Float32Array.from(soil)};
 }
 
@@ -1880,7 +1955,9 @@ function habitatScore(s,w,i){
   const dm = w.moist[i]-d.moistOpt;
   const mf = Math.exp(-(dm*dm)/(2*d.moistW*d.moistW));
   const pf = 1/(1+Math.pow(w.poll[i]/d.pollHalf,2));
-  return tf*mf*pf*d.pref[w.biome[i]];
+  /* 험한 땅은 오를 줄 아는 종의 것 — 적합도 지도에도 그대로 보여야 한다 */
+  const rk = w.rough ? clamp(1-Math.max(0, w.rough[i]-d.climbSlope)*7.5, 0.14, 1) : 1;
+  return tf*mf*pf*rk*d.pref[w.biome[i]];
 }
 
 function tileTemp(w,i,season,warming){
@@ -1939,12 +2016,16 @@ function step(){
       const mf = Math.exp(-(dmo*dmo)/(2*d.moistW*d.moistW));
       const pf = 1/(1+Math.pow(w.poll[i]/d.pollHalf,2));
       const farmPen = w.farm[i] ? (s.diet==="producer"?0.35:Math.min(1,0.55+d.smart*0.02)) : 1;
-      const roadPen = w.road[i] ? 0.72 : 1;
+      /* 교외는 아직 살 만하다. 도심은 사실상 불모지다 */
+      const roadPen = (w.road[i] ? 0.72 : 1) * (w.urb[i]===1 ? 0.66 : 1);
+      /* 험한 땅 — 벼랑과 너덜이 많은 곳은 오를 줄 아는 것들의 차지다.
+         늑대는 산등성이에서 사냥도 새끼치기도 못 한다. 산양은 거기가 집이다. */
+      const rockPen = clamp(1 - Math.max(0, w.rough[i]-d.climbSlope)*7.5, 0.14, 1);
       /* 생태 천이 — 갓 교란된 땅은 개척종의 차지, 오래 안정된 땅은 극상종의 차지 */
       const dz = w.dist[i];
       const succ = dz>0.02 ? clamp(1 + TUNE.succession*dz*(d.pioneer-0.45)*2.6, 0.45, 1.85) : 1;
       /* 네 요소를 곱하면 '괜찮은 환경'도 0.4까지 떨어진다. 제곱근으로 눌러 실제 체감에 맞춘다 */
-      f[i] = Math.pow(tf*mf*pf*d.pref[w.biome[i]], 0.45)*farmPen*roadPen*succ;
+      f[i] = Math.pow(tf*mf*pf*d.pref[w.biome[i]], 0.45)*farmPen*roadPen*rockPen*succ;
       dm[i] = p[i]>0.0001 ? p[i]*d.upkeep : 0;
     }
   }
@@ -2178,6 +2259,7 @@ function step(){
         /* 밀도 의존 분산 — 자리가 넉넉하면 굳이 떠나지 않는다.
            이게 없으면 개체군이 나쁜 타일로 계속 새어 나가 굶어 죽는다. */
         const move=v*sp*clamp(0.10+crd[i]*1.1, 0.10, 1); out[i]+=v-move;
+        const ev=w.elev[i];
         let tw=0, c=0;
         for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
           if(!dx&&!dy) continue;
@@ -2185,7 +2267,11 @@ function step(){
           if(ny<0||ny>=H||nx<0||nx>=W) continue;
           const j=ny*W+nx;
           const fj=f[j];
-          const attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010);
+          /* 벼랑 — 오를 수 있는 경사를 넘어서면 거의 못 간다.
+             등반이 낮은 종에게 산등성이는 그림이 아니라 벽이다. */
+          const over=Math.abs(w.elev[j]-ev)-d.climbSlope;
+          const climbPass = over>0 ? Math.max(0.02, 1-over*12) : 1;
+          const attract = (fj>0.02 ? fj*fj : 0.0004) / (1+p[j]*0.010) * climbPass;
           nj[c]=j; na[c]=attract; c++; tw+=attract;
         }
         if(tw<=0){ out[i]+=move; continue; }
@@ -2254,6 +2340,29 @@ function snapshot(){
   let tot=0;
   for(const s of g.species){ gsum[s.gi]+=s.total; tot+=s.total; s.hist.push(s.total); }
   g.guildHist.push(gsum); g.totalHist.push(tot);
+  dangerWatch(g);
+}
+
+/* 내 종이 무너지고 있으면 화면 가장자리가 붉어진다.
+   숫자만 보고 있으면 놓친다. 위험은 보여야 위험이다. */
+function dangerWatch(g){
+  const p=g.player; if(!p) return;
+  const el=$("#danger");
+  const h=p.hist, n=h.length;
+  let lvl=0;
+  if(p.alive && n>8){
+    const now=h[n-1], was=h[n-9];            // 두 해 전과 견준다
+    if(was>40 && now < was*0.62) lvl=1;
+    if(was>40 && now < was*0.40) lvl=2;
+    if(p.total>0 && p.total < 60) lvl=Math.max(lvl,2);
+  }
+  if(el) el.classList.toggle("on", lvl>0);
+  if(el) el.classList.toggle("hard", lvl>1);
+  /* 같은 위기로 계속 떠들지 않는다. 벗어났다가 다시 빠질 때만 알린다 */
+  if(lvl>0 && !g._danger){
+    toast(lvl>1?"개체수가 무너지고 있습니다":"개체수가 빠르게 줄고 있습니다","경보","#e06a6a");
+  }
+  g._danger = lvl>0;
 }
 
 /* ── 진화 ────────────────────────────────────────────────────────
@@ -2403,7 +2512,7 @@ const ERAS = [
      if(c<0) return;
      const cx=c%W, cy=(c/W)|0;
      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-       const d=Math.hypot(x-cx,y-cy); if(d>7) continue;
+       const d=Math.hypot(x-cx,y-cy); if(d>7*RAD_K) continue;
        const i=y*W+x; if(g.world.vd[i]) continue;
        const f=Math.exp(-d*d/14);
        for(const s of g.species) s.pop[i]*=(1-0.92*f);
@@ -2466,7 +2575,7 @@ const ERAS = [
    outro:"산성비가 잦아들었습니다.",
    temp:0, moist:1.0, light:0.88,
    year:g=>{ const w=g.world;
-     for(let n=0;n<70;n++){ const j=Math.floor(rnd()*NT);
+     for(let n=0;n<70*AREA_K;n++){ const j=Math.floor(rnd()*NT);
        if(w.vd[j]) continue;
        w.poll[j]=Math.min(100,w.poll[j]+rrange(3,9));
        w.soil[j]=Math.max(6,w.soil[j]-rrange(1,4));
@@ -2482,14 +2591,14 @@ const ERAS = [
      g.radAt=c;
      const cx=c%W, cy=(c/W)|0;
      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-       const d=Math.hypot(x-cx,y-cy); if(d>8) continue;
+       const d=Math.hypot(x-cx,y-cy); if(d>8*RAD_K) continue;
        const i=y*W+x; if(g.world.vd[i]) continue;
        g.world.poll[i]=Math.min(100,g.world.poll[i]+70*Math.exp(-d*d/22));
      }
    },
    year:g=>{ if(g.radAt===undefined) return;
      const cx=g.radAt%W, cy=(g.radAt/W)|0;
-     for(let n=0;n<50;n++){
+     for(let n=0;n<50*AREA_K;n++){
        const x=cx+Math.round(rrange(-9,9)), y=cy+Math.round(rrange(-9,9));
        if(x<0||y<0||x>=W||y>=H) continue;
        const i=y*W+x; if(g.world.vd[i]) continue;
@@ -2581,21 +2690,27 @@ function eraTick(){
       s.revealed=true;
       g.eraLog.push({name:d.name, tone:d.tone, year:g.year});
       logMsg(d.human?"human":"nature", `<b>${d.name}</b>. ${d.intro}`);
+      cinematic(`${g.year}년 — 정체가 드러났다`, d.name, d.intro, 3400);
       autoPause(d.name);
       g._sceneDirty=true;
     } else if(ph===2){
-      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 절정에 다다릅니다. ${d.peak||""}`);
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 절정으로 치닫습니다. ${d.peak||""}`);
+      cinematic(`${g.year}년 — 절정`, d.name, d.peak||"환경이 급격히 나빠집니다.", 3000);
       autoPause(`${d.name} 절정`);
     } else if(ph===3){
-      logMsg(d.human?"human":"nature", `<b>${d.name}</b>의 기세가 꺾였습니다. ${d.outro}`);
+      /* 물러나지 않는다. 마지막 구간은 여파가 아니라 파국이다 */
+      logMsg(d.human?"human":"nature", `<b>${d.name}</b>이(가) 끝까지 치닫습니다. ${d.outro}`);
       if(d.end) d.end(g);
-      autoPause(`${d.name} 여파`);
+      cinematic(`${g.year}년 — 파국`, "마지막 구간", "여기서부터는 회복이 없습니다. 버티는 것만 남았습니다.", 3400);
+      autoPause(`${d.name} 파국`);
     }
   }
   /* 전조 — 아직 이름은 모르고 조짐만 보인다 */
   if(ph===0 && d.omen && g.year>=(s.nextOmen||6)){
     s.nextOmen=g.year+Math.round(rrange(11,19));
-    logMsg("nature", `징후 — ${d.omen[Math.min(d.omen.length-1, s.omenN||0)]}`);
+    const line=d.omen[Math.min(d.omen.length-1, s.omenN||0)];
+    logMsg("nature", `징후 — ${line}`);
+    toast(line, "징후", "#8fb3d9");
     s.omenN=(s.omenN||0)+1;
     autoPause("징후");
   }
@@ -2604,7 +2719,7 @@ function eraTick(){
      그것도 몇 칸만 바꿔서 기후 수치를 두 배로 올려도 생존률이 그대로였다.
      시나리오가 압력이 되려면 살 수 있는 땅 자체가 줄어들어야 한다. */
   if(d.year){
-    let reps = t<0.25 ? (rnd()<t*3?1:0) : Math.round(t*t*TUNE.scenSpread);
+    let reps = t<0.25 ? (rnd()<t*3?1:0) : Math.round(t*t*TUNE.scenSpread*AREA_K);
     for(let q=0;q<reps;q++) d.year(g);
   }
   if(d.start && !s.started && t>0.18){ s.started=true; d.start(g); }
@@ -2668,7 +2783,7 @@ const NATURE_EVENTS=[
   {k:"heat", p:0.017, dur:[1,3], msg:"<b>폭염</b>. 기온이 6도 치솟습니다.", go:g=>{ g.events.heat=Math.round(rrange(1,3)); }},
   {k:"cold", p:0.017, dur:[1,3], msg:"<b>한파</b>. 기온이 7도 떨어집니다.", go:g=>{ g.events.cold=Math.round(rrange(1,3)); }},
   {k:"fire", p:0.012, msg:"<b>산불</b>이 번졌습니다. 숲 일부가 잿더미가 됩니다.",
-   go:g=>{ const cx=Math.floor(rnd()*W), cy=Math.floor(rnd()*H), r=rrange(3,6);
+   go:g=>{ const cx=Math.floor(rnd()*W), cy=Math.floor(rnd()*H), r=rrange(3,6)*RAD_K;
      for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const i=y*W+x;
        const dx=Math.min(Math.abs(x-cx), W-Math.abs(x-cx));
        if(Math.hypot(dx,y-cy)<r && (g.world.biome[i]===3||g.world.biome[i]===2)){
@@ -2682,12 +2797,12 @@ const NATURE_EVENTS=[
    go:g=>{ g.events.boom=Math.round(rrange(2,4));
      for(let i=0;i<NT;i++) g.world.soil[i]=Math.min(140,g.world.soil[i]+12); }},
   {k:"storm", p:TUNE.stormP, msg:"<b>강풍과 국지 교란</b>. 몇몇 지역의 식생이 헝클어졌습니다.",
-   go:g=>{ for(let n=0;n<rrange(6,18);n++){ const i=Math.floor(rnd()*NT);
+   go:g=>{ for(let n=0;n<rrange(6,18)*AREA_K;n++){ const i=Math.floor(rnd()*NT);
      g.world.dist[i]=Math.min(1,g.world.dist[i]+rrange(0.3,0.8));
      for(const s of g.species) if(s.diet==="producer") s.pop[i]*=0.80;
      g.world.detr[i]+=6; } }},
   {k:"quake", p:0.006, msg:"<b>지각 변동</b>으로 지형 일부가 바뀌었습니다.",
-   go:g=>{ for(let n=0;n<26;n++){ const i=Math.floor(rnd()*NT);
+   go:g=>{ for(let n=0;n<26*AREA_K;n++){ const i=Math.floor(rnd()*NT);
      g.world.biome[i]= [0,1,2,3,4,5][Math.floor(rnd()*6)];
      g.world.dist[i]=1;
      g.world.baseMoist[i]=clamp(g.world.baseMoist[i]+rrange(-0.3,0.3),0,1); } }},
@@ -2696,11 +2811,19 @@ const HUMAN_EVENTS=[
   {k:"sewage", p:0.028, msg:"<b>공장 폐수</b>가 하천으로 흘러들었습니다. 물가부터 오염됩니다.",
    go:g=>{ for(let i=0;i<NT;i++) if(g.world.biome[i]<=1) g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(22,45));
      for(let n=0;n<40;n++){ const i=Math.floor(rnd()*NT); g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(8,20)); } }},
-  {k:"farm", p:0.030, msg:"<b>농지 개간</b>. 초원과 숲이 밭으로 바뀝니다.",
-   go:g=>{ let c=0; for(let n=0;n<220&&c<26;n++){ const i=Math.floor(rnd()*NT);
-     if((g.world.biome[i]===2||g.world.biome[i]===3)&&!g.world.farm[i]){ g.world.farm[i]=1; c++;
-       g.world.dist[i]=1;
-       for(const s of g.species) if(s.diet==="producer") s.pop[i]*=0.25; } } }},
+  {k:"farm", p:0.030, msg:"<b>농지 개간</b>. 도시 언저리의 초원과 숲이 밭으로 바뀝니다.",
+   go:g=>{ const w=g.world; if(g.cityAt===undefined) return;
+     const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
+     const reach=cityR(g)+6+(g.year-HUMAN_YEAR)*0.14;
+     let c=0; for(let n=0;n<400&&c<20;n++){ const i=Math.floor(rnd()*NT);
+       if(w.vd[i]||w.farm[i]||w.urb[i]>=2) continue;
+       if(w.biome[i]!==2&&w.biome[i]!==3) continue;
+       const x=i%W, y=(i/W)|0;
+       if(Math.hypot(x-cx,y-cy)>reach) continue;
+       if(!w.road[i] && !nearHuman(w,x,y)) continue;
+       w.farm[i]=1; c++; w.dist[i]=1;
+       for(const s of g.species) if(s.diet==="producer") s.pop[i]*=0.25; }
+     if(c) g._sceneDirty=true; }},
   {k:"pesticide", p:0.022, msg:"<b>살충제 살포</b>. 작은 몸집의 종이 먼저 쓰러집니다.",
    go:g=>{ g.events.pesticide=Math.round(rrange(2,4));
      for(let i=0;i<NT;i++) if(g.world.farm[i]) g.world.poll[i]=Math.min(100,g.world.poll[i]+rrange(10,24)); }},
@@ -2710,11 +2833,12 @@ const HUMAN_EVENTS=[
        for(let i=0;i<NT;i++) s.pop[i]*=f; } } }},
   {k:"city", p:0.016, msg:"<b>도시가 크게 확장</b>됐습니다. 건물이 한꺼번에 늘어납니다.",
    go:g=>{ growCity(g, 4); }},
-  {k:"road", p:0.020, msg:"<b>도로 건설</b>로 서식지가 잘려나갔습니다. 이동이 어려워집니다.",
-   go:g=>{ const horiz=rnd()<0.5, at=Math.floor(rnd()*(horiz?H:W));
-     for(let k=0;k<(horiz?W:H);k++){ const i=horiz? at*W+k : k*W+at;
-       g.world.road[i]=1; g.world.poll[i]=Math.min(100,g.world.poll[i]+8);
-       for(const s of g.species) s.pop[i]*=0.5; } }},
+  {k:"road", p:0.020, msg:"<b>간선도로 개통</b>. 도시에서 뻗은 길이 서식지를 갈라놓습니다.",
+   go:g=>{ if(g.cityAt===undefined||!g.spokes) return;
+     /* 새 길 하나가 도심에서 뻗고, 기존 길도 한꺼번에 늘어난다 */
+     if(g.spokes.length<10)
+       g.spokes.push({ox:g.cityAt%W, oy:(g.cityAt/W)|0, a:rnd()*6.283, ph:rnd()*6.28, len:1});
+     for(const sp of g.spokes) if(!sp.dead) paveSpoke(g, sp, sp.len+rrange(3,6)); }},
   {k:"invasive", p:0.016, msg:"<b>외래종 유입</b>. 기존 종의 자원을 빠르게 잠식합니다.",
    go:g=>{ const cands=g.species.filter(s=>s.alive&&!s.isPlayer&&s.diet!=="producer");
      if(!cands.length) return; const s=cands[Math.floor(rnd()*cands.length)];
@@ -2726,11 +2850,26 @@ const HUMAN_EVENTS=[
    go:g=>{ const cx=Math.floor(rnd()*W), cy=Math.floor(rnd()*H);
      for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const i=y*W+x;
        const dx=Math.min(Math.abs(x-cx), W-Math.abs(x-cx));
-       if(Math.hypot(dx,y-cy)<6){ g.world.farm[i]=0; g.world.poll[i]*=0.25; g.world.soil[i]=Math.min(140,g.world.soil[i]+16); } } }},
+       if(Math.hypot(dx,y-cy)<6*RAD_K){ g.world.farm[i]=0; g.world.poll[i]*=0.25; g.world.soil[i]=Math.min(140,g.world.soil[i]+16); } } }},
   {k:"restore", p:0.011, msg:"<b>습지 복원 사업</b>이 시작됐습니다. 물길이 되살아납니다.",
    go:g=>{ for(let i=0;i<NT;i++) if(g.world.biome[i]===1||g.world.biome[i]===0){
      g.world.poll[i]*=0.35; g.world.baseMoist[i]=clamp(g.world.baseMoist[i]+0.12,0,1); g.world.detr[i]+=12; } }},
 ];
+
+/* ── 사람의 땅 ──────────────────────────────────────────────
+   도시는 한 덩어리가 아니다. 가운데가 가장 빽빽하고 바깥으로 갈수록 옅어진다.
+     3 도심   — 고층, 흙이 거의 없다
+     2 시가지 — 블록 건물과 공장
+     1 교외   — 집이 드문드문, 아직 풀이 남아 있다
+     0 + 농지 — 농촌. 도로를 따라 도시 밖으로 번진다
+   도로도 아무 데나 그어지지 않는다. 도심에서 뻗어 나간 줄기가 해마다 길어지고,
+   그 줄기를 따라 농지가 붙는다. 그래서 지도를 보면 사람이 어디서 왔는지가 보인다. */
+const URB_NAME=["","교외","시가지","도심"];
+/* 도시가 차지한 땅의 넓이로 경계 반지름을 정한다 */
+function cityR(g){
+  const u=g.urbN||[0,0,0,0];
+  return 2.2+Math.sqrt(Math.max(1,u[1]+u[2]+u[3]))*1.15;
+}
 
 /* 도시를 세울 자리 — 평지, 물가, 밭 근처가 좋다 */
 function foundCity(g){
@@ -2744,33 +2883,105 @@ function foundCity(g){
     if(sc>bs){ bs=sc; best=i; }
   }
   if(best<0) return false;
-  g.cityAt=best; g.citySize=0;
+  g.cityAt=best; g.citySize=0; g.urbN=[0,0,0,0]; g.metro=false;
+  /* 처음부터 세 갈래 길이 난다. 도시는 길과 함께 자란다. */
+  g.spokes=[];
+  const a0=rnd()*Math.PI*2;
+  for(let k=0;k<3;k++) g.spokes.push({ox:best%W, oy:(best/W)|0, a:a0+k*2.09+rrange(-0.3,0.3), ph:rnd()*6.28, len:1.5});
+  setUrb(g, best, 2);
   logMsg("human","<b>도시</b>가 들어섰습니다. 여기서부터 콘크리트가 번져 나갑니다.");
   return true;
 }
-/* 도시를 가장자리로 넓힌다. n칸을 콘크리트로 덮는다. */
+
+/* 칸 하나의 도시 등급을 올린다. 등급마다 땅에서 빼앗는 것이 다르다. */
+function setUrb(g, i, tier){
+  const w=g.world;
+  const old=w.urb[i];
+  if(tier<=old) return false;
+  w.urb[i]=tier; w.dist[i]=1;
+  if(g.urbN){ if(old) g.urbN[old]--; g.urbN[tier]++; }
+  if(tier===1){
+    /* 교외는 아직 땅이다. 흙이 절반쯤 남는다 */
+    w.soil[i]=Math.max(24, w.soil[i]*0.55); w.baseSoil[i]=Math.max(24, w.baseSoil[i]*0.55);
+    w.moist[i]=Math.max(0.18, w.moist[i]*0.8);
+    w.poll[i]=Math.min(100, w.poll[i]+rrange(4,10));
+    for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.55:0.78;
+  }else{
+    w.biome[i]=9; w.farm[i]=0;
+    const hard = tier===3;
+    w.soil[i]=hard?6:14;  w.baseSoil[i]=w.soil[i];
+    w.moist[i]=hard?0.12:0.20; w.baseMoist[i]=w.moist[i];
+    w.poll[i]=Math.min(100, w.poll[i]+(hard?rrange(20,38):rrange(10,24)));
+    for(const s of g.species) s.pop[i]*= s.diet==="producer" ? (hard?0.02:0.10) : (hard?0.14:0.35);
+  }
+  return true;
+}
+
+/* 도시를 키운다. n번 손을 대는데, 바깥을 넓히거나 안쪽을 조인다.
+   가운데일수록 높은 등급까지 올라가므로 저절로 도심–시가지–교외 띠가 생긴다. */
 function growCity(g, n){
   const w=g.world;
   if(g.cityAt===undefined && !foundCity(g)) return 0;
   const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
-  const R=2+Math.floor(Math.sqrt(g.citySize||0));
-  let added=0;
-  for(let k=0;k<340 && added<n;k++){
-    const x=cx+Math.round(rrange(-R,R)), y=cy+Math.round(rrange(-R,R));
+  const R=cityR(g);                                // 교외 경계
+  let added=0, work=0;
+  for(let k=0;k<420 && work<n;k++){
+    /* 안쪽이 더 자주 뽑힌다. 면적대로 고르면 바깥 띠만 넓어지고 도심이 생기지 않는다 */
+    const rad=Math.pow(rnd(),1.2)*R*1.02, ang=rnd()*6.283;
+    const x=Math.round(cx+Math.cos(ang)*rad), y=Math.round(cy+Math.sin(ang)*rad);
     if(x<0||y<0||x>=W||y>=H) continue;
     const i=y*W+x;
     if(w.vd[i]) continue;
-    if(w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
-    w.biome[i]=9; w.farm[i]=0; w.dist[i]=1;
-    w.soil[i]=12; w.baseSoil[i]=12;
-    w.moist[i]=0.20; w.baseMoist[i]=0.20;
-    w.poll[i]=Math.min(100, w.poll[i]+rrange(10,26));
-    for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.10:0.35;
-    added++;
+    if(w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
+    const d=Math.hypot(x-cx,y-cy);
+    /* 이 자리가 최종적으로 될 수 있는 등급 */
+    const cap = d < R*0.26 ? 3 : d < R*0.66 ? 2 : 1;
+    if(w.urb[i]>=cap) continue;
+    /* 한 번에 한 단계씩만 오른다. 교외였다가 시가지가 되고 그다음에 도심이 된다.
+       위로 올릴수록 품이 많이 든다 — 그래서 밑변이 넓은 피라미드가 된다 */
+    const next=w.urb[i]+1;
+    if(setUrb(g, i, next)){ added++; work += next===3 ? 3 : next===2 ? 1.8 : 1; }
   }
   g.citySize=(g.citySize||0)+added;
   if(added) g._sceneDirty=true;
+  /* 도심이 충분히 두꺼워지면 대도시다 */
+  if(!g.metro && g.urbN && g.urbN[3]>=8){
+    g.metro=true;
+    logMsg("human","도시가 <b>대도시</b>가 됐습니다. 도심의 그늘이 사방으로 뻗습니다.");
+    try{ toast("대도시 형성","인간","#c98"); }catch(e){}
+  }
   return added;
+}
+
+/* 길 하나를 지금 길이에서 to까지 깐다. 세계 밖에 닿으면 거기서 끝난다.
+   물이나 골짜기를 만나면 돌아가지 않고 다리를 놓는다 — 사람은 지형에 지지 않는다. */
+function paveSpoke(g, sp, to){
+  const w=g.world; let r=sp.len, prevLv=-1;
+  for(; r<to; r+=0.55){
+    const a=sp.a + Math.sin(r*0.32+sp.ph)*0.30;    // 살짝 굽는다. 자로 그은 선은 어색하다
+    const x=Math.round(sp.ox+Math.cos(a)*r), y=Math.round(sp.oy+Math.sin(a)*r);
+    if(x<0||y<0||x>=W||y>=H){ sp.dead=1; break; }
+    const i=y*W+x;
+    if(w.vd[i]){ sp.dead=1; break; }
+    const lv=elevLv(w.elev[i]);
+    /* 물 위이거나, 앞 칸과 두 계단 넘게 차이 나면 다리다 */
+    const span = w.biome[i]===10||w.biome[i]===0||w.biome[i]===12
+              || (prevLv>=0 && Math.abs(lv-prevLv)>=2);
+    prevLv=lv;
+    if(!w.road[i]){
+      w.road[i]=1;
+      if(span){
+        w.bridge[i]=1;
+        if(!g.bridgeN){ g.bridgeN=0; }
+        if(g.bridgeN++===0) logMsg("human","<b>다리</b>가 놓였습니다. 물과 골짜기가 더는 사람을 막지 못합니다.");
+      }else{
+        w.poll[i]=Math.min(100, w.poll[i]+6);
+        for(const s of g.species) s.pop[i]*=0.62;
+      }
+      g._sceneDirty=true;
+    }
+  }
+  sp.len=Math.min(r, to);
 }
 
 /* 사람은 사건으로만 오지 않는다. 자리를 잡은 뒤로는 해마다 조금씩 넓혀 간다.
@@ -2781,26 +2992,61 @@ function humanTick(g){
      300년 뒤 도시가 육지의 10%쯤 되도록 잡았다. */
   g._cityAcc=(g._cityAcc||0) + clamp(0.30+age/430, 0.30, 0.90);
   if(g._cityAcc>=1){ const n=Math.floor(g._cityAcc); g._cityAcc-=n; growCity(g, n); }
+  if(g.cityAt===undefined) return;
+  const cx=g.cityAt%W, cy=(g.cityAt/W)|0;
+
+  /* 길이 먼저 뻗고 농지가 그 길을 따라온다 */
+  const grow=clamp(0.30+age/220, 0.30, 1.4);
+  for(const sp of (g.spokes||[])) if(!sp.dead) paveSpoke(g, sp, sp.len+grow);
+  /* 도시가 커지면 곁가지가 난다 — 큰길에서 갈라져 나오는 지선.
+     큰길이 세계 끝에 닿아 더 못 뻗으면, 대신 지선이 자주 갈라져 망이 촘촘해진다. */
+  if(g.spokes && g.spokes.length<16 && age>25){
+    const stuck=g.spokes.every(s=>s.dead);
+    if(rnd() < (stuck?0.34:0.06)){
+    const live=g.spokes.filter(s=>s.len>4);
+    if(live.length){
+      const p=live[Math.floor(rnd()*live.length)], r=p.len*rrange(0.30,0.85);
+      const a=p.a+Math.sin(r*0.32+p.ph)*0.30;
+      g.spokes.push({ox:Math.round(p.ox+Math.cos(a)*r), oy:Math.round(p.oy+Math.sin(a)*r),
+                     a:a+(rnd()<0.5?1:-1)*rrange(0.7,1.4), ph:rnd()*6.28, len:0.5});
+    }
+    }
+  }
+
+  /* 농촌 — 교외 바깥, 길가부터 갈린다 */
   g._farmAcc=(g._farmAcc||0) + clamp(0.45+age/300, 0.45, 1.4);
   let farms=Math.floor(g._farmAcc); g._farmAcc-=farms;
-  for(let k=0;k<300 && farms>0;k++){
+  const R=cityR(g), reach=R+5+age*0.14;
+  for(let k=0;k<400 && farms>0;k++){
     const i=Math.floor(rnd()*NT);
-    if(w.vd[i]||w.farm[i]||w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
+    if(w.vd[i]||w.farm[i]||w.urb[i]>=2||w.biome[i]===9||w.biome[i]===10||w.biome[i]===0||w.biome[i]===12) continue;
     if(w.biome[i]!==2 && w.biome[i]!==3 && w.biome[i]!==1) continue;
-    /* 도시나 도로 가까이부터 개간된다 */
-    const cx=g.cityAt%W, cy=(g.cityAt/W)|0, x=i%W, y=(i/W)|0;
-    if(!w.road[i] && Math.hypot(x-cx,y-cy) > 6+age*0.22) continue;
+    const x=i%W, y=(i/W)|0;
+    if(Math.hypot(x-cx,y-cy) > reach) continue;
+    /* 길이나 이미 있는 밭, 교외에 붙어야 갈린다. 그래서 띠를 이루며 번진다 */
+    if(!w.road[i] && !nearHuman(w,x,y)) continue;
     w.farm[i]=1; w.soil[i]=Math.max(20,w.soil[i]*0.75); w.dist[i]=Math.min(1,w.dist[i]+0.5);
     for(const s of g.species) s.pop[i]*= s.diet==="producer"?0.45:0.75;
-    farms--;
+    farms--; g._sceneDirty=true;
   }
-  /* 사람이 사는 땅에는 오염이 쌓인다 */
+  /* 사람이 사는 땅에는 오염이 쌓인다. 도심이 가장 짙다 */
   const load=clamp(age/160,0,1);
   for(let i=0;i<NT;i++){
     if(w.vd[i]) continue;
-    if(w.biome[i]===9) w.poll[i]=Math.min(100, w.poll[i]+0.30+load*0.55);
+    const u=w.urb[i];
+    if(u===3)      w.poll[i]=Math.min(100, w.poll[i]+0.45+load*0.80);
+    else if(u===2) w.poll[i]=Math.min(100, w.poll[i]+0.30+load*0.55);
+    else if(u===1) w.poll[i]=Math.min(100, w.poll[i]+0.14+load*0.28);
     else if(w.farm[i]||w.road[i]) w.poll[i]=Math.min(100, w.poll[i]+0.08+load*0.18);
   }
+}
+/* 옆 칸에 사람 흔적이 있는가 */
+function nearHuman(w,x,y){
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    const nx=x+dx, ny=y+dy; if(nx<0||ny<0||nx>=W||ny>=H) continue;
+    const j=ny*W+nx; if(w.farm[j]||w.urb[j]||w.road[j]) return true;
+  }
+  return false;
 }
 
 function rollEvents(){
@@ -2809,6 +3055,7 @@ function rollEvents(){
   if(g.scenarioHuman && !g.humanArrived && g.year>=HUMAN_YEAR){
     g.humanArrived=true;
     logMsg("human","<b>사람이 이 땅에 정착했습니다.</b> 이제부터 자연은 혼자가 아닙니다.");
+    cinematic(`${g.year}년`, "사람이 왔다", "도시가 들어서고 길과 밭이 그 도시에서 퍼져 나갑니다.", 3200);
   }
   if(g.humanArrived && g.season===0) humanTick(g);   // 사람은 사건이 아니라 해마다 번진다
   for(const e of NATURE_EVENTS){
@@ -2989,6 +3236,7 @@ function refreshDesign(){
     ["적정 기온", d.optTemp.toFixed(0)+"<small>°C ±"+((d.wCold+d.wHeat)/2).toFixed(0)+"</small>"],
     ["적정 습도", (d.moistOpt*100).toFixed(0)+"<small>%</small>"],
     ["확산 속도", (d.spread*100).toFixed(1)+"<small>% /틱</small>"],
+    ["오르는 경사", (d.climbSlope*100).toFixed(0)+"<small>%</small>"],
     ["타일 밀도", d.density.toFixed(1)],
     ["세대 시간", (1/d.gensPerYear).toFixed(1)+"<small>년</small>"],
     ["유전율 h²", d.heritab.toFixed(2)],
@@ -3060,6 +3308,10 @@ function tileRGB(i, layer, veg, sel){
     if(e>0.66 && w.biome[i]===5) col = mix(col,[255,255,255], clamp((e-0.66)/0.22,0,1)*0.9);
     if(w.dist[i]>0.15) col = mix(col,[196,178,142], clamp(w.dist[i]*0.5,0,0.45));
     if(w.farm[i]) col = mix(col,[214,190,110],0.62);
+    /* 도시 등급이 색으로 읽혀야 한다 — 교외는 옅은 회록, 도심은 짙은 회색 */
+    if(w.urb[i]===1) col = mix(col,[168,170,158],0.42);
+    else if(w.urb[i]===2) col = mix(col,[140,141,138],0.35);
+    else if(w.urb[i]===3) col = mix(col,[92,94,98],0.55);
     if(w.poll[i]>8) col = mix(col,[186,96,140], clamp(w.poll[i]/130,0,0.55));
     if(w.road[i]) col = mix(col,[124,122,116],0.45);
     /* 내 종이 사는 곳에 금빛을 얹는다. 이 게임에서 보고 싶은 건 결국
@@ -3281,11 +3533,11 @@ function drawChart(canvasId, legendId, full){
    · 고도는 위로 밀어올리고, 호수·습지에는 수면을 따로 깐다.
    생물은 몸통·머리·다리·꼬리에 형질에 따라 뿔·귀·날개를 붙여 만든다. */
 const Globe = (function(){
-  const RD = 16.0, HGT = 3.0, WATER_Y = (Math.round(SEA_ELEV*9)/9-0.40)*3.0 + 0.06, MAX_CREATURES = 2600;
+  const RD = 16.0, HGT = 3.0, WATER_Y = (Math.round(SEA_ELEV*9)/9-0.40)*3.0 + 0.06, MAX_CREATURES = Math.round(2600*AREA_K);
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
-  let az=0.72, pol=0.72, dist=54, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
+  let az=0.72, pol=0.72, dist=45, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
   /* 카메라가 바라보는 지점. 이게 없으면 확대가 언제나 세계 한가운데로만 파고들어
      가장자리를 들여다볼 수가 없다. */
   let tx=0, tz=0;
@@ -3549,6 +3801,9 @@ const Globe = (function(){
       house:     mk(o=>{ box(o,0,0.20,0,0.19,0.20,0.17); taper(o,0,0.45,0,0.23,0.09,0.21,0.25); }),
       tower:     mk(o=>{ box(o,0,0.42,0,0.14,0.42,0.14); box(o,0,0.87,0,0.10,0.05,0.10); }),
       block:     mk(o=>{ box(o,0,0.26,0,0.24,0.26,0.20); box(o,0,0.55,0,0.15,0.06,0.14); }),
+      /* 도심 고층 — 눈에 띄게 높아야 도심인 줄 안다 */
+      highrise:  mk(o=>{ box(o,0,0.34,0,0.15,0.34,0.15); box(o,0,0.86,0,0.115,0.18,0.115);
+                         box(o,0,1.12,0,0.075,0.08,0.075); box(o,0,1.26,0,0.018,0.06,0.018); }),
       /* 공장 — 납작한 몸체에 굴뚝 둘. 오염이 쌓인 도시 칸에만 선다 */
       factory:   mk(o=>{ box(o,0,0.18,0,0.30,0.18,0.22);
                          box(o,-0.14,0.62,0.06,0.055,0.44,0.055);
@@ -3556,6 +3811,10 @@ const Globe = (function(){
                          box(o,-0.14,1.10,0.06,0.075,0.05,0.075); }),
       /* 밭작물 — 줄지어 선 이랑 */
       crop:      mk(o=>{ for(const dx of [-0.16,0,0.16]) box(o,dx,0.10,0,0.035,0.10,0.20); }),
+      /* 다리 — 상판과 난간, 그리고 아래로 내린 교각 */
+      bridge:    mk(o=>{ box(o,0,0.02,0,1.15,0.05,0.34);
+                         box(o,0,0.13,0.30,1.15,0.09,0.035); box(o,0,0.13,-0.30,1.15,0.09,0.035);
+                         for(const dx of [-0.72,0,0.72]) box(o,dx,-0.55,0,0.07,0.58,0.07); }),
     };
   })();
   const SC = {                                  // 장식물 색 — 무광 파스텔
@@ -3564,7 +3823,7 @@ const Globe = (function(){
     cactus:[0.49,0.73,0.52], rock:[0.75,0.74,0.78], vrock:[0.58,0.44,0.40],
     snow:[0.99,1,1], wall:[0.95,0.93,0.88], roof:[0.86,0.56,0.48],
     wall2:[0.84,0.86,0.90], wall3:[0.92,0.86,0.76], road:[0.55,0.55,0.58],
-    crop:[0.86,0.79,0.36], factory:[0.66,0.64,0.66],
+    crop:[0.86,0.79,0.36], factory:[0.66,0.64,0.66], bridge:[0.74,0.72,0.70],
   };
   /* 지형별로 무엇을 몇 개 세울지 */
   function propsFor(b){
@@ -3577,9 +3836,15 @@ const Globe = (function(){
       case 6: return [[SCENE.conifer,SC.conifer,2,0.30],[SCENE.mound,SC.snow,2,0.35]];
       case 7: return [[SCENE.jungle,SC.jungleLeaf,3,0.62],[SCENE.bush,SC.jungleLeaf,2,0.4]];
       case 8: return [[SCENE.rock,SC.vrock,3,0.45]];
-      case 9: return [[SCENE.tower,SC.wall2,2,0.55],[SCENE.block,SC.wall3,2,0.6],[SCENE.house,SC.wall,2,0.5]];
+      case 9: return [[SCENE.block,SC.wall3,2,0.6],[SCENE.house,SC.wall,2,0.5]];
       default: return null;
     }
+  }
+  /* 도시는 등급마다 다른 것이 선다. 멀리서 봐도 도심이 어디인지 알 수 있어야 한다. */
+  function propsForUrb(u){
+    if(u===3) return [[SCENE.highrise,SC.wall2,3,0.85],[SCENE.tower,SC.wall2,2,0.7]];
+    if(u===2) return [[SCENE.block,SC.wall3,3,0.75],[SCENE.tower,SC.wall2,1,0.35]];
+    return [[SCENE.house,SC.wall,2,0.55],[SCENE.grass,SC.grass,2,0.35]];   // 교외
   }
   function buildScenery(){
     if(!ok) return;
@@ -3594,18 +3859,34 @@ const Globe = (function(){
       const cy=Math.cos(yaw), sy=Math.sin(yaw);
       tris.push([model,col,c[0]+jx,c[1],c[2]+jz,cy,sy,sc]);
     };
+    /* 다리는 흔들리면 안 된다 — 흔들지도 돌리지도 않고, 길이 이어지는 쪽으로만 놓는다 */
+    const pushBridge=(i)=>{
+      tileCenter(i,c);
+      const x=i%W, y=(i/W)|0;
+      let top=c[1], horiz=0, vert=0;
+      for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx, ny=y+dz; if(nx<0||ny<0||nx>=W||ny>=H) continue;
+        const j=ny*W+nx; if(w.vd[j]||!w.road[j]) continue;
+        if(dz===0) horiz++; else vert++;
+        if(!w.bridge[j]) top=Math.max(top, tileH(j));    // 땅에 닿는 쪽 높이에 맞춘다
+      }
+      top=Math.max(top, WATER_Y+0.06);
+      const yaw = vert>horiz ? Math.PI/2 : 0;
+      tris.push([SCENE.bridge, SC.bridge, c[0], top, c[2], Math.cos(yaw), Math.sin(yaw), 0.5]);
+    };
     for(let i=0;i<NT;i++){
+      if(w.bridge[i]) pushBridge(i);
       if(w.vd[i]) continue;
       /* 밭은 지형 종류가 아니라 표식이라 따로 세운다. 색만 바뀌면 밭인지 알 수 없다. */
       if(w.farm[i] && w.biome[i]!==9){
         for(let k=0;k<3;k++) if(((i*2654435761 ^ (k+91)*2246822519)>>>0 & 1023)/1023 < 0.72)
           push(SCENE.crop, SC.crop, i, 700+k, 0.95);
       }
-      /* 오염이 심한 도시 칸에는 공장이 선다 */
-      if(w.biome[i]===9 && w.poll[i]>22){
+      /* 공장은 도심이 아니라 시가지 언저리에 선다 */
+      if(w.urb[i]===2 && w.poll[i]>22){
         push(SCENE.factory, SC.factory, i, 811, 1.0);
       }
-      const list=propsFor(w.biome[i]); if(!list) continue;
+      const list = w.urb[i] ? propsForUrb(w.urb[i]) : propsFor(w.biome[i]); if(!list) continue;
       let seed=1;
       for(const [model,col,count,prob] of list){
         for(let k=0;k<count;k++,seed++){
@@ -4047,7 +4328,10 @@ const Globe = (function(){
         o=pushTri(terrData,o,w0,w3,w2,dr,dg,db,0);
       }
 
-      if(layer==="terrain" && !w.vd[i] && isWater(w.biome[i])) wat.push(i);
+      /* 수면은 어느 레이어에서든 깐다. 예전에는 지형 레이어에서만 깔아서
+         오염·기온·적합도 화면으로 넘어가면 바다가 통째로 사라졌다.
+         시작할 지역을 고르는 화면이 적합도 레이어라 물이 아예 안 보였다. */
+      if(!w.vd[i] && isWater(w.biome[i])) wat.push(i);
     }
     terrN=o/STRIDE;
     gl.bindBuffer(gl.ARRAY_BUFFER,terrBuf);
@@ -4063,7 +4347,13 @@ const Globe = (function(){
       polar(x,  y,  wy,q0); polar(x+1,y,  wy,q1);
       polar(x+1,y+1,wy,q2); polar(x,  y+1,wy,q3);
       const deep=clamp((WATER_Y-tileH(i))/1.2,0,1);
-      const r=lerp(0.36,0.10,deep), g=lerp(0.74,0.42,deep), b=lerp(0.95,0.80,deep);
+      let r=lerp(0.36,0.10,deep), g=lerp(0.74,0.42,deep), b=lerp(0.95,0.80,deep);
+      /* 데이터 레이어에서는 그 칸의 값 색을 쓰되 물빛을 조금 섞는다.
+         평평한 수면은 그대로라 바다는 계속 바다로 보인다. */
+      if(layer!=="terrain"){
+        const c=tileRGB(i, layer, veg, sel);
+        r=lerp(c[0]/255, r, 0.58); g=lerp(c[1]/255, g, 0.58); b=lerp(c[2]/255, b, 0.58);
+      }
       wo=pushTri(wd,wo,q0,q2,q1,r,g,b,0);
       wo=pushTri(wd,wo,q0,q3,q2,r,g,b,0);
     }
@@ -4148,6 +4438,11 @@ const Globe = (function(){
       } else i=Math.floor(Math.random()*NT);
       if(G.world.vd[i]) continue;
       const v=s.pop[i]; if(v<=0.05) continue;
+      /* 눈에 보이는 벼랑은 실제로 못 넘는다. 산양은 넘고 늑대는 돌아간다 */
+      if(near>=0){
+        const over=Math.abs(G.world.elev[i]-G.world.elev[near])-(s.d.climbSlope||0.1)*1.6;
+        if(over>0 && Math.random()>0.12) continue;
+      }
       const sc=v*(0.6+Math.random()*0.8);
       if(sc>bs){ bs=sc; best=i; }
     }
@@ -4527,7 +4822,9 @@ function chartHover(ev){
 function tileTipHTML(i){
   const w=G.world;
   const here = G.species.filter(s=>s.pop[i]>0.5).sort((a,b)=>b.pop[i]-a.pop[i]).slice(0,6);
-  const tags = [w.farm[i]?"농지":"", w.road[i]?"도로":"", w.dist[i]>0.2?"교란":""].filter(Boolean);
+  const tags = [URB_NAME[w.urb[i]]||"", w.farm[i]?"농지":"",
+                w.bridge[i]?"다리":(w.road[i]?"도로":""),
+                w.rough[i]>0.11?"험한 땅":"", w.dist[i]>0.2?"교란":""].filter(Boolean);
   return `<div class="t">${BIOMES[w.biome[i]]}${tags.length?" · "+tags.join(" · "):""}</div>
     <div class="r"><span>고도</span><span>${(w.elev[i]*100).toFixed(0)}</span></div>
     <div class="r"><span>기온</span><span>${tileTemp(w,i,G.season,G.warming).toFixed(1)}°C</span></div>
@@ -4590,6 +4887,28 @@ function renderSpecies(){
    식물·부식물·토양은 동물이 나눠 먹는 바탕이다. 재생되지만 한정돼 있어서,
    초식이 늘면 식물이 줄고 식물이 줄면 초식이 굶는다. 그 균형을 보여준다. */
 let resPeak={plant:1, detr:1};
+/* 큰 순간 — 화면 가운데 큰 글씨로 잠깐 */
+let cineT=null;
+function cinematic(kicker, title, sub, ms){
+  const el=$("#cine"); if(!el) return;
+  $("#cine-kicker").textContent=kicker;
+  $("#cine-title").textContent=title;
+  $("#cine-sub").textContent=sub||"";
+  el.hidden=false; el.classList.remove("out");
+  clearTimeout(cineT);
+  cineT=setTimeout(()=>{ el.classList.add("out");
+    cineT=setTimeout(()=>{ el.hidden=true; }, 600); }, ms||2600);
+}
+/* 작은 알림 — 아래쪽에 쌓였다 사라진다 */
+function toast(text, tag, color){
+  const box=$("#toasts"); if(!box) return;
+  const el=document.createElement("div");
+  el.className="toast";
+  el.innerHTML=(tag?`<span class="tag" style="background:${color||'var(--gold)'}">${tag}</span>`:"")+text;
+  box.appendChild(el);
+  setTimeout(()=>{ el.classList.add("fade"); setTimeout(()=>el.remove(), 520); }, 2600);
+  while(box.children.length>4) box.firstChild.remove();
+}
 function showFollow(s){
   const el=$("#followbar");
   if(!s){ el.hidden=true; return; }
@@ -4796,6 +5115,7 @@ function takeNode(k){
   buildCompetition(g.species);
   g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
   logMsg("evo", `<b>${n.n}</b>을(를) 얻었습니다 — ${n.d}`);
+  cinematic("진화", n.n, n.d, 2000);
   const pi=g.species.indexOf(g.player);
   if(Globe.ok) Globe.rebuildOne(pi);      // 몸이 바뀌었으면 그 자리에서 보여준다
   renderEvo(); renderTree(); renderLog();
@@ -4877,7 +5197,11 @@ function renderStatus(){
   if(g.events.boom>0) act.push("풍년");
   let phase;
   if(act.length) phase = act.join(" · ") + " 진행 중";
-  else if(g.humanArrived) phase = `인간 활동기 ${g.year-HUMAN_YEAR}년차 · 안정 구간 ${g.stableRun}/12`;
+  else if(g.humanArrived){
+    const u=g.urbN||[0,0,0,0];
+    const cityName = g.metro?"대도시":u[3]?"도심":u[2]?"시가지":"마을";
+    phase = `인간 활동기 ${g.year-HUMAN_YEAR}년차 · ${cityName} ${u[1]+u[2]+u[3]}칸`;
+  }
   else if(g.scenarioHuman) phase = `자연 상태 — 인간은 ${HUMAN_YEAR}년경 등장`;
   else phase = `사람이 닿지 않은 땅 · 안정 구간 ${g.stableRun}/12`;
   $("#st-phase").textContent = phase;
