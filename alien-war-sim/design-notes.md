@@ -95,6 +95,23 @@ Every piece of equipment has an original industrial purpose.
 | Drop Crew | orbital drop insertion, answers rear breaches |
 | Resonance Tech | ultrasound, damage ramps up on a single target |
 
+### Armor (military, arrives from orbit in act 2-3)
+
+The company is civilian and starts with none of this. Corporate ships real
+military hardware down once it decides the site is worth defending. Act 1
+scarcity is what makes this gear land with weight.
+
+| Unit | Form | Role | Weakness |
+|---|---|---|---|
+| Regulator | quad walker tank | main line, ballistic cannon, heavy frontal armour, legs ignore mycelium slow | weak flanks, slow turning |
+| Bolt Lancer | hover tank | railgun, pierces, fast, hit and run | almost no armour |
+| Pylon Battery | tracked artillery | arcing splash, telegraphed impact ring, suppresses fruiting bodies | very slow, helpless up close |
+| Disperser | anti-air gun | proximity flak, hard counter to Glidespore | near useless vs ground |
+| Bulwark | shield vehicle | deploys a forward barrier, a frontline that moves | cannot move while deployed |
+| Atlas | large biped mech | two different arm weapons, a walking fortress | extremely expensive, unrecoverable |
+
+Atlas counts as one squad, not a hero unit. No per-entity control anywhere.
+
 ### Installations
 | Structure | Role |
 |---|---|
@@ -105,8 +122,27 @@ Every piece of equipment has an original industrial purpose.
 | Reclamation Forge | rebuilds a wiped squad at half cost from wreckage |
 | Orbital Uplink | endgame, map-wide bombardment, very long cooldown |
 
-Manual input is needed for four units only: Blasting Crew, Siege Drill,
-Drop Crew, Orbital Uplink. Everything else runs itself once placed.
+Manual input is needed for five units only: Blasting Crew, Siege Drill,
+Drop Crew, Orbital Uplink, Bulwark deploy. Everything else runs itself
+once placed.
+
+## Three-act progression
+
+| Act | What the player holds | Feel |
+|---|---|---|
+| 1 | crew plus improvised industrial gear | "we have to hold with this?" |
+| 2 | mass drones plus first armor | the line stabilises, automation runs |
+| 3 | corporate military armor plus orbital assets | counterattack is possible, but Leviathan and Hive Mind arrive |
+
+Act 1 powerlessness is what gives act 3 firepower its meaning.
+
+## Reference points
+
+Halo, StarCraft 2, Starship Troopers, Warhammer 40k and Arknights:
+Endfield are deliberate touchstones. Endfield is the closest in texture
+(industrial automation on a hostile, contaminated world) but its
+automation exists to build production lines; here automation exists to
+hold a frontline.
 
 ## Enemy roster — mycelial swarm
 
