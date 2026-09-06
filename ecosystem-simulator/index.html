@@ -564,6 +564,14 @@ input[type=range]::-moz-range-thumb{
 .evo-row.anti{ opacity:.72; }
 
 /* 자동 정지 */
+.followbar{
+  position:absolute; left:50%; transform:translateX(-50%); top:14px; z-index:6;
+  display:flex; align-items:center; gap:9px; background:#fff; border-radius:999px;
+  padding:6px 8px 6px 14px; box-shadow:var(--shadow); font-size:13px;
+}
+.followbar .fb-dot{ width:11px; height:11px; border-radius:50%; }
+.followbar b{ font-family:var(--f-disp); }
+.followbar span:not(.fb-dot){ color:var(--ink-3); font-size:11.5px; }
 .pausenote{
   margin-top:6px; background:var(--ink); color:#fff; border-radius:999px;
   padding:6px 14px; font-size:12px; font-weight:500; box-shadow:var(--shadow); white-space:nowrap;
@@ -1042,6 +1050,13 @@ input[type=range]::-moz-range-thumb{
           무엇을 포기할지가 곧 이 종의 정체가 됩니다.</p>
         <div class="tm-body" id="tree-body"></div>
       </div>
+    </div>
+
+    <div class="followbar" id="followbar" hidden>
+      <span class="fb-dot" id="fb-dot"></span>
+      <b id="fb-name">—</b>
+      <span id="fb-diet"></span>
+      <button class="pill ghost" id="fb-stop">그만 따라가기</button>
     </div>
 
     <div class="lastev">
@@ -3825,6 +3840,33 @@ const Globe = (function(){
       clampTarget(); e.preventDefault();
     });
   }
+  /* 화면을 누른 곳에 있는 개체 — 따라다니며 보기 위해 */
+  function agentAt(clientX, clientY){
+    const g0=groundAt(clientX, clientY); if(!g0) return null;
+    let best=null, bd=1.6;
+    for(let si=0; si<inst.length; si++){
+      const it=inst[si]; if(!it||!it.ag||it.plant) continue;
+      for(const a of it.ag){
+        if(a.dying||a.sc<0.01) continue;
+        const d=Math.hypot(a.x-g0[0], a.z-g0[1]);
+        if(d<bd){ bd=d; best={a, si}; }
+      }
+    }
+    return best;
+  }
+  let follow=null;
+  function setFollow(f){ follow=f; }
+  function followTick(){
+    if(!follow) return;
+    const it=inst[follow.si];
+    if(!it || !it.ag.includes(follow.a) || follow.a.dying){ follow=null; onFollow&&onFollow(null); return; }
+    tx += (follow.a.x-tx)*0.16;
+    tz += (follow.a.z-tz)*0.16;
+    clampTarget();
+  }
+  let onFollow=null;
+  function setFollowCb(fn){ onFollow=fn; }
+
   /* 지역을 고르거나 종을 클릭했을 때 그쪽으로 시선을 옮긴다 */
   function lookAtTile(i){
     if(!ok || i<0) return;
@@ -4047,6 +4089,7 @@ const Globe = (function(){
       /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
       it.spd = isPlant ? 0 : (0.20 + t.speed*0.085 + t.metabolism*0.03);
       it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18);
+      it.social = (isPlant || t.sociality<5) ? 0 : (t.sociality-4)*0.09;
 
       let want=0;
       if(mode!=="none" && s.alive && !(mode==="me" && !s.isPlayer) && s.total>0.5){
@@ -4107,8 +4150,8 @@ const Globe = (function(){
       for(const a of it.ag){
         if(a.dying) continue;
         const k=bucketKey(a.x,a.z);
-        let b=nearBuck.get(k); if(!b){ b={h:[],p:[]}; nearBuck.set(k,b); }
-        (hunter?b.h:b.p).push(a);
+        let b=nearBuck.get(k); if(!b){ b={h:[],p:[],a:[]}; nearBuck.set(k,b); }
+        (hunter?b.h:b.p).push(a); b.a.push(a);
       }
     }
   }
@@ -4129,6 +4172,21 @@ const Globe = (function(){
       }
     }
     return best ? {o:best, d:Math.sqrt(bd)} : null;
+  }
+
+  /* 무리 짓기 — 사회성이 높은 종은 같은 종끼리 뭉친다. 화면에서 바로 보이는
+     행동이고, 희석 효과라는 실제 이점도 있다. */
+  function herdPull(x,z,si){
+    let cx=0, cz=0, n=0;
+    const bx=(x*0.35)|0, bz=(z*0.35)|0;
+    for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){
+      const b=nearBuck.get((bx+dx)+","+(bz+dz)); if(!b) continue;
+      for(let i=0;i<b.a.length;i++){
+        const o=b.a[i]; if(o.si!==si) continue;
+        cx+=o.x; cz+=o.z; n++;
+      }
+    }
+    return n>1 ? {x:cx/n, z:cz/n, n} : null;
   }
 
   function stepAgents(edt){
@@ -4182,19 +4240,40 @@ const Globe = (function(){
             a.flee=0.5; urgent=true;
           }
         }
-        if(!urgent && hunter){
+        if(!urgent && hunter && !(a.eat>0)){
           const tp=lookAround(a.x,a.z,"p",si);
           if(tp && tp.d<sight*1.1 && tp.d>0.02){
             const dx=tp.o.x-a.x, dz=tp.o.z-a.z, d=tp.d;
-            const v=it.spd*edt*1.5;                    // 쫓을 때도 빨라진다
-            a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
-            a.yaw=Math.atan2(dx,dz);
-            a.chase=0.5; urgent=true;
+            /* 따라잡으면 잡는다. 쫓기만 하고 아무 일도 안 일어나면
+               보는 재미가 없다. */
+            if(d < ts*0.30 && !tp.o.dying){
+              tp.o.dying=true; tp.o.tsc=0;
+              a.eat=1.1;                                // 잠깐 멈춰 먹는다
+              a.tx=a.x; a.tz=a.z;
+            } else {
+              const v=it.spd*edt*1.5;                  // 쫓을 때도 빨라진다
+              a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+              a.yaw=Math.atan2(dx,dz);
+              a.chase=0.5;
+            }
+            urgent=true;
           }
         }
+        if(a.eat>0){ a.eat-=edt; a.tx=a.x; a.tz=a.z; urgent=true; }
         if(urgent){
-          a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6;
+          if(!(a.eat>0)){ a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6; }
           continue;
+        }
+        /* 무리 짓기 — 사회성이 높으면 같은 종 쪽으로 조금씩 끌린다 */
+        if(it.social>0){
+          const h=herdPull(a.x,a.z,si);
+          if(h){
+            const dx=h.x-a.x, dz=h.z-a.z, d=Math.hypot(dx,dz);
+            if(d>ts*0.5){
+              const v=it.spd*edt*it.social;
+              a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+            }
+          }
         }
 
         const dx=a.tx-a.x, dz=a.tz-a.z, d=Math.hypot(dx,dz);
@@ -4252,7 +4331,7 @@ const Globe = (function(){
     if(zoomDirty && performance.now()-lastZoom>140){ zoomDirty=false; lastZoom=performance.now(); updateCreatures(); }
     else if(zoomDirty) lastZoom=performance.now();
     const vp=viewProj();
-    tickAir();
+    tickAir(); followTick();
     gl.clearColor(skyCur[0],skyCur[1],skyCur[2],1);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND); gl.depthMask(true);
@@ -4375,6 +4454,7 @@ const Globe = (function(){
   }
 
   return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile, rebuildOne,
+          agentAt, setFollow, setFollowCb, isFollowing:()=>!!follow,
           _dbg:()=>({inst, models}),
           get ok(){ return ok; }};
 })();
@@ -4466,6 +4546,14 @@ function renderSpecies(){
    식물·부식물·토양은 동물이 나눠 먹는 바탕이다. 재생되지만 한정돼 있어서,
    초식이 늘면 식물이 줄고 식물이 줄면 초식이 굶는다. 그 균형을 보여준다. */
 let resPeak={plant:1, detr:1};
+function showFollow(s){
+  const el=$("#followbar");
+  if(!s){ el.hidden=true; return; }
+  el.hidden=false;
+  $("#fb-dot").style.background=s.color;
+  $("#fb-name").textContent=s.name+(s.isPlayer?" (내 종)":"");
+  $("#fb-diet").textContent=DIETS[s.diet].name;
+}
 function renderResources(){
   const g=G, w=g.world;
   let plant=0, detr=0, soil=0, land=0, graze=0;
@@ -4924,14 +5012,28 @@ function attachPlacement(el, tileFrom){
   el.addEventListener("pointerdown", e=>{ dx=dy=0; px=e.clientX; py=e.clientY; });
   el.addEventListener("pointermove", e=>{ dx+=Math.abs(e.clientX-px); dy+=Math.abs(e.clientY-py); px=e.clientX; py=e.clientY; });
   el.addEventListener("pointerup", e=>{
-    if(!G || G.phase!=="placing" || dx+dy>6) return;
-    const i=tileFrom(e);
-    if(i<0) return;
-    seedPlayerAt(i);
-    if(Globe.ok) Globe.lookAtTile(i);      // 고른 곳으로 시선을 옮겨준다
-    setPlacing(false);
-    G.layer="terrain"; buildLayerTabs();
-    renderStatus(); renderSpecies(); renderLog(); drawMap();
+    if(!G || dx+dy>6) return;
+    if(G.phase==="placing"){
+      const i=tileFrom(e);
+      if(i<0) return;
+      seedPlayerAt(i);
+      if(Globe.ok) Globe.lookAtTile(i);      // 고른 곳으로 시선을 옮겨준다
+      setPlacing(false);
+      G.layer="terrain"; buildLayerTabs();
+      renderStatus(); renderSpecies(); renderLog(); drawMap();
+      return;
+    }
+    /* 개체를 누르면 그 한 마리를 따라간다. 한 마리가 어떻게 사는지
+       끝까지 보는 게 시뮬레이션의 재미다. */
+    if(!Globe.ok) return;
+    const hit=Globe.agentAt(e.clientX, e.clientY);
+    if(hit){
+      Globe.setFollow(hit);
+      const s=G.species[hit.si];
+      showFollow(s);
+    } else if(Globe.isFollowing()){
+      Globe.setFollow(null); showFollow(null);
+    }
   });
 }
 
@@ -4941,6 +5043,8 @@ function bind(){
   $("#btn-start").onclick = startSim;
 
   $("#btn-pause").onclick = ()=>{ G.running=!G.running; $("#btn-pause").textContent = G.running?"❚❚":"▶"; };
+  $("#fb-stop").onclick = ()=>{ if(Globe.ok) Globe.setFollow(null); showFollow(null); };
+  if(Globe.setFollowCb) Globe.setFollowCb(()=>showFollow(null));
   $("#btn-tree").onclick = openTree;
   $("#btn-tree-fab").onclick = openTree;
   $("#btn-tree-close").onclick = closeTree;
