@@ -3421,7 +3421,9 @@ const Globe = (function(){
       }
       return o;
     }
-    if(s.diet==="detritivore"){                         // 버섯 — 기둥에 납작한 갓
+    /* 분해자는 버섯 모양이지만, 내 종만은 예외다. 진화로 뿔이 나고 껍질이 생겨도
+       버섯인 채로 있으면 무엇이 되었는지 눈으로 알 수가 없다. */
+    if(s.diet==="detritivore" && !s.isPlayer){           // 버섯 — 기둥에 납작한 갓
       box(o,0,0.09,0,0.065,0.09,0.065);
       box(o,0,0.22,0,0.23,0.055,0.23);
       return o;
@@ -3441,6 +3443,32 @@ const Globe = (function(){
     const hx = len*0.85 + hr*0.75;
     box(o, hx, by+bh*0.75, 0, hr, hr, hr*0.88);                         // 머리
     box(o, hx+hr*0.85, by+bh*0.45, 0, hr*0.40, hr*0.34, hr*0.42);       // 주둥이
+
+    /* 진화가 몸에 드러나야 한다. 수치만 바뀌고 생김새가 그대로면
+       무엇이 되었는지 눈으로 알 수가 없다. */
+    if(t.aggression>=6){                                 // 송곳니 — 주둥이 밑으로 뻗음
+      for(const sg of [1,-1])
+        box(o, hx+hr*1.05, by+bh*0.30, sg*hr*0.22, hr*0.13, hr*0.26, hr*0.10);
+    }
+    if(t.armor>=6){                                      // 등껍질 — 몸통 위에 판
+      box(o, -0.02, by+bh*0.95, 0, len*0.82, bh*0.32, bw*0.92);
+    }
+    if(t.armor>=9){                                      // 가시 — 등에 세 개
+      for(const sx of [0.4,0,-0.4])
+        box(o, len*sx, by+bh*1.35, 0, 0.030, bh*0.42, 0.030);
+    }
+    if(t.toxicity>=6){                                   // 경고색 띠 — 몸통 가운데 도드라진 마디
+      box(o, -0.02, by+bh*0.55, 0, len*0.30, bh*1.12, bw*1.10);
+    }
+    if(t.size>=8){                                       // 큰 종 — 어깨 혹
+      box(o, len*0.45, by+bh*1.0, 0, len*0.34, bh*0.5, bw*0.8);
+    }
+    if(t.olfaction>=7){                                  // 긴 코
+      box(o, hx+hr*1.25, by+bh*0.5, 0, hr*0.45, hr*0.20, hr*0.22);
+    }
+    if(t.sociality>=8){                                  // 무리 표식 — 머리 위 볏
+      box(o, hx-hr*0.1, by+bh*0.75+hr*0.95, 0, hr*0.30, hr*0.34, hr*0.14);
+    }
 
     if(!bird){
       for(const sx of [0.62,-0.55]) for(const sz of [0.66,-0.66])
@@ -3788,6 +3816,29 @@ const Globe = (function(){
     tx=c[0]; tz=c[2]; clampTarget();
   }
 
+  /* 한 종의 모델만 다시 만든다. 진화로 몸이 바뀌면 그 자리에서 보여야 한다. */
+  function rebuildOne(si){
+    if(!ok || !models || !models[si]) return;
+    const s=G.species[si];
+    const tris=organism(s);
+    const arr=new Float32Array(tris.length*6);
+    let o=0;
+    for(let k=0;k<tris.length;k+=3){
+      const p0=tris[k], p1=tris[k+1], p2=tris[k+2];
+      const ux=p1[0]-p0[0], uy=p1[1]-p0[1], uz=p1[2]-p0[2];
+      const vx=p2[0]-p0[0], vy=p2[1]-p0[1], vz=p2[2]-p0[2];
+      let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+      const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+      for(const q of [p0,p1,p2]){
+        arr[o++]=q[0]; arr[o++]=q[1]; arr[o++]=q[2];
+        arr[o++]=nx;   arr[o++]=ny;   arr[o++]=nz;
+      }
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, models[si].buf);
+    gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW);
+    models[si].count = tris.length;
+  }
+
   function buildCreatures(){
     if(models) for(const m of models) if(m && m.buf) gl.deleteBuffer(m.buf);
     models = G.species.map(s=>{
@@ -4017,7 +4068,7 @@ const Globe = (function(){
     const ts=TS();
     const a={
       x:c[0]+rrange(-ts*0.4,ts*0.4), z:c[2]+rrange(-ts*0.4,ts*0.4), y:c[1],
-      tile, tx:0, tz:0, yaw:Math.random()*6.283,
+      tile, tx:0, tz:0, yaw:Math.random()*6.283, si,
       sc:0, tsc:it.base, ph:Math.random()*6.283, dying:false,
       rest:Math.random()*2,
     };
@@ -4026,17 +4077,55 @@ const Globe = (function(){
     return a;
   }
 
-  /* 매 프레임 개체를 움직인다. 목표에 닿으면 다음 칸을 고르고, 그쪽으로 걸어간다. */
+  /* 매 프레임 개체를 움직인다. 목표에 닿으면 다음 칸을 고르고, 그쪽으로 걸어간다.
+     그리고 서로를 본다 — 사냥꾼은 가까운 먹이를 쫓고, 먹이는 사냥꾼에게서 달아난다.
+     시뮬레이션 게임에서 보고 싶은 건 수치가 아니라 이런 장면이다. */
+  const nearBuck=new Map();
+  function bucketKey(x,z){ return ((x*0.35)|0)+","+((z*0.35)|0); }
+  function buildBuckets(){
+    nearBuck.clear();
+    for(let si=0; si<inst.length; si++){
+      const s=G.species[si], it=inst[si];
+      if(!it || !it.ag || !it.ag.length || s.diet==="producer") continue;
+      const hunter = (s.diet==="carnivore"||s.diet==="omnivore");
+      for(const a of it.ag){
+        if(a.dying) continue;
+        const k=bucketKey(a.x,a.z);
+        let b=nearBuck.get(k); if(!b){ b={h:[],p:[]}; nearBuck.set(k,b); }
+        (hunter?b.h:b.p).push(a);
+      }
+    }
+  }
+  /* 둘레 아홉 칸만 본다. 전부 훑으면 개체 수의 제곱이라 감당이 안 된다. */
+  function lookAround(x,z,which,selfSi){
+    let best=null, bd=1e9;
+    const bx=(x*0.35)|0, bz=(z*0.35)|0;
+    for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){
+      const b=nearBuck.get((bx+dx)+","+(bz+dz)); if(!b) continue;
+      const arr=b[which];
+      for(let i=0;i<arr.length;i++){
+        const o=arr[i];
+        /* 같은 종은 위협도 먹이도 아니다. 자기 자신을 못 걸러내면
+           사냥꾼이 거리 0에서 스스로에게 놀라 달아나기만 한다. */
+        if(o.si===selfSi) continue;
+        const d=(o.x-x)*(o.x-x)+(o.z-z)*(o.z-z);
+        if(d<bd){ bd=d; best=o; }
+      }
+    }
+    return best ? {o:best, d:Math.sqrt(bd)} : null;
+  }
+
   function stepAgents(edt){
     const ts=TS();
+    buildBuckets();
     for(let si=0; si<inst.length; si++){
       const s=G.species[si], it=inst[si];
       if(!it || !it.ag) continue;
       const ag=it.ag, want=it.want||0;
+      const hunter = (s.diet==="carnivore"||s.diet==="omnivore");
+      const prey   = (s.diet!=="producer");
+      const sight  = 0.9 + (s.traits.vision||3)*0.14;
 
-      /* 태어나고 죽는 속도를 초당 몇 마리로 묶는다. 한 프레임에 몰아서 처리하면
-         결국 예전처럼 우르르 나타났다 우르르 사라지는 것으로 보인다.
-         차이가 클수록 빨라지되 상한을 둔다. */
       let live=0; for(let k=0;k<ag.length;k++) if(!ag[k].dying) live++;
       const gap=want-live;
       it.rate=(it.rate||0) + edt*clamp(Math.abs(gap)*0.5, 1.5, 14);
@@ -4046,14 +4135,12 @@ const Globe = (function(){
       if(gap>0 && s.alive){
         const born=Math.min(quota, gap);
         for(let b=0;b<born;b++){
-          /* 새끼는 어미 옆에서 아주 작게 시작해 자란다 */
           const parent = ag.length? ag[Math.floor(Math.random()*ag.length)] : null;
           const a=spawnAgent(s,it,si, parent? parent.tile : -1);
           if(a && parent){ a.x=parent.x+rrange(-ts*0.5,ts*0.5); a.z=parent.z+rrange(-ts*0.5,ts*0.5);
                            a.tx=a.x; a.tz=a.z; }
         }
       } else if(gap<0){
-        /* 죽음 — 그 자리에서 오그라들어 사라진다 */
         let kill=Math.min(quota, -gap);
         for(let k=0;k<ag.length && kill>0;k++) if(!ag[k].dying){ ag[k].dying=true; ag[k].tsc=0; kill--; }
       }
@@ -4063,11 +4150,39 @@ const Globe = (function(){
         a.sc += (a.tsc-a.sc)*edt*2.6;
         if(a.dying && a.sc<0.004){ ag.splice(k,1); continue; }
         if(!a.dying) a.tsc=it.base;
+        if(a.chase>0) a.chase=Math.max(0,a.chase-edt);
+        if(a.flee>0)  a.flee =Math.max(0,a.flee -edt);
         if(it.plant){ a.yaw=Math.sin(performance.now()/1000*0.9+a.ph)*0.16; continue; }
+
+        /* 도망이 먼저다. 쫓기는 중에 밥 생각을 하지는 않는다. */
+        let urgent=false;
+        if(prey){
+          const th=lookAround(a.x,a.z,"h",si);
+          if(th && th.d<sight){
+            const dx=a.x-th.o.x, dz=a.z-th.o.z, d=Math.max(0.01,th.d);
+            const v=it.spd*edt*1.9;                    // 달아날 때는 더 빠르다
+            a.x+=dx/d*v; a.z+=dz/d*v;
+            a.yaw=Math.atan2(dx,dz);
+            a.flee=0.5; urgent=true;
+          }
+        }
+        if(!urgent && hunter){
+          const tp=lookAround(a.x,a.z,"p",si);
+          if(tp && tp.d<sight*1.1 && tp.d>0.02){
+            const dx=tp.o.x-a.x, dz=tp.o.z-a.z, d=tp.d;
+            const v=it.spd*edt*1.5;                    // 쫓을 때도 빨라진다
+            a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
+            a.yaw=Math.atan2(dx,dz);
+            a.chase=0.5; urgent=true;
+          }
+        }
+        if(urgent){
+          a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6;
+          continue;
+        }
 
         const dx=a.tx-a.x, dz=a.tz-a.z, d=Math.hypot(dx,dz);
         if(d<ts*0.22){
-          /* 도착 — 잠깐 쉬었다가 다음 목적지를 고른다 */
           a.rest-=edt;
           if(a.rest<=0){
             const nt=pickTile(s, a.tile);
@@ -4243,8 +4358,8 @@ const Globe = (function(){
     return i;
   }
 
-  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile,
-          _dbg:()=>({inst}),
+  return {init, buildCreatures, buildScenery, updateTerrain, updateCreatures, render, pick, resetView, lookAtTile, rebuildOne,
+          _dbg:()=>({inst, models}),
           get ok(){ return ok; }};
 })();
 
@@ -4503,6 +4618,8 @@ function switchDiet(to){
   buildCompetition(g.species);
   g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
   logMsg("evo", `<b>${DIETS[from].name}</b>에서 <b>${DIETS[to].name}</b>(으)로 바뀌었습니다.`);
+  const pi2=g.species.indexOf(s);
+  if(Globe.ok) Globe.rebuildOne(pi2);
   autoPause("식성 전환");
   renderEvo(); renderLog(); renderSpecies();
 }
@@ -4527,6 +4644,8 @@ function takeNode(k){
   buildCompetition(g.species);
   g.prefMx=buildCompetition.mx; g.nSp=buildCompetition.n;
   logMsg("evo", `<b>${n.n}</b>을(를) 얻었습니다 — ${n.d}`);
+  const pi=g.species.indexOf(g.player);
+  if(Globe.ok) Globe.rebuildOne(pi);      // 몸이 바뀌었으면 그 자리에서 보여준다
   renderEvo(); renderTree(); renderLog();
 }
 
