@@ -1495,10 +1495,10 @@ const NATIVES=[
  {name:"물수초",     short:"수생", guild:"prod", diet:"producer", seed:1100, t:T({size:2,growth:8,metabolism:5,fertility:8,breedFreq:7,mobility:5,climbSwim:10,habitatBreadth:2,droughtTol:1,coldTol:4,heatTol:6,lifespan:3})},
  {name:"가시선인장", short:"다육", guild:"prod", diet:"producer", seed:800,  t:T({size:3,growth:4,metabolism:2,fertility:4,breedFreq:3,mobility:2,habitatBreadth:3,droughtTol:10,heatTol:9,coldTol:2,armor:8,toxicity:4,energyStore:9,lifespan:8})},
  /* ── 분해자 4 ── */
- {name:"토양균류",   short:"균류", guild:"dec", diet:"detritivore", seed:520, t:T({size:1,growth:9,metabolism:5,fertility:10,breedFreq:9,mobility:6,habitatBreadth:9,pollutionTol:7,diseaseResist:8,camouflage:9,lifespan:3,maturity:9})},
- {name:"땅지렁이",   short:"환형", guild:"dec", diet:"detritivore", seed:400, t:T({size:2,growth:6,metabolism:4,fertility:7,breedFreq:6,mobility:3,habitatBreadth:6,droughtTol:2,camouflage:8,lifespan:4})},
+ {name:"토양균류", loco:"sessile",   short:"균류", guild:"dec", diet:"detritivore", seed:520, t:T({size:1,growth:9,metabolism:5,fertility:10,breedFreq:9,mobility:6,habitatBreadth:9,pollutionTol:7,diseaseResist:8,camouflage:9,lifespan:3,maturity:9})},
+ {name:"땅지렁이", loco:"crawl",  short:"환형", guild:"dec", diet:"detritivore", seed:400, t:T({size:2,growth:6,metabolism:4,fertility:7,breedFreq:6,mobility:3,habitatBreadth:6,droughtTol:2,camouflage:8,lifespan:4})},
  {name:"부식딱정벌레",short:"곤충",guild:"dec", diet:"detritivore", seed:340, t:T({size:2,growth:7,metabolism:6,fertility:8,breedFreq:7,mobility:7,habitatBreadth:7,armor:6,camouflage:6,lifespan:2,maturity:8})},
- {name:"늪점균",     short:"점균", guild:"dec", diet:"detritivore", seed:300, t:T({size:1,growth:8,metabolism:4,fertility:9,breedFreq:8,mobility:4,climbSwim:7,habitatBreadth:4,droughtTol:1,pollutionTol:8,diseaseResist:7,lifespan:2,maturity:9})},
+ {name:"늪점균", loco:"sessile",     short:"점균", guild:"dec", diet:"detritivore", seed:300, t:T({size:1,growth:8,metabolism:4,fertility:9,breedFreq:8,mobility:4,climbSwim:7,habitatBreadth:4,droughtTol:1,pollutionTol:8,diseaseResist:7,lifespan:2,maturity:9})},
  /* ── 소형 초식 6 ── */
  {name:"들쥐",       short:"설치", guild:"herbS", diet:"herbivore", seed:300, t:T({size:1,metabolism:8,growth:8,fertility:9,breedFreq:8,maturity:9,mobility:6,nocturnal:7,camouflage:7,speed:6,habitatBreadth:7,lifespan:2,parentalCare:2})},
  {name:"산토끼",     short:"토끼", guild:"herbS", diet:"herbivore", seed:210, t:T({size:3,metabolism:6,growth:6,fertility:8,breedFreq:6,maturity:7,mobility:7,speed:9,stamina:6,vision:6,camouflage:6,habitatBreadth:6,lifespan:3})},
@@ -1907,7 +1907,7 @@ function pickNatives(){
 function makeSpecies(def, isPlayer){
   const t = Object.assign({},def.t);
   const s = {
-    name:def.name, short:def.short||"", guild:def.guild, diet:def.diet, isPlayer:!!isPlayer,
+    name:def.name, short:def.short||"", guild:def.guild, diet:def.diet, loco:def.loco||"walk", isPlayer:!!isPlayer,
     traits:t, d:derive(t,def.diet),
     pop:new Float32Array(NT), buf:new Float32Array(NT), out:new Float32Array(NT), crd:new Float32Array(NT),
     fit:new Float32Array(NT), dem:new Float32Array(NT),
@@ -4710,9 +4710,22 @@ const Globe = (function(){
       if(!it.ag) it.ag=[];
       const t=s.traits, isPlant=(s.diet==="producer");
       it.plant=isPlant;
+      it.isPlantOnly=isPlant;
       /* 움직이는 방식도 형질이 정한다. 다 똑같이 걸어다니면 종이 달라 보이지 않는다. */
       it.fly   = (!isPlant && t.mobility>=9);                 // 나는 것 — 높이 뜨고 위아래로 크게
       it.swim  = (!isPlant && t.climbSwim>=7 && t.mobility<9);// 헤엄 — 낮게 미끄러짐
+      /* 걸어다니지 않는 것들 — 균류와 점균은 다리가 없다.
+         분해자라는 이유로 동물과 같이 취급해서 곰팡이가 들판을 가로질러 다녔다. */
+      it.rooted = isPlant || s.loco==="sessile";
+      it.crawl  = (s.loco==="crawl");
+      /* 물을 딛을 수 있는가. 이게 없어서 뭍짐승이 바다를 땅처럼 걸어다녔다.
+         물가를 좋아하는 종만 물 위에 있을 수 있고, 나는 것은 어디든 지난다. */
+      /* 서식지 폭이 넓으면 모든 선호도가 평균 쪽으로 눌려서, 0.45를 넘기는 것만으로는
+         붉은사슴과 바위산양까지 물을 딛게 된다. 물을 뭍보다 좋아하는 종만 물 위에 선다. */
+      { const P=s.d.pref;
+        const water=Math.max(P[0],P[10],P[12]);
+        const land =Math.max(P[2],P[3],P[4],P[5],P[6],P[7],P[11]);
+        it.aqua = water > land*0.98; }
       it.heavy = (!isPlant && t.size>=7);                     // 큰 몸 — 육중하게 흔들림
       it.bob = it.fly ? 0.30 : it.heavy ? 0.05 : (t.mobility>=6 ? 0.12 : 0.03);
       it.bobRate = it.fly ? 5.2 : it.heavy ? 1.4 : 3.1;
@@ -4792,6 +4805,30 @@ const Globe = (function(){
     a.yaw += dif*Math.min(1, edt*6);
   }
 
+  /* 이 자리를 밟을 수 있는가. 뭍짐승은 물 위를 걷지 못한다. */
+  function tileAtXZ(x,z){
+    const ts=TS();
+    const tx=Math.floor(x/ts + W/2), tz=Math.floor(z/ts + H/2);
+    if(tx<0||tz<0||tx>=W||tz>=H) return -1;
+    return tz*W+tx;
+  }
+  function standable(it, i){
+    if(i<0) return false;
+    const w=G.world;
+    if(w.vd[i]) return false;
+    if(it.fly || it.aqua) return true;
+    const b=w.biome[i];
+    return !(b===10||b===0||b===12);          // 바다·호수·강은 못 딛는다
+  }
+  /* 못 딛는 자리로 갔으면 왔던 자리로 되돌린다 */
+  function keepOnGround(it, a, px, pz){
+    if(standable(it, tileAtXZ(a.x,a.z))) return;
+    if(standable(it, tileAtXZ(px,pz))){ a.x=px; a.z=pz; return; }
+    /* 둘 다 못 딛으면 제 칸 한가운데로 */
+    const c=[0,0,0]; tileCenter(a.tile,c);
+    if(standable(it, a.tile)){ a.x=c[0]; a.z=c[2]; }
+  }
+
   /* 지금 서 있는 자리의 땅 높이. 쫓고 달아나는 동안에도 발이 땅에 붙어 있어야 한다. */
   function heightAt(x,z){
     const ts=TS();
@@ -4806,7 +4843,12 @@ const Globe = (function(){
   function pickTile(s, near, it){
     const L = it && it.tiles;
     /* 자리를 처음 잡을 때는 이 종이 사는 칸에서 바로 고른다 */
-    if(near<0) return (L && L.length) ? L[Math.floor(Math.random()*L.length)] : -1;
+    if(near<0){
+      if(!L || !L.length) return -1;
+      for(let k=0;k<10;k++){ const i=L[Math.floor(Math.random()*L.length)];
+        if(!it || standable(it,i)) return i; }
+      return -1;
+    }
     /* 후보 중에서 '가장 좋은 칸'을 고르면 근처 개체가 전부 같은 칸으로 향해
        한 줄로 늘어선다. 개체수에 비례한 뽑기로 골라 길이 흩어지게 한다. */
     const cand=[], wt=[]; let tw=0;
@@ -4819,6 +4861,7 @@ const Globe = (function(){
       } else if(L && L.length) i=L[Math.floor(Math.random()*L.length)];
       else break;
       if(G.world.vd[i]) continue;
+      if(it && !standable(it,i)) continue;      // 뭍짐승은 물로 가지 않는다
       const v=s.pop[i]; if(v<=0.05) continue;
       /* 눈에 보이는 벼랑은 실제로 못 넘는다. 산양은 넘고 늑대는 돌아간다 */
       const over=Math.abs(G.world.elev[i]-G.world.elev[near])-(s.d.climbSlope||0.1)*1.6;
@@ -4962,7 +5005,7 @@ const Globe = (function(){
         if(!a.dying) a.tsc=it.base;
         if(a.chase>0) a.chase=Math.max(0,a.chase-edt);
         if(a.flee>0)  a.flee =Math.max(0,a.flee -edt);
-        if(it.plant){ a.yaw=Math.sin(performance.now()/1000*0.9+a.ph)*0.16; continue; }
+        if(it.rooted){ a.yaw=Math.sin(performance.now()/1000*0.9+a.ph)*0.16; continue; }
 
         if(a.freeze>0) a.freeze=Math.max(0,a.freeze-edt);
         if(a.kid>0)    a.kid   =Math.max(0,a.kid-edt);
@@ -5026,7 +5069,7 @@ const Globe = (function(){
         if(a.freeze>0){ a.tx=a.x; a.tz=a.z; urgent=true; if(!a.act) a.act="숨음"; }
         if(urgent){
           if(!(a.eat>0)){ a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6; }
-          separate(a, si, ts); keepInside(a);
+          separate(a, si, ts); keepInside(a); keepOnGround(it, a, _px, _pz);
           a.y += (heightAt(a.x,a.z)-a.y)*Math.min(1,edt*9);
           faceMove(a, _px, _pz, edt);
           continue;
@@ -5047,7 +5090,7 @@ const Globe = (function(){
           }
         }
 
-        separate(a, si, ts); keepInside(a);
+        separate(a, si, ts); keepInside(a); keepOnGround(it, a, _px, _pz);
         a.y += (heightAt(a.x,a.z)-a.y)*Math.min(1,edt*9);
         faceMove(a, _px, _pz, edt);
 
