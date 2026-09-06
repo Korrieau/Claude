@@ -1,4 +1,5 @@
 <title>번영의 계보</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Hahmlet:wght@700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -342,7 +343,7 @@ input[type=range]::-moz-range-thumb{
 /* ── 인게임 화면: 세계가 꽉 차고 HUD가 그 위에 통통하게 떠 있다 ── */
 .stage{
   position:relative; background:#C1E4F4; border-radius:20px; overflow:hidden;
-  height: calc(100vh - 56px); min-height: 620px;
+  height: calc(100vh - 56px); height: calc(100dvh - 56px); min-height: 620px;
   box-shadow: inset 0 0 0 2px rgba(255,255,255,.7), 0 10px 30px rgba(22,45,32,.14);
 }
 #globe{ position:absolute; inset:0; width:100%; height:100%; cursor:grab; touch-action:none; }
@@ -740,7 +741,73 @@ input[type=range]::-moz-range-thumb{
 ::-webkit-scrollbar-thumb:hover{ background: var(--ink-3); }
 
 @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+
+/* ── 모바일 (가로) ────────────────────────────────────────────────
+   세계를 넓게 보고 옆에 패널을 두는 구조라 세로로는 성립하지 않는다.
+   세로에서는 돌려 달라고 안내하고, 가로에서는 패널을 서랍으로 접는다. */
+.rotate-note{ display:none; }
+@media (max-width:1000px) and (orientation:portrait){
+  .rotate-note{
+    display:flex; position:fixed; inset:0; z-index:200; background:var(--ground);
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:30px;
+  }
+  .rotate-note .ic{ font-size:54px; }
+  .rotate-note h2{ font-size:22px; }
+  .rotate-note p{ color:var(--ink-2); font-size:13.5px; margin:0; max-width:36ch; line-height:1.6; }
+}
+@media (max-width:1000px){
+  .app{ padding:0 10px 20px; }
+  /* 화면이 낮으면 min-height 620px 때문에 무대가 화면보다 커져서
+     오른쪽 패널이 접힌 자리 아래로 밀려나 손이 닿지 않았다. */
+  .stage{ height:calc(100dvh - 14px); min-height:0; }
+  .app{ padding-bottom:6px; }
+  .hero{ padding:16px 16px; grid-template-columns:1fr; gap:14px; margin:10px 0; }
+  .hero h1{ font-size:28px; }
+  .hero .sub{ font-size:12.5px; }
+  .design-grid{ grid-template-columns:1fr; gap:12px; }
+  .diets{ grid-template-columns:repeat(2,1fr); }
+
+  #scr-sim.screen.on{ padding-top:6px; }
+  .stage{ border-radius:14px; }
+  /* 오른쪽 패널을 서랍으로 — 평소엔 접혀 있고 손잡이로 연다 */
+  .hud-r{
+    top:auto; bottom:8px; right:8px; margin-top:0; width:min(320px,64vw);
+    max-height:min(58vh,420px);
+  }
+  .hud-tl{ top:8px; left:8px; max-width:56%; gap:5px; }
+  .hud-tr{ top:8px; right:8px; gap:5px; }
+  .clockwrap{ width:60px; height:60px; }
+  .yrnum{ font-size:19px; }
+  .mecard{ padding:9px 12px; }
+  .me-pop .num{ font-size:26px; }
+  .chip{ padding:3px 9px; font-size:10.5px; }
+  .chip .sub{ display:none; }
+  .hud-bl{ bottom:8px; left:8px; max-width:52%; gap:5px; }
+  .maplegend{ display:none; }
+  /* 손가락에는 hover가 없다. 툴팁이 화면 한가운데를 막기만 한다 */
+  .tip{ display:none !important; }
+  .lastev{ display:none; }
+  .viewhint{ display:none; }
+  .tabs{ gap:3px; }
+  .tab, .pill{ padding:5px 9px; font-size:11px; }
+  /* 손가락으로 누를 수 있는 크기 */
+  .pill, .btn, .ds-btn, .pr-chip{ min-height:32px; }
+  .node{ padding:9px 10px; }
+  .tm-box{ width:96vw; max-height:94vh; border-radius:18px; }
+  .tm-head{ padding:12px 14px 6px; }
+  .tm-head h2{ font-size:19px; }
+  .tm-sub{ padding:0 14px 8px; font-size:11.5px; }
+  .tm-body{ padding:0 14px 14px; }
+  .result-grid{ grid-template-columns:1fr; }
+  .res-summary{ grid-template-columns:repeat(2,1fr); }
+}
 </style>
+
+<div class="rotate-note">
+  <div class="ic">📱↻</div>
+  <h2>가로로 돌려 주세요</h2>
+  <p>세계를 넓게 보면서 진화를 결정하는 게임이라 가로 화면이 필요합니다.</p>
+</div>
 
 <div class="app">
 
@@ -3638,29 +3705,60 @@ const Globe = (function(){
   }
 
   function bindControls(){
+    /* 손가락 하나 = 회전, 둘 = 이동과 확대. 마우스에서는 오른쪽·가운데 버튼이나
+       Shift가 이동이다. 터치에는 그런 게 없으니 손가락 수로 가른다. */
+    const pts=new Map();
+    let pinchD=0, pinchX=0, pinchY=0;
+
     const start=e=>{
-      /* 오른쪽·가운데 버튼이나 Shift를 누른 채 끌면 회전이 아니라 이동 */
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const h=document.getElementById("viewhint"); if(h) h.style.opacity="0";
+      if(pts.size===2){
+        const [a,b]=[...pts.values()];
+        pinchD=Math.hypot(a.x-b.x,a.y-b.y);
+        pinchX=(a.x+b.x)/2; pinchY=(a.y+b.y)/2;
+        dragging=false; panning=true; lx=pinchX; ly=pinchY;
+        return;
+      }
       panning = (e.button===1 || e.button===2 || e.shiftKey);
       dragging = !panning;
       cv.classList.add("dragging"); lx=e.clientX; ly=e.clientY;
       if(cv.setPointerCapture) cv.setPointerCapture(e.pointerId);
-      const h=document.getElementById("viewhint"); if(h) h.style.opacity="0"; };
+    };
+    const doPan=(cx,cy)=>{
+      const k=dist*0.0009;
+      const ddx=(cx-lx)*k, ddy=(cy-ly)*k/Math.max(0.45,Math.sin(pol));
+      tx += -Math.cos(az)*ddx - Math.sin(az)*ddy;
+      tz +=  Math.sin(az)*ddx - Math.cos(az)*ddy;
+      clampTarget();
+      lx=cx; ly=cy;
+    };
     const move=e=>{
-      if(panning){
-        /* 끈 만큼 땅이 손을 정확히 따라오게. 화면에 보이는 땅의 폭은
-           2·dist·tan(시야각/2)이므로 픽셀당 거리는 dist에 비례한다. */
-        const k=dist*0.0009;
-        const ddx=(e.clientX-lx)*k, ddy=(e.clientY-ly)*k/Math.max(0.45,Math.sin(pol));
-        tx += -Math.cos(az)*ddx - Math.sin(az)*ddy;
-        tz +=  Math.sin(az)*ddx - Math.cos(az)*ddy;
-        clampTarget();
-        lx=e.clientX; ly=e.clientY; return;
+      if(pts.has(e.pointerId)) pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size>=2){
+        const [a,b]=[...pts.values()];
+        const d=Math.hypot(a.x-b.x,a.y-b.y), cx=(a.x+b.x)/2, cy=(a.y+b.y)/2;
+        if(pinchD>0){
+          /* 두 손가락을 벌리면 가까이, 오므리면 멀리 */
+          const g0=groundAt(cx,cy), d0=dist;
+          dist=clamp(dist*(pinchD/Math.max(1,d)), 16, 80);
+          if(g0 && dist<d0){ const kk=(d0-dist)/d0; tx+=(g0[0]-tx)*kk; tz+=(g0[1]-tz)*kk; }
+          zoomDirty=true;
+        }
+        pinchD=d; doPan(cx,cy); clampTarget();
+        return;
       }
+      if(panning){ doPan(e.clientX,e.clientY); return; }
       if(!dragging) return;
       az -= (e.clientX-lx)*0.0075;
       pol = clamp(pol - (e.clientY-ly)*0.005, 0.10, 1.30);
-      lx=e.clientX; ly=e.clientY; };
-    const end=()=>{ dragging=false; panning=false; cv.classList.remove("dragging"); };
+      lx=e.clientX; ly=e.clientY;
+    };
+    const end=e=>{
+      if(e && e.pointerId!==undefined) pts.delete(e.pointerId);
+      if(pts.size<2) pinchD=0;
+      if(pts.size===0){ dragging=false; panning=false; cv.classList.remove("dragging"); }
+    };
     cv.addEventListener("pointerdown",start);
     cv.addEventListener("pointermove",move);
     cv.addEventListener("pointerup",end);
@@ -3672,12 +3770,9 @@ const Globe = (function(){
       const g=groundAt(e.clientX,e.clientY), d0=dist;
       dist=clamp(dist+Math.sign(e.deltaY)*2.2, 16, 80);
       if(g && dist<d0){
-        /* 커서가 가리키는 곳으로 파고든다 — 언제나 한가운데로만 당겨지면
-           가장자리를 가까이 볼 방법이 없다 */
         const k=(d0-dist)/d0;
         tx += (g[0]-tx)*k; tz += (g[1]-tz)*k;
       } else if(dist>d0){
-        /* 물러날 때는 서서히 가운데로 돌아온다 */
         const k=(dist-d0)/dist*0.75;
         tx -= tx*k; tz -= tz*k;
       }
@@ -3685,7 +3780,6 @@ const Globe = (function(){
       zoomDirty=true;
     },{passive:false});
 
-    /* 키보드로도 움직인다 — 화살표·WASD로 이동, Home으로 가운데 복귀 */
     window.addEventListener("keydown",e=>{
       if(!ok || G?.phase==="design") return;
       const tag=(e.target&&e.target.tagName)||"";
