@@ -557,6 +557,14 @@ input[type=range]::-moz-range-thumb{
 .rivalrow b{ margin-left:auto; font-weight:600; }
 .rivalrow em{ font-style:normal; color:var(--ink-3); font-size:10px; min-width:9em; text-align:right; }
 
+/* 다음 진화 포인트까지 */
+.epnext{ background:var(--panel-2); border-radius:10px; padding:6px 11px;
+  margin-bottom:8px; font-size:11.5px; color:var(--ink-2); }
+.epnext .r1{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
+.epnext b{ font-family:var(--f-disp); color:var(--gold-hi); font-size:14px; margin-left:auto; }
+.epnext em{ display:block; font-style:normal; color:var(--ink-3); font-size:10px;
+  line-height:1.4; margin-top:2px; }
+
 /* 자원 패널 */
 .resrow{ display:grid; grid-template-columns:56px 1fr 46px; align-items:center; gap:8px; margin-bottom:6px; }
 .resrow .k{ font-size:11.5px; color:var(--ink-2); }
@@ -1084,6 +1092,7 @@ input[type=range]::-moz-range-thumb{
         </button>
         <div class="panel-body">
           <button class="btn primary treebtn" id="btn-tree">진화 계통 열기</button>
+          <div id="ep-next"></div>
           <div class="pressure" id="pressure"></div>
           <div class="dietswap" id="dietswap"></div>
           <p class="tiny">진화 포인트로 계통을 하나씩 얻습니다. <b>E</b>키로 계통을 열 수 있습니다.</p>
@@ -3674,6 +3683,10 @@ const Globe = (function(){
   let gl=null, ok=false, prog=null, cv=null;
   let terrBuf=null, terrN=0, domeBuf=null, domeN=0, waterBuf=null, waterN=0, sceneBuf=null, sceneN=0;
   let terrData=null, models=null, inst=null, instScratch=null, ext=null, progC=null;
+  /* 내 종 표식 — 개체 위에 뜨는 역삼각뿔.
+     개체 크기와 무관하게 늘 같은 크기라, 몸집 1짜리로 시작해도 눈에 띈다.
+     2천 마리가 돌아다니는 화면에서 제 종을 색만으로 찾는 건 무리다. */
+  let markBuf=null, markCount=0, markInst=null;
   let az=0.72, pol=0.72, dist=45, zoomDirty=false, lastZoom=0, dragging=false, panning=false, lx=0, ly=0;
   /* 카메라가 바라보는 지점. 이게 없으면 확대가 언제나 세계 한가운데로만 파고들어
      가장자리를 들여다볼 수가 없다. */
@@ -4166,6 +4179,25 @@ const Globe = (function(){
       gl.enable(gl.DEPTH_TEST);
       gl.clearColor(0.756,0.894,0.957,1);   // 맑은 하늘색
       terrBuf=gl.createBuffer(); domeBuf=gl.createBuffer(); waterBuf=gl.createBuffer(); sceneBuf=gl.createBuffer();
+      markBuf=gl.createBuffer();
+      /* 아래를 가리키는 뿔 하나. 밑면 네 장 + 옆면 네 장 */
+      {
+        const v=[], R=0.42, Hh=0.75, tip=[0,0,0];
+        const rim=[[R,Hh,0],[0,Hh,R],[-R,Hh,0],[0,Hh,-R]];
+        const push3=(a,b,c)=>{
+          const nx=(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]);
+          const ny=(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]);
+          const nz=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+          const l=Math.hypot(nx,ny,nz)||1;
+          for(const q of [a,b,c]) v.push(q[0],q[1],q[2], nx/l,ny/l,nz/l);
+        };
+        for(let k=0;k<4;k++) push3(tip, rim[k], rim[(k+1)%4]);
+        for(let k=1;k<3;k++) push3(rim[0], rim[k], rim[k+1]);
+        markCount=v.length/6;
+        gl.bindBuffer(gl.ARRAY_BUFFER,markBuf);
+        gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(v),gl.STATIC_DRAW);
+        markInst=new Float32Array(600*5);
+      }
       terrData=new Float32Array(NT*26*STRIDE);
       instScratch=new Float32Array(MAX_CREATURES*5);
       buildDome();
@@ -4556,11 +4588,16 @@ const Globe = (function(){
       /* 생물 크기와 걸음 폭도 칸 크기를 따라간다. 절대 길이로 두면 격자를 키웠을 때
          혼자만 커져서 한 칸에 코끼리가 서 있는 꼴이 된다. */
       const TSK = TS()/0.6667;
-      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.45:1) * TSK;
+      it.base= (0.10+t.size*0.021) * (s.isPlayer?1.9:1) * TSK;
       /* 형질이 걸음을 정한다 — 이동성이 높으면 멀리, 순발력이 높으면 빠르게 */
       /* 예전 값은 초당 한 칸 넘게 움직여서 전부 전력질주로 보였다.
-         짐승은 대개 서 있거나 어슬렁거리고, 쫓고 쫓길 때만 빨라진다. */
-      it.spd = isPlant ? 0 : (0.045 + t.speed*0.020 + t.metabolism*0.007) * TSK;
+         짐승은 대개 서 있거나 어슬렁거리고, 쫓고 쫓길 때만 빨라진다.
+         차이도 2.3배뿐이라 '다 똑같다'로 보였다. 순발력을 세게 걸고
+         큰 몸은 느리게 해서 일고여덟 배까지 벌린다. */
+      it.spd = isPlant ? 0 :
+        (0.022 + t.speed*0.034 + t.mobility*0.009) * (1 - Math.min(t.size,10)*0.045) * TSK;
+      /* 굼뜬 것은 오래 쉬고, 부산한 것은 자주 옮긴다 */
+      it.rest = isPlant ? 9 : clamp(3.4 - t.speed*0.16 - t.metabolism*0.12, 0.5, 3.2);
       it.roam= isPlant ? 0 : (1.2 + t.mobility*0.55 + t.youngDispersal*0.18) * TSK;
       it.social = (isPlant || t.sociality<5) ? 0 : (t.sociality-4)*0.09;
 
@@ -4590,6 +4627,26 @@ const Globe = (function(){
     }
   }
 
+  /* 실제로 움직인 쪽을 바라본다. 목적지 방향을 그때그때 대입하면
+     밀어내기나 무리 짓기로 옆걸음칠 때마다 홱홱 돌아 도리질처럼 보인다. */
+  /* 세계는 원판이다. 밀어내기나 도주가 개체를 원 밖으로 밀어내면
+     허공을 걸어 나간다. 테두리 안쪽으로 되돌린다. */
+  function keepInside(a){
+    const R=CLIP_R()-TS()*0.55;
+    const d=Math.hypot(a.x,a.z);
+    if(d>R && d>0){ a.x=a.x/d*R; a.z=a.z/d*R; }
+  }
+
+  function faceMove(a, px, pz, edt){
+    const mx=a.x-px, mz=a.z-pz;
+    if(mx*mx+mz*mz < 1e-7) return;
+    const want=Math.atan2(mx,mz);
+    let dif=want-a.yaw;
+    while(dif> Math.PI) dif-=Math.PI*2;
+    while(dif<-Math.PI) dif+=Math.PI*2;
+    a.yaw += dif*Math.min(1, edt*6);
+  }
+
   /* 지금 서 있는 자리의 땅 높이. 쫓고 달아나는 동안에도 발이 땅에 붙어 있어야 한다. */
   function heightAt(x,z){
     const ts=TS();
@@ -4605,10 +4662,12 @@ const Globe = (function(){
     const L = it && it.tiles;
     /* 자리를 처음 잡을 때는 이 종이 사는 칸에서 바로 고른다 */
     if(near<0) return (L && L.length) ? L[Math.floor(Math.random()*L.length)] : -1;
-    let best=-1, bs=-1;
-    for(let k=0;k<14;k++){
+    /* 후보 중에서 '가장 좋은 칸'을 고르면 근처 개체가 전부 같은 칸으로 향해
+       한 줄로 늘어선다. 개체수에 비례한 뽑기로 골라 길이 흩어지게 한다. */
+    const cand=[], wt=[]; let tw=0;
+    for(let k=0;k<12;k++){
       let i;
-      if(k<10){
+      if(k<9){
         const x=(near%W)+Math.round(rrange(-3,3)), y=((near/W)|0)+Math.round(rrange(-3,3));
         if(x<0||y<0||x>=W||y>=H) continue;
         i=y*W+x;
@@ -4617,15 +4676,15 @@ const Globe = (function(){
       if(G.world.vd[i]) continue;
       const v=s.pop[i]; if(v<=0.05) continue;
       /* 눈에 보이는 벼랑은 실제로 못 넘는다. 산양은 넘고 늑대는 돌아간다 */
-      if(near>=0){
-        const over=Math.abs(G.world.elev[i]-G.world.elev[near])-(s.d.climbSlope||0.1)*1.6;
-        if(over>0 && Math.random()>0.12) continue;
-      }
-      const sc=v*(0.6+Math.random()*0.8);
-      if(sc>bs){ bs=sc; best=i; }
+      const over=Math.abs(G.world.elev[i]-G.world.elev[near])-(s.d.climbSlope||0.1)*1.6;
+      if(over>0 && Math.random()>0.12) continue;
+      const w2=Math.sqrt(v);            // 제곱근으로 눌러야 한 칸이 독차지하지 않는다
+      cand.push(i); wt.push(w2); tw+=w2;
     }
-    if(best<0 && L && L.length) best=L[Math.floor(Math.random()*L.length)];
-    return best;
+    if(!cand.length) return (L && L.length) ? L[Math.floor(Math.random()*L.length)] : -1;
+    let r=Math.random()*tw;
+    for(let k=0;k<cand.length;k++){ r-=wt[k]; if(r<=0) return cand[k]; }
+    return cand[cand.length-1];
   }
   function spawnAgent(s, it, si, at){
     const tile = at>=0 ? at : pickTile(s,-1,it);
@@ -4636,7 +4695,7 @@ const Globe = (function(){
       x:c[0]+rrange(-ts*0.4,ts*0.4), z:c[2]+rrange(-ts*0.4,ts*0.4), y:c[1],
       tile, tx:0, tz:0, yaw:Math.random()*6.283, si,
       sc:0, tsc:it.base, ph:Math.random()*6.283, dying:false,
-      rest:Math.random()*2,
+      rest:Math.random()*2.5,
     };
     a.tx=a.x; a.tz=a.z;
     it.ag.push(a);
@@ -4699,7 +4758,10 @@ const Globe = (function(){
         px+=ox/d*(min-d); pz+=oz/d*(min-d); n++;
       }
     }
-    if(n){ a.x+=px*0.5; a.z+=pz*0.5; }
+    if(n){
+      /* 세게 밀면 A가 B를, B가 C를 미는 연쇄가 생겨 오히려 줄이 된다 */
+      a.x+=px*0.28; a.z+=pz*0.28;
+    }
   }
 
   function herdPull(x,z,si){
@@ -4748,6 +4810,7 @@ const Globe = (function(){
 
       for(let k=ag.length-1;k>=0;k--){
         const a=ag[k];
+        const _px=a.x, _pz=a.z;
         a.sc += (a.tsc-a.sc)*edt*2.6;
         if(a.dying && a.sc<0.004){ ag.splice(k,1); continue; }
         if(!a.dying) a.tsc=it.base;
@@ -4763,7 +4826,6 @@ const Globe = (function(){
             const dx=a.x-th.o.x, dz=a.z-th.o.z, d=Math.max(0.01,th.d);
             const v=it.spd*mdt*3.4;                    // 달아날 때는 전력으로
             a.x+=dx/d*v; a.z+=dz/d*v;
-            a.yaw=Math.atan2(dx,dz);
             a.flee=0.5; urgent=true;
           }
         }
@@ -4780,7 +4842,6 @@ const Globe = (function(){
             } else {
               const v=it.spd*mdt*3.0;                  // 쫓을 때도 전력으로
               a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
-              a.yaw=Math.atan2(dx,dz);
               a.chase=0.5;
             }
             urgent=true;
@@ -4789,8 +4850,9 @@ const Globe = (function(){
         if(a.eat>0){ a.eat-=edt; a.tx=a.x; a.tz=a.z; urgent=true; }
         if(urgent){
           if(!(a.eat>0)){ a.tx=a.x; a.tz=a.z; a.rest=0.2+Math.random()*0.6; }
-          separate(a, si, ts);
+          separate(a, si, ts); keepInside(a);
           a.y += (heightAt(a.x,a.z)-a.y)*Math.min(1,edt*9);
+          faceMove(a, _px, _pz, edt);
           continue;
         }
         /* 무리 짓기 — 사회성이 높으면 같은 종 쪽으로 조금씩 끌린다 */
@@ -4805,10 +4867,12 @@ const Globe = (function(){
           }
         }
 
-        separate(a, si, ts);
+        separate(a, si, ts); keepInside(a);
         a.y += (heightAt(a.x,a.z)-a.y)*Math.min(1,edt*9);
+        faceMove(a, _px, _pz, edt);
 
-        const dx=a.tx-a.x, dz=a.tz-a.z, d=Math.hypot(dx,dz);
+        const dx0=a.tx-a.x, dz0=a.tz-a.z, d=Math.hypot(dx0,dz0);
+        const dx=dx0, dz=dz0;
         if(d<ts*0.22){
           a.rest-=edt;
           if(a.rest<=0){
@@ -4816,15 +4880,14 @@ const Globe = (function(){
             if(nt>=0){
               a.tile=nt;
               const c=[0,0,0]; tileCenter(nt,c);
-              a.tx=c[0]+rrange(-ts*0.42,ts*0.42);
-              a.tz=c[2]+rrange(-ts*0.42,ts*0.42);
+              a.tx=c[0]+rrange(-ts*0.46,ts*0.46);
+              a.tz=c[2]+rrange(-ts*0.46,ts*0.46);
             }
-            a.rest=0.5+Math.random()*2.4;
+            a.rest=(it.rest||1.5)*(0.5+Math.random());
           }
         } else {
           const v=it.spd*mdt;
           a.x+=dx/d*Math.min(v,d); a.z+=dz/d*Math.min(v,d);
-          a.yaw=Math.atan2(dx,dz);
         }
       }
     }
@@ -4930,8 +4993,9 @@ const Globe = (function(){
         out[q+1]= a.y + (it.fly ? 1.1*a.sc : 0)
                 + Math.abs(Math.sin(T*it.bobRate*moving + a.ph))*it.bob*a.sc*1.6;
         out[q+2]= a.z;
-        /* 달리거나 쫓을 때 몸을 앞으로 기울인다 */
-        out[q+3]= a.yaw + Math.sin(T*it.bobRate*0.5+a.ph)*it.lean*(moving-0.6);
+        /* 셰이더가 Y축 회전만 하므로 '앞으로 기울이기'를 yaw에 더하고 있었다.
+           그건 기울어지는 게 아니라 좌우로 도리질하는 것이다. 걷어냈다. */
+        out[q+3]= a.yaw;
         out[q+4]= a.sc;
         n++;
       }
@@ -4947,6 +5011,36 @@ const Globe = (function(){
       ext.vertexAttribDivisorANGLE(aP,0); ext.vertexAttribDivisorANGLE(aN,0);
       gl.uniform3f(uC, md.color[0], md.color[1], md.color[2]);
       ext.drawArraysInstancedANGLE(gl.TRIANGLES,0,md.count,n);
+    }
+    /* 내 종 위에 표식을 띄운다. 마지막에 그려야 다른 몸에 가리지 않는다. */
+    const pi = G.species.indexOf(G.player);
+    const pit = pi>=0 ? inst[pi] : null;
+    if(markBuf && pit && pit.ag && pit.ag.length && G.showMine!==false){
+      const ag=pit.ag; let n=0;
+      const bobT=Math.sin(T*2.2)*0.035;
+      for(let k=0;k<ag.length && n*5+4<markInst.length;k++){
+        const a=ag[k]; if(a.sc<0.002) continue;
+        const q=n*5;
+        markInst[q]=a.x;
+        markInst[q+1]=a.y + a.sc*2.4 + 0.30 + bobT;   // 몸 위에 띄운다
+        markInst[q+2]=a.z;
+        markInst[q+3]=0;
+        markInst[q+4]=0.17;                            // 늘 같은 크기
+        n++;
+      }
+      if(n){
+        gl.bindBuffer(gl.ARRAY_BUFFER,pit.buf);
+        gl.bufferData(gl.ARRAY_BUFFER,markInst.subarray(0,n*5),gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(aI); gl.vertexAttribPointer(aI,4,gl.FLOAT,false,20,0);
+        gl.enableVertexAttribArray(aS); gl.vertexAttribPointer(aS,1,gl.FLOAT,false,20,16);
+        ext.vertexAttribDivisorANGLE(aI,1); ext.vertexAttribDivisorANGLE(aS,1);
+        gl.bindBuffer(gl.ARRAY_BUFFER,markBuf);
+        gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0);
+        gl.enableVertexAttribArray(aN); gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12);
+        ext.vertexAttribDivisorANGLE(aP,0); ext.vertexAttribDivisorANGLE(aN,0);
+        gl.uniform3f(uC, 1.0, 0.12, 0.56);
+        ext.drawArraysInstancedANGLE(gl.TRIANGLES,0,markCount,n);
+      }
     }
     ext.vertexAttribDivisorANGLE(aI,0); ext.vertexAttribDivisorANGLE(aS,0);
     gl.disableVertexAttribArray(aI); gl.disableVertexAttribArray(aS);
@@ -5282,6 +5376,16 @@ function renderReadout(){
 
   /* ── 3. 이 추세면 어떻게 되나 ── */
   const c=popCast();
+  /* 다음 진화 포인트까지 — 안 보이면 안 늘어나는 것처럼 느껴진다.
+     포인트는 '해'가 아니라 '세대'로 온다. 빨리 번식하는 종일수록 자주 진화한다. */
+  const epLeft=Math.max(0,(g.nextEpTick-g.tick))/TICKS_PER_YEAR;
+  const epEvery=clamp(Math.round(19/(d.gensPerYear*0.55+d.heritab*1.4)*TUNE.epRate),4,34)/TICKS_PER_YEAR;
+  const epBox=$("#ep-next");
+  if(epBox) epBox.innerHTML =
+    `<div class="epnext"><div class="r1"><span>다음 진화 포인트</span>`
+   +`<b>${epLeft<0.3?"곧":epLeft.toFixed(1)+"년"}</b></div>`
+   +`<em>${epEvery.toFixed(1)}년에 한 번 · 세대가 빠른 종일수록 자주 옵니다</em></div>`;
+
   $("#pop-cast").innerHTML = !c ? "" :
     c.dying
       ? `<p class="rd-cast bad">지금 추세가 이어지면 <b>${c.years}년 뒤 멸종</b>합니다.
@@ -5373,7 +5477,7 @@ function renderEvo(){
   /* 얻은 것 요약 + 지금 형질 */
   const taken=Object.keys(G.taken||{}).filter(k=>EVO_NODE[k]);
   const bt0=$("#btn-tree");
-  if(bt0) bt0.textContent = `진화 계통 열기 · ${taken.length}개 얻음`;
+  if(bt0) bt0.textContent = "진화 계통 열기";
   $("#evo-list").innerHTML =
     (taken.length ? `<div class="takenrow">`+taken.map(k=>{
         const n=EVO_NODE[k], br=EVO_TREE.find(b=>b.k===n.br);
@@ -5470,7 +5574,11 @@ function buildPie(){
     const a0=-Math.PI/2+k*Math.PI/2, a1=a0+Math.PI/2, R=40;
     out+=`<path d="M0,0 L${(Math.cos(a0)*R).toFixed(1)},${(Math.sin(a0)*R).toFixed(1)} A${R},${R} 0 0,1 ${(Math.cos(a1)*R).toFixed(1)},${(Math.sin(a1)*R).toFixed(1)} Z" fill="${cols[k]}" opacity="0.92"/>`;
   }
-  out+=`<line id="pie-needle" x1="0" y1="-27" x2="0" y2="-41" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`;
+  /* 바늘이 얇고 흐려서 도는 게 안 보였다. 고리를 가로지르게 길게, 두 겹으로 그린다 */
+  out+=`<g id="pie-needle">`
+     + `<line x1="0" y1="-20" x2="0" y2="-48" stroke="#2A2740" stroke-width="9" stroke-linecap="round"/>`
+     + `<line x1="0" y1="-20" x2="0" y2="-48" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>`
+     + `<circle cx="0" cy="-48" r="5" fill="#fff" stroke="#2A2740" stroke-width="2.5"/></g>`;
   out+=`<circle cx="0" cy="0" r="27" fill="#3C3A55"/>`;
   $("#season-pie").innerHTML=out;
 }
