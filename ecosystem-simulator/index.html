@@ -1169,11 +1169,11 @@ const TRAIT_GROUPS=[
    ["thermoreg","체온 조절","견딜 수 있는 기온 폭이 넓어짐"],
  ]},
  {name:"번식", traits:[
-   ["fertility","산자 수","한 번에 낳는 새끼 수"],
+   ["fertility","한배 새끼 수","한 번에 낳는 새끼 수"],
    ["breedFreq","번식 빈도","1년에 몇 번 번식하는가"],
    ["parentalCare","양육 투자","새끼 생존율이 크게 오름"],
    ["maturity","성숙 속도","빨리 어른이 되어 번식에 합류"],
-   ["youngDispersal","유체 분산","새끼가 멀리 퍼져 종내 경쟁을 피함"],
+   ["youngDispersal","새끼 흩어짐","새끼가 멀리 퍼져 종내 경쟁을 피함"],
    ["mutationRate","돌연변이율","진화 포인트를 더 자주 받지만 형질이 제멋대로 흔들림"],
  ]},
  {name:"감각 · 인지", traits:[
@@ -1232,7 +1232,7 @@ const EVO_TREE = [
     ]},
   { k:"breed", name:"번식", tone:"c3", desc:"많이 남기는 쪽으로",
     nodes:[
-      {k:"b1", n:"잦은 발정",   c:2, t:{breedFreq:2},                           d:"한 해에 여러 번 낳습니다"},
+      {k:"b1", n:"잦은 번식",   c:2, t:{breedFreq:2},                           d:"한 해에 여러 번 낳습니다"},
       {k:"b2", n:"다산",        c:3, t:{fertility:3},                           d:"한 배에 많이 낳습니다", need:["b1"]},
       {k:"b3", n:"빠른 성숙",   c:3, t:{maturity:3, growth:1},                  d:"금방 어른이 됩니다", need:["b1"]},
       {k:"b4", n:"새끼 돌봄",   c:3, t:{parentalCare:3, nesting:2},             d:"적게 낳고 확실히 키웁니다", need:["b2","b3"]},
