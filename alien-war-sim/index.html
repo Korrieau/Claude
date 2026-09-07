@@ -353,8 +353,11 @@ function fbm(x, y) {
 // Every other material is confined to a place it has a reason to be: dirt on
 // the routes people walk, gravel at the foot of the cliffs, flowers in the
 // damp low ground.
-const GRASS = ['#4E6C2B', '#5A7A31', '#678A38', '#75993F'];
-const GRASS_DRY = '#8B9646';
+// Sampled from the reference captures rather than chosen by eye. The grass
+// there is olive and desaturated - dark #4B6639, mid #73845C, lit #969640 -
+// which is a long way from the pure saturated green this used to be.
+const GRASS = ['#3F5029', '#55683A', '#6E8248', '#8B9B58'];
+const GRASS_DRY = '#A8AC6A';
 
 function buildTerrainLayer() {
   const t = terrainCv.getContext('2d');
@@ -366,7 +369,7 @@ function buildTerrainLayer() {
   const rockAt = (x, y) => isRockTile((x / TILE) | 0, (y / TILE) | 0);
 
   // ---- 1. the valley floor is one colour ----
-  t.fillStyle = GRASS[1];
+  t.fillStyle = '#55683A';
   t.fillRect(0, 0, WW, WH);
 
   // ---- 2. broad light: cloud shadow and sun, same hue, low contrast ----
@@ -374,7 +377,7 @@ function buildTerrainLayer() {
     const x = rnd(-100, WW + 100), y = rnd(-100, WH + 100), r = rnd(180, 520);
     const dark = Math.random() < 0.55;
     const g = t.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, dark ? 'rgba(30,50,20,0.20)' : 'rgba(160,190,100,0.14)');
+    g.addColorStop(0, dark ? 'rgba(34,46,22,0.22)' : 'rgba(174,182,104,0.16)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     t.fillStyle = g;
     t.beginPath(); t.ellipse(x, y, r, r * 0.74, rnd(0, 3.1), 0, 6.2832); t.fill();
@@ -418,8 +421,8 @@ function buildTerrainLayer() {
     const x = rnd(-120, WW + 120), y = rnd(-120, WH + 120), r = rnd(140, 420);
     const g = t.createRadialGradient(x, y, 0, x, y, r);
     const dark = Math.random() < 0.5;
-    g.addColorStop(0, dark ? 'rgba(52,72,30,0.30)' : 'rgba(122,152,66,0.24)');
-    g.addColorStop(0.65, dark ? 'rgba(52,72,30,0.10)' : 'rgba(122,152,66,0.08)');
+    g.addColorStop(0, dark ? 'rgba(48,60,28,0.30)' : 'rgba(150,150,64,0.24)');
+    g.addColorStop(0.65, dark ? 'rgba(48,60,28,0.10)' : 'rgba(150,150,64,0.08)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     t.fillStyle = g;
     t.beginPath(); t.ellipse(x, y, r, r * rnd(0.5, 0.85), rnd(0, 3.1), 0, 6.2832); t.fill();
@@ -464,6 +467,28 @@ function buildTerrainLayer() {
   }
   t.restore();
 
+  // ---- 4b. bare stone showing through the turf ----
+  // In the reference a good third of the ground is exposed pale rock, not
+  // grass. Wall-to-wall lawn is what made ours read as a golf course.
+  for (let i = 0; i < 190; i++) {
+    const cx = Math.random() * WW, cy = Math.random() * WH;
+    if (rockAt(cx, cy)) continue;
+    if (fbm(cx / 150, cy / 150) < 0.58) continue;   // high ground wears through
+    const n = 2 + ((Math.random() * 3) | 0);
+    for (let k = 0; k < n; k++) {
+      const x = cx + rnd(-11, 11), y = cy + rnd(-7, 7), r = rnd(4, 11);
+      t.fillStyle = Math.random() < 0.5 ? 'rgba(112,118,112,0.55)' : 'rgba(140,144,134,0.48)';
+      t.beginPath(); t.ellipse(x, y, r, r * rnd(0.4, 0.62), rnd(0, 3.1), 0, 6.2832); t.fill();
+    }
+    for (let k = 0; k < 4; k++) {      // loose stones on top of the patch
+      const x = cx + rnd(-12, 12), y = cy + rnd(-8, 8), r = rnd(1.1, 2.6);
+      t.fillStyle = 'rgba(28,34,20,0.46)';
+      t.beginPath(); t.ellipse(x + 0.7, y + 1.0, r, r * 0.62, 0, 0, 6.2832); t.fill();
+      t.fillStyle = 'rgba(166,172,170,0.85)';
+      t.beginPath(); t.ellipse(x, y, r, r * 0.62, rnd(0, 3.1), 0, 6.2832); t.fill();
+    }
+  }
+
   // ---- 5. wildflowers, clustered in the damp hollows ----
   const FLOWER = ['#F4EEC6', '#FFFFFF', '#EFC3C9', '#F6D98A'];
   for (let i = 0; i < 150; i++) {
@@ -495,129 +520,187 @@ function buildTerrainLayer() {
   sun.addColorStop(1, 'rgba(60,90,120,0.16)');
   t.fillStyle = sun; t.fillRect(0, 0, WW, WH);
 
-  const hz = t.createLinearGradient(0, 0, 0, WH * 0.6);
-  hz.addColorStop(0, 'rgba(186,208,212,0.30)');
-  hz.addColorStop(0.4, 'rgba(190,210,206,0.07)');
-  hz.addColorStop(1, 'rgba(196,214,214,0)');
-  t.fillStyle = hz; t.fillRect(0, 0, WW, WH * 0.6);
+  const hz = t.createLinearGradient(0, 0, 0, WH * 0.44);
+  hz.addColorStop(0, 'rgba(183,211,222,0.66)');
+  hz.addColorStop(0.22, 'rgba(186,210,220,0.30)');
+  hz.addColorStop(0.55, 'rgba(190,212,218,0.09)');
+  hz.addColorStop(1, 'rgba(196,214,218,0)');
+  t.fillStyle = hz; t.fillRect(0, 0, WW, WH * 0.44);
 }
 
 // ---- cliffs ---------------------------------------------------------------
-// A cliff is a grass-topped mesa: the plateau keeps the same grass as the
-// valley, and only the exposed face is stone. That is what the reference
-// shows, and it is why grey terraced slabs looked wrong - the earlier version
-// made rock the material of the whole mass instead of just its broken edge.
-function buildCliffs(t) {
-  const discs = [];
-  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
-    if (terrain[idx(x, y)] !== T_ROCK) continue;
-    discs.push([x * TILE + TILE / 2, y * TILE + TILE / 2]);
-  }
-  if (!discs.length) return;
+// The silhouette is a smoothed iso-contour of the rock mask, never a union of
+// per-tile discs and squares. That union is what left axis-aligned corners on
+// every rock mass and made the terrain read as tiles no matter how it was
+// painted. Here the mask is supersampled, blurred and thresholded, so the
+// outline follows an organic curve at a scale well below one tile.
+let silCv = null, faceCv = null, scrCv = null, scrX = null;
 
-  const shape = (r, ox, oy) => {
-    t.beginPath();
-    const half = TILE / 2;
-    for (const [x, y] of discs) {
-      t.moveTo(x + ox + r, y + oy); t.arc(x + ox, y + oy, r, 0, 6.2832);
-      t.rect(x + ox - half, y + oy - half, half * 2, half * 2);
+function buildSilhouette() {
+  const SS = 4, cell = TILE / SS;            // 5 world units per sample
+  const sw = GW * SS, sh = GH * SS;
+  let f = new Float32Array(sw * sh), g = new Float32Array(sw * sh);
+  for (let gy = 0; gy < GH; gy++) for (let gx = 0; gx < GW; gx++) {
+    if (terrain[idx(gx, gy)] !== T_ROCK) continue;
+    for (let j = 0; j < SS; j++) {
+      const row = (gy * SS + j) * sw + gx * SS;
+      for (let i = 0; i < SS; i++) f[row + i] = 1;
     }
-  };
-  const R = TILE * 0.63;
-  const CLIFF = 30 * HZ;    // face height in world units, before the squash
+  }
+  const RB = 3, W2 = RB * 2 + 1;
+  for (let pass = 0; pass < 3; pass++) {
+    for (let y = 0; y < sh; y++) {           // horizontal
+      const row = y * sw;
+      let acc = 0;
+      for (let i = -RB; i <= RB; i++) acc += f[row + clamp(i, 0, sw - 1)];
+      for (let x = 0; x < sw; x++) {
+        g[row + x] = acc / W2;
+        acc += f[row + Math.min(sw - 1, x + RB + 1)] - f[row + Math.max(0, x - RB)];
+      }
+    }
+    for (let x = 0; x < sw; x++) {           // vertical
+      let acc = 0;
+      for (let i = -RB; i <= RB; i++) acc += g[clamp(i, 0, sh - 1) * sw + x];
+      for (let y = 0; y < sh; y++) {
+        f[y * sw + x] = acc / W2;
+        acc += g[Math.min(sh - 1, y + RB + 1) * sw + x] - g[Math.max(0, y - RB) * sw + x];
+      }
+    }
+  }
+  const c = document.createElement('canvas');
+  c.width = WW; c.height = WH;
+  const x2 = c.getContext('2d');
+  x2.fillStyle = '#fff';
+  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+    if (f[y * sw + x] < 0.5) continue;
+    x2.beginPath();
+    x2.arc(x * cell + cell / 2, y * cell + cell / 2, cell * 0.78, 0, 6.2832);
+    x2.fill();
+  }
+  return c;
+}
 
-  // contact shadow the mass sits in
+// Paint into a scratch layer, then keep only what falls inside a mask. This
+// is how every cliff pass is coloured, so each one shares the exact same
+// organic outline.
+function stencil(mask, paint) {
+  if (!scrCv) {
+    scrCv = document.createElement('canvas');
+    scrCv.width = WW; scrCv.height = WH;
+    scrX = scrCv.getContext('2d');
+  }
+  scrX.setTransform(1, 0, 0, 1, 0, 0);
+  scrX.globalCompositeOperation = 'source-over';
+  scrX.clearRect(0, 0, WW, WH);
+  paint(scrX);
+  scrX.globalCompositeOperation = 'destination-in';
+  scrX.drawImage(mask, 0, 0);
+  scrX.globalCompositeOperation = 'source-over';
+  return scrCv;
+}
+
+function buildCliffs(t) {
+  const rocky = [];
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++)
+    if (terrain[idx(x, y)] === T_ROCK) rocky.push([x * TILE + TILE / 2, y * TILE + TILE / 2]);
+  if (!rocky.length) return;
+
+  const CLIFF = 46 * HZ;          // face height in world units, before the squash
+  silCv = buildSilhouette();
+
+  // the face is the silhouette swept upward off the ground plane
+  faceCv = document.createElement('canvas');
+  faceCv.width = WW; faceCv.height = WH;
+  const fx = faceCv.getContext('2d');
+  for (let d = CLIFF; d >= 0; d -= 1.2) fx.drawImage(silCv, 0, -d);
+
+  const bb = rocky.reduce((a, [x, y]) => [Math.min(a[0], x), Math.min(a[1], y),
+    Math.max(a[2], x), Math.max(a[3], y)], [1e9, 1e9, -1e9, -1e9]);
+  const TOPY = bb[1] - TILE - CLIFF, BOTY = bb[3] + TILE;
+
+  // ---- the ground shadow the mass sits in ----
   t.save();
-  t.shadowColor = 'rgba(26,34,16,0.68)'; t.shadowBlur = 30;
-  t.shadowOffsetX = 7; t.shadowOffsetY = 11;
-  t.fillStyle = '#000'; shape(R * 0.99, 0, 0); t.fill();
+  t.shadowColor = 'rgba(20,30,16,0.50)';
+  t.shadowBlur = 13; t.shadowOffsetX = WW + 5; t.shadowOffsetY = 7;
+  t.drawImage(silCv, -WW, 0);
   t.restore();
 
-  // the exposed face, swept up from the ground plane, dark at the foot
-  const N = 30;
-  for (let i = N; i >= 0; i--) {
-    const f = i / N;                       // 1 at the base, 0 at the lip
-    const v = 62 + (1 - f) * 46;
-    t.fillStyle = `rgb(${v | 0},${(v * 0.99) | 0},${(v * 0.92) | 0})`;
-    shape(R, 0, -CLIFF * (1 - f));
-    t.fill();
-  }
+  // ---- the face: dark at the foot, catching light near the lip ----
+  t.drawImage(stencil(faceCv, x2 => {
+    const g = x2.createLinearGradient(0, TOPY, 0, BOTY);
+    g.addColorStop(0, '#8C9AA0');
+    g.addColorStop(0.45, '#697880');
+    g.addColorStop(1, '#3A4750');
+    x2.fillStyle = g; x2.fillRect(0, 0, WW, WH);
 
-  // face detail: vertical weathering, then a few decisive fractures
-  t.save();
-  shape(R, 0, 0); t.clip();                // the swept band, top surface drawn after
-  for (let i = 0; i < 900; i++) {
-    const x = Math.random() * WW, y = Math.random() * WH;
-    t.strokeStyle = Math.random() < 0.5 ? 'rgba(30,30,26,0.20)' : 'rgba(210,208,192,0.16)';
-    t.lineWidth = rnd(0.8, 2.4);
-    t.beginPath(); t.moveTo(x, y);
-    t.lineTo(x + rnd(-2, 2), y + rnd(6, 26));
-    t.stroke();
-  }
-  t.restore();
-  t.save();
-  shape(R, 0, -CLIFF * 0.5); t.clip();
-  for (let i = 0; i < 420; i++) {
-    const x = Math.random() * WW, y = Math.random() * WH;
-    t.strokeStyle = Math.random() < 0.5 ? 'rgba(26,26,22,0.26)' : 'rgba(224,222,204,0.18)';
-    t.lineWidth = rnd(0.9, 2.8);
-    t.beginPath(); t.moveTo(x, y);
-    t.lineTo(x + rnd(-3, 3), y + rnd(10, 40));
-    t.stroke();
-  }
-  t.restore();
+    // Columnar jointing. Rock of this kind parts along vertical planes, and
+    // that is what carries the height in the reference; a smooth grey band
+    // reads as a painted wall however it is shaded.
+    for (let x = bb[0] - TILE; x < bb[2] + TILE; ) {
+      const w = rnd(4, 13), k = rnd(-0.22, 0.24);
+      x2.fillStyle = k < 0 ? `rgba(16,24,30,${-k})` : `rgba(212,222,226,${k})`;
+      x2.fillRect(x, TOPY, w, BOTY - TOPY);
+      x2.fillStyle = 'rgba(12,18,24,0.34)';
+      x2.fillRect(x + w - 1, TOPY, 1, BOTY - TOPY);
+      x += w + rnd(0, 1.6);
+    }
+    // blocks that have spalled away, so the columns are not a perfect comb
+    for (let i = 0; i < 420; i++) {
+      const [dx, dy] = rocky[(Math.random() * rocky.length) | 0];
+      const x = dx + rnd(-TILE * 0.7, TILE * 0.7), y = dy + rnd(-CLIFF, TILE * 0.4);
+      x2.fillStyle = Math.random() < 0.5 ? 'rgba(16,24,30,0.24)' : 'rgba(200,212,218,0.20)';
+      x2.fillRect(x, y, rnd(5, 16), rnd(6, 20));
+    }
+  }), 0, 0);
 
-  // the lip: a bright stone rim right under the plateau edge
-  t.fillStyle = '#B9B6A4'; shape(R, 0, -CLIFF + 2.5); t.fill();
-  t.fillStyle = '#8C8A7C'; shape(R * 0.995, 1.4, -CLIFF + 4.6); t.fill();
+  // ---- the lip, a bright stone rim right under the plateau edge ----
+  t.drawImage(stencil(silCv, x2 => { x2.fillStyle = '#A6B2B6'; x2.fillRect(0, 0, WW, WH); }),
+    0, -CLIFF + 3);
+  t.drawImage(stencil(silCv, x2 => { x2.fillStyle = '#77848A'; x2.fillRect(0, 0, WW, WH); }),
+    1.4, -CLIFF + 6.5);
 
-  // ---- the plateau: the same grass, but higher ground catches more sun ----
-  t.fillStyle = '#6E9038'; shape(R * 0.965, 0, -CLIFF); t.fill();
-  t.save();
-  shape(R * 0.965, 0, -CLIFF); t.clip();
-  // same light treatment as the floor so the top does not read as a sticker
-  for (let i = 0; i < 24; i++) {
-    const x = Math.random() * WW, y = Math.random() * WH, r = rnd(90, 260);
-    const g = t.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, Math.random() < 0.5 ? 'rgba(30,50,20,0.22)' : 'rgba(160,190,100,0.16)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    t.fillStyle = g; t.beginPath(); t.arc(x, y, r, 0, 6.2832); t.fill();
-  }
-  const bt = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];
-  for (const [dx, dy] of discs) {
-    for (let k = 0; k < 26; k++) {
-      const x = dx + rnd(-TILE * 0.75, TILE * 0.75);
-      const y = dy + rnd(-TILE * 0.75, TILE * 0.75) - CLIFF;
+  // ---- the plateau, which is the same grass as the valley, only higher ----
+  t.drawImage(stencil(silCv, x2 => {
+    x2.fillStyle = '#6E8248'; x2.fillRect(0, 0, WW, WH);
+    for (let i = 0; i < 30; i++) {
+      const x = Math.random() * WW, y = Math.random() * WH, r = rnd(90, 280);
+      const g = x2.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, Math.random() < 0.5 ? 'rgba(34,46,22,0.24)' : 'rgba(174,182,104,0.18)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      x2.fillStyle = g; x2.beginPath(); x2.arc(x, y, r, 0, 6.2832); x2.fill();
+    }
+    const bt = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];
+    for (const [dx, dy] of rocky) for (let k = 0; k < 30; k++) {
+      const x = dx + rnd(-TILE * 0.8, TILE * 0.8), y = dy + rnd(-TILE * 0.8, TILE * 0.8);
       const L = fbm(x / 130, y / 130) + rnd(-0.14, 0.14);
       const ci = L < 0.40 ? 0 : L < 0.50 ? 1 : L < 0.61 ? 2 : 3;
-      const h = rnd(4.5, 9), w = rnd(0.7, 1.1), p = bt[ci];
+      const h = rnd(4.5, 9), w = rnd(0.75, 1.2), p = bt[ci];
       p.moveTo(x - w, y);
-      p.quadraticCurveTo(x - w * 0.4, y - h * 0.55, x + rnd(-1.6, 0.6), y - h);
+      p.quadraticCurveTo(x - w * 0.4, y - h * 0.55, x + rnd(-2.2, -0.4), y - h);
       p.quadraticCurveTo(x + w * 0.6, y - h * 0.45, x + w, y);
     }
-  }
-  for (let i = 0; i < 4; i++) { t.fillStyle = GRASS[i]; t.fill(bt[i]); }
-  // exposed rock breaking through the turf on top
-  for (let i = 0; i < 90; i++) {
-    const [dx, dy] = discs[(Math.random() * discs.length) | 0];
-    const x = dx + rnd(-9, 9), y = dy + rnd(-9, 9) - CLIFF, r = rnd(4, 13);
-    t.fillStyle = 'rgba(150,148,132,0.5)';
-    t.beginPath(); t.ellipse(x, y, r, r * 0.6, rnd(0, 3.1), 0, 6.2832); t.fill();
-    t.fillStyle = 'rgba(198,196,178,0.42)';
-    t.beginPath(); t.ellipse(x - 1, y - 1.4, r * 0.7, r * 0.4, rnd(0, 3.1), 0, 6.2832); t.fill();
-  }
-  t.restore();
+    for (let i = 0; i < 4; i++) { x2.fillStyle = GRASS[i]; x2.fill(bt[i]); }
+    for (let i = 0; i < 150; i++) {      // stone breaking through the turf
+      const [dx, dy] = rocky[(Math.random() * rocky.length) | 0];
+      const x = dx + rnd(-11, 11), y = dy + rnd(-9, 9), r = rnd(4, 13);
+      x2.fillStyle = 'rgba(120,130,134,0.52)';
+      x2.beginPath(); x2.ellipse(x, y, r, r * 0.58, rnd(0, 3.1), 0, 6.2832); x2.fill();
+      x2.fillStyle = 'rgba(176,186,188,0.40)';
+      x2.beginPath(); x2.ellipse(x - 1, y - 1.4, r * 0.66, r * 0.36, rnd(0, 3.1), 0, 6.2832); x2.fill();
+    }
+  }), 0, -CLIFF);
 
   // ---- scree spilling out at the foot ----
-  for (let i = 0; i < 700; i++) {
-    const [dx, dy] = discs[(Math.random() * discs.length) | 0];
-    const a = rnd(0, 6.2832), d = TILE * rnd(0.55, 1.5);
-    const x = dx + Math.cos(a) * d, y = dy + Math.sin(a) * d * 0.8 + 4;
-    if (inb((x / TILE) | 0, (y / TILE) | 0) && terrain[idx((x / TILE) | 0, (y / TILE) | 0)] === T_ROCK) continue;
-    const r = rnd(1.2, 4.2);
-    t.fillStyle = 'rgba(34,42,22,0.45)';
+  for (let i = 0; i < 800; i++) {
+    const [dx, dy] = rocky[(Math.random() * rocky.length) | 0];
+    const a = rnd(0, 6.2832), d = TILE * rnd(0.55, 1.6);
+    const x = dx + Math.cos(a) * d, y = dy + Math.sin(a) * d * 0.8 + 5;
+    const gx = (x / TILE) | 0, gy = (y / TILE) | 0;
+    if (inb(gx, gy) && terrain[idx(gx, gy)] === T_ROCK) continue;
+    const r = rnd(1.2, 4.4);
+    t.fillStyle = 'rgba(28,36,20,0.46)';
     t.beginPath(); t.ellipse(x + 0.8, y + 1.3, r, r * 0.62, 0, 0, 6.2832); t.fill();
-    t.fillStyle = Math.random() < 0.5 ? 'rgba(176,174,156,0.82)' : 'rgba(132,130,116,0.78)';
+    t.fillStyle = Math.random() < 0.5 ? 'rgba(158,168,172,0.84)' : 'rgba(112,122,128,0.80)';
     t.beginPath(); t.ellipse(x, y, r, r * 0.62, rnd(0, 3.1), 0, 6.2832); t.fill();
   }
 }
@@ -641,54 +724,62 @@ function buildTrees() {
   for (const [x, y] of spots) {
     const conifer = Math.random() < 0.42;
     const big = Math.random() < 0.24;
-    const r = conifer ? (big ? rnd(9, 13) : rnd(5.5, 9))
-                      : (big ? rnd(12, 17) : rnd(6, 11));
+    const r = conifer ? (big ? rnd(6.5, 9.5) : rnd(4, 6.5))
+                      : (big ? rnd(8, 12) : rnd(4.5, 8));
     const t = {
       x, y, r, conifer,
       h: conifer ? r * rnd(2.6, 3.4) : r * rnd(1.6, 2.2),
       lean: rnd(-0.14, 0.14),
-      lobes: [], tiers: [],
+      out: [],   // crown silhouette in units of r, y negative is up
     };
+    // No discs and no clean triangles. Each crown gets its own ragged
+    // outline, so no two trees share a shape and none of them reads as a
+    // geometric primitive.
     if (conifer) {
-      const n = 3 + ((Math.random() * 3) | 0);
-      for (let i = 0; i < n; i++) {
-        const f = i / n;
-        t.tiers.push({ w: r * (1 - f * 0.6) * rnd(0.9, 1.1),
-          y: -r * 1.45 * i * rnd(0.85, 1.05), hgt: r * rnd(1.0, 1.4) });
+      const TOP = -rnd(4.6, 6.2), BASE = rnd(0.35, 0.75);
+      const steps = 5 + ((Math.random() * 4) | 0);
+      const half = [];
+      for (let i = 0; i <= steps; i++) {
+        const f = i / steps;
+        const yy = BASE + (TOP - BASE) * f;
+        const wid = Math.pow(1 - f, 0.78) * rnd(1.0, 1.28);
+        half.push([wid, yy]);                                  // branch tip
+        half.push([wid * rnd(0.30, 0.5), yy + (TOP - BASE) / steps * rnd(0.42, 0.68)]);
       }
+      const tip = [rnd(-0.09, 0.09), TOP - rnd(0.1, 0.5)];
+      for (let i = 0; i < half.length; i++) t.out.push([-half[i][0], half[i][1]]);
+      t.out.push(tip);
+      for (let i = half.length - 1; i >= 0; i--) t.out.push([half[i][0], half[i][1]]);
     } else {
-      const n = 5 + ((Math.random() * 4) | 0);
+      const n = 15 + ((Math.random() * 6) | 0);
+      const p1 = rnd(0, 6.28), p2 = rnd(0, 6.28), p3 = rnd(0, 6.28);
+      const notch = new Set();
+      for (let i = 0; i < 3; i++) notch.add((Math.random() * n) | 0);
       for (let i = 0; i < n; i++) {
-        const a2 = (i / n) * 6.2832 + rnd(-0.3, 0.3);
-        const d2 = r * rnd(0.25, 0.6);
-        t.lobes.push({ ox: Math.cos(a2) * d2, oy: Math.sin(a2) * d2 * 0.72 - r * 0.16,
-          rr: r * rnd(0.44, 0.72) });
+        const a2 = (i / n) * 6.2832;
+        let rad = 1.16 + 0.26 * Math.sin(3 * a2 + p1) + 0.17 * Math.sin(5 * a2 + p2)
+                       + 0.11 * Math.sin(8 * a2 + p3) + rnd(-0.10, 0.10);
+        if (notch.has(i)) rad *= rnd(0.52, 0.70);
+        t.out.push([Math.cos(a2) * rad * 1.06, Math.sin(a2) * rad * 0.88 - 0.55]);
       }
     }
     trees.push(t);
   }
 }
 
-// Canopies are built from lobes or stacked tiers, never one disc, and carry
-// four values so the sun side reads against the shade.
+// The crown is one ragged closed silhouette, drawn four times at shrinking
+// scales so the sun side reads against the shade. Shrinking about the crown
+// centre keeps every pass the same shape, which is what makes the lighting
+// look like one object rather than stacked stamps.
 function foliage(t, dx, dy, k, col) {
+  const o = t.out, r = t.r;
   ctx.fillStyle = col;
   ctx.beginPath();
-  if (t.conifer) {
-    for (const ti of t.tiers) {
-      const w = ti.w * k;
-      ctx.moveTo(dx, dy + ti.y - ti.hgt * (0.6 + k * 0.6));
-      ctx.lineTo(dx + w, dy + ti.y + ti.hgt * 0.3);
-      ctx.lineTo(dx - w, dy + ti.y + ti.hgt * 0.3);
-      ctx.closePath();
-    }
-  } else {
-    for (const lo of t.lobes) {
-      const rr = lo.rr * k;
-      ctx.moveTo(dx + lo.ox + rr, dy + lo.oy);
-      ctx.arc(dx + lo.ox, dy + lo.oy, rr, 0, 6.2832);
-    }
+  for (let i = 0; i < o.length; i++) {
+    const x = dx + o[i][0] * r * k, y = dy + o[i][1] * r * k;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
+  ctx.closePath();
   ctx.fill();
 }
 function drawTree(t) {
@@ -704,14 +795,14 @@ function drawTree(t) {
   ctx.restore();
 
   // tapered trunk, leaning with the crown
-  ctx.fillStyle = '#42341F';
+  ctx.fillStyle = '#2B2417';
   ctx.beginPath();
   ctx.moveTo(t.x - t.r * 0.17, t.y);
   ctx.lineTo(t.x + t.r * 0.17, t.y);
   ctx.lineTo(t.x + lx + t.r * 0.075, t.y - th * 0.88);
   ctx.lineTo(t.x + lx - t.r * 0.075, t.y - th * 0.88);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#6A5535';
+  ctx.fillStyle = '#463A25';
   ctx.beginPath();
   ctx.moveTo(t.x - t.r * 0.17, t.y);
   ctx.lineTo(t.x - t.r * 0.06, t.y);
@@ -722,10 +813,10 @@ function drawTree(t) {
   ctx.save();
   ctx.translate(t.x + lx, t.y - th);
   ctx.scale(1, HZ);
-  foliage(t, 0, 0, 1.0, '#243219');
-  foliage(t, -t.r * 0.13, -t.r * 0.15, 0.87, '#3B5420');
-  foliage(t, -t.r * 0.28, -t.r * 0.32, 0.55, '#65872E');
-  foliage(t, -t.r * 0.38, -t.r * 0.44, 0.26, '#8CAB43');
+  foliage(t, 0, 0, 1.0, '#1E2718');
+  foliage(t, -t.r * 0.10, -t.r * 0.12, 0.93, '#2C3A22');
+  foliage(t, -t.r * 0.24, -t.r * 0.30, 0.80, '#3E4E2C');
+  foliage(t, -t.r * 0.40, -t.r * 0.52, 0.60, '#556438');
   ctx.restore();
 }
 
