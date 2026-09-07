@@ -511,7 +511,37 @@ function buildTerrainLayer() {
   }
   t.restore();
 
+  buildTrees(t);
   buildProps(t);
+}
+
+// Canopy. Trees hug the rock so they never clutter the ground units cross.
+function buildTrees(t) {
+  const nearRock = (gx, gy) => {
+    for (let oy = -2; oy <= 2; oy++) for (let ox = -2; ox <= 2; ox++) {
+      const x = gx + ox, y = gy + oy;
+      if (inb(x, y) && terrain[idx(x, y)] === T_ROCK) return true;
+    }
+    return false;
+  };
+  const spots = [];
+  for (let gy = 1; gy < GH - 1; gy++) for (let gx = 1; gx < GW - 1; gx++) {
+    if (terrain[idx(gx, gy)] !== T_OPEN) continue;
+    if (!nearRock(gx, gy)) continue;
+    if (Math.random() > 0.34) continue;
+    spots.push([gx * TILE + rnd(0, TILE), gy * TILE + rnd(0, TILE)]);
+  }
+  for (const [x, y] of spots) {
+    const r = rnd(5, 11);
+    t.fillStyle = 'rgba(30,36,20,0.34)';                    // cast shadow
+    t.beginPath(); t.ellipse(x + r * 0.7, y + r * 0.9, r * 1.15, r * 0.65, 0, 0, 6.2832); t.fill();
+    t.fillStyle = '#2C3A1C';                                // shaded canopy
+    t.beginPath(); t.arc(x, y, r, 0, 6.2832); t.fill();
+    t.fillStyle = '#445A24';                                // body
+    t.beginPath(); t.arc(x - r * 0.14, y - r * 0.18, r * 0.86, 0, 6.2832); t.fill();
+    t.fillStyle = '#6A8434';                                // sunlit crown
+    t.beginPath(); t.arc(x - r * 0.3, y - r * 0.34, r * 0.5, 0, 6.2832); t.fill();
+  }
 }
 
 // Ground furniture. Without this the plain reads as an empty board.
@@ -1905,13 +1935,31 @@ function drawBuilding(b) {
   const ours = b.type === 'hub' || b.powered || !d.power;
   const edge = ours ? C.concDark : 'rgba(255,71,86,0.85)';
 
-  ctx.fillStyle = 'rgba(44,38,26,0.45)';
+  // height, so an asset is a built object rather than a decal
+  const HT = b.type === 'hub' ? 20
+    : b.type === 'wall' ? 5 + b.tier * 2
+    : d.crew && b.type !== 'bunker' ? 4
+    : b.type === 'bunker' ? 13
+    : b.type === 'siege' ? 16 : b.type === 'gen' ? 15
+    : b.type === 'extractor' ? 14 : b.type === 'mortar' ? 12 : 11;
+  const SX = HT * 0.30, SY = HT * 0.52;
+
+  ctx.fillStyle = 'rgba(38,34,22,0.42)';
   ctx.beginPath();
-  ctx.ellipse(cx + 5, cy + 6, W * 0.54, H * 0.44, 0, 0, 6.2832);
+  ctx.ellipse(cx + SX + 4, cy + SY + 5, W * 0.56, H * 0.44, 0, 0, 6.2832);
   ctx.fill();
+
+  // the shifted body reads as the two faces the sun does not reach
+  if (b.type !== 'hub' && !(d.crew && b.type !== 'bunker')) {
+    ctx.fillStyle = '#6E7268';
+    chamfer(px + 1.5 + SX, py + 1.5 + SY, W - 3, H - 3, W > TILE ? 9 : 5);
+    ctx.fill();
+  }
 
   // ---------- control hub, 3x3 ----------
   if (b.type === 'hub') {
+    ctx.fillStyle = '#79806F';
+    chamfer(px + 2 + 6, py + 2 + 10, W - 4, H - 4, 12); ctx.fill();
     plate(px + 2, py + 2, W - 4, H - 4, 12, '#C4C7BE', edge);
     ctx.fillStyle = '#6E736B';
     ctx.fillRect(px + 9, py + 9, W - 18, H - 18);
@@ -2029,10 +2077,33 @@ function drawBuilding(b) {
     plate(px + 1.5, py + 1.5, W - 3, H - 3, fw > 1 ? 9 : 5, tone, edge);
     hi(px + 4, py + 3, W - 8);
     if (fw > 1) {
-      ctx.fillStyle = '#141A21';
-      ctx.fillRect(px + 5, py + H - 9, W - 10, 5);
-      ctx.fillStyle = C.signalDim;
-      for (let i = 0; i < 4; i++) ctx.fillRect(px + 6 + i * 7.5, py + H - 9, 4, 1.6);
+      // service walkway with railing posts
+      ctx.fillStyle = '#8B9186';
+      ctx.fillRect(px + 5, py + H - 10, W - 10, 6);
+      ctx.strokeStyle = '#5E6459'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i <= 5; i++) {
+        ctx.moveTo(px + 6 + i * ((W - 12) / 5), py + H - 10);
+        ctx.lineTo(px + 6 + i * ((W - 12) / 5), py + H - 4);
+      }
+      ctx.stroke();
+      ctx.fillStyle = C.amber;
+      for (let i = 0; i < 3; i++) ctx.fillRect(px + 8 + i * 9, py + H - 10, 5, 1.6);
+      // pressure tanks on the deck
+      for (const [ox, oy] of [[0.26, 0.28], [0.74, 0.28]]) {
+        const tx2 = px + W * ox, ty2 = py + H * oy;
+        ctx.fillStyle = '#8E948A';
+        ctx.beginPath(); ctx.arc(tx2 + 1.4, ty2 + 2, 5.4, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#DFE2DA';
+        ctx.beginPath(); ctx.arc(tx2, ty2, 5.4, 0, 6.2832); ctx.fill();
+        ctx.strokeStyle = '#6E7468'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(tx2, ty2, 5.4, 0, 6.2832); ctx.stroke();
+        ctx.beginPath(); ctx.arc(tx2, ty2, 2.4, 0, 6.2832); ctx.stroke();
+      }
+    } else {
+      ctx.fillStyle = '#9AA095';
+      ctx.fillRect(px + 3, py + H - 7, W - 6, 3.4);
+      ctx.fillStyle = C.amber; ctx.fillRect(px + 3, py + H - 7, 4, 1.4);
     }
   }
 
