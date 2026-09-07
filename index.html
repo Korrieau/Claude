@@ -20,6 +20,7 @@
     touch-action: none; overscroll-behavior: none; user-select: none;
   }
   canvas { display: block; position: fixed; inset: 0; }
+  #mapPick canvas { position: static; inset: auto; }
   .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
 
   /* ---- HUD: thin strokes, notched frames, plenty of air --------------- */
@@ -319,13 +320,16 @@
 
   #mapPick { display: flex; flex-direction: column; gap: 7px; }
   #mapPick button {
-    display: flex; align-items: center; gap: 10px; width: 100%; cursor: pointer;
-    text-align: left; padding: 11px 13px 12px; min-height: 60px;
+    display: flex; align-items: center; gap: 11px; width: 100%; cursor: pointer;
+    text-align: left; padding: 10px 12px 11px; min-height: 96px;
     background: rgba(9,13,18,.6); border: 1px solid rgba(122,150,175,.24); color: var(--ink);
     clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
   #mapPick button[data-on="1"] { border-color: var(--accent); background: rgba(255,122,42,.12); }
-  #mapPick canvas { width: 34px; height: 60px; flex: 0 0 auto; image-rendering: pixelated; }
+  #mapPick canvas {
+    width: 42px; height: 84px; flex: 0 0 auto; image-rendering: pixelated;
+    border: 1px solid rgba(122,150,175,.32); background: #10151b;
+  }
   #mapPick .mi { min-width: 0; }
   #mapPick b { display: block; font-size: 14px; font-weight: 700; }
   #mapPick s {
@@ -336,7 +340,10 @@
     text-decoration: none; font-family: ui-monospace, monospace; font-size: 7px;
     letter-spacing: .16em; color: var(--gold); margin-left: 6px;
   }
-  #mapPick span { display: block; font-size: 10.5px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
+  #mapPick span {
+    display: block; font-size: 10.5px; color: var(--dim); line-height: 1.45; margin-top: 4px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
   #draft .card {
     display: block; width: 100%; text-align: left; cursor: pointer; margin-top: 9px;
     background: rgba(9,13,18,.6); border: 1px solid rgba(122,150,175,.24); padding: 12px 14px 13px;
@@ -351,6 +358,20 @@
   #draft .card span { display: block; font-size: 12px; color: var(--dim); margin-top: 5px; line-height: 1.6; }
   #draft .card:active { transform: translateY(1px); border-color: var(--accent); }
   #draft .card { min-height: 74px; }
+  .comp { display: flex; flex-wrap: wrap; gap: 5px 7px; margin-top: 7px; justify-content: center; }
+  .comp i {
+    display: flex; align-items: center; gap: 4px; font-style: normal;
+    font-size: 10px; color: #9fb3c2; white-space: nowrap;
+  }
+  .comp i b {
+    display: block; background: #d8540e; border-radius: 1px;
+    transform: rotate(45deg); flex: 0 0 auto;
+    box-shadow: 0 0 6px rgba(216,84,14,.55);
+  }
+  .comp i u {
+    text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 11px; font-weight: 700; color: #eaf2f8;
+  }
   #held { font-size: 11px; color: var(--dim); line-height: 1.9; margin-top: 4px; }
   #held em { font-style: normal; color: var(--cyan); }
   #hint {
@@ -360,16 +381,17 @@
 
   .overlay {
     position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
-    justify-content: center; padding: 26px 22px calc(env(safe-area-inset-bottom,0px) + 26px);
+    justify-content: flex-start; padding: calc(env(safe-area-inset-top,0px) + 20px) 20px
+                                          calc(env(safe-area-inset-bottom,0px) + 26px);
     background: rgba(9,12,17,.95); overflow-y: auto;
   }
   .title {
-    font-family: ui-monospace, monospace; font-size: 30px; font-weight: 700;
+    font-family: ui-monospace, monospace; font-size: 27px; font-weight: 700;
     letter-spacing: .16em; color: var(--accent); text-align: center; margin: 0; line-height: 1.3;
   }
-  .sub { text-align: center; color: var(--dim); font-size: 12.5px; line-height: 1.75; margin: 12px 0 0; }
-  .lbl { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .18em; color: var(--dim); margin: 20px 0 8px; }
-  .help { font-size: 12.5px; line-height: 1.9; }
+  .sub { text-align: center; color: var(--dim); font-size: 12px; line-height: 1.7; margin: 10px 0 0; }
+  .lbl { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .18em; color: var(--dim); margin: 16px 0 7px; }
+  .help { font-size: 12px; line-height: 1.75; }
   .help b { color: var(--accent); }
   .help .d { color: var(--dim); }
   .btn {
@@ -458,47 +480,50 @@
 
 <div class="overlay" id="titleScreen" hidden>
   <h1 class="title">HOLD<br>THE LINE</h1>
-  <p class="sub">버려진 공장 부지에 방어선을 세우고<br>10차 공세를 버텨내세요.</p>
-  <p class="sub" style="font-size:11px;margin-top:6px;color:#5d7182">
-    갈색 잔해는 아무도 지나갈 수 없습니다 · 청록 고지대는 사거리 +20%<br>
-    빨간 표시가 적이 들어오는 통로입니다</p>
+  <p class="sub">버려진 공장 부지에 방어선을 세우고 10차 공세를 버텨내세요.</p>
   <div class="lbl">전장 선택</div>
   <div id="mapPick"></div>
-  <div class="lbl">방어선은 세 겹입니다</div>
-  <div class="help">
-    <b>전방</b> <span class="d">— 철조망, 참호, 벙커. 병사가 들어갑니다</span><br>
-    <b>중앙</b> <span class="d">— 기관총 진지, 박격포</span><br>
-    <b>후방</b> <span class="d">— 시즈탱크, 거대로봇, 보급소, 병영</span>
-  </div>
-  <div class="lbl">핵심</div>
-  <div class="help">
-    병사는 <b>참호 안에서만 강합니다.</b><br>
-    <span class="d">참호가 부서지면 그 구간이 뚫립니다. 병력을 다시 밀어 넣으세요.</span><br>
-    벽은 길을 <b>막지 않고 돌립니다.</b><br>
-    <span class="d">벽으로 통로를 좁히고 그 앞에 화력을 모으세요.</span>
-  </div>
-  <div class="lbl">교리와 지휘</div>
-  <div class="help">
-    공세를 막을 때마다 <b>교리를 하나 고릅니다.</b><br>
-    <span class="d">15종 중 3종이 제시됩니다. 매판 다른 방어선이 나옵니다.</span><br>
-    전투 중에는 <b>지휘 능력 3종</b>을 직접 씁니다.<br>
-    <span class="d">포격 지원 · 전선 사수 · 긴급 정비</span>
-  </div>
   <button class="btn" id="startBtn">전투 시작</button>
+
+  <div class="lbl">읽을거리</div>
+  <div class="help">
+    <b>벽이 앞줄입니다.</b>
+    <span class="d">방벽 8000 · 참호 900 · 병사 46. 벽을 먼저 세우고 그 뒤에서 쏘세요.</span><br>
+    <b>벽은 막지 않고 돌립니다.</b>
+    <span class="d">작은 적은 뚫린 쪽으로 우회합니다. 벽으로 통로를 좁히고 그 앞에 화력을 모으세요.
+    단 파쇄체 이상 대형은 벽을 무시하고 직진해 부숩니다.</span><br>
+    <b>뚫리면 그리로 쏟아집니다.</b>
+    <span class="d">돌파 지점이 표시되고 근처 적이 빨라집니다. 수리할지, 포격할지, 병력을 집결시킬지
+    그 순간에 정하는 게 이 게임입니다.</span><br>
+    <b>병사는 참호 안에서만 강합니다.</b>
+    <span class="d">참호 65% · 벙커 88% 피해 감소. 공병은 벽을, 위생병은 병사를 계속 수리·회복합니다.
+    돌격대는 참호 없이 돌파 지점으로 달려갑니다.</span><br>
+    <b>공세마다 교리를 하나 고릅니다.</b>
+    <span class="d">15종 중 3종 제시. 매판 다른 방어선이 나옵니다. 전투 중에는 포격 지원 · 전선 사수 ·
+    긴급 정비를 직접 씁니다.</span>
+  </div>
+  <div class="lbl">조작</div>
+  <div class="help">
+    <span class="d">건물을 고르고 지도를 누릅니다. <b>끌면 줄줄이</b> 지어집니다.<br>
+    아무것도 안 고른 채 <b>건물을 누르면</b> 수리 · 강화 · 집결 · 철거.<br>
+    좌상단 버튼으로 <b>1x → 2x → 일시정지</b>, ♪ 로 소리를 끕니다.</span>
+  </div>
 </div>
 
 <div id="insp" hidden></div>
 
-<div class="overlay" id="draft" hidden>
+<div class="overlay" id="draft" style="justify-content:center" hidden>
   <div class="lbl" style="text-align:center;margin-top:0">DOCTRINE &nbsp;/&nbsp; 교리 선택</div>
   <div class="title" id="draftTitle" style="font-size:20px">전열 재정비</div>
   <p class="sub" style="margin-top:8px">하나만 고를 수 있습니다. 이번 판은 이걸로 굴러갑니다.</p>
+  <div class="lbl">다음 공세 편성</div>
+  <div class="comp" id="draftComp"></div>
   <div id="draftCards"></div>
   <div class="lbl">보유 교리</div>
   <div id="held">아직 없습니다</div>
 </div>
 
-<div class="overlay" id="endScreen" hidden>
+<div class="overlay" id="endScreen" style="justify-content:center" hidden>
   <div class="title" id="endTitle"></div>
   <p class="sub" id="endSub"></p>
   <div class="lbl">전투 기록</div>
@@ -530,7 +555,7 @@ const BAND_LIFT = [0, 0, 0.30, 0.62];
 // The board was one beige. Now it steps cool-to-warm from the enemy side to
 // the base, so the three zones are legible at a glance and the orange swarm
 // and blue infantry both have something to sit against.
-const BAND_COL = [0x2f2a33, 0x7e8288, 0x9aa0a4, 0xb6b3a8];
+const BAND_COL = [0x2c2830, 0x8b9298, 0xa4acb1, 0xbcc0c0];
 const TILE_H = 0.55;
 const liftAt = r => BAND_LIFT[bandOf(Math.max(0, Math.min(ROWS - 1, Math.floor(r))))];
 const wx = x => x - COLS / 2;
@@ -1815,7 +1840,7 @@ const VIEW = (() => {
   camera.lookAt(CAM.look);
 
   // moonlight: cold, low, and still the only thing casting real shadows
-  const key = new THREE.DirectionalLight(0xfff4dc, 2.35);
+  const key = new THREE.DirectionalLight(0xfff8ea, 2.25);
   key.position.set(-16, 26, 13);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -1824,7 +1849,8 @@ const VIEW = (() => {
   key.shadow.camera.near = 1; key.shadow.camera.far = 90;
   key.shadow.bias = -0.0006; key.shadow.normalBias = 0.022;
   scene.add(key);
-  scene.add(new THREE.HemisphereLight(0xa6c8e6, 0x51603a, 0.80));
+  // the ground bounce was olive and cast a yellow-green film over everything
+  scene.add(new THREE.HemisphereLight(0xbcd8ee, 0x6a7268, 0.86));
   // the far end burns: everything past the wire is lit by fire, not by sky
   const rim = new THREE.DirectionalLight(0xbcd8e8, 0.45);
   rim.position.set(8, 6, -20);
@@ -1918,32 +1944,27 @@ const VIEW = (() => {
     g.strokeStyle = "rgba(0,0,0,.75)"; crackPath(g, S);
     g.fillStyle = "rgba(0,0,0,.35)"; g.fillRect(0, S - 6, S, 6); g.fillRect(0, 0, S, 5);
   }
+  // Clean cast slab. The previous version stacked stains, streaks, cracks, an
+  // edge-dirt gradient and a per-tile vignette, which is why every surface read
+  // as filthy. Now: a flat tone, very gentle large-scale variation, fine
+  // aggregate at low contrast, and one crisp joint line.
   function concreteTex(hex) {
     const base = "#" + hex.toString(16).padStart(6, "0");
     return canvasTex(256, (g, S) => {
       g.fillStyle = base; g.fillRect(0, 0, S, S);
-      // large patches first, then medium staining, then aggregate
       octaves(g, S, [
-        [16, 28, 78, () => `rgba(255,250,238,${.03 + Math.random() * .05})`],
-        [22, 14, 50, () => `rgba(58,50,38,${.05 + Math.random() * .09})`],
-        [820, .6, 2.4, () => Math.random() < .5
-          ? `rgba(0,0,0,${.03 + Math.random() * .08})` : `rgba(255,252,242,${.02 + Math.random() * .06})`]
+        [10, 34, 92, () => `rgba(255,253,248,${.018 + Math.random() * .026})`],
+        [10, 24, 68, () => `rgba(96,94,88,${.014 + Math.random() * .022})`],
+        [520, .5, 1.8, () => Math.random() < .5
+          ? `rgba(0,0,0,${.012 + Math.random() * .028})` : `rgba(255,255,252,${.012 + Math.random() * .03})`]
       ]);
-      streaks(g, S, 12, "rgba(46,38,26,A)");
-      g.strokeStyle = "rgba(0,0,0,.22)"; crackPath(g, S);
-      // dirt gathers where two slabs meet
-      const eg = g.createLinearGradient(0, 0, 0, S);
-      eg.addColorStop(0, "rgba(22,18,12,.34)");
-      eg.addColorStop(.14, "rgba(22,18,12,0)");
-      eg.addColorStop(.86, "rgba(22,18,12,0)");
-      eg.addColorStop(1, "rgba(22,18,12,.40)");
-      g.fillStyle = eg; g.fillRect(0, 0, S, S);
-      const vg = g.createRadialGradient(S / 2, S / 2, S * .25, S / 2, S / 2, S * .78);
-      vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(24,20,14,.26)");
-      g.fillStyle = vg; g.fillRect(0, 0, S, S);
+      // the joint: a thin shadow with a light lip, like a real slab edge
+      g.fillStyle = "rgba(58,56,52,.30)"; g.fillRect(0, 0, S, 2.2); g.fillRect(0, 0, 2.2, S);
+      g.fillStyle = "rgba(255,255,252,.13)"; g.fillRect(0, 2.2, S, 1.2); g.fillRect(2.2, 0, 1.2, S);
+      g.fillStyle = "rgba(58,56,52,.24)"; g.fillRect(0, S - 2.2, S, 2.2); g.fillRect(S - 2.2, 0, 2.2, S);
     });
   }
-  const CONC_NORMAL = normalFrom(concreteHeight, 256, 2.4);
+  const CONC_NORMAL = normalFrom(concreteHeight, 256, 1.1);
   const METAL_NORMAL = normalFrom((g, S) => {
     g.fillStyle = "#808080"; g.fillRect(0, 0, S, S);
     for (const v of [.34, .68]) {
@@ -1959,37 +1980,36 @@ const VIEW = (() => {
       g.fillStyle = gr; g.beginPath(); g.arc(x, y, 3.4, 0, 6.2832); g.fill();
     }
     blobs(g, 300, S, .6, 2, () => Math.random() < .5 ? "rgba(255,255,255,.14)" : "rgba(0,0,0,.14)");
-  }, 256, 2.0);
+  }, 256, 1.2);
   const ROUGH = canvasTex(256, (g, S) => {
     g.fillStyle = "#c8c8c8"; g.fillRect(0, 0, S, S);
-    blobs(g, 600, S, 1, 4, () => Math.random() < .5
-      ? `rgba(255,255,255,${.05 + Math.random() * .2})` : `rgba(0,0,0,${.05 + Math.random() * .2})`);
+    blobs(g, 380, S, 1, 3, () => Math.random() < .5
+      ? `rgba(255,255,255,${.03 + Math.random() * .11})` : `rgba(0,0,0,${.03 + Math.random() * .11})`);
   }, null, true);
   function metalTex(hex) {
     const base = "#" + hex.toString(16).padStart(6, "0");
     return canvasTex(256, (g, S) => {
       g.fillStyle = base; g.fillRect(0, 0, S, S);
-      for (let i = 0; i < 420; i++) {
+      for (let i = 0; i < 170; i++) {
         const y = Math.random() * S;
-        g.strokeStyle = Math.random() < .5 ? `rgba(255,255,255,${.02 + Math.random() * .05})`
-                                           : `rgba(0,0,0,${.02 + Math.random() * .06})`;
-        g.lineWidth = .5 + Math.random();
-        g.beginPath(); g.moveTo(0, y); g.lineTo(S, y + (Math.random() - .5) * 6); g.stroke();
+        g.strokeStyle = Math.random() < .5 ? `rgba(255,255,255,${.012 + Math.random() * .026})`
+                                           : `rgba(0,0,0,${.012 + Math.random() * .03})`;
+        g.lineWidth = .5 + Math.random() * .7;
+        g.beginPath(); g.moveTo(0, y); g.lineTo(S, y + (Math.random() - .5) * 4); g.stroke();
       }
-      g.strokeStyle = "rgba(0,0,0,.42)"; g.lineWidth = 2;
+      g.strokeStyle = "rgba(0,0,0,.30)"; g.lineWidth = 1.6;
       for (const v of [.34, .68]) {
         g.beginPath(); g.moveTo(v * S, 0); g.lineTo(v * S, S); g.stroke();
         g.beginPath(); g.moveTo(0, v * S); g.lineTo(S, v * S); g.stroke();
       }
       for (let i = 0; i < 34; i++) {
         const x = 12 + Math.random() * (S - 24), y = 12 + Math.random() * (S - 24);
-        g.fillStyle = "rgba(255,255,255,.14)"; g.beginPath(); g.arc(x, y, 2.1, 0, 6.2832); g.fill();
-        g.fillStyle = "rgba(0,0,0,.3)"; g.beginPath(); g.arc(x, y + 1.1, 2.1, 0, 6.2832); g.fill();
+        g.fillStyle = "rgba(255,255,255,.16)"; g.beginPath(); g.arc(x, y, 2.0, 0, 6.2832); g.fill();
+        g.fillStyle = "rgba(0,0,0,.22)"; g.beginPath(); g.arc(x, y + 1.0, 2.0, 0, 6.2832); g.fill();
       }
-      blobs(g, 20, S, 3, 16, () => `rgba(112,66,34,${.05 + Math.random() * .16})`);
-      streaks(g, S, 16, "rgba(88,44,18,A)");
-      const eg = g.createLinearGradient(0, 0, 0, S);
-      eg.addColorStop(0, "rgba(0,0,0,0)"); eg.addColorStop(1, "rgba(14,10,6,.34)");
+      // a hint of wear only, and only near the very bottom edge
+      const eg = g.createLinearGradient(0, S * .82, 0, S);
+      eg.addColorStop(0, "rgba(0,0,0,0)"); eg.addColorStop(1, "rgba(24,20,16,.16)");
       g.fillStyle = eg; g.fillRect(0, 0, S, S);
     });
   }
@@ -2004,7 +2024,7 @@ const VIEW = (() => {
     });
   }
 
-  const NS = new THREE.Vector2(1.1, 1.1);
+  const NS = new THREE.Vector2(0.55, 0.55);
   const M = {
     steel: new THREE.MeshStandardMaterial({ map: metalTex(0x39424e), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS, roughness: .62, metalness: .55 }),
     dark:  new THREE.MeshStandardMaterial({ map: metalTex(0x1e242c), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS, roughness: .66, metalness: .45 }),
@@ -2088,7 +2108,7 @@ const VIEW = (() => {
     const out = [];
     for (let v = 0; v < 4; v++) out.push(new THREE.MeshStandardMaterial({
       color: new THREE.Color(c).multiplyScalar(.93 + v * .035),
-      map: bandTex[i], roughnessMap: ROUGH, normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(1.4, 1.4), roughness: .95
+      map: bandTex[i], roughnessMap: ROUGH, normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(0.7, 0.7), roughness: .93
     }));
     return out;
   });
@@ -2153,7 +2173,7 @@ const VIEW = (() => {
   ];
   const apMeshes = [];
   for (let k = 1; k <= APPROACH; k++) for (let c = 0; c < COLS; c++) {
-    const drop = k * .035;
+    const drop = k * .014;
     const h = TILE_H + drop;
     const m = new THREE.Mesh(tileGeo, apMat[0]);
     m.scale.y = h;
@@ -2161,6 +2181,51 @@ const VIEW = (() => {
     m.receiveShadow = true;
     m.userData = { c, k };
     scene.add(m); apMeshes.push(m);
+  }
+
+  // Where the corridor ends and the plant's yard begins used to be a hard
+  // line between two materials. It is now a threshold: a ramp closing the
+  // step, a concrete portal the swarm walks through, and rubble spilling both
+  // ways so the two surfaces interlock instead of butting together.
+  { const ZG = wz(-APPROACH) + .5;              // the seam
+    const gm = new THREE.MeshStandardMaterial({ map: concreteTex(0x8e8a80), roughnessMap: ROUGH,
+      normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(.6, .6), roughness: .95 });
+    const gt = new THREE.MeshStandardMaterial({ color: 0x3c444c, roughness: .62, metalness: .5 });
+    const hz = new THREE.MeshStandardMaterial({ color: 0x9a7a1c, roughness: .8 });
+    // ramp closing the height step
+    const ramp = new THREE.Mesh(new THREE.BoxGeometry(COLS + .2, .5, 2.6), gm);
+    ramp.position.set(0, -TILE_H - .30, ZG - 1.1); ramp.rotation.x = -.075;
+    ramp.receiveShadow = true; scene.add(ramp);
+    // portal piers and lintel
+    for (const sx of [-1, 1]) {
+      const pier = box(1.5, 3.3, 1.6, gm, sx * (COLS / 2 - .35), -TILE_H - .18, ZG);
+      pier.castShadow = pier.receiveShadow = true;
+      box(1.8, .30, 1.9, gt, sx * (COLS / 2 - .35), -TILE_H + 3.12, ZG);
+      for (let i = 0; i < 3; i++)
+        box(.34, .12, 1.7, hz, sx * (COLS / 2 - .35) + (i - 1) * .48, -TILE_H - .18, ZG);
+    }
+    const lintel = box(COLS + .4, .70, 1.1, gm, 0, -TILE_H + 2.55, ZG);
+    lintel.castShadow = true;
+    box(COLS + .6, .18, 1.3, gt, 0, -TILE_H + 3.25, ZG);
+    for (let i = -4; i <= 4; i++) box(.30, .55, .12, gt, i * .95, -TILE_H + 2.0, ZG - .5);
+    // the gate itself, torn off its rails and lying open
+    for (const sx of [-1, 1]) {
+      const leaf = box(2.6, 2.2, .10, gt, sx * 2.6, -TILE_H - .10, ZG + .55);
+      leaf.rotation.set(0, sx * .5, sx * .07);
+      for (let i = 0; i < 5; i++)
+        box(.07, 2.1, .07, gt, sx * 2.6 + (i - 2) * .5, -TILE_H - .10, ZG + .55).rotation.y = sx * .5;
+    }
+    // rubble spilling across the seam so the two surfaces interlock
+    const rb = new THREE.DodecahedronGeometry(.16, 0);
+    for (let i = 0; i < 46; i++) {
+      const t = Math.random();
+      const m = new THREE.Mesh(rb, i % 3 ? M.conc : M.rust);
+      m.position.set(rnd(-COLS / 2 - .6, COLS / 2 + .6), -TILE_H - .12 + Math.random() * .1,
+                     ZG + (t * t) * rnd(-3.4, 3.4));
+      m.rotation.set(rnd(0, 3), rnd(0, 3), rnd(0, 3));
+      m.scale.setScalar(rnd(.5, 1.5));
+      m.castShadow = m.receiveShadow = true; scene.add(m);
+    }
   }
 
   // props that belong to the map rather than to the site
@@ -2178,6 +2243,12 @@ const VIEW = (() => {
     for (const m of apMeshes) {
       const near = G.lanes.some(l => Math.abs(l - m.userData.c) <= (m.userData.k > 3 ? 1 : 0));
       m.material = apMat[near ? 1 : 0];
+      // the last rows lighten toward the yard so the seam is a gradient
+      const fade = clamp((m.userData.k - (APPROACH - 4)) / 4, 0, 1);
+      if (fade > 0) {
+        m.material = m.material.clone();
+        m.material.color.setRGB(1 + fade * 1.5, 1 + fade * 1.45, 1 + fade * 1.35);
+      }
     }
     for (const m of tileMeshes) {
       const { c, r } = m.userData;
@@ -2795,21 +2866,38 @@ const VIEW = (() => {
     draw(c.getContext("2d"), 256);
     const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
   }
+  // Growth reads clean when it is bright, saturated and hugs an edge. The old
+  // version was dark low-saturation blobs sprayed over the middle of slabs,
+  // which is exactly what makes a surface look dirty rather than overgrown.
   const TEX_MOSS = decalTex((g, S) => {
     g.clearRect(0, 0, S, S);
-    for (let i = 0; i < 240; i++) {
-      const x = Math.random() * S, y = Math.random() * S, r = 4 + Math.random() * 26;
-      const dd = Math.hypot(x - S / 2, y - S / 2) / (S / 2);
-      if (dd > .95) continue;
-      g.fillStyle = `hsla(${88 + Math.random() * 26},${30 + Math.random() * 26}%,${13 + Math.random() * 16}%,${(1 - dd) * (.1 + Math.random() * .22)})`;
-      g.beginPath(); g.ellipse(x, y, r, r * (.5 + Math.random() * .6), Math.random() * 3, 0, 6.2832); g.fill();
+    // a band along one edge, feathered inward
+    const grd = g.createLinearGradient(0, S, 0, S * .18);
+    grd.addColorStop(0, "rgba(126,168,74,.60)");
+    grd.addColorStop(.45, "rgba(112,152,66,.26)");
+    grd.addColorStop(1, "rgba(112,152,66,0)");
+    g.fillStyle = grd; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 90; i++) {
+      const x = Math.random() * S;
+      const y = S - Math.pow(Math.random(), 1.7) * S * .72;
+      const r = 5 + Math.random() * 16;
+      const l = 34 + Math.random() * 20;
+      g.fillStyle = `hsla(${84 + Math.random() * 22},${42 + Math.random() * 22}%,${l}%,${.10 + Math.random() * .22})`;
+      g.beginPath(); g.ellipse(x, y, r, r * (.45 + Math.random() * .4), Math.random() * 3, 0, 6.2832); g.fill();
     }
+    // clip the ends so it does not read as a rectangle
+    const fade = g.createLinearGradient(0, 0, S, 0);
+    fade.addColorStop(0, "rgba(0,0,0,1)"); fade.addColorStop(.16, "rgba(0,0,0,0)");
+    fade.addColorStop(.84, "rgba(0,0,0,0)"); fade.addColorStop(1, "rgba(0,0,0,1)");
+    g.globalCompositeOperation = "destination-out";
+    g.fillStyle = fade; g.fillRect(0, 0, S, S);
+    g.globalCompositeOperation = "source-over";
   });
   const TEX_SCORCH = decalTex((g, S) => {
     g.clearRect(0, 0, S, S);
     const gr = g.createRadialGradient(S / 2, S / 2, 4, S / 2, S / 2, S / 2);
-    gr.addColorStop(0, "rgba(10,8,6,.85)"); gr.addColorStop(.55, "rgba(24,18,12,.45)");
-    gr.addColorStop(1, "rgba(24,18,12,0)");
+    gr.addColorStop(0, "rgba(38,36,38,.62)"); gr.addColorStop(.55, "rgba(52,50,52,.24)");
+    gr.addColorStop(1, "rgba(52,50,52,0)");
     g.fillStyle = gr; g.fillRect(0, 0, S, S);
   });
   function decal(tex, x, y, z, w, d, rot, op) {
@@ -2819,21 +2907,26 @@ const VIEW = (() => {
     m.rotation.x = -Math.PI / 2; m.rotation.z = rot || 0;
     m.position.set(x, y + .012, z); scene.add(m); return m;
   }
-  for (let i = 0; i < 52; i++) {
+  // on the board: only along tile joints, squared to the grid, half strength
+  for (let i = 0; i < 34; i++) {
     const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
-    decal(TEX_MOSS, wx(c + .5) + (Math.random() - .5) * .7, BAND_LIFT[bandOf(r)],
-          wz(r + .5) + (Math.random() - .5) * .7, .9 + Math.random(), .9 + Math.random(), Math.random() * 3, .85);
+    const q = Math.floor(Math.random() * 4);
+    decal(TEX_MOSS, wx(c + .5), BAND_LIFT[bandOf(r)], wz(r + .5),
+          1.0, 1.0, q * Math.PI / 2, .55);
   }
-  for (let i = 0; i < 46; i++)
+  // off the board it can spread, still squared and still bright
+  for (let i = 0; i < 40; i++)
     decal(TEX_MOSS, (Math.random() - .5) * (APRON - 3), -TILE_H + .016,
-          (Math.random() - .5) * (APRON - 3), 1.4 + Math.random() * 2, 1.4 + Math.random() * 2, Math.random() * 3, .8);
-  for (let i = 0; i < 14; i++) {
+          (Math.random() - .5) * (APRON - 3), 1.6 + Math.random() * 2.2, 1.6 + Math.random() * 2.2,
+          Math.floor(Math.random() * 4) * Math.PI / 2, .7);
+  for (let i = 0; i < 8; i++) {
     const r = Math.floor(Math.random() * 8);
-    decal(TEX_SCORCH, wx(Math.floor(Math.random() * COLS) + .5) + (Math.random() - .5) * .8,
-          BAND_LIFT[bandOf(r)], wz(r + .5) + (Math.random() - .5) * .8,
-          .7 + Math.random() * .9, .7 + Math.random() * .9, Math.random() * 3, .75);
+    decal(TEX_SCORCH, wx(Math.floor(Math.random() * COLS) + .5) + (Math.random() - .5) * .6,
+          BAND_LIFT[bandOf(r)], wz(r + .5) + (Math.random() - .5) * .6,
+          .6 + Math.random() * .7, .6 + Math.random() * .7, Math.random() * 3, .45);
   }
-  const puddleMat = new THREE.MeshStandardMaterial({ color: 0x1b242c, roughness: .06, metalness: .35, transparent: true, opacity: .92 });
+  const puddleMat = new THREE.MeshStandardMaterial({ color: 0x2c4250, roughness: .04, metalness: .25,
+    transparent: true, opacity: .78 });
   for (let i = 0; i < 16; i++) {
     const onBoard = i < 7;
     const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
@@ -2930,9 +3023,9 @@ const VIEW = (() => {
         m.castShadow = true; m.receiveShadow = true; scene.add(m);
       }
     };
-    scatter(7, barrel, M.rust, 8.5, 15.5);
-    scatter(8, crate, M.olive, 8.5, 15.5);
-    scatter(22, rubble, M.conc, .5, 7.5); }
+    // nothing loose on the player's ground: it is all buildable space and
+    // clutter there just reads as something you failed to clear
+    scatter(10, rubble, M.conc, .5, 3.5); }
 
   // ---- air ----
   const smokeMat = new THREE.MeshBasicMaterial({
@@ -3539,11 +3632,11 @@ const VIEW = (() => {
       uniforms: {
         tDiffuse: { value: null }, tBloom: { value: null },
         exposure: { value: 0.92 }, bloom: { value: 0.30 },
-        time: { value: 0 }, grain: { value: 0.014 },
-        vig: { value: 0.34 }, chroma: { value: 0.0010 },
-        lift: { value: new THREE.Vector3(0.008, 0.014, 0.016) },
-        gain: { value: new THREE.Vector3(0.98, 1.02, 0.97) },
-        sat: { value: 1.10 }
+        time: { value: 0 }, grain: { value: 0.006 },
+        vig: { value: 0.20 }, chroma: { value: 0.0006 },
+        lift: { value: new THREE.Vector3(0.004, 0.008, 0.010) },
+        gain: { value: new THREE.Vector3(1.00, 1.01, 1.02) },
+        sat: { value: 1.06 }
       },
       vertexShader: VERT,
       fragmentShader: `
@@ -3588,10 +3681,28 @@ const VIEW = (() => {
         rtA.setSize(Math.max(2, W >> 2), Math.max(2, H >> 2));
         rtB.setSize(Math.max(2, W >> 2), Math.max(2, H >> 2));
       },
+      setQuality(q) {
+        // 0 full, 1 no chroma/grain, 2 no bloom, 3 no shadows and half res
+        comp.uniforms.chroma.value = q >= 1 ? 0 : 0.0006;
+        comp.uniforms.grain.value = q >= 1 ? 0 : 0.006;
+        this.bloomOff = q >= 2;
+        renderer.shadowMap.enabled = q < 3;
+        renderer.setPixelRatio(q >= 3 ? 1 : Math.min(devicePixelRatio, q >= 2 ? 1.35 : 2));
+        this.resize();
+      },
       render(scene3, cam3, t) {
         renderer.setRenderTarget(rtScene);
         renderer.clear();
         renderer.render(scene3, cam3);
+        if (this.bloomOff) {
+          comp.uniforms.tDiffuse.value = rtScene.texture;
+          comp.uniforms.tBloom.value = rtScene.texture;
+          comp.uniforms.bloom.value = 0;
+          comp.uniforms.time.value = t;
+          pass(comp, null);
+          return;
+        }
+        comp.uniforms.bloom.value = 0.30;
         bright.uniforms.tDiffuse.value = rtScene.texture;
         pass(bright, rtA);
         blur.uniforms.texel.value.set(1 / rtA.width, 1 / rtA.height);
@@ -3664,6 +3775,7 @@ const VIEW = (() => {
       b.obj = makeBuilding(b);
       if (!b.done) b.obj.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = M.ghost; } });
     },
+    setQuality(q) { POST.setQuality(q); },
     pickTile(cx, cy) {
       ndc.x = (cx / innerWidth) * 2 - 1;
       ndc.y = -(cy / innerHeight) * 2 + 1;
@@ -4041,7 +4153,8 @@ function syncTop() {
     $("objTitle").textContent = br2[0];
     $("objSub").textContent = Math.ceil(Math.max(0, G.timer)) + "S · " + (G.assault + 1) + "차 공세 준비";
     $("brief").hidden = false;
-    $("brief").textContent = br2[1];
+    $("brief").innerHTML = br2[1] +
+      (G.assault < ASSAULTS.length ? `<div class="comp">${compHTML(G.assault)}</div>` : "");
     $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
   }
   syncAbils();
@@ -4150,6 +4263,30 @@ function useAbil(k) {
   fireAbility(k);
   syncAbils();
 }
+// What is actually coming: the mix integrated over the wave, plus the big
+// units rolled in on their own timer. Choosing a doctrine blind was the
+// weakest moment in the loop.
+function waveComp(i) {
+  const a = ASSAULTS[i];
+  if (!a) return [];
+  const total = a.rate * a.dur * (MAPS[G.map] ? MAPS[G.map].diff : 1);
+  const out = [];
+  for (const k in a.mix) out.push({ k, n: Math.round(total * a.mix[k]) });
+  for (const [k, n] of (a.big || [])) {
+    const e = out.find(x => x.k === k);
+    if (e) e.n += n; else out.push({ k, n });
+  }
+  out.sort((x, y) => E[x.k].hp - E[y.k].hp);
+  return out;
+}
+function compHTML(i) {
+  const c = waveComp(i);
+  if (!c.length) return "";
+  return c.map(({ k, n }) => {
+    const sz = clamp(6 + E[k].sc * 3.4, 7, 17);
+    return `<i><b style="width:${sz}px;height:${sz}px"></b>${E[k].name}<u>${n}</u></i>`;
+  }).join("");
+}
 function openDraft() {
   const roll = rollDraft();
   if (!roll) return;
@@ -4174,6 +4311,7 @@ function openDraft() {
     });
     box.appendChild(el);
   }
+  $("draftComp").innerHTML = compHTML(G.assault) || "<i>마지막 공세를 막아냈습니다</i>";
   $("held").innerHTML = G.doct.length
     ? G.doct.map(k => { const d = DOCTRINE.find(x => x.k === k); return `<em>${d.n}</em> — ${d.d}`; }).join("<br>")
     : "아직 없습니다";
@@ -4224,10 +4362,23 @@ function syncSheet() {
 }
 
 let last = performance.now(), acc = 0, uiT = 0;
+// No way to profile a real handset from here, so the game measures itself:
+// a sustained drop below ~42fps steps the pipeline down a notch, and it never
+// steps back up (oscillating quality is worse than one honest downgrade).
+let qLevel = 0, slowT = 0, fastT = 0;
+function adaptQuality(dt) {
+  if (dt > 1 / 42) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
+  if (slowT > 2.5 && qLevel < 3) {
+    qLevel++; slowT = 0;
+    VIEW.setQuality(qLevel);
+    floatText(["", "화질 조정", "블룸 해제", "성능 모드"][qLevel]);
+  }
+}
 const STEP = 1 / 60;
 function frame(now) {
   let dt = (now - last) / 1000; last = now;
   if (dt > .2) dt = .2;
+  adaptQuality(dt);
   try {
     if (mode === "play") {
           SFX.frame();
@@ -4276,16 +4427,29 @@ function start() {
 }
 // thumbnail of the grid, so the shape of a map is visible before committing
 function drawMapThumb(cv, M) {
-  const g = cv.getContext("2d"), S = 4;
-  cv.width = COLS * S; cv.height = ROWS * S;
+  const S = 6;
+  const g = cv.getContext("2d");
+  cv.width = COLS * S; cv.height = (ROWS + 3) * S;
+  g.fillStyle = "#0c1015"; g.fillRect(0, 0, cv.width, cv.height);
+  // three rows of approach on top so the lanes read as coming from somewhere
+  for (const c of M.lanes) {
+    g.fillStyle = M.lanes.length > 3 ? "#4a2418" : "#5c2c1c";
+    g.fillRect(Math.max(0, c - 1) * S, 0, S * 3, S * 3);
+  }
+  for (const c of M.lanes) {
+    g.fillStyle = "#ff6a28";
+    g.fillRect(c * S + 1, 0, S - 2, S * 3);
+  }
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const ch = M.g[r][c];
-    g.fillStyle = ch === "#" ? "#5c4a3c" : ch === "^" ? "#4f8fa0"
-                : ch === "~" ? "#6b6355" : ch === "H" ? "#ffc93d"
-                : r <= 1 ? "#3a2a30" : "#9aa0a4";
-    g.fillRect(c * S, r * S, S - .6, S - .6);
+    g.fillStyle = ch === "#" ? "#8a6a4a" : ch === "^" ? "#3fd0e6"
+                : ch === "~" ? "#8d8272" : ch === "H" ? "#ffc93d"
+                : r <= 1 ? "#4a3a42" : "#c9d0d4";
+    g.fillRect(c * S, (r + 3) * S, S - .8, S - .8);
   }
-  for (const c of M.lanes) { g.fillStyle = "#e8384f"; g.fillRect(c * S + .8, 0, S - 2.2, 2); }
+  // the zone seams
+  g.fillStyle = "rgba(255,201,61,.75)";
+  for (const r of [8, 12]) g.fillRect(0, (r + 3) * S - 1, cv.width, 1.6);
 }
 function syncMapPick() {
   const host = $("mapPick");
