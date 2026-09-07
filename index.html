@@ -464,6 +464,61 @@
   #endGrade[data-g="C"] { color: #c9b98a; }
   #endGrade[data-g="D"] { color: #b06a6a; }
   #endStats u { text-decoration: none; color: var(--gold); border: 1px solid rgba(255,201,61,.4); padding: 1px 6px; }
+  /* ---- desktop: the board keeps the left, the rail becomes a column ---- */
+  body[data-pc="1"] #sheet {
+    left: auto; right: 0; top: 0; bottom: 0; width: 306px;
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 14px 12px calc(env(safe-area-inset-bottom,0px) + 14px);
+    background: linear-gradient(to left, rgba(5,8,12,.97) 70%, rgba(5,8,12,.55));
+    border-left: 1px solid rgba(122,150,175,.18);
+  }
+  body[data-pc="1"] #abils { margin-bottom: 0; }
+  body[data-pc="1"] #tabs { margin-bottom: 0; flex-wrap: wrap; }
+  body[data-pc="1"] .tab { flex: 1 1 40%; }
+  body[data-pc="1"] #body {
+    flex: 1 1 auto; min-height: 0; flex-direction: column;
+    overflow-x: hidden; overflow-y: auto;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  body[data-pc="1"] .act {
+    flex: 0 0 auto; width: 100%; min-height: 60px;
+    display: grid; grid-template-columns: 46px 1fr; grid-template-rows: auto auto;
+    align-items: center; padding: 0 0 7px;
+  }
+  body[data-pc="1"] .act .art {
+    grid-row: 1 / 3; height: 100%; border-bottom: none;
+    border-right: 1px solid rgba(122,150,175,.16);
+    background: linear-gradient(90deg, rgba(122,150,175,.10), rgba(122,150,175,0));
+  }
+  body[data-pc="1"] .act .t { grid-column: 2; margin: 8px 12px 0; }
+  body[data-pc="1"] .act .c { grid-column: 2; margin: 2px 12px 0; -webkit-line-clamp: 2; }
+  body[data-pc="1"] #hint { margin-top: 2px; }
+  body[data-pc="1"] #insp {
+    left: auto; right: 12px; width: 282px; bottom: 16px; z-index: 8;
+  }
+  body[data-pc="1"] #asl { right: 322px; }
+  body[data-pc="1"] #combo { right: 324px; }
+  body[data-pc="1"] #breach, body[data-pc="1"] #brief, body[data-pc="1"] #obj { left: calc(50% - 153px); }
+  body[data-pc="1"] #obj { width: 280px; }
+  body[data-pc="1"] .oTitle { font-size: 15px; }
+  body[data-pc="1"] .oSub { font-size: 9px; }
+  body[data-pc="1"] #goBtn { left: calc(50% - 153px); bottom: 34px; }
+  body[data-pc="1"] .overlay { padding-left: 22%; padding-right: 22%; }
+  /* pause and draft keep the battlefield showing through; the title and the
+     result screen are not in a battle, so the rail should not be behind them */
+  body[data-pc="1"]:has(#titleScreen:not([hidden])) #sheet,
+  body[data-pc="1"]:has(#endScreen:not([hidden])) #sheet { display: none; }
+  body[data-pc="1"] .title { font-size: 40px; }
+  body[data-pc="1"] .sub { font-size: 13px; }
+  body[data-pc="1"] #keyhint {
+    position: absolute; left: 12px; bottom: 12px;
+    font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: .08em;
+    color: #64798a; line-height: 2.1; text-shadow: 0 1px 4px rgba(0,0,0,.9);
+  }
+  body[data-pc="1"] #keyhint b { color: #93a7b8; font-weight: 700; }
+  #keyhint, .pcOnly { display: none; }
+  body[data-pc="1"] #keyhint { display: block; }
+  body[data-pc="1"] .pcOnly { display: inline; }
   #loading {
     position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
     background: #0b0e13; color: var(--dim); font-family: ui-monospace, monospace;
@@ -528,6 +583,10 @@
   <div id="breach" hidden></div>
   <div id="brief" hidden></div>
   <div id="dmgs"></div>
+  <div id="keyhint">
+    <b>1</b>–<b>4</b> 구역 &nbsp; <b>Q W E</b> 지휘 &nbsp; <b>Space</b> 배속 &nbsp;
+    <b>Esc</b> 메뉴 &nbsp; <b>우클릭</b> 취소
+  </div>
   <div id="scan"></div>
 </div>
 
@@ -573,6 +632,8 @@
     <span class="d">건물을 고르고 지도를 누릅니다. <b>끌면 줄줄이</b> 지어집니다.<br>
     아무것도 안 고른 채 <b>건물을 누르면</b> 수리 · 강화 · 집결 · 철거.<br>
     좌상단 버튼으로 <b>1x → 2x → 일시정지</b>, ♪ 로 소리를 끕니다.</span>
+    <span class="d pcOnly"><br><b>1</b>–<b>4</b> 구역 전환 · <b>Q W E</b> 지휘 · <b>Space</b> 배속 ·
+    <b>Esc</b> 메뉴 · <b>우클릭</b> 취소.</span>
   </div>
 </div>
 
@@ -620,6 +681,12 @@
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
+// One build, two layouts. FORCE_PLATFORM is set by the desktop entry file;
+// otherwise a fine pointer on a landscape screen means desktop.
+const PLATFORM = (typeof FORCE_PLATFORM !== "undefined" && FORCE_PLATFORM) ||
+  (matchMedia("(pointer: fine)").matches && innerWidth >= 900 && innerWidth > innerHeight ? "pc" : "mobile");
+const IS_PC = PLATFORM === "pc";
+document.body.dataset.pc = IS_PC ? "1" : "0";
 
 // ===========================================================================
 // Board and content
@@ -1933,7 +2000,7 @@ function step(dt) {
 // ===========================================================================
 const VIEW = (() => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, IS_PC ? 2 : 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -2006,7 +2073,7 @@ const VIEW = (() => {
   const key = new THREE.DirectionalLight(0xfff8ea, 2.25);
   key.position.set(-16, 26, 13);
   key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.mapSize.set(IS_PC ? 2048 : 1024, IS_PC ? 2048 : 1024);
   key.shadow.camera.left = -16; key.shadow.camera.right = 16;
   key.shadow.camera.top = 22; key.shadow.camera.bottom = -22;
   key.shadow.camera.near = 1; key.shadow.camera.far = 90;
@@ -2938,6 +3005,51 @@ const VIEW = (() => {
       c.position.set(x, G0 + h, z); scene.add(c);
     }
 
+    // --- the flanks ------------------------------------------------------
+    // Portrait only ever shows the corridor. A landscape window opens up
+    // roughly +-40 units to either side, and without this the site ended at
+    // the apron and the rest was lawn. Frustum culling drops the whole band
+    // on a phone, so it is free there.
+    // The near band is lit like the rest of the site - the unlit `far` mats
+    // are tuned for z < -50 where fog does the work, and read as white paper
+    // this close in.
+    for (const sx of [-1, 1]) {
+      // a works yard receding along the side of the site
+      for (let i = 0; i < 9; i++) {
+        const x = sx * rnd(23, 44), z = rnd(-30, 12);
+        const w = rnd(5, 11), h = rnd(3.5, 9);
+        const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, rnd(6, 13)), i % 2 ? wall : wall2);
+        o.position.set(x, G0 + h / 2, z); o.rotation.y = rnd(-.25, .25);
+        o.receiveShadow = true; scene.add(o);
+        const c = new THREE.Mesh(new THREE.BoxGeometry(w * .55, h * .12, w * .5), trim);
+        c.position.set(x, G0 + h, z); c.rotation.y = o.rotation.y; scene.add(c);
+      }
+      // chimneys and tanks breaking the roof line
+      for (let i = 0; i < 4; i++) {
+        const h = rnd(9, 20);
+        const o = new THREE.Mesh(new THREE.CylinderGeometry(rnd(.7, 1.6), rnd(1.0, 2.2), h, 10),
+                                 i % 2 ? wall2 : rust2);
+        o.position.set(sx * rnd(26, 48), G0 + h / 2, rnd(-34, 6)); scene.add(o);
+      }
+      // a further, hazier tier so the side does not end on a hard edge
+      for (let i = 0; i < 7; i++) {
+        const w = rnd(9, 20), h = rnd(7, 17);
+        const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, w * .7), far);
+        o.position.set(sx * rnd(58, 104), G0 + h / 2, rnd(-58, 10)); scene.add(o);
+      }
+    }
+    // treeline filling the gap between the apron and the works
+    { const trunk = new THREE.MeshStandardMaterial({ color: 0x241f18, roughness: 1, flatShading: true });
+      const crown = new THREE.MeshStandardMaterial({ color: 0x2a3320, roughness: 1, flatShading: true });
+      for (let i = 0; i < 46; i++) {
+        const sx = Math.random() < .5 ? -1 : 1;
+        const x = sx * rnd(19, 30), z = rnd(-40, 22), s = rnd(.8, 1.5);
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(.16 * s, .22 * s, 1.5 * s, 5), trunk);
+        t.position.set(x, G0 + .75 * s, z); scene.add(t);
+        const c = new THREE.Mesh(new THREE.ConeGeometry(1.5 * s, 4.2 * s, 6), crown);
+        c.position.set(x, G0 + 1.4 * s + 2.1 * s, z); c.rotation.y = rnd(0, 1); scene.add(c);
+      } }
+
     // --- smoke over the stacks and towers ---------------------------------
     const smokeMat = new THREE.MeshBasicMaterial({
       map: canvasTex(64, (g, S) => {
@@ -3012,7 +3124,7 @@ const VIEW = (() => {
     b.rotateY(Math.PI / 2);
     return mergeGeos([{ g: a, m: new THREE.Matrix4() }, { g: b, m: new THREE.Matrix4() }], true);
   })();
-  { const N = 2100, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
+  { const N = IS_PC ? 4200 : 2100, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
     scene.add(grass);
     const d = new THREE.Object3D(); let k = 0;
     const put = (x, y, z, sc) => {
@@ -3574,21 +3686,21 @@ const VIEW = (() => {
 
   const ORE = {
     spore:    { bulk: 1.0, squat: 1.05, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
-                col: 0x8a4410, em: 0xf08a1c, ei: .58, body: 0x2f2921 },
+                col: 0x8a4410, em: 0xf08a1c, ei: .58, body: 0x3d352a },
     swarm:    { bulk: 1.1, squat: 1.0, long: 1.0, spike: .85, thick: 1.10, sweep: 0, ram: false, crown: false,
-                col: 0x6c1e06, em: 0xc74a0c, ei: .42, body: 0x1d1922 },
+                col: 0x6c1e06, em: 0xc74a0c, ei: .42, body: 0x23212f },
     charger:  { bulk: 1.0, squat: .88, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
-                col: 0x8a2404, em: 0xff6a12, ei: .62, body: 0x2a1210 },
+                col: 0x8a2404, em: 0xff6a12, ei: .62, body: 0x5a2410 },
     carapace: { bulk: 1.26, squat: 1.02, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
                 col: 0x6a4a12, em: 0xc08018, ei: .30, body: 0x4e4636 },
     breaker:  { bulk: 1.32, squat: .98, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
-                col: 0x5e1204, em: 0xb42808, ei: .46, body: 0x161210 },
+                col: 0x5e1204, em: 0xb42808, ei: .46, body: 0x1c1a1e },
     heavy:    { bulk: 1.38, squat: .96, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
-                col: 0x3e1a12, em: 0x9a3410, ei: .32, body: 0x1d242c },
+                col: 0x3e1a12, em: 0x9a3410, ei: .32, body: 0x1c3a48 },
     colossus: { bulk: 1.44, squat: .92, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
-                col: 0x5a0e04, em: 0xff4a10, ei: .56, body: 0x191221 },
+                col: 0x5a0e04, em: 0xff4a10, ei: .56, body: 0x272042 },
     matriarch:{ bulk: 1.52, squat: .92, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
-                col: 0x520a12, em: 0xe83a2c, ei: .64, body: 0x1f1025 }
+                col: 0x520a12, em: 0xe83a2c, ei: .64, body: 0x54121f }
   };
   const SRGB = h => new THREE.Color(h).convertSRGBToLinear();
   // Carapace colour is per type as well: eight silhouettes in one shade still
@@ -3758,11 +3870,11 @@ const VIEW = (() => {
     map: metalTex(hex), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
     roughness: rough, metalness: metal });
   const INF_MAT = {
-    rifle: infMatOf(0x5f7fa6, .42, .62),   // service blue
-    at:    infMatOf(0x4b5a52, .50, .55),   // olive gunmetal
-    eng:   infMatOf(0x8a6a34, .52, .48),   // hazard amber
-    medic: infMatOf(0xb9c3c8, .34, .52),   // near-white
-    guard: infMatOf(0x35486b, .38, .70)    // heavy navy
+    rifle: infMatOf(0x3a648f, .42, .62),   // service blue
+    at:    infMatOf(0x3c4a26, .50, .55),   // olive gunmetal
+    eng:   infMatOf(0x7a5410, .52, .48),   // hazard amber
+    medic: infMatOf(0xa8b6bc, .34, .52),   // near-white
+    guard: infMatOf(0x2b3c5e, .38, .70)    // heavy navy
   };
   const litMatOf = (c, e) => new THREE.MeshStandardMaterial({
     color: c, emissive: e, emissiveIntensity: 2.1, roughness: .25 });
@@ -4243,12 +4355,19 @@ const VIEW = (() => {
   const dummy = new THREE.Object3D();
   const shakeOff = new THREE.Vector3();
 
-  addEventListener("resize", () => {
+  // On desktop a 306px rail sits on the right, so the frustum is offset to
+  // keep the board centred in what is left rather than under the panel.
+  function fitView() {
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
+    const rail = IS_PC ? 306 : 0;
+    if (rail) camera.setViewOffset(innerWidth + rail, innerHeight, rail, 0, innerWidth, innerHeight);
+    else camera.clearViewOffset();
     camera.updateProjectionMatrix();
     POST.resize();
-  });
+  }
+  addEventListener("resize", fitView);
+  fitView();
 
   return {
     scene, camera, renderer,
@@ -4927,7 +5046,7 @@ let last = performance.now(), acc = 0, uiT = 0;
 // steps back up (oscillating quality is worse than one honest downgrade).
 let qLevel = 0, slowT = 0, fastT = 0;
 function adaptQuality(dt) {
-  if (dt > 1 / 34) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
+  if (dt > 1 / (IS_PC ? 45 : 34)) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
   if (slowT > 4 && qLevel < 3) {
     qLevel++; slowT = 0;
     VIEW.setQuality(qLevel);
@@ -5227,6 +5346,49 @@ $("spBtn").addEventListener("click", () => {
   syncSpeed();
 });
 $("menuBtn").addEventListener("click", () => { SFX.play("ui"); openPause(); });
+
+// ---- desktop input ---------------------------------------------------------
+// The keys the hint strip advertises. Bound on every platform - a tablet with a
+// keyboard is still a keyboard - but only shown on the PC layout.
+const ABIL_KEYS = ["strike", "rally", "patch"];   // Q W E, in panel order
+function clearAction() {
+  let had = false;
+  if (aim) { cancelAim(); had = true; }
+  if (armed) { armed = null; had = true; }
+  if (pick) { pick = null; had = true; }
+  if (had) { VIEW.preview(null); syncSheet(); }
+  return had;
+}
+addEventListener("keydown", e => {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  const k = e.key;
+  if (k === "Escape") {
+    e.preventDefault();
+    if (mode === "pause") { SFX.play("ui"); closePause(); return; }
+    if (clearAction()) return;
+    if (mode === "play") { SFX.play("ui"); openPause(); }
+    return;
+  }
+  if (mode !== "play") return;
+  if (k >= "1" && k <= "4") {
+    e.preventDefault();
+    tab = +k - 1; clearAction(); syncSheet(); SFX.play("ui");
+    return;
+  }
+  const i = "qwe".indexOf(k.toLowerCase());
+  if (i >= 0) { e.preventDefault(); useAbil(ABIL_KEYS[i]); return; }
+  if (k === " " || k === "Spacebar") {
+    e.preventDefault();
+    G.speed = G.speed === 1 ? 2 : 1; syncSpeed(); SFX.play("ui");
+  }
+});
+// Right-click drops whatever is held, the way every strategy game does it.
+addEventListener("contextmenu", e => {
+  if (mode !== "play") return;
+  if (e.target.closest("#sheet, .overlay")) return;
+  e.preventDefault();
+  clearAction();
+});
 
 newGame();
 VIEW.applyMap();
