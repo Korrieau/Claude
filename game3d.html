@@ -194,6 +194,25 @@
   #dmgs b.big { font-size: 19px; color: var(--gold); text-shadow: 0 0 12px rgba(255,201,61,.5), 0 2px 4px rgba(0,0,0,.9); }
 
   /* inspector for a placed building */
+  /* deploy: drop on a tile, then drag out to face it */
+  #aim {
+    position: fixed; z-index: 9; width: 176px; height: 176px; margin: -88px 0 0 -88px;
+    border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,122,42,.20) 0 28%, rgba(255,122,42,.07) 29% 62%, rgba(255,122,42,0) 63%);
+    border: 1px solid rgba(255,122,42,.45);
+  }
+  #aim i {
+    position: absolute; left: 50%; top: 50%; width: 0; height: 0; font-style: normal;
+    border-left: 13px solid transparent; border-right: 13px solid transparent;
+    border-bottom: 34px solid var(--accent);
+    transform-origin: 50% 100%; margin: -34px 0 0 -13px;
+    filter: drop-shadow(0 0 8px rgba(255,122,42,.7));
+  }
+  #aim b {
+    position: absolute; left: 50%; top: -16%; transform: translateX(-50%);
+    font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .14em;
+    color: #ffd7bb; white-space: nowrap; text-shadow: 0 1px 4px #000;
+  }
   #insp {
     position: fixed; z-index: 7; left: 10px; right: 10px;
     bottom: calc(env(safe-area-inset-bottom,0px) + 9px); min-height: 148px;
@@ -527,6 +546,7 @@
   </div>
 </div>
 
+<div id="aim" hidden><i></i><b></b></div>
 <div id="insp" hidden></div>
 
 <div class="overlay" id="draft" style="justify-content:center" hidden>
@@ -767,7 +787,7 @@ const UNITS = {
 const SOLDIER = UNITS.rifle;
 const SUPPORT_R = 3.0;
 const HQ_HP = 7000;
-const MAX_ENEMIES = 700;
+const MAX_ENEMIES = 440;
 
 // Doctrines are the run's identity: one pick from three after every assault,
 // each taken at most once, so no two runs hold the line the same way.
@@ -1115,7 +1135,19 @@ function rebuildFlow() {
 }
 
 // ---------------------------------------------------------------- buildings
-function place(key, c, r) {
+// a dry run so a drag can refuse a tile before anything is spent
+function placeCheck(key, c, r) {
+  const spec = B[key], t = at(c, r);
+  if (!t) return "지도 밖입니다";
+  if (t.k === "block") return "잔해가 막고 있습니다";
+  if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
+  if (zoneOf(r) !== spec.z) return "이 구역에는 지을 수 없습니다";
+  if (t.hq) return "사령부 자리입니다";
+  if (t.b) return "이미 건물이 있습니다";
+  if (G.mat < bCost(key)) return "자원이 부족합니다";
+  return null;
+}
+function place(key, c, r, face) {
   const spec = B[key], t = at(c, r);
   if (!t) return "지도 밖입니다";
   if (t.k === "block") return "잔해가 막고 있습니다";
@@ -1128,8 +1160,10 @@ function place(key, c, r) {
   G.mat -= cost;
   const mhp = bMaxHp(key);
   const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0, up: 0, xp: 0, rank: 0,
-              high: t.k === "high",
-              cd: rnd(0, .4), aim: -Math.PI / 2, flash: 0, crew: [], dead: false, obj: null };
+              high: t.k === "high", face: 0,
+              cd: rnd(0, .4), aim: face === undefined ? Math.PI : face, flash: 0,
+              crew: [], dead: false, obj: null };
+  b.face = b.aim;
   t.b = b; G.buildings.push(b);
   G.flowDirty = true;
   VIEW.addBuilding(b);
@@ -1300,6 +1334,13 @@ function updateBuildings(dt) {
   for (const b of G.buildings) {
     if (b.dead) continue;
     const spec = B[b.key];
+    // with nothing in range a turret drifts back to the arc it was given
+    if (b.done && spec.dmg && b.cd > spec.cd * .55) {
+      let d2 = b.face - b.aim;
+      while (d2 > Math.PI) d2 -= 6.2832;
+      while (d2 < -Math.PI) d2 += 6.2832;
+      b.aim += d2 * Math.min(1, dt * 2.5);
+    }
     if (!b.done) {
       b.prog += dt / (has("fast") ? 1.1 : 2.2);
       if (b.prog >= 1) { b.prog = 1; b.done = true; G.flowDirty = true; VIEW.finishBuilding(b); }
@@ -1355,7 +1396,14 @@ function updateBuildings(dt) {
       if (spec.arc) { if (-e.z > score) { score = -e.z; tgt = e; } }
       else if (spec.preferBig) { if (e.maxHp > score) { score = e.maxHp; tgt = e; } }
       else if (spec.beam) { if (-e.z > score) { score = -e.z; tgt = e; } }
-      else { seen++; if (Math.random() * seen < 1) tgt = e; }
+      else {
+        // a weapon favours the arc it was deployed facing
+        let da = Math.atan2(e.x - bx, e.z - bz) - b.face;
+        while (da > Math.PI) da -= 6.2832;
+        while (da < -Math.PI) da += 6.2832;
+        const w = Math.abs(da) < 1.15 ? 2.4 : 1;
+        seen += w; if (Math.random() * seen < w) tgt = e;
+      }
     }
     if (!tgt) { b.cd = .12; continue; }
     b.aim = Math.atan2(tgt.x - bx, tgt.z - bz);
@@ -1789,7 +1837,7 @@ function step(dt) {
 // ===========================================================================
 const VIEW = (() => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2.25));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -1862,7 +1910,7 @@ const VIEW = (() => {
   const key = new THREE.DirectionalLight(0xfff8ea, 2.25);
   key.position.set(-16, 26, 13);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(1024, 1024);
   key.shadow.camera.left = -16; key.shadow.camera.right = 16;
   key.shadow.camera.top = 22; key.shadow.camera.bottom = -22;
   key.shadow.camera.near = 1; key.shadow.camera.far = 90;
@@ -2813,6 +2861,12 @@ const VIEW = (() => {
       }
     } }
 
+  // Backdrop and site props are lit but cast nothing: shadow-map draw calls
+  // out there cost frames and land where no one looks.
+  { const keep = new Set();
+    scene.traverse(o => { if (o.isMesh && o.position.z < wz(-1) - 3) o.castShadow = false; });
+    keep.clear(); }
+
   // ---- fires beyond the wire ----
   const fireMat = new THREE.MeshBasicMaterial({
     map: canvasTex(64, (g, S) => {
@@ -2862,7 +2916,7 @@ const VIEW = (() => {
     b.rotateY(Math.PI / 2);
     return mergeGeos([{ g: a, m: new THREE.Matrix4() }, { g: b, m: new THREE.Matrix4() }], true);
   })();
-  { const N = 4200, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
+  { const N = 2100, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
     scene.add(grass);
     const d = new THREE.Object3D(); let k = 0;
     const put = (x, y, z, sc) => {
@@ -2887,7 +2941,7 @@ const VIEW = (() => {
       for (let i = 0; i < 9; i++)
         put(bx2 + rnd(-br, br), by2 - Math.random() * .30, bz2 + rnd(-br, br), .5 + Math.random() * .5);
     }
-    for (let i = 0; i < 2600; i++) {
+    for (let i = 0; i < 1300; i++) {
       const x = (Math.random() - .5) * (APRON - 1.5), z = (Math.random() - .5) * (APRON + 4.5);
       if (Math.abs(x) < COLS / 2 && Math.abs(z) < ROWS / 2) continue;
       put(x, -TILE_H + .02, z, .8 + Math.random() * 1.0);
@@ -3261,16 +3315,18 @@ const VIEW = (() => {
     const P = ORE[t];
     const bg = creatureBody(P), cg = creatureCrystal(P);
     bg.scale(1.15, 1.15, 1.15); cg.scale(1.15, 1.15, 1.15);
-    const cap = { matriarch: 4, colossus: 12, heavy: 24, breaker: 44, carapace: 120 }[t] || MAX_ENEMIES;
+    const cap = { matriarch: 4, colossus: 10, heavy: 20, breaker: 36, carapace: 96 }[t] || MAX_ENEMIES;
     const bm = new THREE.InstancedMesh(bg, rockMat, cap);
-    bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    // instanced shadow casting for hundreds of creatures is the most
+    // expensive thing in the frame and buys almost nothing at this scale
+    bm.castShadow = false; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     bm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
     bm.instanceColor.setUsage(THREE.DynamicDrawUsage);
     scene.add(bm);
     const om = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({
       color: SRGB(P.col), emissive: P.em, emissiveIntensity: P.ei,
       roughness: .46, metalness: .08, flatShading: true }), cap);
-    om.castShadow = true; om.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    om.castShadow = false; om.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     om.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
     om.instanceColor.setUsage(THREE.DynamicDrawUsage);
     scene.add(om);
@@ -3721,7 +3777,7 @@ const VIEW = (() => {
         comp.uniforms.grain.value = q >= 1 ? 0 : 0.006;
         this.bloomOff = q >= 2;
         renderer.shadowMap.enabled = q < 3;
-        renderer.setPixelRatio(Math.min(devicePixelRatio, q >= 3 ? 1.5 : 2.25));
+        renderer.setPixelRatio(Math.min(devicePixelRatio, q >= 3 ? 1.5 : 2));
         this.resize();
       },
       render(scene3, cam3, t) {
@@ -3810,6 +3866,29 @@ const VIEW = (() => {
       if (!b.done) b.obj.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = M.ghost; } });
     },
     setQuality(q) { POST.setQuality(q); },
+    projectTile(c, r) {
+      const t = at(c, r);
+      const v = new THREE.Vector3(wx(c + .5),
+        BAND_LIFT[bandOf(r)] + (t && t.k === "high" ? HIGH_LIFT : 0) + .2, wz(r + .5));
+      v.project(camera);
+      return { x: (v.x * .5 + .5) * innerWidth, y: (-v.y * .5 + .5) * innerHeight };
+    },
+    preview(key, c, r, face) {
+      const id = key ? key + ":" + c + ":" + r : "";
+      if (id && id === this._pvId) {
+        if (this._pv && this._pv.userData.turret) this._pv.userData.turret.rotation.y = (face || 0) + Math.PI;
+        return;
+      }
+      this._pvId = id;
+      if (this._pv) { scene.remove(this._pv); this._pv = null; }
+      if (!key) return;
+      const t = at(c, r);
+      const stub = { key, c, r, up: 0, high: t && t.k === "high", aim: face || 0 };
+      const g = makeBuilding(stub);
+      g.traverse(o => { if (o.isMesh) o.material = M.ghost; });
+      if (g.userData.turret) g.userData.turret.rotation.y = (face || 0) + Math.PI;
+      this._pv = g;
+    },
     pickTile(cx, cy) {
       ndc.x = (cx / innerWidth) * 2 - 1;
       ndc.y = -(cy / innerHeight) * 2 + 1;
@@ -3894,9 +3973,15 @@ const VIEW = (() => {
       for (const s of G.soldiers) {
         if (sn >= SOL_MAX) break;
         const rl = ROLE[s.t] || ROLE.rifle;
-        dummy.position.set(wx(s.x), liftAt(s.z) + .02, wz(s.z));
-        dummy.rotation.set(0, s.aim + Math.PI, 0);
-        dummy.scale.setScalar(rl.sc);
+        // a stride while walking, a slow sway at post, and a recoil kick
+        const moving = s.px !== undefined && (Math.abs(s.x - s.px) + Math.abs(s.z - s.pz)) > .0015;
+        s.gait = (s.gait || 0) + dt * (moving ? 11 : 2.2);
+        const kick = s.fire > 0 ? s.fire / .12 : 0;
+        const bob = moving ? Math.abs(Math.sin(s.gait)) * .055 : Math.sin(s.gait) * .012;
+        dummy.position.set(wx(s.x), liftAt(s.z) + .02 + bob, wz(s.z));
+        dummy.rotation.set(kick * .22, s.aim + Math.PI, moving ? Math.sin(s.gait) * .13 : Math.sin(s.gait * .7) * .03);
+        dummy.scale.setScalar(rl.sc * (1 - kick * .05));
+        s.px = s.x; s.pz = s.z;
         dummy.updateMatrix();
         soldierMesh.setMatrixAt(sn, dummy.matrix);
         soldierLitMesh.setMatrixAt(sn, dummy.matrix);
@@ -4176,7 +4261,7 @@ function syncTop() {
   $("sKill").textContent = G.kills;
 
   // objective banner
-  if (G.phase === "assault") $("brief").hidden = true;
+  if (G.phase === "assault" || aim) $("brief").hidden = true;
   if (G.phase === "assault") {
     $("objTitle").textContent = G.assault + "차 공세 요격";
     $("objSub").textContent = "HOLD THE LINE";
@@ -4217,6 +4302,7 @@ function mkAct(title, cost, on, opts) {
   return b;
 }
 let armed = null;   // an ability waiting for a map tap
+let dragFromCard = false;
 
 // --- inspector: tap a placed building to see what it has become -------------
 function closeInsp() {
@@ -4387,18 +4473,26 @@ function syncSheet() {
     return;
   }
   $("hint").textContent = armed ? "포격할 칸을 누르세요"
-    : pick ? `${B[pick].name} — 밝게 표시된 칸을 누르세요` : "건물을 고른 뒤 지도를 누르세요";
+    : pick ? `${B[pick].name} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
     const cost = bCost(key);
     const extra = spec.garrison ? `<em>병사 ${garrisonOf(key)}</em> · `
                 : spec.upkeep   ? `<em>유지 ${spec.upkeep}</em> · `
                 : spec.wall     ? `<em>내구 ${bMaxHp(key)}</em> · ` : "";
-    body.appendChild(mkAct(spec.name, `${extra}${spec.desc}`, () => {
+    const el = mkAct(spec.name, `${extra}${spec.desc}`, () => {
       pick = (pick === key) ? null : key; armed = null;
       closeInsp();
       syncSheet();
-    }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key }));
+    }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key });
+    // press and drag straight off the card onto the map
+    el.addEventListener("pointerdown", () => {
+      if (G.mat < cost) return;
+      pick = key; armed = null; closeInsp(); dragFromCard = true;
+      VIEW.highlight(spec.z);
+      $("hint").textContent = spec.name + " — 칸으로 끌어다 놓으세요";
+    });
+    body.appendChild(el);
   }
   VIEW.highlight(pick ? B[pick].z : null);
 }
@@ -4460,7 +4554,8 @@ function start() {
   for (const b of (G ? G.buildings : [])) VIEW.removeBuilding(b);
   newGame();
   VIEW.applyMap();
-  mode = "play"; pick = null; tab = 0; armed = null;
+  mode = "play"; pick = null; tab = 0; armed = null; aim = null; dragFromCard = false;
+  $("aim").hidden = true;
   $("draft").hidden = true; $("insp").hidden = true;
   syncSpeed();
   last = performance.now(); acc = 0;
@@ -4512,6 +4607,39 @@ $("againBtn").addEventListener("click", () => { $("endScreen").hidden = true; $(
 document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => { tab = +t.dataset.zone; syncSheet(); }));
 
+// Deployment, Arknights style: drag a card onto a tile, release, then drag out
+// from that tile to choose the facing and release again. The facing is real -
+// a weapon favours targets inside its arc by 2.4x and drifts back to it idle.
+let aim = null;
+function beginAim(key, c, r) {
+  const p = VIEW.projectTile(c, r);
+  aim = { key, c, r, sx: p.x, sy: p.y, face: Math.PI };
+  const el = $("aim");
+  el.hidden = false;
+  el.style.left = p.x + "px"; el.style.top = p.y + "px";
+  updateAim(p.x, p.y - 70);
+  SFX.play("ui");
+}
+function updateAim(x, y) {
+  if (!aim) return;
+  const dx = x - aim.sx, dy = y - aim.sy;
+  if (Math.hypot(dx, dy) > 14) aim.face = Math.atan2(dx, dy) + Math.PI;
+  const el = $("aim");
+  el.querySelector("i").style.transform =
+    "rotate(" + (Math.atan2(dx, -dy) * 180 / Math.PI).toFixed(0) + "deg)";
+  el.querySelector("b").textContent = "방향을 정하고 손을 떼세요";
+  VIEW.preview(aim.key, aim.c, aim.r, aim.face);
+}
+function commitAim() {
+  if (!aim) return;
+  const k = aim.key, c = aim.c, r = aim.r, f = aim.face;
+  cancelAim();
+  const err = place(k, c, r, f);
+  if (err) floatText(err);
+  syncSheet();
+}
+function cancelAim() { aim = null; $("aim").hidden = true; VIEW.preview(null); }
+
 let lastCell = -1;
 function tap(cx, cy) {
   if (mode !== "play") return;
@@ -4529,6 +4657,8 @@ function tap(cx, cy) {
     if (t && t.b) { G.sel = t.b; syncInsp(); } else closeInsp();
     return;
   }
+  const t2 = at(hit.c, hit.r);
+  if (t2 && t2.b) { G.sel = t2.b; syncInsp(); return; }   // occupied: inspect it
   closeInsp();
   const err = place(pick, hit.c, hit.r);
   if (err) floatText(err);
@@ -4548,10 +4678,38 @@ function drag(cx, cy) {
 }
 const cv = VIEW.renderer.domElement;
 let down = false;
-cv.addEventListener("pointerdown", e => { down = true; lastCell = -1; tap(e.clientX, e.clientY); });
-cv.addEventListener("pointermove", e => { if (down) drag(e.clientX, e.clientY); });
-addEventListener("pointerup", () => { down = false; lastCell = -1; });
-addEventListener("pointercancel", () => { down = false; lastCell = -1; });
+addEventListener("pointerdown", e => {
+  if (aim) { down = true; updateAim(e.clientX, e.clientY); return; }
+  if (e.target !== cv) return;
+  down = true; lastCell = -1; tap(e.clientX, e.clientY);
+});
+addEventListener("pointermove", e => {
+  if (aim) { if (down) updateAim(e.clientX, e.clientY); return; }
+  if (dragFromCard) {
+    const h = VIEW.pickTile(e.clientX, e.clientY);
+    if (h && pick && !placeCheck(pick, h.c, h.r)) VIEW.preview(pick, h.c, h.r, Math.PI);
+    else VIEW.preview(null);
+    return;
+  }
+  if (down && e.target === cv) drag(e.clientX, e.clientY);
+});
+addEventListener("pointerup", e => {
+  if (aim && down) { commitAim(); down = false; return; }
+  if (dragFromCard) {
+    dragFromCard = false;
+    VIEW.preview(null);
+    const h = VIEW.pickTile(e.clientX, e.clientY);
+    if (h && pick) {
+      const why = placeCheck(pick, h.c, h.r);
+      if (why) floatText(why); else beginAim(pick, h.c, h.r);
+    }
+    down = false; return;
+  }
+  down = false; lastCell = -1;
+});
+addEventListener("pointercancel", () => {
+  down = false; lastCell = -1; dragFromCard = false; VIEW.preview(null);
+});
 cv.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
 cv.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 
