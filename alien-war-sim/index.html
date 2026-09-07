@@ -12,11 +12,13 @@
 <style>
   /* Endfield-style industrial HUD. See design-style-guide.md */
   :root{
-    --base:#0A0A0A; --s1:#101318; --s2:#171B22; --s3:#1F252E;
-    --line:#2A323C; --lineHi:#3E4956;
-    --text:#F0F0F0; --muted:#8C8C8C; --dim:#5A6068;
-    --signal:#FFD429; --signalDim:#7A6415;
-    --info:#4DA9DA; --danger:#FF4756; --ok:#2ED675; --infect:#35E0D0;
+    --base:#0A0A0A; --s0:#0F0F0F; --s1:#141414; --s2:#1A1A1A; --s3:#222222;
+    --hover:#1E1E1E; --active:#252525;
+    --line:rgba(255,255,255,.06); --lineHi:rgba(255,255,255,.10);
+    --text:#F0F0F0; --muted:#999999; --dim:#666666;
+    --signal:#FFD429; --signalDim:#B89210;
+    --info:#4DA8DA; --danger:#FF4757; --ok:#2ED573; --infect:#00E5FF;
+    --sharp:cubic-bezier(.4,0,.2,1); --t-fast:150ms;
     --tech:'Orbitron',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
     --ui:system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   }
@@ -32,7 +34,7 @@
   .num{font-family:var(--tech);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 
   /* ---------- top readout ---------- */
-  #top{display:flex;align-items:stretch;background:var(--s1);
+  #top{display:flex;align-items:stretch;background:var(--s0);
     border-bottom:1px solid var(--line);flex:none;position:relative}
   #top::after{content:'';position:absolute;left:0;bottom:-1px;width:96px;height:1px;
     background:var(--signal)}
@@ -48,15 +50,25 @@
   .sp{background:transparent;border:1px solid transparent;color:var(--muted);
     font-family:var(--tech);font-size:10px;letter-spacing:.1em;padding:6px 11px;cursor:pointer}
   .sp:hover{color:var(--text)}
-  .sp.on{color:var(--signal);border-color:var(--signalDim);background:rgba(255,212,41,.07)}
+  .sp.on{color:var(--signal);border-color:rgba(255,212,41,.4);
+    background:rgba(255,212,41,.08);box-shadow:0 0 20px rgba(255,212,41,.2)}
 
   /* ---------- generic panel ---------- */
-  .panel{background:rgba(23,27,34,.93);border:1px solid var(--line);
-    backdrop-filter:blur(6px);position:relative;
-    clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
-  .panel::before,.panel::after{content:'';position:absolute;pointer-events:none}
-  .panel::before{left:0;top:9px;width:1px;height:14px;background:var(--signal);opacity:.65}
-  .panel::after{right:9px;bottom:0;width:14px;height:1px;background:var(--signal);opacity:.65}
+  /* the chamfer cuts the top-right and bottom-left corners */
+  .panel{background:rgba(20,20,20,.55);border:1px solid rgba(255,255,255,.1);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:0 4px 24px rgba(0,0,0,.4);position:relative;
+    clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+  .panel::before,.panel::after{content:'';position:absolute;width:24px;height:24px;
+    pointer-events:none}
+  .panel::before{top:-1px;left:-1px;
+    border-top:2px solid rgba(255,212,41,.4);border-left:2px solid rgba(255,212,41,.4)}
+  .panel::after{bottom:-1px;right:-1px;
+    border-bottom:2px solid rgba(255,212,41,.4);border-right:2px solid rgba(255,212,41,.4)}
+  .scan{position:relative}
+  .scan::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,
+      rgba(255,255,255,.015) 2px,rgba(255,255,255,.015) 4px)}
 
   /* ---------- wave control ---------- */
   #wavebar{position:absolute;top:14px;left:50%;transform:translateX(-50%);
@@ -66,11 +78,12 @@
   #wlab b{color:var(--text);font-weight:500}
   #callBtn{background:var(--signal);border:none;color:#141005;font-family:var(--tech);
     font-size:11px;font-weight:700;letter-spacing:.1em;padding:8px 16px;cursor:pointer;
-    clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+    min-height:44px;
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
   #callBtn:hover{background:#ffe066}
 
   /* ---------- build rail ---------- */
-  #build{display:flex;background:var(--s1);border-top:1px solid var(--line);
+  #build{display:flex;background:var(--s0);border-top:1px solid var(--line);
     flex:none;overflow-x:auto}
   .bcard{background:transparent;border:none;border-right:1px solid var(--line);
     border-top:2px solid transparent;color:var(--text);padding:9px 13px 10px;cursor:pointer;
@@ -78,13 +91,15 @@
     font-family:var(--ui);position:relative}
   .bcard .ic{flex:none;width:32px;height:32px;display:grid;place-items:center;
     color:var(--muted);background:#0D1015;border:1px solid var(--line);
-    clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
   .bcard .ic svg{width:20px;height:20px}
-  .bcard.sel .ic{color:var(--signal);border-color:var(--signalDim);background:#181509}
+  .bcard.sel .ic{color:var(--signal);border-color:rgba(255,212,41,.4);background:#1A1608;
+    box-shadow:0 0 20px rgba(255,212,41,.2)}
   .bcard .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
   .bcard .c i{font-style:normal;color:var(--dim);font-size:8px;vertical-align:1px}
-  .bcard:hover{background:var(--s3)}
-  .bcard.sel{background:var(--s3);border-top-color:var(--signal)}
+  .bcard{transition:background var(--t-fast) var(--sharp)}
+  .bcard:hover{background:var(--hover)}
+  .bcard.sel{background:var(--active);border-top-color:var(--signal)}
   .bcard.sel .n{color:var(--signal)}
   .bcard.poor{opacity:.32}
   .bcard .n{font-size:11.5px;color:var(--text);letter-spacing:.01em;white-space:nowrap}
@@ -109,7 +124,9 @@
   #insp .desc{font-size:11px;color:var(--dim);line-height:1.65;padding-top:10px}
   #insp .acts{display:flex;gap:7px;margin-top:12px}
   .abtn{flex:1;background:transparent;border:1px solid var(--line);color:var(--text);
-    font-family:var(--tech);font-size:10px;letter-spacing:.08em;padding:8px 4px;cursor:pointer}
+    font-family:var(--tech);font-size:10px;letter-spacing:.08em;padding:11px 4px;cursor:pointer;
+    min-height:44px;
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
   .abtn:hover{border-color:var(--signalDim);color:var(--signal)}
   .abtn.warn:hover{border-color:var(--danger);color:var(--danger)}
   .abtn:disabled{opacity:.3;cursor:default}
@@ -117,7 +134,7 @@
   /* ---------- log ---------- */
   #log{position:absolute;left:14px;bottom:14px;width:310px;z-index:5;
     display:flex;flex-direction:column-reverse;gap:3px;pointer-events:none}
-  #log div{background:rgba(16,19,24,.82);padding:5px 10px;font-size:10.5px;
+  #log div{background:rgba(10,10,10,.72);backdrop-filter:blur(8px);padding:5px 10px;font-size:10.5px;
     color:var(--muted);border-left:2px solid var(--line);letter-spacing:.01em}
   #log div::before{content:'◇ ';color:var(--dim)}
   #log div.hot{color:var(--signal);border-left-color:var(--signal)}
@@ -134,8 +151,8 @@
     font-variant-numeric:tabular-nums}
   #oBtn{margin-top:18px;background:var(--signal);border:none;color:#141005;
     font-family:var(--tech);font-size:11px;font-weight:700;letter-spacing:.14em;
-    padding:11px 30px;cursor:pointer;
-    clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+    padding:13px 32px;cursor:pointer;min-height:44px;
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
   #hint{position:absolute;left:14px;top:14px;font-family:var(--tech);font-size:9px;
     letter-spacing:.12em;color:var(--dim);line-height:2;z-index:4;pointer-events:none;
     text-transform:uppercase}
@@ -208,7 +225,7 @@
 </head>
 <body>
 <div id="wrap">
-  <div id="top">
+  <div id="top" class="scan">
     <div class="cell"><div class="lab">Supply</div><div class="v signal" id="uSup">0</div></div>
     <div class="cell"><div class="lab">Crystal</div><div class="v infect" id="uCry">0</div></div>
     <div class="cell"><div class="lab">Wave</div><div class="v" id="uWave">0</div></div>
@@ -237,7 +254,7 @@
       <button id="callBtn">소집</button>
     </div>
 
-    <div id="insp" class="panel">
+    <div id="insp" class="panel scan">
       <div id="iName"></div>
       <div id="iCode"></div>
       <div id="iRows"></div>
@@ -257,7 +274,7 @@
     </div>
   </div>
 
-  <div id="build"></div>
+  <div id="build" class="scan"></div>
 </div>
 
 <script>
@@ -285,14 +302,16 @@ const C = {
   plain: '#141920', plainHi: '#1B222B',
   rockFill: '#0C0F14', rockLip: '#1E2732', rockEdge: '#46586B',
   hair: 'rgba(150,180,210,0.055)',
-  amber: '#F0A63C', amberDim: '#7A5622',
-  cyan: '#35E0D0', cyanDim: '#12564F',
-  bone: '#C9D3DD', steel: '#8FA3B5', steelDim: '#3B4652',
-  danger: '#FF5A46',
+  amber: '#FFA502', amberDim: '#8A5A05',
+  conc: '#C6C8C0', concHi: '#E4E6DE', concDark: '#8A8F88',
+  slit: '#2A302E',
+  cyan: '#00E5FF', cyanDim: '#0A5560',
+  bone: '#C9D3DD', steel: '#D0D4D2', steelHi: '#F0F2EF', steelDim: '#9AA29E',
+  danger: '#FF4757',
   crew: '#FFE6BE',
-  foeFill: '#33372C', foeEdge: '#8A9070', foeCore: '#35E0D0',
-  line: '#2A323C', lineHi: '#3E4956', signal: '#FFD429', signalDim: '#7A6415',
-  info: '#4DA9DA', ok: '#2ED675', steelDim: '#3B4652',
+  foeFill: '#241F1A', foeEdge: '#B9C0A4', foeCore: '#00E5FF',
+  line: '#2A323C', lineHi: '#3E4956', signal: '#FFD429', signalDim: '#B89210',
+  info: '#4DA8DA', ok: '#2ED573',
 };
 
 // The terrain is drawn once into its own layer as smooth merged silhouettes,
@@ -342,11 +361,11 @@ function buildTerrainLayer() {
   const PW = terrainCv.width, PH = terrainCv.height;
   const im = t.createImageData(PW, PH), dd = im.data;
   const MAT = [
-    [141, 127, 99],   // 0 shaded earth
-    [170, 155, 122],  // 1 dry earth, the dominant surface
-    [190, 178, 148],  // 2 bleached gravel on the ridges
-    [140, 140, 104],  // 3 dry scrub
-    [116, 120, 86],   // 4 damp scrub in the hollows
+    [58, 80, 42],     // 0 deep grass in the damp hollows
+    [90, 116, 54],    // 1 grass, the dominant surface
+    [130, 140, 74],   // 2 dry grass on the slopes
+    [138, 118, 84],   // 3 bare earth and tracks
+    [172, 166, 148],  // 4 pale gravel on the ridge tops
   ];
   const STEP = [0.93, 1.0, 1.07];
   for (let y = 0; y < PH; y++) {
@@ -355,11 +374,10 @@ function buildTerrainLayer() {
       const hx = ((x / TS) | 0) >> 1, hi = hy * HWD + hx;
       const n = hf[hi], v = vf[hi];
       let m;
-      if (v > 0.70 && n < 0.50) m = 4;
-      else if (v > 0.63 && n < 0.56) m = 3;
-      else if (n > 0.70) m = 2;
-      else if (n > 0.44) m = 1;
-      else m = 0;
+      if (n > 0.735) m = 4;
+      else if (n > 0.655) m = 3;
+      else if (v > 0.485) m = (n < 0.44 ? 0 : 1);
+      else m = 2;
       const gx = (hx < HWD - 2 ? hf[hi + 2] : n) - n;
       const gy = (hy < HHT - 2 ? hf[hi + HWD + HWD] : n) - n;
       const sl = -(gx + gy);
@@ -387,19 +405,22 @@ function buildTerrainLayer() {
       t.fill();
     }
   };
-  for (let i = 0; i < 300; i++) {          // brush, only in the damp low ground
+  for (let i = 0; i < 620; i++) {          // shrubs and grass tussocks
     const x = Math.random() * WW, y = Math.random() * WH;
-    if (sample(vf, x, y) < 0.64 || sample(hf, x, y) > 0.58) continue;
-    clump(x, y, rnd(9, 24), Math.random() < 0.5 ? 'rgba(96,102,66,0.30)' : 'rgba(150,152,110,0.24)', 4);
+    if (sample(hf, x, y) > 0.70) continue;
+    const wet = sample(vf, x, y) > 0.5;
+    clump(x, y, rnd(8, 22),
+      wet ? (Math.random() < 0.5 ? 'rgba(44,66,30,0.34)' : 'rgba(112,146,62,0.28)')
+          : (Math.random() < 0.5 ? 'rgba(104,116,58,0.26)' : 'rgba(152,158,96,0.22)'), 4);
   }
   for (let i = 0; i < 340; i++) {          // gravel breaking through on the ridges
     const x = Math.random() * WW, y = Math.random() * WH;
-    if (sample(hf, x, y) < 0.62) continue;
+    if (sample(hf, x, y) < 0.68) continue;
     clump(x, y, rnd(10, 28), Math.random() < 0.5 ? 'rgba(206,195,164,0.26)' : 'rgba(154,140,110,0.20)', 3);
   }
   for (let i = 0; i < 300; i++) {          // loose stones, drawn not sprinkled
     const x = Math.random() * WW, y = Math.random() * WH;
-    if (sample(hf, x, y) < 0.5) continue;
+    if (sample(hf, x, y) < 0.60) continue;
     const r = rnd(1.6, 4);
     t.fillStyle = 'rgba(72,66,52,0.34)';
     t.beginPath(); t.ellipse(x + 1, y + 1.4, r, r * 0.7, 0, 0, 6.2832); t.fill();
@@ -412,7 +433,7 @@ function buildTerrainLayer() {
   t.save();
   t.lineCap = 'round'; t.lineJoin = 'round';
   for (const g of GATES) {
-    for (const [wdt, col] of [[36, 'rgba(196,184,156,0.20)'], [20, 'rgba(214,203,175,0.22)']]) {
+    for (const [wdt, col] of [[38, 'rgba(146,124,90,0.42)'], [21, 'rgba(176,154,116,0.46)']]) {
       t.strokeStyle = col; t.lineWidth = wdt;
       t.beginPath(); t.moveTo(g.x * TILE, g.y * TILE);
       t.quadraticCurveTo((g.x * TILE + hubPx[0]) / 2, g.y * TILE + rnd(-40, 40), hubPx[0], hubPx[1]);
@@ -421,7 +442,7 @@ function buildTerrainLayer() {
   }
   for (let i = 0; i < SPAWNS.length; i++) {
     const s = SPAWNS[i], g = GATES[i] || GATES[0];
-    t.strokeStyle = 'rgba(196,184,156,0.15)'; t.lineWidth = 26;
+    t.strokeStyle = 'rgba(146,124,90,0.34)'; t.lineWidth = 26;
     t.beginPath(); t.moveTo(s.x * TILE, s.y * TILE);
     t.quadraticCurveTo((s.x + g.x) * TILE / 2, (s.y * TILE + g.y * TILE) / 2 + rnd(-70, 70),
       g.x * TILE, g.y * TILE);
@@ -451,13 +472,13 @@ function buildTerrainLayer() {
   // sunlit crest, then the body pulled down-right off it
   // Terraced mesa: each inset ring is an eroded copy of the silhouette, so
   // a rock mass reads as stacked benches rather than one poured blob.
-  t.fillStyle = '#4E483C'; shape(TILE * 0.652, 2.6, 3.4); t.fill();   // contact shadow
-  t.fillStyle = '#D8CBA6'; shape(TILE * 0.632, 0, 0); t.fill();       // sunlit crest
-  t.fillStyle = '#7D7462'; shape(TILE * 0.628, 1.6, 2.1); t.fill();   // lower bench
-  t.fillStyle = '#C4B695'; shape(TILE * 0.50, -0.4, -0.8); t.fill();  // mid crest
-  t.fillStyle = '#8B8269'; shape(TILE * 0.495, 1.2, 1.6); t.fill();   // mid bench
-  t.fillStyle = '#D2C4A0'; shape(TILE * 0.35, -0.6, -1.0); t.fill();  // top crest
-  t.fillStyle = '#998F76'; shape(TILE * 0.345, 1.0, 1.4); t.fill();   // top bench
+  t.fillStyle = '#3E4038'; shape(TILE * 0.652, 2.6, 3.4); t.fill();   // contact shadow
+  t.fillStyle = '#C3C2B4'; shape(TILE * 0.632, 0, 0); t.fill();       // sunlit crest
+  t.fillStyle = '#787A70'; shape(TILE * 0.628, 1.6, 2.1); t.fill();   // lower bench
+  t.fillStyle = '#B2B2A4'; shape(TILE * 0.50, -0.4, -0.8); t.fill();  // mid crest
+  t.fillStyle = '#868778'; shape(TILE * 0.495, 1.2, 1.6); t.fill();   // mid bench
+  t.fillStyle = '#BFBEAF'; shape(TILE * 0.35, -0.6, -1.0); t.fill();  // top crest
+  t.fillStyle = '#949586'; shape(TILE * 0.345, 1.0, 1.4); t.fill();   // top bench
 
   // ---- rock surface: parallel bedding, sparse weathering ----
   t.save();
@@ -1637,7 +1658,7 @@ function draw() {
       bar(f.x - 15, f.y + 17, 30, 2, f.hp / f.hpMax, C.cyan);
       continue;
     }
-    if (d.r > 5) drawShadow(f.x, f.y, d.r * 1.05);
+    drawShadow(f.x, f.y, d.r * 1.0);
     // tapered silhouette with a hairline edge: reads as a creature, not a pill
     ctx.save();
     ctx.translate(f.x, f.y); ctx.rotate(f.face);
@@ -1651,7 +1672,7 @@ function draw() {
     ctx.fillStyle = f.hitT > 0 ? '#ffffff' : C.foeFill;
     ctx.fill();
     ctx.strokeStyle = f.hitT > 0 ? '#ffffff' : C.foeEdge;
-    ctx.lineWidth = d.r > 4 ? 1.1 : 0.8; ctx.stroke();
+    ctx.lineWidth = d.r > 4 ? 1.2 : 0.9; ctx.stroke();
     ctx.restore();
     if (d.big) bar(f.x - 13, f.y - d.r - 9, 26, 2, f.hp / f.hpMax, C.danger);
   }
@@ -1664,7 +1685,7 @@ function draw() {
     if (n.x < tx0 - 1 || n.x > tx1 + 1 || n.y < ty0 - 1 || n.y > ty1 + 1) continue;
     const nx = n.x * TILE + TILE / 2, ny = n.y * TILE + TILE / 2;
     const pulse = 0.5 + Math.sin(elapsed * 2 + n.x) * 0.22;
-    glow(nx, ny, 18, 'rgba(53,224,208,' + (pulse * 0.42) + ')');
+    glow(nx, ny, 18, 'rgba(0,229,255,' + (pulse * 0.42) + ')');
     ctx.fillStyle = C.cyan; ctx.globalAlpha = 0.75 + pulse * 0.25;
     ctx.beginPath();
     ctx.moveTo(nx, ny - 6); ctx.lineTo(nx + 4.5, ny); ctx.lineTo(nx, ny + 6); ctx.lineTo(nx - 4.5, ny);
@@ -1683,7 +1704,7 @@ function draw() {
   for (let i = 0; i < vis.length; i++) {
     const f = vis[i], d = FOES[f.type];
     if (d.static) {
-      glow(f.x, f.y - 8, 22, 'rgba(53,224,208,0.5)');
+      glow(f.x, f.y - 8, 22, 'rgba(0,229,255,0.5)');
       ctx.fillStyle = C.cyan;
       ctx.beginPath(); ctx.moveTo(f.x, f.y - 18); ctx.lineTo(f.x + 5, f.y + 4);
       ctx.lineTo(f.x - 5, f.y + 4); ctx.closePath(); ctx.fill();
@@ -1694,7 +1715,7 @@ function draw() {
     ctx.globalAlpha = 0.9;
     ctx.fillRect(f.x + Math.cos(f.face) * d.r * 0.35 - s / 2, f.y + Math.sin(f.face) * d.r * 0.35 - s / 2, s, s);
     ctx.globalAlpha = 1;
-    if (d.big) glow(f.x, f.y, d.r * 2.2, 'rgba(53,224,208,0.3)');
+    if (d.big) glow(f.x, f.y, d.r * 2.2, 'rgba(0,229,255,0.3)');
   }
 
   // ---- projectiles ----
@@ -1732,6 +1753,24 @@ function draw() {
     ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
   }
   ctx.globalAlpha = 1;
+
+  // supply links: each powered asset is tied to its source by a thin bright
+  // line, the fan of beams that defines an outpost in the reference shots
+  ctx.lineWidth = 1.1;
+  for (const b of buildings) {
+    if (b.dead || b.type === 'hub') continue;
+    const dl = DEFS[b.type];
+    if (!dl.power || !b.powered) continue;
+    let src = hub, best = Math.hypot(b.gx - hub.gx, b.gy - hub.gy);
+    for (const g of buildings) {
+      if (g.dead || g.type !== 'gen') continue;
+      const dg = Math.hypot(b.gx - g.gx, b.gy - g.gy);
+      if (dg <= DEFS.gen.powerR[g.tier] && dg < best) { best = dg; src = g; }
+    }
+    const pulse = 0.30 + Math.sin(elapsed * 2.4 + b.gx * 0.7 + b.gy * 0.5) * 0.12;
+    ctx.strokeStyle = `rgba(255,212,41,${pulse})`;
+    ctx.beginPath(); ctx.moveTo(src.x, src.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
 
   // every live structure spills a little light onto the ground
   for (const b of buildings) {
@@ -1780,10 +1819,16 @@ function draw() {
     const d = DEFS[ghost];
     const gw = (d.w || 1) * TILE, gh = (d.h || 1) * TILE;
     // build lattice appears only while something is being sited
-    ctx.strokeStyle = 'rgba(150,180,210,0.075)'; ctx.lineWidth = 1 / cam.z;
+    ctx.lineWidth = 1 / cam.z;
+    ctx.strokeStyle = 'rgba(255,212,41,0.16)';
     ctx.beginPath();
     for (let x = tx0; x <= tx1 + 1; x++) { ctx.moveTo(x * TILE, ty0 * TILE); ctx.lineTo(x * TILE, (ty1 + 1) * TILE); }
     for (let y = ty0; y <= ty1 + 1; y++) { ctx.moveTo(tx0 * TILE, y * TILE); ctx.lineTo((tx1 + 1) * TILE, y * TILE); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,212,41,0.38)'; ctx.lineWidth = 1.5 / cam.z;
+    ctx.beginPath();
+    for (let x = tx0 - (tx0 % 4); x <= tx1 + 1; x += 4) { ctx.moveTo(x * TILE, ty0 * TILE); ctx.lineTo(x * TILE, (ty1 + 1) * TILE); }
+    for (let y = ty0 - (ty0 % 4); y <= ty1 + 1; y += 4) { ctx.moveTo(tx0 * TILE, y * TILE); ctx.lineTo((tx1 + 1) * TILE, y * TILE); }
     ctx.stroke();
     const gcol = ok ? C.signal : C.danger;
     ctx.globalAlpha = 0.15; ctx.fillStyle = gcol;
@@ -1854,7 +1899,7 @@ function drawBuilding(b) {
   const d = b.type === 'hub' ? null : DEFS[b.type];
   const deploying = b.deploy > 0;
   const ours = b.type === 'hub' || b.powered || !d.power;
-  const edge = ours ? C.lineHi : 'rgba(255,71,86,0.6)';
+  const edge = ours ? C.concDark : 'rgba(255,71,86,0.85)';
 
   ctx.fillStyle = 'rgba(44,38,26,0.45)';
   ctx.beginPath();
@@ -1863,13 +1908,13 @@ function drawBuilding(b) {
 
   // ---------- control hub, 3x3 ----------
   if (b.type === 'hub') {
-    plate(px + 2, py + 2, W - 4, H - 4, 12, '#1A1F27', edge);
-    ctx.fillStyle = '#0E1116';
+    plate(px + 2, py + 2, W - 4, H - 4, 12, '#C4C7BE', edge);
+    ctx.fillStyle = '#6E736B';
     ctx.fillRect(px + 9, py + 9, W - 18, H - 18);
-    ctx.strokeStyle = C.signalDim; ctx.lineWidth = 1;
+    ctx.strokeStyle = C.amber; ctx.lineWidth = 1;
     ctx.strokeRect(px + 9.5, py + 9.5, W - 19, H - 19);
     // service bays along the lower edge
-    ctx.fillStyle = '#242C36';
+    ctx.fillStyle = '#9AA098';
     for (let i = 0; i < 4; i++) ctx.fillRect(px + 8 + i * 12, py + H - 8, 8, 5);
     ctx.fillStyle = C.signal;
     for (let i = 0; i < 4; i++) ctx.fillRect(px + 8 + i * 12, py + H - 8, 8, 1);
@@ -1887,14 +1932,14 @@ function drawBuilding(b) {
   }
 
   // ---------- shared base plate ----------
-  const tone = ['#1D242D', '#242D38', '#2C3742'][b.tier];
+  const tone = ['#BEC2B9', '#CDD1C8', '#DEE1D8'][b.tier];
 
   if (b.type === 'wall') {
     // adjacent sections fuse into one continuous revetment
     const n = run(b);
     const x0 = px + (n.w ? 0 : 1), x1 = px + W - (n.e ? 0 : 1);
     const y0 = py + (n.n ? 0 : 1), y1 = py + H - (n.s ? 0 : 1);
-    ctx.fillStyle = ['#232932', '#2B333E', '#343E4A'][b.tier];
+    ctx.fillStyle = ['#B9BCB3', '#C9CCC3', '#DADCD3'][b.tier];
     ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.strokeStyle = edge; ctx.lineWidth = 1;
     ctx.beginPath();
@@ -1903,16 +1948,24 @@ function drawBuilding(b) {
     if (!n.w) { ctx.moveTo(x0 + .5, y0); ctx.lineTo(x0 + .5, y1); }
     if (!n.e) { ctx.moveTo(x1 - .5, y0); ctx.lineTo(x1 - .5, y1); }
     ctx.stroke();
-    ctx.fillStyle = C.signalDim;
-    for (let i = 0; i < 3; i++) ctx.fillRect(px + 4 + i * 4.4, py + H - 6, 2.4, 3.2);
-    if (!n.n) hi(px + 2, py + 2.5, W - 4);
+    // panel joints, so a long revetment reads as cast sections
+    ctx.strokeStyle = 'rgba(60,66,58,0.45)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (!n.n) { ctx.moveTo(x0 + 2, y0 + 4.5); ctx.lineTo(x1 - 2, y0 + 4.5); }
+    if (!n.s) { ctx.moveTo(x0 + 2, y1 - 4.5); ctx.lineTo(x1 - 2, y1 - 4.5); }
+    if (!n.w) { ctx.moveTo(x0 + 4.5, y0 + 2); ctx.lineTo(x0 + 4.5, y1 - 2); }
+    if (!n.e) { ctx.moveTo(x1 - 4.5, y0 + 2); ctx.lineTo(x1 - 4.5, y1 - 2); }
+    ctx.stroke();
+    ctx.fillStyle = C.amber;
+    for (let i = 0; i < 3; i++) ctx.fillRect(px + 5 + i * 4.4, py + H - 5.5, 2.2, 3);
+    if (!n.n) hi(px + 2, py + 2, W - 4);
 
   } else if (d.crew && b.type !== 'bunker') {
     // trenches read as one dug line, not a row of boxes
     const n = run(b);
     const x0 = px + (n.w ? 0 : 1), x1 = px + W - (n.e ? 0 : 1);
     const y0 = py + (n.n ? 0 : 1), y1 = py + H - (n.s ? 0 : 1);
-    ctx.fillStyle = '#0D1015';
+    ctx.fillStyle = '#3E443C';
     ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.strokeStyle = edge; ctx.lineWidth = 1;
     ctx.beginPath();
@@ -1931,10 +1984,10 @@ function drawBuilding(b) {
   } else if (b.type === 'bunker') {
     // 2x2 casemate: chamfered block, firing slits on all four faces
     plate(px + 2, py + 2, W - 4, H - 4, 11, tone, edge);
-    ctx.fillStyle = '#0A0D11';
+    ctx.fillStyle = C.slit;
     ctx.fillRect(px + 8, cy - 2, W - 16, 4);
     ctx.fillRect(cx - 2, py + 8, 4, H - 16);
-    ctx.fillStyle = C.info;
+    ctx.fillStyle = C.amber;
     ctx.fillRect(px + 8, cy - 2, 4, 4);
     ctx.fillRect(px + W - 12, cy - 2, 4, 4);
     hi(px + 7, py + 4, W - 14);
@@ -1950,7 +2003,7 @@ function drawBuilding(b) {
       ctx.lineTo(cx + Math.cos(a) * W * 0.46, cy + Math.sin(a) * H * 0.46);
       ctx.stroke();
     }
-    ctx.fillStyle = '#12171E';
+    ctx.fillStyle = '#7E847C';
     ctx.beginPath(); ctx.arc(cx, cy, 11, 0, 6.2832); ctx.fill();
     ctx.strokeStyle = C.info; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.arc(cx, cy, 8, elapsed * 2.2, elapsed * 2.2 + 2.2); ctx.stroke();
@@ -2029,7 +2082,7 @@ function drawBuilding(b) {
       }
     }
     const rad = big ? 10 : b.type === 'mortar' ? 8 : 5.6;
-    ctx.fillStyle = '#39434F';
+    ctx.fillStyle = '#8E948C';
     ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 6.2832); ctx.fill();
     ctx.strokeStyle = C.lineHi; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 6.2832); ctx.stroke();
@@ -2083,7 +2136,7 @@ function plate(x, y, w, h, c, fill, stroke) {
   ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke();
 }
 function hi(x, y, w) {
-  ctx.strokeStyle = 'rgba(240,246,255,0.15)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.stroke();
 }
 function diamond(x, y, r) {
