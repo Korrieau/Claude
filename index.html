@@ -809,21 +809,21 @@ const VIEW = (() => {
   document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xa8bcc0, 62, 150);
+  scene.fog = new THREE.Fog(0xbcc7c0, 70, 300);
 
   { const c = document.createElement("canvas");
     c.width = 4; c.height = 256;
     const g = c.getContext("2d");
     const grd = g.createLinearGradient(0, 0, 0, 256);
-    grd.addColorStop(0, "#6d94b8"); grd.addColorStop(0.34, "#9db8c8");
-    grd.addColorStop(0.58, "#c2d0cd"); grd.addColorStop(0.74, "#cfd6c6");
-    grd.addColorStop(0.86, "#a8b598"); grd.addColorStop(1, "#5d6a4c");
+    grd.addColorStop(0, "#5b86ad"); grd.addColorStop(0.30, "#8fb0c6");
+    grd.addColorStop(0.50, "#bcc7c0"); grd.addColorStop(0.56, "#bcc7c0");
+    grd.addColorStop(0.62, "#8f9a78"); grd.addColorStop(1, "#4a563a");
     g.fillStyle = grd; g.fillRect(0, 0, 4, 256);
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
     scene.background = t; }
 
   const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.5, 240);
-  const CAM = { pos: new THREE.Vector3(0, 22.5, 26.5), look: new THREE.Vector3(0, 0.5, -1.2) };
+  const CAM = { pos: new THREE.Vector3(0, 23.5, 26.0), look: new THREE.Vector3(0, 0.5, -2.6) };
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
@@ -1029,8 +1029,9 @@ const VIEW = (() => {
     white: new THREE.MeshStandardMaterial({ color: 0xe9eef3, roughness: .68 }),
     orange:new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff4d00, emissiveIntensity: 1.1, roughness: .5 }),
     cyan:  new THREE.MeshStandardMaterial({ color: 0x4fe3f0, emissive: 0x18c8dc, emissiveIntensity: 2.0, roughness: .4 }),
-    enemy: new THREE.MeshStandardMaterial({ color: 0x171b22, roughness: .42, metalness: .55 }),
-    eye:   new THREE.MeshStandardMaterial({ color: 0xff3b52, emissive: 0xff2036, emissiveIntensity: 2.6 }),
+    enemy: new THREE.MeshStandardMaterial({ color: 0x2b2630, roughness: .78, metalness: .15, flatShading: true }),
+    eye:   new THREE.MeshStandardMaterial({ color: 0x5a0a16, emissive: 0x8c0f22, emissiveIntensity: 0.55,
+             roughness: .28, metalness: .18, flatShading: true }),
     ghost: new THREE.MeshStandardMaterial({ color: 0xff7a2a, transparent: true, opacity: .35, roughness: .6 })
   };
 
@@ -1095,13 +1096,34 @@ const VIEW = (() => {
       scene.add(m); tileMeshes.push(m);
     }
   }
-  { const apron = new THREE.Mesh(new THREE.BoxGeometry(COLS + 13, .5, ROWS + 13),
+  const APRON = 34;
+  { const apron = new THREE.Mesh(new THREE.BoxGeometry(APRON, .5, APRON + 6),
       new THREE.MeshStandardMaterial({ map: concreteTex(0x57554f), roughnessMap: ROUGH, roughness: .97 }));
     apron.material.normalMap = CONC_NORMAL;
     apron.material.normalScale = new THREE.Vector2(1.2, 1.2);
-    apron.material.map.repeat.set(7, 7);
+    apron.material.map.repeat.set(11, 11);
     apron.position.set(0, -TILE_H - .24, 0);
     apron.receiveShadow = true; scene.add(apron); }
+  // land running out to the horizon, so the sky has something to sit on
+  { const groundTex = canvasTex(256, (g, S) => {
+      g.fillStyle = "#4e5a3c"; g.fillRect(0, 0, S, S);
+      blobs(g, 260, S, 4, 30, () => Math.random() < .55
+        ? `rgba(96,112,68,${.10 + Math.random() * .22})` : `rgba(58,64,42,${.10 + Math.random() * .24})`);
+      blobs(g, 900, S, .8, 3, () => Math.random() < .5 ? "rgba(120,138,86,.16)" : "rgba(40,46,30,.18)");
+    }, 26);
+    const land = new THREE.Mesh(new THREE.CircleGeometry(420, 48),
+      new THREE.MeshStandardMaterial({ map: groundTex, roughness: 1 }));
+    land.rotation.x = -Math.PI / 2;
+    land.position.y = -TILE_H - .52;
+    scene.add(land);
+    const hillMat = new THREE.MeshStandardMaterial({ color: 0x6e7c6a, roughness: 1, flatShading: true });
+    for (let i = 0; i < 26; i++) {
+      const a = rnd(0, 6.2832), d = rnd(150, 340);
+      const h = new THREE.Mesh(new THREE.ConeGeometry(rnd(26, 70), rnd(12, 34), 5), hillMat);
+      h.position.set(Math.cos(a) * d, -TILE_H - .5, Math.sin(a) * d);
+      h.rotation.y = Math.random() * 6.28;
+      scene.add(h);
+    } }
 
   // ---- the site around it ----
   const BX = COLS / 2, BZ = ROWS / 2;
@@ -1302,7 +1324,7 @@ const VIEW = (() => {
           .45 + Math.random() * .35);
     }
     for (let i = 0; i < 2600; i++) {
-      const x = (Math.random() - .5) * (COLS + 16), z = (Math.random() - .5) * (ROWS + 16);
+      const x = (Math.random() - .5) * (APRON - 1.5), z = (Math.random() - .5) * (APRON + 4.5);
       if (Math.abs(x) < COLS / 2 && Math.abs(z) < ROWS / 2) continue;
       put(x, -TILE_H + .02, z, .8 + Math.random() * 1.0);
     }
@@ -1343,8 +1365,8 @@ const VIEW = (() => {
           wz(r + .5) + (Math.random() - .5) * .7, .9 + Math.random(), .9 + Math.random(), Math.random() * 3, .85);
   }
   for (let i = 0; i < 46; i++)
-    decal(TEX_MOSS, (Math.random() - .5) * (COLS + 11), -TILE_H + .016,
-          (Math.random() - .5) * (ROWS + 11), 1.4 + Math.random() * 2, 1.4 + Math.random() * 2, Math.random() * 3, .8);
+    decal(TEX_MOSS, (Math.random() - .5) * (APRON - 3), -TILE_H + .016,
+          (Math.random() - .5) * (APRON - 3), 1.4 + Math.random() * 2, 1.4 + Math.random() * 2, Math.random() * 3, .8);
   for (let i = 0; i < 14; i++) {
     const r = Math.floor(Math.random() * 8);
     decal(TEX_SCORCH, wx(Math.floor(Math.random() * COLS) + .5) + (Math.random() - .5) * .8,
@@ -1355,8 +1377,8 @@ const VIEW = (() => {
   for (let i = 0; i < 16; i++) {
     const onBoard = i < 7;
     const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
-    const x = onBoard ? wx(c + .5) + (Math.random() - .5) * .5 : (Math.random() - .5) * (COLS + 10);
-    const z = onBoard ? wz(r + .5) + (Math.random() - .5) * .5 : (Math.random() - .5) * (ROWS + 10);
+    const x = onBoard ? wx(c + .5) + (Math.random() - .5) * .5 : (Math.random() - .5) * (APRON - 4);
+    const z = onBoard ? wz(r + .5) + (Math.random() - .5) * .5 : (Math.random() - .5) * (APRON - 4);
     const y = onBoard ? BAND_LIFT[bandOf(r)] : -TILE_H + .02;
     const m = new THREE.Mesh(new THREE.CircleGeometry(1, 20), puddleMat);
     m.rotation.x = -Math.PI / 2; m.rotation.z = Math.random() * 3;
@@ -1402,7 +1424,7 @@ const VIEW = (() => {
     const bark = new THREE.MeshStandardMaterial({ color: 0x4a4034, roughness: 1 });
     const bushGeo = new THREE.IcosahedronGeometry(.42, 0);
     for (let i = 0; i < 46; i++) {
-      const x = (Math.random() - .5) * (COLS + 15), z = (Math.random() - .5) * (ROWS + 15);
+      const x = (Math.random() - .5) * (APRON - 2.5), z = (Math.random() - .5) * (APRON + 3.5);
       if (Math.abs(x) < COLS / 2 + .4 && Math.abs(z) < ROWS / 2 + .4) continue;
       const g = new THREE.Group();
       g.position.set(x, -TILE_H + .02, z);
@@ -1417,7 +1439,7 @@ const VIEW = (() => {
       }
     }
     for (let i = 0; i < 14; i++) {
-      const x = (Math.random() - .5) * (COLS + 19), z = (Math.random() - .5) * (ROWS + 19);
+      const x = (Math.random() - .5) * (APRON - 3), z = (Math.random() - .5) * (APRON + 3);
       if (Math.abs(x) < COLS / 2 + 2.5 && Math.abs(z) < ROWS / 2 + 2.5) continue;
       const g = new THREE.Group();
       g.position.set(x, -TILE_H + .02, z);
@@ -1510,41 +1532,82 @@ const VIEW = (() => {
     cyl(.03, .03, 1.5, 8, M.steel, wx(4.5) + 1.2, y + .82, wz(15) - .6); }
 
   // ---- units ----
-  function creatureGeo() {
+  // The swarm: dark carapace with mineral growing straight out of it. Body and
+  // crystal are separate meshes so the ore can glow on its own.
+  // Not an animal. A walking mineral: an angular dark mass with crystal that
+  // dominates the silhouette. No smooth sphere, no snout — those read as a pig.
+  function creatureBody() {
     const parts = [];
-    parts.push({ g: new THREE.SphereGeometry(.17, 12, 9), m: T(0, .02, 0, 0, 0, 0, 1, .72, 1.5) });
-    parts.push({ g: new THREE.SphereGeometry(.12, 10, 8), m: T(0, .03, -.2, 0, 0, 0, 1, .85, 1.1) });
-    parts.push({ g: new THREE.ConeGeometry(.1, .24, 8), m: T(0, .02, -.34, -Math.PI / 2, 0, 0) });
-    for (const sx of [-1, 1])
-      parts.push({ g: new THREE.ConeGeometry(.028, .16, 5), m: T(sx * .06, -.01, -.44, -Math.PI / 2 + .25, 0, sx * .3) });
-    for (let i = 0; i < 3; i++)
-      parts.push({ g: new THREE.ConeGeometry(.045 - i * .008, .16 - i * .03, 5), m: T(0, .14 - i * .012, .02 + i * .13, -.4, 0, 0) });
-    const leg = new THREE.CylinderGeometry(.018, .01, .26, 5);
+    // faceted core, low and wide
+    parts.push({ g: new THREE.IcosahedronGeometry(.19, 0), m: T(0, .04, .02, .3, .6, 0, 1.0, .62, 1.05) });
+    parts.push({ g: new THREE.IcosahedronGeometry(.13, 0), m: T(0, .02, -.20, -.2, 1.1, 0, 1.0, .60, 1.0) });
+    parts.push({ g: new THREE.OctahedronGeometry(.10, 0), m: T(0, .05, .20, .4, .3, 0, 1.0, .7, 1.1) });
+    // six thin struts for legs, angular not organic
+    const strut = new THREE.BoxGeometry(.026, .026, .24);
     for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) {
-      const z = -.16 + i * .17;
-      parts.push({ g: leg, m: T(sx * .15, -.05, z, .2, 0, sx * (.95 + i * .12)) });
-      parts.push({ g: new THREE.CylinderGeometry(.011, .008, .17, 5), m: T(sx * .25, -.14, z + .02, .1, 0, sx * .25) });
+      const z = -.15 + i * .16;
+      parts.push({ g: strut, m: T(sx * .17, -.04, z, .55, sx * (.9 + i * .1), 0) });
+      parts.push({ g: new THREE.BoxGeometry(.02, .02, .17), m: T(sx * .28, -.15, z + .04, 1.1, sx * .4, 0) });
     }
     return mergeGeos(parts);
   }
-  const enemyGeo = creatureGeo();
-  enemyGeo.scale(1.35, 1.35, 1.35);
+  function creatureCrystal() {
+    const parts = [];
+    // long shards read as the creature; short ones fill the cluster
+    const shard = (x, y, z, len, w, tilt, yaw, roll) =>
+      parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
+                   m: T(x, y, z, tilt, yaw, roll || 0, w, len, w) });
+    shard(0, .22, .02, 2.7, .78, -.30, 0);          // spine, tallest
+    shard(-.11, .18, -.06, 2.0, .66, -.50, .7, .3);
+    shard(.13, .19, -.02, 2.1, .68, -.45, -.6, -.3);
+    shard(-.06, .16, .20, 1.7, .60, -.20, .3);
+    shard(.09, .15, .22, 1.6, .58, -.15, -.4);
+    shard(-.18, .10, .04, 1.4, .54, -1.0, 1.1, .5);
+    shard(.19, .10, .06, 1.4, .54, -1.0, -1.0, -.5);
+    shard(0, .08, -.24, 1.2, .50, -1.4, 0);
+    shard(-.10, .06, -.20, 1.0, .44, -1.5, .5);
+    shard(.11, .06, -.20, 1.0, .44, -1.5, -.5);
+    return mergeGeos(parts);
+  }
+  const enemyGeo = creatureBody();
+  const crystalGeo = creatureCrystal();
+  enemyGeo.scale(1.15, 1.15, 1.15);
+  crystalGeo.scale(1.15, 1.15, 1.15);
   const enemyMesh = new THREE.InstancedMesh(enemyGeo, M.enemy, MAX_ENEMIES);
   enemyMesh.castShadow = true; enemyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(enemyMesh);
-  const eyeMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(.028, 6, 5), M.eye, MAX_ENEMIES * 2);
-  eyeMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const eyeMesh = new THREE.InstancedMesh(crystalGeo, M.eye, MAX_ENEMIES);
+  eyeMesh.castShadow = true; eyeMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(eyeMesh);
 
+  // Infantry read as machines: an angular chassis on a walker frame with a lit
+  // sensor band, so friend and swarm never blur together.
   const soldierGeo = mergeGeos([
-    { g: new THREE.CapsuleGeometry(.075, .16, 4, 8), m: T(0, .16, 0) },
-    { g: new THREE.SphereGeometry(.085, 10, 8, 0, 6.2832, 0, Math.PI / 2), m: T(0, .30, 0) },
-    { g: new THREE.BoxGeometry(.05, .05, .3), m: T(.06, .2, -.14) }
+    { g: new THREE.BoxGeometry(.20, .22, .16), m: T(0, .30, 0) },
+    { g: new THREE.BoxGeometry(.24, .07, .18), m: T(0, .41, 0) },
+    { g: new THREE.BoxGeometry(.13, .11, .13), m: T(0, .49, -.01) },
+    { g: new THREE.BoxGeometry(.05, .05, .09), m: T(.08, .43, -.05) },
+    { g: new THREE.CylinderGeometry(.03, .022, .20, 5), m: T(-.07, .12, .01) },
+    { g: new THREE.CylinderGeometry(.03, .022, .20, 5), m: T(.07, .12, .01) },
+    { g: new THREE.BoxGeometry(.09, .04, .13), m: T(-.07, .02, .01) },
+    { g: new THREE.BoxGeometry(.09, .04, .13), m: T(.07, .02, .01) },
+    { g: new THREE.BoxGeometry(.045, .045, .34), m: T(.10, .33, -.14) }
+  ]);
+  const soldierLit = mergeGeos([
+    { g: new THREE.BoxGeometry(.10, .028, .02), m: T(0, .50, -.07) },
+    { g: new THREE.BoxGeometry(.03, .03, .02), m: T(-.09, .34, .08) }
   ]);
   soldierGeo.scale(1.25, 1.25, 1.25);
-  const soldierMesh = new THREE.InstancedMesh(soldierGeo, M.white, 90);
+  soldierLit.scale(1.25, 1.25, 1.25);
+  const infMat = new THREE.MeshStandardMaterial({
+    map: metalTex(0x99a6b4), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
+    roughness: .5, metalness: .45 });
+  const soldierMesh = new THREE.InstancedMesh(soldierGeo, infMat, 90);
   soldierMesh.castShadow = true; soldierMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierMesh);
+  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, M.cyan, 90);
+  soldierLitMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  scene.add(soldierLitMesh);
 
   // sparks
   const sparkGeo = new THREE.BufferGeometry();
@@ -1841,20 +1904,14 @@ const VIEW = (() => {
       // enemies
       let n = 0, en = 0;
       for (const e of G.enemies) {
-        const y = liftAt(e.z) + .06;
+        const y = liftAt(e.z) + .10;
         dummy.position.set(wx(e.x), y, wz(e.z));
         dummy.rotation.set(0, e.dir + Math.PI, 0);
         dummy.scale.setScalar(e.sc);
         dummy.updateMatrix();
-        enemyMesh.setMatrixAt(n++, dummy.matrix);
-        for (const sx of [-1, 1]) {
-          dummy.position.set(wx(e.x) + Math.cos(e.dir) * sx * .06 * e.sc,
-                             y + .07 * e.sc,
-                             wz(e.z) - Math.cos(e.dir) * .3 * e.sc + Math.sin(e.dir) * sx * .06 * e.sc);
-          dummy.scale.setScalar(e.sc);
-          dummy.updateMatrix();
-          eyeMesh.setMatrixAt(en++, dummy.matrix);
-        }
+        enemyMesh.setMatrixAt(n, dummy.matrix);
+        eyeMesh.setMatrixAt(n, dummy.matrix);
+        n++; en++;
       }
       enemyMesh.count = n; eyeMesh.count = en;
       enemyMesh.instanceMatrix.needsUpdate = true;
@@ -1868,10 +1925,13 @@ const VIEW = (() => {
         dummy.rotation.set(0, s.aim + Math.PI, 0);
         dummy.scale.setScalar(1);
         dummy.updateMatrix();
-        soldierMesh.setMatrixAt(sn++, dummy.matrix);
+        soldierMesh.setMatrixAt(sn, dummy.matrix);
+        soldierLitMesh.setMatrixAt(sn, dummy.matrix);
+        sn++;
       }
-      soldierMesh.count = sn;
+      soldierMesh.count = sn; soldierLitMesh.count = sn;
       soldierMesh.instanceMatrix.needsUpdate = true;
+      soldierLitMesh.instanceMatrix.needsUpdate = true;
 
       // turrets
       for (const b of G.buildings) {
