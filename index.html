@@ -1687,100 +1687,118 @@ const VIEW = (() => {
     const K = P.bulk, L = P.long, Q = P.squat;
     const add = (g, m) => parts.push({ g, m });
 
-    // abdomen: the heaviest mass, carried high at the back
-    add(new THREE.IcosahedronGeometry(.19 * K, 0),
-        T(0, .25 * K * Q, .26 * L * K, .28, .6, 0, 1.02, .84 * Q, 1.20));
-    add(new THREE.OctahedronGeometry(.11 * K, 0),
-        T(0, .19 * K * Q, .46 * L * K, .5, .3, 0, .9, .8, 1.5));
-    // waist: the pinch that separates the two masses
-    add(new THREE.BoxGeometry(.11 * K, .10 * K, .13 * K), T(0, .19 * K * Q, .08 * L * K));
-    // thorax: wide, low, and where the legs hang from
+    // Zerg proportions: long and low, highest at the shoulder hump, tapering
+    // back to a tail. Four limbs, not six - two heavy haunches behind and two
+    // scythe arms in front. Legs stay tucked close to the body; the previous
+    // build splayed them out like an ant and read wrong.
+
+    // shoulder hump - the tallest point, carried forward
+    add(new THREE.IcosahedronGeometry(.20 * K, 0),
+        T(0, .27 * K * Q, -.12 * L * K, -.18, .5, 0, 1.30, 1.00, 1.15));
+    // layered carapace plates sloping down the back
+    add(new THREE.BoxGeometry(.36 * K, .055 * K, .22 * K), T(0, .40 * K * Q, -.03 * L * K, -.26, 0, 0));
+    add(new THREE.BoxGeometry(.31 * K, .050 * K, .20 * K), T(0, .36 * K * Q, .15 * L * K, -.12, 0, 0));
+    add(new THREE.BoxGeometry(.25 * K, .045 * K, .17 * K), T(0, .30 * K * Q, .31 * L * K, .02, 0, 0));
+    // abdomen, dropping away behind
     add(new THREE.IcosahedronGeometry(.155 * K, 0),
-        T(0, .18 * K * Q, -.09 * L * K, -.22, 0, 0, 1.42, .78 * Q, 1.05));
-    add(new THREE.BoxGeometry(.30 * K, .07 * K, .22 * K), T(0, .23 * K * Q, -.07 * L * K, -.15, 0, 0));
-    // neck and a head held out low in front
-    add(new THREE.BoxGeometry(.08 * K, .07 * K, .12 * K), T(0, .16 * K * Q, -.25 * L * K, .3, 0, 0));
-    add(new THREE.OctahedronGeometry(.095 * K, 0),
-        T(0, .15 * K * Q, -.42 * L * K, .32, .78, 0, 1.25, .82, 1.65));
-    // mandibles, hooked inward
+        T(0, .20 * K * Q, .29 * L * K, .16, .3, 0, 1.02, .90, 1.30));
+    // tail
+    add(new THREE.OctahedronGeometry(.10 * K, 0),
+        T(0, .14 * K * Q, .53 * L * K, .35, 0, 0, .62, .58, 1.7));
+    // neck held low and forward
+    add(new THREE.BoxGeometry(.12 * K, .10 * K, .16 * K), T(0, .21 * K * Q, -.30 * L * K, .22, 0, 0));
+    // head: mostly jaw
+    add(new THREE.OctahedronGeometry(.105 * K, 0),
+        T(0, .17 * K * Q, -.44 * L * K, .30, .78, 0, 1.20, .78, 1.55));
     for (const sx of [-1, 1]) {
-      add(new THREE.CylinderGeometry(.004, .026 * K, .21 * K, 4),
-          T(sx * .08 * K, .12 * K * Q, -.56 * L * K, 1.42, 0, sx * .55));
-      add(new THREE.CylinderGeometry(.003, .016 * K, .12 * K, 4),
-          T(sx * .14 * K, .16 * K * Q, -.46 * L * K, 1.2, 0, sx * 1.0));
+      add(new THREE.CylinderGeometry(.004, .030 * K, .24 * K, 4),
+          T(sx * .075 * K, .15 * K * Q, -.58 * L * K, -1.38, 0, sx * .46));
     }
 
-    // three pairs of legs: hip -> knee (up and out) -> foot (down and further out)
-    const LEGS = [[-.20, .94, -.20], [-.01, 1.10, .06], [.20, .96, .34]];
-    for (const sx of [-1, 1]) for (const [zz, out, rake] of LEGS) {
-      const hx = sx * .13 * K,        hy = .20 * K * Q, hz = zz * L * K;
-      const kx = sx * .32 * out * K,  ky = .34 * K * Q, kz = (zz + rake * .35) * L * K;
-      const fx = sx * .44 * out * K,  fy = 0,           fz = (zz + rake) * L * K;
-      add(new THREE.BoxGeometry(1, 1, 1), seg(hx, hy, hz, kx, ky, kz, .068 * K));
-      add(new THREE.OctahedronGeometry(.055 * K, 0), T(kx, ky, kz));
-      add(new THREE.BoxGeometry(1, 1, 1), seg(kx, ky, kz, fx, fy, fz, .052 * K));
-      add(new THREE.BoxGeometry(.07 * K, .022 * K, .09 * K), T(fx, .011 * K, fz, 0, sx * .3, 0));
+    // hind legs: thick haunch with the knee sitting above the back line,
+    // shin driving forward under the body
+    for (const sx of [-1, 1]) {
+      const hipX = sx * .13 * K, hipY = .26 * K * Q, hipZ = .10 * L * K;
+      const knX  = sx * .21 * K, knY  = .35 * K * Q, knZ  = .18 * L * K;
+      const anX  = sx * .19 * K, anY  = .10 * K * Q, anZ  = -.02 * L * K;
+      const toX  = sx * .18 * K, toZ  = -.14 * L * K;
+      add(new THREE.IcosahedronGeometry(.095 * K, 0),
+          T(sx * .18 * K, .29 * K * Q, .14 * L * K, 0, 0, 0, 1.05, 1.15, 1.20));
+      add(new THREE.BoxGeometry(1, 1, 1), seg(hipX, hipY, hipZ, knX, knY, knZ, .125 * K));
+      add(new THREE.BoxGeometry(1, 1, 1), seg(knX, knY, knZ, anX, anY, anZ, .090 * K));
+      add(new THREE.BoxGeometry(1, 1, 1), seg(anX, anY, anZ, toX, 0, toZ, .068 * K));
+      add(new THREE.BoxGeometry(.08 * K, .026 * K, .11 * K), T(toX, .013 * K, toZ, 0, sx * .28, 0));
+    }
+
+    // front scythe arms
+    for (const sx of [-1, 1]) {
+      const shX = sx * .15 * K, shY = .27 * K * Q, shZ = -.24 * L * K;
+      const elX = sx * .22 * K, elY = .15 * K * Q, elZ = -.38 * L * K;
+      add(new THREE.OctahedronGeometry(.058 * K, 0), T(shX, shY, shZ));
+      add(new THREE.BoxGeometry(1, 1, 1), seg(shX, shY, shZ, elX, elY, elZ, .085 * K));
+      // the blade: flattened, sweeping forward past the head
+      add(new THREE.CylinderGeometry(.006 * K, .055 * K, .42 * K, 4),
+          T(sx * .235 * K, .16 * K * Q, -.58 * L * K, -1.72, sx * .22, 0, .45, 1, 1));
     }
     return mergeGeos(parts);
   }
   function creatureCrystal(P) {
     const parts = [];
     const K = P.bulk, L = P.long, Q = P.squat;
-    const S = .55 + K * .45;   // shards grow with the body, but not as fast
+    const S = .55 + K * .45;
     const shard = (x, y, z, len, w, tilt, yaw, roll) =>
       parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
                    m: T(x * K, y * K * Q, z * L * K, tilt + P.sweep, yaw, roll || 0,
                         w * P.thick * S, len * P.spike * S, w * P.thick * S) });
-    // dorsal cluster, rooted in the abdomen
-    shard(0,    .40, .24, 2.5, .72, -.26, 0);
-    shard(-.13, .36, .15, 1.9, .60, -.52, .7, .3);
-    shard(.14,  .37, .17, 2.0, .62, -.46, -.6, -.3);
-    shard(-.08, .33, .38, 1.6, .56, .26, .3);
-    shard(.10,  .32, .38, 1.5, .54, .30, -.4);
-    // shoulder spurs, angled out over the legs
-    shard(-.20, .27, -.08, 1.5, .52, -1.05, 1.1, .5);
-    shard(.21,  .27, -.08, 1.5, .52, -1.05, -1.0, -.5);
+    // dorsal spines rooted in the carapace plates, swept back
+    shard(0,    .46, -.04, 1.7, .62, -.34, 0);
+    shard(-.12, .42,  .11, 1.4, .54, -.22, .5, .25);
+    shard(.13,  .42,  .11, 1.4, .54, -.22, -.5, -.25);
+    shard(0,    .35,  .29, 1.1, .48, -.02, 0);
+    // shoulder blades over the arms
+    shard(-.19, .31, -.16, 1.3, .52, -.92, .9, .4);
+    shard(.20,  .31, -.16, 1.3, .52, -.92, -.9, -.4);
     if (P.crown) {
-      shard(-.06, .44, .20, 2.6, .58, -.18, .35, .2);
-      shard(.07,  .44, .20, 2.6, .58, -.18, -.35, -.2);
-      shard(0,    .42, .42, 2.3, .52, .34, 0);
-      shard(-.17, .34, .32, 1.8, .48, .40, .9, .4);
-      shard(.18,  .34, .32, 1.8, .48, .40, -.9, -.4);
+      shard(0,    .53, -.03, 2.3, .58, -.32, 0);
+      shard(-.13, .49,  .07, 1.9, .52, -.34, .45, .2);
+      shard(.14,  .49,  .07, 1.9, .52, -.34, -.45, -.2);
+      shard(-.20, .38,  .22, 1.5, .48, -.55, .85, .35);
+      shard(.21,  .38,  .22, 1.5, .48, -.55, -.85, -.35);
     }
-    // head horn
+    // forehead ram
     if (P.ram) {
-      shard(0,    .17, -.44, 2.2, .58, -1.50, 0);
-      shard(-.10, .15, -.36, 1.6, .48, -1.46, .5);
-      shard(.11,  .15, -.36, 1.6, .48, -1.46, -.5);
+      shard(0,    .21, -.52, 1.8, .56, -1.54, 0);
+      shard(-.09, .19, -.44, 1.2, .44, -1.48, .45);
+      shard(.10,  .19, -.44, 1.2, .44, -1.48, -.45);
     } else {
-      shard(0,    .22, -.30, 1.1, .44, -1.36, 0);
-      shard(-.09, .20, -.26, .9, .38, -1.42, .5);
-      shard(.10,  .20, -.26, .9, .38, -1.42, -.5);
+      shard(0,    .25, -.42, .9, .40, -1.42, 0);
     }
-    // eyes: two lit chips on the head, the cheapest way to make it look alive
+    // lit edge on each scythe
+    for (const sx of [-1, 1]) shard(sx * .245, .155, -.60, 1.5, .30, -1.74, sx * .22);
+    // eyes
     for (const sx of [-1, 1])
       parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
-                   m: T(sx * .065 * K, .175 * K * Q, -.47 * L * K, 0, 0, 0,
-                        .28 * K, .20 * K, .32 * K) });
+                   m: T(sx * .066 * K, .195 * K * Q, -.49 * L * K, 0, 0, 0,
+                        .26 * K, .18 * K, .30 * K) });
     return mergeGeos(parts);
   }
   // molten, not pink: dark rock with heat running through the seams
   const ORE = {
-    spore:    { bulk: 1.0, squat: 1.1, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
+    spore:    { bulk: 1.0, squat: 1.05, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
                 col: 0x7a2a0a, em: 0xd85a10, ei: .55 },
     swarm:    { bulk: 1.1, squat: 1.0, long: 1.0, spike: .85, thick: 1.10, sweep: 0, ram: false, crown: false,
                 col: 0x6c1e06, em: 0xc74a0c, ei: .48 },
-    charger:  { bulk: 1.0, squat: .85, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
+    charger:  { bulk: 1.0, squat: .88, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
                 col: 0x7c2606, em: 0xdd5c10, ei: .60 },
-    carapace: { bulk: 1.26, squat: 1.2, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
+    carapace: { bulk: 1.26, squat: 1.02, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
                 col: 0x531705, em: 0xb03c0a, ei: .40 },
-    breaker:  { bulk: 1.32, squat: 1.05, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
+    breaker:  { bulk: 1.32, squat: .98, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
                 col: 0x5d1c04, em: 0xc2450c, ei: .46 },
-    heavy:    { bulk: 1.38, squat: 1.30, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
+    heavy:    { bulk: 1.38, squat: .96, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
                 col: 0x461204, em: 0xa8380a, ei: .42 },
-    colossus: { bulk: 1.44, squat: 1.25, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
+    colossus: { bulk: 1.44, squat: .92, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
                 col: 0x431004, em: 0xcf4a0c, ei: .55 },
-    matriarch:{ bulk: 1.52, squat: 1.35, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
+    matriarch:{ bulk: 1.52, squat: .92, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
                 col: 0x380c03, em: 0xd8540e, ei: .68 }
   };
   const SRGB = h => new THREE.Color(h).convertSRGBToLinear();
