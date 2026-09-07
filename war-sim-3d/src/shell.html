@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>OUTPOST — 관제</title>
+<style>
+  :root{
+    --ef-yellow:#FFD429; --ef-cyan:#00E5FF; --ef-red:#FF4757;
+    --s0:#0F0F0F; --s2:#1A1A1A; --tx:#F0F0F0; --tx-mut:#999999;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#0A0A0A;
+    font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);
+    -webkit-tap-highlight-color:transparent}
+  #stage{position:absolute;inset:0}
+  canvas{position:absolute;inset:0;display:block;touch-action:none}
+  #boot{position:absolute;inset:0;display:grid;place-content:center;gap:10px;
+    text-align:center;background:#0A0A0A;z-index:9}
+  #boot b{font:600 11px/1 ui-monospace,monospace;letter-spacing:.24em;color:var(--ef-yellow)}
+  #boot span{font:400 11px/1 ui-monospace,monospace;color:var(--tx-mut)}
+  /* --- floating instrumentation, hugging the edges --- */
+  #hud{position:absolute;inset:0;pointer-events:none;z-index:5}
+  .glass{background:rgba(20,20,20,.55);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.10);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+  .chip{position:absolute;padding:7px 11px;display:flex;gap:14px;align-items:baseline}
+  .k{font:400 9px/1 ui-monospace,monospace;letter-spacing:.18em;color:var(--tx-mut);
+    text-transform:uppercase}
+  .v{font:600 17px/1 ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  #top{top:14px;left:14px}
+  #cam{bottom:14px;right:14px;font:400 10px/1.7 ui-monospace,monospace;
+    color:var(--tx-mut);text-align:right;padding:9px 12px}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="boot"><b>OUTPOST</b><span id="bootmsg">지형 생성 중…</span></div>
+<div id="hud">
+  <div id="top" class="chip glass">
+    <div><div class="k">Sector</div><div class="v" id="vSector">VL-04</div></div>
+    <div><div class="k">Elev</div><div class="v" id="vElev">—</div></div>
+    <div><div class="k">FPS</div><div class="v" id="vFps">—</div></div>
+  </div>
+  <div id="cam" class="chip glass">드래그 · 시점 이동<br>휠 / 핀치 · 확대</div>
+</div>
+
+<script type="module">
+__GAME__
+</script>
+</body>
+</html>
