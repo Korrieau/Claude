@@ -208,6 +208,41 @@
   }
   .act[data-sel="1"] .art svg { stroke: var(--accent); }
   .act[data-sel="1"] .art { background: linear-gradient(180deg, rgba(255,122,42,.18), rgba(255,122,42,0)); }
+  #abils { display: flex; gap: 5px; margin-bottom: 7px; }
+  .ab {
+    flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; overflow: hidden;
+    text-align: left; padding: 6px 8px 7px; color: #cfe0ec;
+    background: rgba(9,13,18,.62); border: 1px solid rgba(79,227,240,.30);
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  }
+  .ab b { display: block; font-size: 11.5px; font-weight: 700; }
+  .ab s {
+    display: block; text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 6px; letter-spacing: .22em; color: #4b6577; margin-top: 1px;
+  }
+  .ab i {
+    position: absolute; inset: 0; background: rgba(4,7,10,.90); font-style: normal;
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace; font-size: 15px; font-weight: 700; color: #7d94a6;
+  }
+  .ab[data-arm="1"] { border-color: var(--accent); background: rgba(255,122,42,.16); color: #ffd7bb; }
+  .ab:active { transform: translateY(1px); }
+
+  #draft .card {
+    display: block; width: 100%; text-align: left; cursor: pointer; margin-top: 9px;
+    background: rgba(9,13,18,.6); border: 1px solid rgba(122,150,175,.24); padding: 12px 14px 13px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  #draft .card u {
+    display: inline-block; text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 7px; letter-spacing: .2em; color: var(--gold);
+    border: 1px solid rgba(255,201,61,.35); padding: 2px 6px; margin-bottom: 7px;
+  }
+  #draft .card b { display: block; font-size: 15px; font-weight: 700; color: #eaf2f8; }
+  #draft .card span { display: block; font-size: 12px; color: var(--dim); margin-top: 5px; line-height: 1.6; }
+  #draft .card:active { transform: translateY(1px); border-color: var(--accent); }
+  #held { font-size: 11px; color: var(--dim); line-height: 1.9; margin-top: 4px; }
+  #held em { font-style: normal; color: var(--cyan); }
   #hint {
     font-size: 8px; color: #3d4d5c; margin-top: 8px; text-align: center;
     font-family: ui-monospace, monospace; letter-spacing: .2em;
@@ -295,6 +330,7 @@
 </div>
 
 <div id="sheet">
+  <div id="abils"></div>
   <div id="tabs">
     <button class="tab" data-zone="0" data-on="1"><i>01</i><b>전방</b><s>TRENCH</s></button>
     <button class="tab" data-zone="1"><i>02</i><b>중앙</b><s>FIRE</s></button>
@@ -317,9 +353,27 @@
   <div class="lbl">핵심</div>
   <div class="help">
     병사는 <b>참호 안에서만 강합니다.</b><br>
-    <span class="d">참호가 부서지면 그 구간이 뚫립니다. 병력을 다시 밀어 넣으세요.</span>
+    <span class="d">참호가 부서지면 그 구간이 뚫립니다. 병력을 다시 밀어 넣으세요.</span><br>
+    벽은 길을 <b>막지 않고 돌립니다.</b><br>
+    <span class="d">벽으로 통로를 좁히고 그 앞에 화력을 모으세요.</span>
+  </div>
+  <div class="lbl">교리와 지휘</div>
+  <div class="help">
+    공세를 막을 때마다 <b>교리를 하나 고릅니다.</b><br>
+    <span class="d">15종 중 3종이 제시됩니다. 매판 다른 방어선이 나옵니다.</span><br>
+    전투 중에는 <b>지휘 능력 3종</b>을 직접 씁니다.<br>
+    <span class="d">포격 지원 · 전선 사수 · 긴급 정비</span>
   </div>
   <button class="btn" id="startBtn">전투 시작</button>
+</div>
+
+<div class="overlay" id="draft" hidden>
+  <div class="lbl" style="text-align:center;margin-top:0">DOCTRINE &nbsp;/&nbsp; 교리 선택</div>
+  <div class="title" id="draftTitle" style="font-size:20px">전열 재정비</div>
+  <p class="sub" style="margin-top:8px">하나만 고를 수 있습니다. 이번 판은 이걸로 굴러갑니다.</p>
+  <div id="draftCards"></div>
+  <div class="lbl">보유 교리</div>
+  <div id="held">아직 없습니다</div>
 </div>
 
 <div class="overlay" id="endScreen" hidden>
@@ -420,28 +474,57 @@ const E = {
 // landmarks in it rather than a uniform stream.
 const ASSAULTS = [
   { dur: 34, rate: 4.5,  mix: { spore: .55, swarm: .45 } },
-  { dur: 36, rate: 6.5,  mix: { spore: .48, swarm: .52 } },
-  { dur: 38, rate: 8.5,  mix: { spore: .42, swarm: .42, charger: .16 } },
-  { dur: 40, rate: 11,   mix: { spore: .38, swarm: .40, charger: .18, carapace: .04 },
-    big: [["carapace", 3]] },
-  { dur: 42, rate: 14,   mix: { spore: .36, swarm: .38, charger: .20, carapace: .06 },
-    big: [["carapace", 5], ["breaker", 1]] },
-  { dur: 44, rate: 19,   mix: { spore: .34, swarm: .36, charger: .22, carapace: .08 },
-    big: [["carapace", 6], ["breaker", 3]] },
-  { dur: 46, rate: 23,   mix: { spore: .32, swarm: .35, charger: .23, carapace: .10 },
-    big: [["breaker", 5], ["heavy", 2]] },
-  { dur: 48, rate: 27,   mix: { spore: .32, swarm: .34, charger: .24, carapace: .10 },
-    big: [["breaker", 6], ["heavy", 3], ["colossus", 1]] },
-  { dur: 50, rate: 32,   mix: { spore: .30, swarm: .34, charger: .24, carapace: .12 },
-    big: [["breaker", 8], ["heavy", 5], ["colossus", 2]] },
-  { dur: 64, rate: 40,   mix: { spore: .30, swarm: .33, charger: .25, carapace: .12 },
-    big: [["breaker", 10], ["heavy", 7], ["colossus", 4], ["matriarch", 1]] }
+  { dur: 36, rate: 7,    mix: { spore: .48, swarm: .52 } },
+  { dur: 38, rate: 10,   mix: { spore: .42, swarm: .42, charger: .16 } },
+  { dur: 40, rate: 14,   mix: { spore: .38, swarm: .40, charger: .18, carapace: .04 },
+    big: [["carapace", 4]] },
+  { dur: 42, rate: 18,   mix: { spore: .36, swarm: .38, charger: .20, carapace: .06 },
+    big: [["carapace", 7], ["breaker", 2]] },
+  { dur: 44, rate: 23,   mix: { spore: .34, swarm: .36, charger: .22, carapace: .08 },
+    big: [["carapace", 9], ["breaker", 5]] },
+  { dur: 46, rate: 28,   mix: { spore: .32, swarm: .35, charger: .23, carapace: .10 },
+    big: [["breaker", 9], ["heavy", 4]] },
+  { dur: 48, rate: 34,   mix: { spore: .32, swarm: .34, charger: .24, carapace: .10 },
+    big: [["breaker", 11], ["heavy", 7], ["colossus", 2]] },
+  { dur: 50, rate: 40,   mix: { spore: .30, swarm: .34, charger: .24, carapace: .12 },
+    big: [["breaker", 14], ["heavy", 10], ["colossus", 4]] },
+  { dur: 66, rate: 48,   mix: { spore: .30, swarm: .33, charger: .25, carapace: .12 },
+    big: [["breaker", 18], ["heavy", 14], ["colossus", 8], ["matriarch", 3]] }
 ];
 const LULL = 17, LULL_RATE = 0.7;
 const SOLDIER = { mat: 15, man: 4, hp: 46, dmg: 6, cd: 0.62, range: 3.4, spd: 1.9 };
 const HQ_HP = 7000;
 const MAX_ENEMIES = 700;
 
+// Doctrines are the run's identity: one pick from three after every assault,
+// each taken at most once, so no two runs hold the line the same way.
+const DOCTRINE = [
+  { k: "ap",     n: "관통탄",       t: "화력", d: "기관총·저격·화염 피해 +40%" },
+  { k: "artyup", n: "화력 통제",    t: "화력", d: "박격포·시즈·자주포 피해 +35%, 사거리 +15%" },
+  { k: "beamup", n: "집속 코일",    t: "화력", d: "레일건·거대로봇 피해 +60%, 관통 폭 +50%" },
+  { k: "emp",    n: "자기 교란",    t: "화력", d: "자기 방벽 피해 +80%, 반경 +25%" },
+  { k: "overload", n: "과부하",     t: "화력", d: "모든 무기 연사 +25%, 유지비 +60%" },
+  { k: "rebar",  n: "강화 콘크리트", t: "방어", d: "벽·참호·벙커 내구 +70%" },
+  { k: "mend",   n: "야전 정비",    t: "방어", d: "모든 건물이 초당 최대체력 1.2% 회복" },
+  { k: "deep",   n: "참호 개량",    t: "방어", d: "참호 수용 4명, 엄폐 강화" },
+  { k: "minefld", n: "지뢰밭",      t: "방어", d: "지뢰 비용 절반, 폭발 반경 +45%, 피해 +30%" },
+  { k: "logi",   n: "병참 개선",    t: "경제", d: "자원 생산 +40%" },
+  { k: "draft",  n: "총동원",       t: "경제", d: "인력 회복 +80%, 병사 비용 -30%" },
+  { k: "salvage", n: "잔해 회수",   t: "경제", d: "적을 잡을 때마다 자원을 얻는다" },
+  { k: "fast",   n: "전개 가속",    t: "경제", d: "건설 속도 2배, 건물 비용 -15%" },
+  { k: "vet",    n: "정예화",       t: "병력", d: "병사 피해 +50%, 체력 +30%" },
+  { k: "cmd",    n: "지휘 강화",    t: "병력", d: "지휘 능력 재사용 대기 -35%" }
+];
+// Three buttons you actually press during a fight. Without these the player
+// builds for thirty seconds and then watches for forty.
+const ABIL = {
+  strike: { n: "포격 지원", s: "STRIKE", cd: 26, aim: true,
+            d: "지정한 칸에 광역 피해 320" },
+  rally:  { n: "전선 사수", s: "RALLY",  cd: 40,
+            d: "8초간 병사 피해 60% 감소, 연사 2배" },
+  patch:  { n: "긴급 정비", s: "REPAIR", cd: 45,
+            d: "모든 건물 체력 40% 즉시 회복" }
+};
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const rnd = (a, b) => a + Math.random() * (b - a);
 
@@ -461,15 +544,108 @@ function newGame() {
     hq: { hp: HQ_HP, max: HQ_HP },
     assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowDirty: true, dens: new Int16Array(COLS * ROWS),
-    kia: 0, kills: 0, t: 0, shake: 0, breach: 0
+    kia: 0, kills: 0, t: 0, shake: 0, breach: 0,
+    doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null
   };
 }
 const at = (c, r) => (c < 0 || r < 0 || c >= COLS || r >= ROWS) ? null : G.tiles[r * COLS + c];
 
-function income() { let m = 5; for (const b of G.buildings) if (b.done && B[b.key].income) m += B[b.key].income; return m; }
-function manRate() { let m = 0.28; for (const b of G.buildings) if (b.done && B[b.key].manpower) m += B[b.key].manpower; return m; }
+// Every stat the doctrines touch goes through one of these, so a new card is
+// a line here and a line in the table rather than a hunt through the sim.
+const has = k => G.doct.indexOf(k) >= 0;
+const DIRECT = { mg: 1, sniper: 1, flame: 1 };
+function wDmg(key) {
+  const sp = B[key]; let m = 1;
+  if (has("ap") && DIRECT[key]) m *= 1.40;
+  if (has("artyup") && sp.arc) m *= 1.35;
+  if (has("beamup") && sp.beam) m *= 1.60;
+  if (has("emp") && sp.aura) m *= 1.80;
+  return sp.dmg * m;
+}
+function wCd(key) { return B[key].cd * (has("overload") ? .80 : 1); }
+function wRange(key) {
+  const sp = B[key]; let m = 1;
+  if (has("artyup") && sp.arc) m *= 1.15;
+  if (has("emp") && sp.aura) m *= 1.25;
+  return sp.range * m;
+}
+function wBeamW(key) { return (B[key].wide ? .72 : .42) * (has("beamup") ? 1.5 : 1); }
+function bMaxHp(key) {
+  const sp = B[key];
+  return Math.round(sp.hp * (has("rebar") && (sp.wall || sp.garrison) ? 1.70 : 1));
+}
+function bCost(key) {
+  let m = has("fast") ? .85 : 1;
+  if (has("minefld") && key === "mine") m *= .5;
+  return Math.round(B[key].mat * m);
+}
+function garrisonOf(key) { return B[key].garrison ? B[key].garrison + (has("deep") && key === "trench" ? 1 : 0) : 0; }
+// key may be null: a soldier out in the open has no cover at all
+function coverOf(key) {
+  const sp = key ? B[key] : null;
+  const base = !sp || sp.cover === undefined ? 1 : Math.max(.04, sp.cover - (has("deep") ? .08 : 0));
+  return base * (G.rally > 0 ? .40 : 1);
+}
+function mineDmgOf(key) { return B[key].mineDmg * (has("minefld") ? 1.3 : 1); }
+function mineROf(key) { return B[key].mineR * (has("minefld") ? 1.45 : 1); }
+function solDmg() { return SOLDIER.dmg * (has("vet") ? 1.5 : 1); }
+function solMaxHp() { return SOLDIER.hp * (has("vet") ? 1.3 : 1); }
+function solCost() { return Math.round(SOLDIER.mat * (has("draft") ? .7 : 1)); }
+function abCd(k) { return ABIL[k].cd * (has("cmd") ? .65 : 1); }
+
+// ---- commander abilities ---------------------------------------------------
+function fireAbility(k, c, r) {
+  if (G.ab[k] > 0) return "재사용 대기 중";
+  if (k === "strike") {
+    const x = c + .5, z = r + .5, R = 2.2;
+    for (const e of G.enemies) {
+      const d = Math.hypot(e.x - x, e.z - z);
+      if (d < R) hurtEnemy(e, 320 * (1 - d / R * .45));
+    }
+    boom(x, z, R, 34);
+    G.mark = { x, z, life: .9 };
+    G.shake = Math.max(G.shake, .26);
+    floatText("포격 지원");
+  } else if (k === "rally") {
+    G.rally = 8;
+    floatText("전선 사수");
+  } else if (k === "patch") {
+    for (const b of G.buildings) b.hp = Math.min(b.maxHp, b.hp + b.maxHp * .40);
+    floatText("긴급 정비");
+  }
+  G.ab[k] = abCd(k);
+  return null;
+}
+
+// ---- doctrine draft --------------------------------------------------------
+function rollDraft() {
+  const pool = DOCTRINE.filter(d => !has(d.k));
+  if (!pool.length) return null;
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, 3).map(d => d.k);
+}
+function takeDoctrine(k) {
+  G.doct.push(k);
+  // some cards change things that already exist on the board
+  if (k === "rebar") for (const b of G.buildings) {
+    const nm = bMaxHp(b.key);
+    if (nm > b.maxHp) { b.hp += nm - b.maxHp; b.maxHp = nm; }
+  }
+  if (k === "vet") for (const s2 of G.soldiers) {
+    const nm = solMaxHp();
+    if (nm > s2.maxHp) { s2.hp += nm - s2.maxHp; s2.maxHp = nm; }
+  }
+}
+
+function income() { let m = 5; for (const b of G.buildings) if (b.done && B[b.key].income) m += B[b.key].income;
+  return m * (has("logi") ? 1.4 : 1); }
+function manRate() { let m = 0.28; for (const b of G.buildings) if (b.done && B[b.key].manpower) m += B[b.key].manpower;
+  return m * (has("draft") ? 1.8 : 1); }
 function upkeep() { let u = 0; for (const b of G.buildings) if (b.done && B[b.key].upkeep) u += B[b.key].upkeep; return u; }
-function upkeepDrain() { return upkeep() * 0.42; }
+function upkeepDrain() { return upkeep() * 0.42 * (has("overload") ? 1.6 : 1); }
 
 // ---------------------------------------------------------------- flow field
 const flowQ = [];
@@ -504,9 +680,11 @@ function place(key, c, r) {
   if (zoneOf(r) !== spec.z) return "이 구역에는 지을 수 없습니다";
   if (t.hq) return "사령부 자리입니다";
   if (t.b) return "이미 건물이 있습니다";
-  if (G.mat < spec.mat) return "자원이 부족합니다";
-  G.mat -= spec.mat;
-  const b = { key, c, r, hp: spec.hp, maxHp: spec.hp, done: false, prog: 0,
+  const cost = bCost(key);
+  if (G.mat < cost) return "자원이 부족합니다";
+  G.mat -= cost;
+  const mhp = bMaxHp(key);
+  const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0,
               cd: rnd(0, .4), aim: -Math.PI / 2, flash: 0, crew: [], dead: false, obj: null };
   t.b = b; G.buildings.push(b);
   G.flowDirty = true;
@@ -529,10 +707,12 @@ function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 
 // ---------------------------------------------------------------- soldiers
 function spawnSoldier() {
-  if (G.mat < SOLDIER.mat || G.man < SOLDIER.man) return false;
-  G.mat -= SOLDIER.mat; G.man -= SOLDIER.man;
+  const cost = solCost();
+  if (G.mat < cost || G.man < SOLDIER.man) return false;
+  G.mat -= cost; G.man -= SOLDIER.man;
+  const mhp = solMaxHp();
   G.soldiers.push({
-    x: 4.5 + rnd(-.8, .8), z: 15.4, hp: SOLDIER.hp, maxHp: SOLDIER.hp,
+    x: 4.5 + rnd(-.8, .8), z: 15.4, hp: mhp, maxHp: mhp,
     post: null, state: "seek", cd: rnd(0, .5), dead: false, aim: -Math.PI / 2, fire: 0
   });
   return true;
@@ -541,7 +721,7 @@ function findPost() {
   let best = null, bestR = 99;
   for (const b of G.buildings) {
     if (!b.done || !B[b.key].garrison) continue;
-    if (b.crew.length >= B[b.key].garrison) continue;
+    if (b.crew.length >= garrisonOf(b.key)) continue;
     if (b.r < bestR) { bestR = b.r; best = b; }
   }
   return best;
@@ -567,14 +747,14 @@ function updateSoldiers(dt) {
       if (!s.post) s.state = "seek";
       else {
         const idx = s.post.crew.indexOf(s);
-        const off = (idx - (B[s.post.key].garrison - 1) / 2) * .26;
+        const off = (idx - (garrisonOf(s.post.key) - 1) / 2) * .26;
         if (stepTo(s, s.post.c + .5 + off, s.post.r + .5, SOLDIER.spd, dt)) s.state = "hold";
       }
     }
     s.cd -= dt;
     if (s.cd <= 0) {
       const spec = s.post ? B[s.post.key] : null;
-      const rof = spec && spec.rof ? spec.rof : 1;
+      const rof = (spec && spec.rof ? spec.rof : 1) * (G.rally > 0 ? .5 : 1);
       const R2 = SOLDIER.range * SOLDIER.range;
       let tgt = null, seen = 0;
       for (const e of G.enemies) {
@@ -587,7 +767,7 @@ function updateSoldiers(dt) {
         s.cd = SOLDIER.cd * rof;
         s.fire = .12;
         s.aim = Math.atan2(tgt.x - s.x, tgt.z - s.z);
-        hurtEnemy(tgt, SOLDIER.dmg);
+        hurtEnemy(tgt, solDmg());
         G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .07, hot: false });
       } else s.cd = .2;
     }
@@ -600,11 +780,12 @@ function updateBuildings(dt) {
     if (b.dead) continue;
     const spec = B[b.key];
     if (!b.done) {
-      b.prog += dt / 2.2;
+      b.prog += dt / (has("fast") ? 1.1 : 2.2);
       if (b.prog >= 1) { b.prog = 1; b.done = true; G.flowDirty = true; VIEW.finishBuilding(b); }
       continue;
     }
     b.flash = Math.max(0, b.flash - dt * 9);
+    if (has("mend") && b.hp < b.maxHp) b.hp = Math.min(b.maxHp, b.hp + b.maxHp * .012 * dt);
     const bx = b.c + .5, bz = b.r + .5;
 
     // pressure mine: no cooldown, no aim, one use
@@ -614,11 +795,12 @@ function updateBuildings(dt) {
         if (Math.hypot(e.x - bx, e.z - bz) < spec.trigger + e.r) { hit = true; break; }
       }
       if (!hit) continue;
+      const mR = mineROf(b.key), mD = mineDmgOf(b.key);
       for (const e of G.enemies) {
         const d = Math.hypot(e.x - bx, e.z - bz);
-        if (d < spec.mineR) hurtEnemy(e, spec.mineDmg * (1 - d / spec.mineR * .4));
+        if (d < mR) hurtEnemy(e, mD * (1 - d / mR * .4));
       }
-      boom(bx, bz, spec.mineR, 22);
+      boom(bx, bz, mR, 22);
       G.shake = Math.max(G.shake, .14);
       b.hp = 0; killBuilding(b);
       continue;
@@ -626,18 +808,19 @@ function updateBuildings(dt) {
     if (!spec.dmg) continue;
     b.cd -= dt;
     if (b.cd > 0) continue;
-    const maxR = spec.range, minR = spec.minRange || 0;
+    const maxR = wRange(b.key), minR = spec.minRange || 0;
+    const dmg = wDmg(b.key);
 
     // aura: everything inside the ring, no target needed
     if (spec.aura) {
       let n = 0;
       for (const e of G.enemies) {
         if (Math.hypot(e.x - bx, e.z - bz) > maxR) continue;
-        hurtEnemy(e, spec.dmg);
+        hurtEnemy(e, dmg);
         if (n < 6) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .09, hot: false });
         n++;
       }
-      b.cd = n ? spec.cd : .15;
+      b.cd = n ? wCd(b.key) : .15;
       if (n) b.flash = 1;
       continue;
     }
@@ -653,7 +836,7 @@ function updateBuildings(dt) {
     }
     if (!tgt) { b.cd = .12; continue; }
     b.aim = Math.atan2(tgt.x - bx, tgt.z - bz);
-    b.cd = spec.cd;
+    b.cd = wCd(b.key);
     b.flash = 1;
 
     if (spec.arc) {
@@ -664,7 +847,7 @@ function updateBuildings(dt) {
         const sp = shots > 1 ? .95 : .3;
         G.shells.push({
           x0: bx, z0: bz, x1: tgt.x + rnd(-sp, sp), z1: tgt.z + rnd(-sp, sp),
-          t: 0, dur: base + i * .26, dmg: spec.dmg, splash: spec.splash, big: b.key === "siege"
+          t: 0, dur: base + i * .26, dmg: dmg, splash: spec.splash, big: b.key === "siege"
         });
       }
       G.shake = Math.max(G.shake, b.key === "siege" ? .07 : .035);
@@ -677,7 +860,7 @@ function updateBuildings(dt) {
         const vx = ex - bx, vz = ez - bz;
         const t = clamp(((e.x - bx) * vx + (e.z - bz) * vz) / (vx * vx + vz * vz), 0, 1);
         const d = Math.hypot(e.x - (bx + vx * t), e.z - (bz + vz * t));
-        if (d < (spec.wide ? .72 : .42)) hurtEnemy(e, spec.dmg);
+        if (d < wBeamW(b.key)) hurtEnemy(e, dmg);
       }
       G.shake = Math.max(G.shake, spec.wide ? .16 : .05);
     } else if (spec.cone) {
@@ -691,13 +874,13 @@ function updateBuildings(dt) {
         while (da > Math.PI) da -= 6.2832;
         while (da < -Math.PI) da += 6.2832;
         if (Math.abs(da) > spec.cone) continue;
-        hurtEnemy(e, spec.dmg);
+        hurtEnemy(e, dmg);
         if (n < 5) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .07, hot: true });
         n++;
       }
       if (!n) b.cd = .15;
     } else {
-      hurtEnemy(tgt, spec.dmg);
+      hurtEnemy(tgt, dmg);
       G.tracers.push({ x1: bx, z1: bz, x2: tgt.x, z2: tgt.z, life: .055, hot: true });
     }
   }
@@ -722,7 +905,7 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = 1 + G.assault * 0.155;
+  const scale = 1 + G.assault * 0.24;
   G.enemies.push({
     type, x: rnd(.25, COLS - .25), z: rnd(-1.6, -.2),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
@@ -735,10 +918,12 @@ function hurtEnemy(e, dmg) {
   e.hp -= dmg; e.flash = 1;
   if (e.hp <= 0) {
     e.dead = true; G.kills++;
+    if (has("salvage")) G.mat += E[e.type].kill * .55;
     spray(e.x, e.z, E[e.type].kill > 4 ? 8 : 3);
   }
 }
-function difficultyDamage() { return 1; }
+// the swarm hits harder as the campaign runs, or a saturated board never loses
+function difficultyDamage() { return 1 + G.assault * 0.12; }
 function updateEnemies(dt) {
   if (G.flowDirty) rebuildFlow();
   const f = G.flow, dens = G.dens;
@@ -767,8 +952,8 @@ function updateEnemies(dt) {
     if (prey) {
       if (e.cd <= 0) {
         e.cd = spec.cd;
-        const cover = prey.post ? B[prey.post.key].cover : 1;
-        prey.hp -= spec.dmg * cover;
+        const cover = coverOf(prey.post ? prey.post.key : null);
+        prey.hp -= spec.dmg * cover * difficultyDamage();
         if (prey.hp <= 0) prey.dead = true;
       }
       continue;
@@ -776,7 +961,7 @@ function updateEnemies(dt) {
     if (here && here.hq) {
       if (e.cd <= 0) {
         e.cd = spec.cd;
-        G.hq.hp -= spec.dmg;
+        G.hq.hp -= spec.dmg * difficultyDamage();
         G.shake = Math.max(G.shake, .06);
         if (G.hq.hp <= 0) { G.hq.hp = 0; finish(false, "사령부가 함락되었습니다"); return; }
       }
@@ -794,7 +979,7 @@ function updateEnemies(dt) {
     const tc = bestI % COLS, tr = (bestI / COLS) | 0;
     const nt = G.tiles[bestI];
     if (nt.b && nt.b.done && !B[nt.b.key].walk) {
-      if (e.cd <= 0) { e.cd = spec.cd; hurtBuilding(nt.b, spec.dmg); }
+      if (e.cd <= 0) { e.cd = spec.cd; hurtBuilding(nt.b, spec.dmg * difficultyDamage()); }
       e.dir = Math.atan2(tc + .5 - e.x, tr + .5 - e.z);
       continue;
     }
@@ -864,6 +1049,9 @@ function updateWar(dt) {
   if (G.mat < 0) G.mat = 0;
   G.man = Math.min(G.manCap, G.man + manRate() * dt);
   G.timer -= dt;
+  G.rally = Math.max(0, G.rally - dt);
+  if (G.mark) { G.mark.life -= dt; if (G.mark.life <= 0) G.mark = null; }
+  for (const k in G.ab) if (G.ab[k] > 0) G.ab[k] = Math.max(0, G.ab[k] - dt);
   if (G.phase === "lull") {
     G.spawnAcc += LULL_RATE * dt;
     if (G.timer <= 0) {
@@ -900,6 +1088,7 @@ function updateWar(dt) {
     if (G.timer <= 0 && !G.enemies.length) {
       G.phase = "lull"; G.timer = LULL; G.mat += 90;
       floatText("공세 격퇴  자원 +90");
+      openDraft();
     }
   }
   const mix = G.phase === "assault" && G.timer > 0 ? ASSAULTS[G.assault - 1].mix : { swarm: 1 };
@@ -1887,12 +2076,37 @@ const VIEW = (() => {
   const shellPool = [];
   const beamMat = new THREE.MeshStandardMaterial({ color: 0xa8f4ff, emissive: 0x6fe6ff, emissiveIntensity: 2.4, transparent: true, opacity: .8 });
   const beamPool = [];
+  // Damage was invisible: a building died with no warning and a big enemy
+  // soaked fire with nothing to show for it. Bars only appear once hurt.
+  const barGeo = new THREE.PlaneGeometry(1, 1);
+  const barBackMat = new THREE.MeshBasicMaterial({ color: 0x05080c, transparent: true, opacity: .7, depthTest: false });
+  const barPool = [];
+  function bar(i) {
+    while (barPool.length <= i) {
+      const back = new THREE.Mesh(barGeo, barBackMat);
+      const fill = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ transparent: true, depthTest: false }));
+      back.renderOrder = 900; fill.renderOrder = 901;
+      back.frustumCulled = false; fill.frustumCulled = false;
+      scene.add(back); scene.add(fill);
+      barPool.push({ back, fill });
+    }
+    return barPool[i];
+  }
+  const BAR_COL = new THREE.Color();
+  const markMat = new THREE.MeshBasicMaterial({ color: 0xff7a2a, transparent: true, opacity: .5,
+                                                depthTest: false, side: THREE.DoubleSide });
+  const markMesh = new THREE.Mesh(new THREE.RingGeometry(1.85, 2.2, 28), markMat);
+  markMesh.rotation.x = -Math.PI / 2; markMesh.renderOrder = 890;
+  markMesh.visible = false; scene.add(markMesh);
 
   // ---- deployable structures ----
   function makeBuilding(b) {
     const g = new THREE.Group();
     const x = wx(b.c + .5), z = wz(b.r + .5), y = BAND_LIFT[bandOf(b.r)];
     g.position.set(x, y, z);
+    // one cell is one world unit; props read as props only when they sit
+    // clearly inside it rather than filling it edge to edge
+    g.scale.setScalar(.76);
     scene.add(g);
     const K = b.key;
     if (K === "wire") {
@@ -2250,7 +2464,7 @@ const VIEW = (() => {
         const ph = now * (9.5 - Math.min(e.sc, 3) * 2.3) + e.wob;
         dummy.position.set(wx(e.x), y + Math.abs(Math.sin(ph)) * .028 * e.sc, wz(e.z));
         dummy.rotation.set(0, e.dir + Math.PI, Math.sin(ph) * .11);
-        dummy.scale.setScalar(e.sc);
+        dummy.scale.setScalar(e.sc * .66);
         dummy.updateMatrix();
         const i = eCount[e.type]++;
         bm.setMatrixAt(i, dummy.matrix);
@@ -2268,7 +2482,7 @@ const VIEW = (() => {
         if (sn >= 90) break;
         dummy.position.set(wx(s.x), liftAt(s.z) + .02, wz(s.z));
         dummy.rotation.set(0, s.aim + Math.PI, 0);
-        dummy.scale.setScalar(1);
+        dummy.scale.setScalar(.80);
         dummy.updateMatrix();
         soldierMesh.setMatrixAt(sn, dummy.matrix);
         soldierLitMesh.setMatrixAt(sn, dummy.matrix);
@@ -2361,6 +2575,41 @@ const VIEW = (() => {
         m.material.opacity = clamp(b.life / .18, 0, 1) * .85;
       });
 
+      // health bars: buildings that have been hurt, and every big enemy
+      let bi = 0;
+      const drawBar = (X, Y, Z, frac, wide) => {
+        const h = bar(bi++);
+        BAR_COL.setHSL(clamp(frac, 0, 1) * .33, .85, .5);
+        h.fill.material.color.copy(BAR_COL);
+        h.back.visible = h.fill.visible = true;
+        h.back.position.set(X, Y, Z); h.back.quaternion.copy(camera.quaternion);
+        h.back.scale.set(wide, wide * .13, 1);
+        // billboarded, so local X is the camera's right: shrink from the right edge
+        h.fill.position.set(X, Y, Z); h.fill.quaternion.copy(camera.quaternion);
+        h.fill.scale.set(wide * frac, wide * .085, 1);
+        h.fill.translateX(-wide * (1 - frac) * .5);
+      };
+      for (const b of G.buildings) {
+        if (bi >= 70) break;
+        if (!b.done || b.hp >= b.maxHp) continue;
+        drawBar(wx(b.c + .5), BAND_LIFT[bandOf(b.r)] + .78, wz(b.r + .5), b.hp / b.maxHp, .58);
+      }
+      for (const e of G.enemies) {
+        if (bi >= 96) break;
+        if (E[e.type].kill < 12 || e.hp >= e.maxHp) continue;
+        drawBar(wx(e.x), liftAt(e.z) + .40 + e.sc * .40, wz(e.z), e.hp / e.maxHp, .34 + e.sc * .16);
+      }
+      for (let i = bi; i < barPool.length; i++) { barPool[i].back.visible = false; barPool[i].fill.visible = false; }
+
+      // artillery marker
+      if (G.mark) {
+        markMesh.visible = true;
+        markMesh.position.set(wx(G.mark.x), liftAt(G.mark.z) + .06, wz(G.mark.z));
+        const k = G.mark.life / .9;
+        markMesh.scale.setScalar(1.15 - k * .35);
+        markMat.opacity = k * .65;
+      } else markMesh.visible = false;
+
       // camera shake
       const sh = G.shake;
       shakeOff.set(rnd(-sh, sh), rnd(-sh, sh), rnd(-sh, sh));
@@ -2447,6 +2696,7 @@ function syncTop() {
                                         : "PREPARE DEFENCES";
     $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
   }
+  syncAbils();
 }
 function mkAct(title, cost, on, opts) {
   const b = document.createElement("button");
@@ -2458,6 +2708,68 @@ function mkAct(title, cost, on, opts) {
   if (opts && opts.off) b.disabled = true; else b.addEventListener("click", on);
   return b;
 }
+let armed = null;   // an ability waiting for a map tap
+function syncAbils() {
+  const bar = $("abils");
+  if (bar.childElementCount !== 3) {
+    bar.innerHTML = "";
+    for (const k in ABIL) {
+      const el = document.createElement("button");
+      el.className = "ab"; el.dataset.k = k;
+      el.innerHTML = `<b>${ABIL[k].n}</b><s>${ABIL[k].s}</s><i hidden></i>`;
+      el.title = ABIL[k].d;
+      el.addEventListener("click", () => useAbil(k));
+      bar.appendChild(el);
+    }
+  }
+  for (const el of bar.children) {
+    const k = el.dataset.k, cd = G ? G.ab[k] : 0;
+    const cover = el.querySelector("i");
+    cover.hidden = cd <= 0;
+    if (cd > 0) cover.textContent = Math.ceil(cd);
+    el.dataset.arm = armed === k ? "1" : "0";
+  }
+}
+function useAbil(k) {
+  if (mode !== "play") return;
+  if (G.ab[k] > 0) { floatText("재사용 대기 " + Math.ceil(G.ab[k]) + "초"); return; }
+  if (ABIL[k].aim) {
+    armed = armed === k ? null : k;
+    pick = null;
+    syncSheet();
+    return;
+  }
+  fireAbility(k);
+  syncAbils();
+}
+function openDraft() {
+  const roll = rollDraft();
+  if (!roll) return;
+  G.draft = roll;
+  mode = "draft";
+  $("draftTitle").textContent = G.assault + "차 공세 격퇴";
+  const box = $("draftCards");
+  box.innerHTML = "";
+  for (const k of roll) {
+    const d = DOCTRINE.find(x => x.k === k);
+    const el = document.createElement("button");
+    el.className = "card";
+    el.innerHTML = `<u>${d.t}</u><b>${d.n}</b><span>${d.d}</span>`;
+    el.addEventListener("click", () => {
+      takeDoctrine(k);
+      G.draft = null;
+      $("draft").hidden = true;
+      mode = "play";
+      last = performance.now(); acc = 0;
+      syncTop(); syncSheet();
+    });
+    box.appendChild(el);
+  }
+  $("held").innerHTML = G.doct.length
+    ? G.doct.map(k => { const d = DOCTRINE.find(x => x.k === k); return `<em>${d.n}</em> — ${d.d}`; }).join("<br>")
+    : "아직 없습니다";
+  $("draft").hidden = false;
+}
 function syncSheet() {
   const body = $("body");
   body.innerHTML = "";
@@ -2465,12 +2777,13 @@ function syncSheet() {
   if (tab === 3) {
     $("hint").textContent = "병사는 가장 앞쪽 빈 참호로 알아서 들어갑니다";
     let free = 0;
-    for (const b of G.buildings) if (b.done && B[b.key].garrison) free += B[b.key].garrison - b.crew.length;
+    for (const b of G.buildings) if (b.done && B[b.key].garrison) free += garrisonOf(b.key) - b.crew.length;
+    const sc1 = solCost();
     body.appendChild(mkAct("병사 1명", `인력 ${SOLDIER.man} 소모`, () => { spawnSoldier(); syncSheet(); },
-      { off: G.mat < SOLDIER.mat || G.man < SOLDIER.man, cost: SOLDIER.mat, glyph: "inf" }));
+      { off: G.mat < sc1 || G.man < SOLDIER.man, cost: sc1, glyph: "inf" }));
     body.appendChild(mkAct("병사 5명", `인력 ${SOLDIER.man * 5} 소모`, () => {
       for (let i = 0; i < 5; i++) if (!spawnSoldier()) break; syncSheet();
-    }, { off: G.mat < SOLDIER.mat * 5 || G.man < SOLDIER.man * 5, cost: SOLDIER.mat * 5, glyph: "inf" }));
+    }, { off: G.mat < sc1 * 5 || G.man < SOLDIER.man * 5, cost: sc1 * 5, glyph: "inf" }));
     const info = document.createElement("div");
     info.className = "act"; info.style.cssText = "pointer-events:none";
     info.innerHTML = `<div class="art">${svgGlyph("trench")}</div>
@@ -2480,16 +2793,18 @@ function syncSheet() {
     VIEW.highlight(null);
     return;
   }
-  $("hint").textContent = pick ? `${B[pick].name} — 밝게 표시된 칸을 누르세요` : "건물을 고른 뒤 지도를 누르세요";
+  $("hint").textContent = armed ? "포격할 칸을 누르세요"
+    : pick ? `${B[pick].name} — 밝게 표시된 칸을 누르세요` : "건물을 고른 뒤 지도를 누르세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
-    const extra = spec.garrison ? `<em>병사 ${spec.garrison}</em> · `
+    const cost = bCost(key);
+    const extra = spec.garrison ? `<em>병사 ${garrisonOf(key)}</em> · `
                 : spec.upkeep   ? `<em>유지 ${spec.upkeep}</em> · `
-                : spec.wall     ? `<em>내구 ${spec.hp}</em> · ` : "";
+                : spec.wall     ? `<em>내구 ${bMaxHp(key)}</em> · ` : "";
     body.appendChild(mkAct(spec.name, `${extra}${spec.desc}`, () => {
-      pick = (pick === key) ? null : key;
+      pick = (pick === key) ? null : key; armed = null;
       syncSheet();
-    }, { off: G.mat < spec.mat && pick !== key, sel: pick === key, cost: spec.mat, glyph: key }));
+    }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key }));
   }
   VIEW.highlight(pick ? B[pick].z : null);
 }
@@ -2525,13 +2840,15 @@ function finish(won, why) {
     `도달 공세 &nbsp;<b>${G.assault} / ${ASSAULTS.length}</b><br>` +
     `적 격파 &nbsp;<b>${G.kills}</b><br>` +
     `아군 전사 &nbsp;<b>${G.kia}</b><br>` +
-    `남은 사령부 &nbsp;<b>${Math.ceil(G.hq.hp / G.hq.max * 100)}%</b>`;
+    `남은 사령부 &nbsp;<b>${Math.ceil(G.hq.hp / G.hq.max * 100)}%</b><br>` +
+    `교리 &nbsp;<b>${G.doct.length ? G.doct.map(k => DOCTRINE.find(x => x.k === k).n).join(", ") : "없음"}</b>`;
   $("endScreen").hidden = false;
 }
 function start() {
   for (const b of (G ? G.buildings : [])) VIEW.removeBuilding(b);
   newGame();
-  mode = "play"; pick = null; tab = 0;
+  mode = "play"; pick = null; tab = 0; armed = null;
+  $("draft").hidden = true;
   last = performance.now(); acc = 0;
   $("titleScreen").hidden = true; $("endScreen").hidden = true;
   syncTop(); syncSheet();
@@ -2542,7 +2859,16 @@ document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => { tab = +t.dataset.zone; syncSheet(); }));
 
 function tap(cx, cy) {
-  if (mode !== "play" || !pick) return;
+  if (mode !== "play") return;
+  if (armed) {
+    const h = VIEW.pickTile(cx, cy);
+    if (!h) return;
+    const err = fireAbility(armed, h.c, h.r);
+    if (err) floatText(err); else armed = null;
+    syncSheet();
+    return;
+  }
+  if (!pick) return;
   const hit = VIEW.pickTile(cx, cy);
   if (!hit) return;
   const err = place(pick, hit.c, hit.r);
