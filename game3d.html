@@ -26,168 +26,135 @@
      this a button that forgets to set one renders in the UA's black. */
   button { color: inherit; font-family: inherit; }
 
-  /* ---- HUD: thin strokes, notched frames, plenty of air --------------- */
+  /* ---- HUD ------------------------------------------------------------
+     Laid out the way a deployment screen works: read-outs pinned to the top
+     corners, everything you spend or place along the bottom edge, and the
+     board left clear in between. Landscape only. Shapes are cut on a slant
+     and outlined in a single hairline rather than boxed and filled.        */
   #hud { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
-  .notch {
-    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  :root { --slant: 9px; }
+  .cut {
+    clip-path: polygon(var(--slant) 0, 100% 0, 100% calc(100% - var(--slant)),
+                       calc(100% - var(--slant)) 100%, 0 100%, 0 var(--slant));
+  }
+  .plate {
+    background: rgba(6,9,13,.86); border: 1px solid rgba(140,170,195,.30);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
 
-  #obj {
-    position: absolute; left: 158px; right: 10px;
-    top: calc(env(safe-area-inset-top,0px) + 8px);
-    text-align: center; padding: 5px 8px 7px;
-    background: rgba(7,10,15,.74);
-    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  /* --- top left: how the base is holding up --- */
+  #cmdPanel {
+    position: absolute; left: 14px; top: calc(env(safe-area-inset-top,0px) + 12px);
+    width: 196px; height: 78px; padding: 4px 0 0 4px;
+    background: rgba(6,9,13,.86); border: 1px solid rgba(140,170,195,.30);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
-  #obj .br { color: #4d6070; font-size: 11px; vertical-align: 2px; }
+  .arc { width: 70px; height: 70px; transform: rotate(-90deg); }
+  .arc circle { fill: none; stroke-width: 3.4; }
+  .arc .track { stroke: rgba(140,170,195,.20); }
+  .arc .fill {
+    stroke: var(--cyan); stroke-linecap: round;
+    stroke-dasharray: 175.9; stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 6px rgba(79,227,240,.6));
+    transition: stroke-dashoffset .2s linear;
+  }
+  #cmdPanel.crit .fill { stroke: var(--danger); filter: drop-shadow(0 0 8px rgba(232,56,79,.8)); }
+  #cmdPanel.crit { animation: pulse 1.05s infinite; }
+  .aCtr {
+    position: absolute; left: 4px; top: 4px; width: 70px; height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace;
+  }
+  .aCtr b { font-size: 22px; font-weight: 700; }
+  .aCtr s { text-decoration: none; font-size: 10px; color: #8ea4b5; margin-left: 1px; }
+  .aName {
+    position: absolute; left: 84px; top: 22px; white-space: nowrap;
+    font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .2em;
+    color: #93a9ba; line-height: 1.9;
+  }
+
+  /* --- top centre: what this wave is --- */
+  #obj {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top,0px) + 12px);
+    text-align: center; width: 300px; padding: 6px 10px 8px;
+    background: rgba(6,9,13,.80);
+    clip-path: polygon(11px 0, calc(100% - 11px) 0, 100% 100%, 0 100%);
+  }
+  #obj .br { color: #4d6070; font-size: 12px; vertical-align: 2px; }
   .oTitle {
-    font-size: 14px; font-weight: 700; letter-spacing: .08em; color: #f2f7fb;
-    margin: 0 6px; text-shadow: 0 0 12px rgba(120,190,230,.35);
+    font-size: 15px; font-weight: 700; letter-spacing: .06em; color: #f2f7fb;
+    margin: 0 7px; text-shadow: 0 0 12px rgba(120,190,230,.35);
   }
   .oSub {
     font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .22em;
     color: #93a9ba; margin-top: 4px;
   }
-  .oRule { height: 1px; background: rgba(120,150,175,.22); margin-top: 6px; position: relative; }
+  .oRule { height: 1px; background: rgba(140,170,195,.24); margin-top: 7px; position: relative; }
   .oRule i {
     position: absolute; left: 0; top: -1px; height: 3px; width: 0;
     background: var(--accent); box-shadow: 0 0 10px rgba(255,122,42,.7); display: block;
   }
 
-  #pills {
-    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 66px);
-    display: flex; flex-direction: column; overflow: hidden; gap: 5px;
-  }
-  .pill {
-    display: flex; align-items: center; gap: 7px;
-    padding: 5px 12px 5px 7px; min-width: 132px;
-    background: rgba(7,10,15,.80);
-    border: 1px solid rgba(122,150,175,.24);
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-  }
-  .ico { width: 13px; height: 13px; fill: none; stroke: var(--accent); stroke-width: 1.6; flex: 0 0 auto; }
-  .ico.cy { stroke: var(--cyan); }
-  .ico.wh { stroke: #c6d4e0; }
-  .pv { line-height: 1; }
-  .pv b { font-family: ui-monospace, monospace; font-size: 16px; font-weight: 700; }
-  .pv s {
-    display: block; text-decoration: none; font-family: ui-monospace, monospace;
-    font-size: 8px; letter-spacing: .18em; color: #8ea4b5; margin-top: 3px;
-  }
-  .pr {
-    margin-left: auto; font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .04em;
-  }
-  .pr i { font-style: normal; color: var(--cyan); }
-  .pr u { text-decoration: none; color: #b06a4e; }
-  .pbar { margin-left: auto; width: 34px; height: 3px; background: rgba(120,150,175,.18); }
-  .pbar i { display: block; height: 100%; background: var(--cyan); }
-
+  /* --- top right: wave progress, then the run controls --- */
   #asl {
-    position: absolute; right: 10px; top: calc(env(safe-area-inset-top,0px) + 66px);
-    text-align: right; padding: 7px 11px 8px 14px;
-    background: rgba(7,10,15,.80); border: 1px solid rgba(122,150,175,.24);
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    position: absolute; right: 14px; top: calc(env(safe-area-inset-top,0px) + 12px);
+    text-align: right; padding: 8px 13px 9px 17px;
+    background: rgba(6,9,13,.86); border: 1px solid rgba(140,170,195,.30);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
-  .aLab {
-    font-family: ui-monospace, monospace; font-size: 8px; letter-spacing: .14em; color: #8ea4b5;
-  }
-  .ticks { display: flex; gap: 2px; justify-content: flex-end; margin-top: 5px; }
-  .ticks i {
-    width: 6px; height: 14px; display: block;
-    background: rgba(120,150,175,.16); transform: skewX(-18deg);
-  }
+  .aLab { font-family: ui-monospace, monospace; font-size: 8px; letter-spacing: .18em; color: #8ea4b5; }
+  .ticks { display: flex; gap: 2px; justify-content: flex-end; margin-top: 6px; }
+  .ticks i { width: 8px; height: 16px; display: block; background: rgba(140,170,195,.18); transform: skewX(-18deg); }
   .ticks i.on { background: rgba(255,122,42,.85); }
   .ticks i.now { background: var(--danger); box-shadow: 0 0 9px rgba(232,56,79,.8); animation: pulse .85s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
-  .aState {
-    font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: .16em;
-    margin-top: 7px; color: #eaf2f8;
-  }
-  .aKill {
-    font-family: ui-monospace, monospace; font-size: 9.5px; letter-spacing: .12em;
-    color: #8ea4b5; margin-top: 5px;
-  }
-  .aKill i { font-style: normal; color: #c6d4e0; }
+  .aState { font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: .14em; margin-top: 7px; color: #eaf2f8; }
+  .aKill { font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: .1em; color: #8ea4b5; margin-top: 5px; }
+  .aKill i { font-style: normal; color: #dce6ee; }
 
-  /* moved out of the bottom-left: the ability row lives there now */
-  #cmdPanel {
-    position: absolute; left: 10px;
-    top: calc(env(safe-area-inset-top,0px) + 188px);
-    width: 132px; height: 72px; padding: 2px 0 0 2px;
-    background: rgba(7,10,15,.72); border: 1px solid rgba(122,150,175,.24);
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-  }
-  .arc { width: 68px; height: 68px; transform: rotate(-90deg); }
-  .arc circle { fill: none; stroke-width: 3; }
-  .arc .track { stroke: rgba(120,150,175,.18); }
-  .arc .fill {
-    stroke: var(--cyan); stroke-linecap: round;
-    stroke-dasharray: 175.9; stroke-dashoffset: 0;
-    filter: drop-shadow(0 0 5px rgba(79,227,240,.6));
-    transition: stroke-dashoffset .2s linear;
-  }
-  #cmdPanel.crit .fill { stroke: var(--danger); filter: drop-shadow(0 0 7px rgba(232,56,79,.8)); }
-  #cmdPanel.crit { animation: pulse 1.05s infinite; }
-  .aCtr {
-    position: absolute; left: 2px; top: 2px; width: 68px; height: 68px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: ui-monospace, monospace;
-  }
-  .aCtr b { font-size: 17px; font-weight: 700; }
-  .aCtr s { text-decoration: none; font-size: 9.5px; color: #8ea4b5; margin-left: 1px; }
-  .aName {
-    position: absolute; left: 78px; top: 20px; white-space: nowrap;
-    font-family: ui-monospace, monospace; font-size: 8.5px; letter-spacing: .2em;
-    color: #93a9ba; line-height: 1.7;
-  }
-
-  /* speed / pause, top-right under the wave ticks */
   #speed {
-    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 8px);
-    display: flex; gap: 4px; pointer-events: auto;
+    position: absolute; right: 14px; top: calc(env(safe-area-inset-top,0px) + 128px);
+    display: flex; gap: 5px; pointer-events: auto;
   }
   #speed button {
-    width: 54px; height: 36px; cursor: pointer; color: #ffd7bb;
-    background: rgba(7,10,15,.78); border: 1px solid rgba(122,150,175,.24);
-    font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700;
-    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    width: 52px; height: 40px; cursor: pointer; color: #ffd7bb;
+    background: rgba(255,122,42,.14); border: 1px solid var(--accent);
+    font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
-  #speed button { border-color: var(--accent); background: rgba(255,122,42,.14); font-size: 12px; }
-  #speed #sndBtn, #speed #menuBtn { width: 40px; }
-  #speed button[data-p="1"] { color: #93a7b8; border-color: rgba(122,150,175,.3); background: rgba(9,13,18,.6); }
+  #speed #sndBtn, #speed #menuBtn { width: 44px; }
+  #speed button[data-p="1"] { color: #93a7b8; border-color: rgba(140,170,195,.34); background: rgba(7,10,15,.80); }
 
-  /* floating combo counter */
   #combo {
-    position: absolute; right: 12px; top: calc(env(safe-area-inset-top,0px) + 214px);
+    position: absolute; right: 16px; top: calc(env(safe-area-inset-top,0px) + 168px);
     text-align: right;
-    font-family: ui-monospace, monospace; font-size: 22px; font-weight: 700;
+    font-family: ui-monospace, monospace; font-size: 27px; font-weight: 700;
     color: var(--gold); text-shadow: 0 0 16px rgba(255,201,61,.5); letter-spacing: .04em;
   }
   #combo s { display: block; text-decoration: none; font-size: 8px; letter-spacing: .12em; color: #b3a878; }
 
   #brief {
     position: absolute; left: 50%; transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom,0px) + 252px);
-    max-width: 320px; text-align: center; padding: 7px 15px 8px;
-    background: rgba(9,13,18,.72); border: 1px solid rgba(79,227,240,.34);
-    font-size: 11.5px; line-height: 1.5; color: #bcd6e4;
-    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    bottom: 190px; max-width: 460px; text-align: center; padding: 8px 18px 9px;
+    background: rgba(6,9,13,.86); border: 1px solid rgba(79,227,240,.34);
+    font-size: 13px; line-height: 1.55; color: #bcd6e4;
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
   #goBtn {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom,0px) + 196px);
-    pointer-events: auto; cursor: pointer; min-height: 44px; padding: 11px 22px 12px;
-    background: rgba(255,122,42,.18); border: 1px solid var(--accent); color: #ffd7bb;
-    font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; letter-spacing: .12em;
-    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 136px;
+    pointer-events: auto; cursor: pointer; min-height: 46px; padding: 12px 26px 13px;
+    background: rgba(255,122,42,.20); border: 1px solid var(--accent); color: #ffd7bb;
+    font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
   }
   #breach {
     position: absolute; left: 50%; transform: translateX(-50%);
-    top: calc(env(safe-area-inset-top,0px) + 74px);
-    padding: 5px 14px 6px; white-space: nowrap;
-    background: rgba(232,56,79,.16); border: 1px solid rgba(232,56,79,.55);
-    font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: .16em; color: #ffb0bb;
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    top: calc(env(safe-area-inset-top,0px) + 96px);
+    padding: 6px 16px 7px; white-space: nowrap;
+    background: rgba(232,56,79,.18); border: 1px solid rgba(232,56,79,.6);
+    font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: .14em; color: #ffb0bb;
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
     animation: pulse .7s infinite;
   }
 
@@ -221,8 +188,8 @@
     color: #ffd7bb; white-space: nowrap; text-shadow: 0 1px 4px #000;
   }
   #insp {
-    position: fixed; z-index: 7; left: 10px; right: 10px;
-    bottom: calc(env(safe-area-inset-bottom,0px) + 9px); min-height: 148px;
+    position: fixed; z-index: 7; right: 14px; width: 330px;
+    bottom: 190px; min-height: 148px;
     background: #070a0f; border: 1px solid rgba(122,150,175,.3);
     padding: 13px 14px 12px;
     clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
@@ -258,110 +225,188 @@
     background: repeating-linear-gradient(to bottom, rgba(190,220,255,.5) 0 1px, transparent 1px 3px);
   }
 
-  /* ---- deployment rail: portrait cards ------------------------------- */
+  /* ---- the deployment bar ---------------------------------------------
+     Cards along the bottom-left, what they cost along the bottom-right, and
+     the three commands as round buttons at the far right — spend and place
+     in one band so you never look away from the line.                      */
   #sheet {
     position: fixed; z-index: 6; left: 0; right: 0; bottom: 0;
-    padding: 8px 10px calc(env(safe-area-inset-bottom, 0px) + 9px);
-    background: linear-gradient(to top, rgba(5,8,12,.96) 68%, rgba(5,8,12,0));
+    display: flex; align-items: flex-end; gap: 14px;
+    padding: 0 14px calc(env(safe-area-inset-bottom, 0px) + 12px) 14px;
+    background: linear-gradient(to top, rgba(4,6,10,.97) 46%, rgba(4,6,10,.72) 78%, rgba(4,6,10,0));
+    pointer-events: none;
   }
-  #tabs { display: flex; gap: 5px; margin-bottom: 8px; }
+  #sheet > * { pointer-events: auto; }
+  #deck { flex: 1 1 auto; min-width: 0; }
+  #rside { flex: 0 0 auto; display: flex; align-items: flex-end; gap: 12px; padding-bottom: 2px; }
+
+  #tabs { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .tab {
-    flex: 1; cursor: pointer; position: relative; text-align: left;
-    background: rgba(9,13,18,.5); color: #8b98a6;
-    border: 1px solid rgba(122,150,175,.22); padding: 7px 4px 7px 15px; min-height: 44px;
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    cursor: pointer; position: relative; text-align: left;
+    background: rgba(7,10,15,.80); color: #93a2b0;
+    border: 1px solid rgba(140,170,195,.26); padding: 6px 16px 7px 18px; min-height: 42px;
+    transform: skewX(-13deg);
   }
+  .tab > * { transform: skewX(13deg); }
   .tab i {
-    position: absolute; left: 4px; top: 3px; font-style: normal;
+    position: absolute; left: 6px; top: 3px; font-style: normal;
     font-family: ui-monospace, monospace; font-size: 7.5px; color: #6e8395;
   }
-  .tab b { display: block; font-size: 11.5px; font-weight: 700; line-height: 1.45; }
-  .tab::before {
-    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-    background: var(--zc, transparent);
-  }
+  .tab b { display: block; font-size: 13px; font-weight: 700; line-height: 1.45; }
+  .tab::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--zc, transparent); }
   .tab[data-zone="0"] { --zc: #2f6fa8; }
   .tab[data-zone="1"] { --zc: #8a8f95; }
   .tab[data-zone="2"] { --zc: #b08a2c; }
   .tab[data-zone="3"] { --zc: #4fe3f0; }
   .tab s {
     display: block; text-decoration: none; font-family: ui-monospace, monospace;
-    font-size: 8px; letter-spacing: .16em; color: #74899b; margin-top: 2px;
+    font-size: 8px; letter-spacing: .16em; color: #74899b; margin-top: 1px;
   }
   .tab[data-on="1"] {
-    background: rgba(255,122,42,.14); border-color: var(--accent); color: #ffd7bb;
-    box-shadow: inset 0 0 18px rgba(255,122,42,.14);
+    background: rgba(255,122,42,.16); border-color: var(--accent); color: #ffd7bb;
+    box-shadow: inset 0 0 22px rgba(255,122,42,.16);
   }
-  .tab[data-on="1"] s, .tab[data-on="1"] i { color: rgba(255,190,150,.7); }
+  .tab[data-on="1"] s, .tab[data-on="1"] i { color: rgba(255,190,150,.75); }
+  #hint {
+    margin-left: 10px; font-family: ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: .1em; color: #6e8395; white-space: nowrap;
+  }
 
   #body {
-    display: flex; gap: 6px; align-items: stretch; min-height: 114px;
+    display: flex; gap: 7px; align-items: stretch; min-height: 124px;
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
-            mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+            mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
   }
   #body::-webkit-scrollbar { display: none; }
+
+  /* one card = one thing you can put on the board */
   .act {
-    flex: 0 0 126px; min-width: 0; cursor: pointer; position: relative; text-align: left;
-    color: var(--ink); background: rgba(9,13,18,.55);
-    border: 1px solid rgba(122,150,175,.22); padding: 0 0 7px;
-    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-    transition: transform .1s, border-color .1s, background .1s;
+    flex: 0 0 96px; min-width: 0; cursor: pointer; position: relative; text-align: left;
+    color: var(--ink); background: linear-gradient(180deg, #161c25 0%, #0b0f15 62%);
+    border: 1px solid rgba(140,170,195,.26); padding: 0 0 21px;
     display: flex; flex-direction: column;
+    transition: transform .1s, border-color .1s, box-shadow .1s;
   }
+  /* class stripe down the left edge, the way a card is filed by role */
+  .act::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--zc, #4a5a68); }
+  .act[data-z="0"] { --zc: #2f6fa8; }
+  .act[data-z="1"] { --zc: #8a8f95; }
+  .act[data-z="2"] { --zc: #b08a2c; }
+  .act[data-z="3"] { --zc: #4fe3f0; }
   .act .art {
-    height: 26px; flex: 0 0 26px;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(180deg, rgba(122,150,175,.10), rgba(122,150,175,0));
-    border-bottom: 1px solid rgba(122,150,175,.16);
+    height: 52px; flex: 0 0 52px; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 120%, rgba(140,170,195,.18), rgba(140,170,195,0) 70%);
   }
-  .act .art svg { width: 19px; height: 19px; fill: none; stroke: #93a7b8; stroke-width: 1.5; }
+  .act .art svg { width: 30px; height: 30px; fill: none; stroke: #b9cbd8; stroke-width: 1.4; }
   .act .t {
-    flex: 0 0 auto; font-size: 11.5px; font-weight: 700; margin: 4px 7px 0; line-height: 1.5;
-    padding: 3px 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 0 0 auto; font-size: 12.5px; font-weight: 700; margin: 3px 8px 0 10px; line-height: 1.5;
+    padding: 2px 0 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .act .c {
-    flex: 0 0 auto; font-family: ui-monospace, monospace; font-size: 9.5px; color: #93a9ba;
-    margin: 3px 7px 0; line-height: 1.5;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    flex: 0 0 auto; font-family: ui-monospace, monospace; font-size: 8.5px; color: #8ba0b0;
+    margin: 1px 8px 0 10px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .act .c em { font-style: normal; color: var(--cyan); }
+  /* cost sits in the corner on a cut tag, so the number is never hunted for */
   .act .cost {
-    position: absolute; right: 0; top: 0; padding: 2px 6px 3px 9px;
-    font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700; color: var(--gold);
-    background: rgba(255,201,61,.10);
-    clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%);
+    position: absolute; right: 0; bottom: 0; padding: 2px 7px 3px 12px;
+    font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; color: #0b0e13;
+    background: var(--gold); clip-path: polygon(11px 0, 100% 0, 100% 100%, 0 100%);
   }
-  .act:active { transform: translateY(1px); }
-  .act[disabled] { opacity: .28; }
+  .act:active { transform: translateY(2px); }
+  .act[disabled] { opacity: .30; }
+  .act[disabled] .cost { background: #6a6552; }
   .act.lk { pointer-events: none; opacity: .34; border-style: dashed; }
   .act.lk .c { color: var(--gold); }
+  .act.lk .cost { display: none; }
   .act[data-sel="1"] {
-    border-color: var(--accent); background: rgba(255,122,42,.10);
-    box-shadow: 0 0 20px rgba(255,122,42,.18), inset 0 0 24px rgba(255,122,42,.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(255,122,42,.30), inset 0 0 28px rgba(255,122,42,.14);
   }
   .act[data-sel="1"] .art svg { stroke: var(--accent); }
-  .act[data-sel="1"] .art { background: linear-gradient(180deg, rgba(255,122,42,.18), rgba(255,122,42,0)); }
-  #abils { display: flex; gap: 5px; margin-bottom: 7px; }
-  .ab {
-    flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; overflow: hidden;
-    text-align: left; padding: 8px 8px 9px; min-height: 46px; color: #cfe0ec;
-    background: rgba(9,13,18,.62); border: 1px solid rgba(79,227,240,.30);
-    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+
+  /* what you are spending, right where you spend it */
+  #pills { display: flex; flex-direction: column; gap: 6px; }
+  .pill {
+    display: flex; align-items: center; gap: 9px; text-align: left;
+    padding: 5px 14px 5px 9px; min-width: 176px; cursor: default;
+    background: rgba(6,9,13,.86); border: 1px solid rgba(140,170,195,.30);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
   }
-  .ab b { display: block; font-size: 11.5px; font-weight: 700; line-height: 1.5; }
+  #matPill { cursor: pointer; }
+  #matPill[data-open="1"] { border-color: var(--gold); }
+  .ico { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 1.6; flex: 0 0 auto; }
+  .ico.cy { stroke: var(--cyan); }
+  .ico.wh { stroke: #c6d4e0; }
+  .pv { line-height: 1; }
+  .pv b { font-family: ui-monospace, monospace; font-size: 21px; font-weight: 700; }
+  .pv s {
+    display: block; text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 8px; letter-spacing: .16em; color: #8ea4b5; margin-top: 3px;
+  }
+  .pr { margin-left: auto; font-family: ui-monospace, monospace; font-size: 9.5px; letter-spacing: .04em; }
+  .pr i { font-style: normal; color: var(--cyan); }
+  .pr u { text-decoration: none; color: #d0714e; }
+  .pbar { margin-left: auto; width: 40px; height: 3px; background: rgba(140,170,195,.20); }
+  .pbar i { display: block; height: 100%; background: var(--cyan); }
+
+  /* where the material actually comes from - one tap, no guessing */
+  #econ {
+    position: fixed; z-index: 9; right: 14px; bottom: 190px; width: 262px;
+    padding: 12px 14px 13px; font-family: ui-monospace, monospace; font-size: 11.5px;
+    background: #070a0f; border: 1px solid rgba(255,201,61,.42);
+    clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  }
+  #econ h4 { margin: 0 0 9px; font-size: 9px; letter-spacing: .22em; color: var(--gold); font-weight: 700; }
+  #econ div { display: flex; justify-content: space-between; padding: 3px 0; color: #a8bccb; }
+  #econ div.tot { border-top: 1px solid rgba(140,170,195,.24); margin-top: 7px; padding-top: 7px; color: #eaf2f8; font-weight: 700; }
+  #econ b { font-weight: 700; color: #eaf2f8; }
+  #econ .up { color: #d0714e; }
+
+  /* the three commands: round, thumb-sized, hard against the corner */
+  #abils { display: flex; flex-direction: column; gap: 8px; }
+  .ab {
+    width: 74px; height: 74px; border-radius: 50%; cursor: pointer; position: relative;
+    overflow: hidden; text-align: center; padding: 0; color: #cfe0ec;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 30%, rgba(79,227,240,.16), rgba(7,10,15,.94) 72%);
+    border: 1px solid rgba(79,227,240,.42);
+  }
+  .ab b { display: block; font-size: 11.5px; font-weight: 700; line-height: 1.35; }
   .ab s {
     display: block; text-decoration: none; font-family: ui-monospace, monospace;
-    font-size: 8px; letter-spacing: .16em; color: #82a0b2; margin-top: 2px;
+    font-size: 7px; letter-spacing: .14em; color: #82a0b2; margin-top: 2px;
   }
   .ab i {
     position: absolute; inset: 0; background: rgba(4,7,10,.90); font-style: normal;
     display: flex; align-items: center; justify-content: center;
-    font-family: ui-monospace, monospace; font-size: 15px; font-weight: 700; color: #7d94a6;
+    font-family: ui-monospace, monospace; font-size: 19px; font-weight: 700; color: #7d94a6;
   }
-  .ab[data-arm="1"] { border-color: var(--accent); background: rgba(255,122,42,.16); color: #ffd7bb; }
-  .ab:active { transform: translateY(1px); }
+  .ab[data-arm="1"] {
+    border-color: var(--accent); color: #ffd7bb;
+    background: radial-gradient(circle at 50% 30%, rgba(255,122,42,.30), rgba(7,10,15,.94) 72%);
+    box-shadow: 0 0 22px rgba(255,122,42,.35);
+  }
+  .ab:active { transform: translateY(2px); }
+
+  /* a phone gets the same layout with bigger everything */
+  body[data-pc="0"] .act { flex-basis: 108px; }
+  body[data-pc="0"] .ab { width: 82px; height: 82px; }
+  body[data-pc="0"] .tab { min-height: 48px; }
+  #keyhint {
+    position: absolute; left: 14px; top: calc(env(safe-area-inset-top,0px) + 100px);
+    font-family: ui-monospace, monospace; font-size: 10.5px; letter-spacing: .08em;
+    color: #93a9ba; line-height: 2.1; padding: 6px 11px 7px;
+    background: rgba(7,10,15,.72); border: 1px solid rgba(140,170,195,.18);
+  }
+  #keyhint b { color: #cfe0ec; font-weight: 700; }
+  #keyhint, .pcOnly { display: none; }
+  body[data-pc="1"] #keyhint { display: block; }
+  body[data-pc="1"] .pcOnly { display: inline; }
+
 
   #records { display: flex; gap: 7px; margin-top: 14px; font-family: ui-monospace, monospace; }
   #records div {
@@ -472,84 +517,24 @@
   #endGrade[data-g="C"] { color: #c9b98a; }
   #endGrade[data-g="D"] { color: #b06a6a; }
   #endStats u { text-decoration: none; color: var(--gold); border: 1px solid rgba(255,201,61,.4); padding: 1px 6px; }
-  /* ---- desktop: the board keeps the left, the rail becomes a column ---- */
-  body[data-pc="1"] #sheet {
-    left: auto; right: 0; top: 0; bottom: 0; width: 372px;
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 14px 12px calc(env(safe-area-inset-bottom,0px) + 14px);
-    background: #070a0f;
-    border-left: 1px solid rgba(122,150,175,.28);
-  }
-  body[data-pc="1"] #abils { margin-bottom: 0; }
-  body[data-pc="1"] #tabs { margin-bottom: 0; flex-wrap: wrap; }
-  body[data-pc="1"] .tab { flex: 1 1 40%; }
-  body[data-pc="1"] #body {
-    flex: 1 1 auto; min-height: 0; flex-direction: column;
-    overflow-x: hidden; overflow-y: auto;
-    -webkit-mask-image: none; mask-image: none;
-  }
-  body[data-pc="1"] .act {
-    flex: 0 0 auto; width: 100%; min-height: 68px;
-    display: grid; grid-template-columns: 54px 1fr; grid-template-rows: auto auto;
-    align-items: center; padding: 0 0 9px;
-  }
-  body[data-pc="1"] .act .art svg { width: 24px; height: 24px; }
-  body[data-pc="1"] .act .t { font-size: 14px; }
-  body[data-pc="1"] .act .c { font-size: 11px; line-height: 1.55; }
-  body[data-pc="1"] .act .cost { font-size: 12px; padding: 3px 8px 4px 11px; }
-  body[data-pc="1"] .tab b { font-size: 13.5px; }
-  body[data-pc="1"] .ab b { font-size: 13px; }
-  body[data-pc="1"] #hint { font-size: 11px; }
-  body[data-pc="1"] .pill { min-width: 172px; padding: 7px 14px 7px 9px; }
-  body[data-pc="1"] .pv b { font-size: 20px; }
-  body[data-pc="1"] .pv s { font-size: 9px; }
-  body[data-pc="1"] .pr { font-size: 10.5px; }
-  body[data-pc="1"] .ico { width: 16px; height: 16px; }
-  body[data-pc="1"] #asl { padding: 9px 14px 10px 18px; }
-  body[data-pc="1"] .aLab { font-size: 9px; }
-  body[data-pc="1"] .aState { font-size: 13px; }
-  body[data-pc="1"] .aKill { font-size: 11px; }
-  body[data-pc="1"] .ticks i { width: 8px; height: 17px; }
-  body[data-pc="1"] #cmdPanel { width: 172px; height: 84px; top: calc(env(safe-area-inset-top,0px) + 208px); }
-  body[data-pc="1"] .arc, body[data-pc="1"] .aCtr { width: 80px; height: 80px; }
-  body[data-pc="1"] .aCtr b { font-size: 20px; }
-  body[data-pc="1"] .aName { left: 90px; top: 24px; font-size: 8px; }
-  body[data-pc="1"] #combo { top: calc(env(safe-area-inset-top,0px) + 196px); font-size: 26px; }
-  body[data-pc="1"] .act .art {
-    grid-row: 1 / 3; height: 100%; border-bottom: none;
-    border-right: 1px solid rgba(122,150,175,.16);
-    background: linear-gradient(90deg, rgba(122,150,175,.10), rgba(122,150,175,0));
-  }
-  body[data-pc="1"] .act .t { grid-column: 2; margin: 8px 12px 0; }
-  body[data-pc="1"] .act .c { grid-column: 2; margin: 2px 12px 0; -webkit-line-clamp: 2; }
-  body[data-pc="1"] #hint { margin-top: 2px; }
-  body[data-pc="1"] #insp {
-    left: auto; right: 14px; width: 344px; bottom: 16px; z-index: 8;
-  }
-  body[data-pc="1"] #asl { right: 388px; }
-  body[data-pc="1"] #combo { right: 390px; }
-  body[data-pc="1"] #breach, body[data-pc="1"] #brief { left: calc(50% - 186px); }
-  body[data-pc="1"] #obj { left: calc(50% - 346px); right: auto; width: 320px; }
-  body[data-pc="1"] .oTitle { font-size: 15px; }
-  body[data-pc="1"] .oSub { font-size: 9px; }
-  body[data-pc="1"] #goBtn { left: calc(50% - 186px); bottom: 34px; }
-  body[data-pc="1"] .overlay { padding-left: 22%; padding-right: 22%; }
-  /* pause and draft keep the battlefield showing through; the title and the
-     result screen are not in a battle, so the rail should not be behind them */
-  body[data-pc="1"]:has(#titleScreen:not([hidden])) #sheet,
-  body[data-pc="1"]:has(#endScreen:not([hidden])) #sheet { display: none; }
+  /* the deployment bar is a battle control; the title and result screens
+     are not in a battle, so it steps out of the way there */
+  body:has(#titleScreen:not([hidden])) #sheet,
+  body:has(#endScreen:not([hidden])) #sheet { display: none; }
+  body[data-pc="1"] .overlay { padding-left: 20%; padding-right: 20%; }
   body[data-pc="1"] .title { font-size: 40px; }
   body[data-pc="1"] .sub { font-size: 13px; }
-  body[data-pc="1"] #keyhint {
-    position: absolute; left: 12px; bottom: 12px;
-    font-family: ui-monospace, monospace; font-size: 10.5px; letter-spacing: .08em;
-    color: #93a9ba; line-height: 2.1; padding: 6px 11px 7px;
-    background: rgba(7,10,15,.72); border: 1px solid rgba(122,150,175,.18);
+  #insp { right: 14px; }
+  /* landscape only: a phone held upright gets a full-screen ask, not a
+     squashed board */
+  #rotate {
+    position: fixed; inset: 0; z-index: 60; display: none;
+    flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: #070a0f; color: #b6c6d4;
   }
-  body[data-pc="1"] #keyhint b { color: #93a7b8; font-weight: 700; }
-  #keyhint, .pcOnly { display: none; }
-  body[data-pc="1"] #keyhint { display: block; }
-  body[data-pc="1"] .pcOnly { display: inline; }
+  body[data-rot="1"] #rotate { display: flex; }
+  #rotate b { font-size: 62px; color: var(--accent); font-weight: 400; }
+  #rotate span { font-family: ui-monospace, monospace; font-size: 13px; letter-spacing: .22em; }
   #loading {
     position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
     background: #0b0e13; color: var(--dim); font-family: ui-monospace, monospace;
@@ -559,6 +544,7 @@
 </head>
 <body>
 <div id="loading">부지 구축 중…</div>
+<div id="rotate"><b>&#8635;</b><span>가로로 돌려주세요</span></div>
 
 <div id="hud">
   <!-- objective banner, centred under the notch -->
@@ -568,24 +554,6 @@
     <span class="br">&#10217;</span>
     <div class="oSub" id="objSub">방어선을 세우세요</div>
     <div class="oRule"><i id="objBar"></i></div>
-  </div>
-
-  <!-- resource pills -->
-  <div id="pills">
-    <div class="pill">
-      <svg viewBox="0 0 24 24" class="ico"><polygon points="12,2 22,12 12,22 2,12" /></svg>
-      <div class="pv"><b id="sMat">0</b><s>MATERIAL</s></div>
-      <div class="pr"><i id="sInc">+0</i> <u id="sUpk">-0</u></div>
-    </div>
-    <div class="pill">
-      <svg viewBox="0 0 24 24" class="ico cy"><polygon points="12,3 21,8 21,18 12,23 3,18 3,8" /></svg>
-      <div class="pv"><b id="sMan">0</b><s>MANPOWER</s></div>
-      <div class="pbar"><i id="manBar"></i></div>
-    </div>
-    <div class="pill">
-      <svg viewBox="0 0 24 24" class="ico wh"><polygon points="12,3 20,20 12,16 4,20" /></svg>
-      <div class="pv"><b id="sSol">0</b><s>INFANTRY</s></div>
-    </div>
   </div>
 
   <!-- assault ticks -->
@@ -622,16 +590,37 @@
 </div>
 
 <div id="sheet">
-  <div id="abils"></div>
-  <div id="tabs">
-    <button class="tab" data-zone="0" data-on="1"><i>01</i><b>전방</b><s>TRENCH</s></button>
-    <button class="tab" data-zone="1"><i>02</i><b>중앙</b><s>FIRE</s></button>
-    <button class="tab" data-zone="2"><i>03</i><b>후방</b><s>HEAVY</s></button>
-    <button class="tab" data-zone="3"><i>04</i><b>병력</b><s>INF</s></button>
+  <div id="deck">
+    <div id="tabs">
+      <button class="tab" data-zone="0" data-on="1"><i>01</i><b>전방</b><s>TRENCH</s></button>
+      <button class="tab" data-zone="1"><i>02</i><b>중앙</b><s>FIRE</s></button>
+      <button class="tab" data-zone="2"><i>03</i><b>후방</b><s>HEAVY</s></button>
+      <button class="tab" data-zone="3"><i>04</i><b>병력</b><s>INF</s></button>
+      <span id="hint">카드를 지도로 끌어다 놓으세요</span>
+    </div>
+    <div id="body"></div>
   </div>
-  <div id="body"></div>
-  <div id="hint">건물을 고른 뒤 지도를 누르세요</div>
+  <div id="rside">
+    <div id="pills">
+      <button class="pill" id="matPill">
+        <svg viewBox="0 0 24 24" class="ico"><polygon points="12,2 22,12 12,22 2,12" /></svg>
+        <div class="pv"><b id="sMat">0</b><s>MATERIAL</s></div>
+        <div class="pr"><i id="sInc">+0</i> <u id="sUpk">-0</u></div>
+      </button>
+      <div class="pill">
+        <svg viewBox="0 0 24 24" class="ico cy"><polygon points="12,3 21,8 21,18 12,23 3,18 3,8" /></svg>
+        <div class="pv"><b id="sMan">0</b><s>MANPOWER</s></div>
+        <div class="pbar"><i id="manBar"></i></div>
+      </div>
+      <div class="pill">
+        <svg viewBox="0 0 24 24" class="ico wh"><polygon points="12,3 20,20 12,16 4,20" /></svg>
+        <div class="pv"><b id="sSol">0</b><s>INFANTRY</s></div>
+      </div>
+    </div>
+    <div id="abils"></div>
+  </div>
 </div>
+<div id="econ" hidden></div>
 
 <div class="overlay" id="titleScreen" hidden>
   <h1 class="title">HOLD<br>THE LINE</h1>
@@ -708,18 +697,27 @@ const $ = id => document.getElementById(id);
 // One build, two layouts. FORCE_PLATFORM is set by the desktop entry file;
 // otherwise a fine pointer on a landscape screen means desktop.
 const PLATFORM = (typeof FORCE_PLATFORM !== "undefined" && FORCE_PLATFORM) ||
-  (matchMedia("(pointer: fine)").matches && innerWidth >= 900 && innerWidth > innerHeight ? "pc" : "mobile");
+  (matchMedia("(pointer: fine)").matches && innerWidth >= 900 ? "pc" : "mobile");
 const IS_PC = PLATFORM === "pc";
 document.body.dataset.pc = IS_PC ? "1" : "0";
+// Both builds are landscape now. A phone held upright gets asked to turn.
+function checkOrient() {
+  const portrait = innerHeight > innerWidth;
+  document.body.dataset.rot = portrait ? "1" : "0";
+  return !portrait;
+}
+addEventListener("resize", checkOrient);
+addEventListener("orientationchange", checkOrient);
+checkOrient();
 
 // ===========================================================================
 // Board and content
 // The simulation runs in grid units: one cell is one unit, x across, z down.
 // ===========================================================================
-const COLS = 9, ROWS = 16;
-const ZONE_ROWS = [[2, 7], [8, 11], [12, 15]];
-const zoneOf = r => r <= 1 ? -1 : r <= 7 ? 0 : r <= 11 ? 1 : 2;
-const bandOf = r => r <= 1 ? 0 : r <= 7 ? 1 : r <= 11 ? 2 : 3;
+const COLS = 11, ROWS = 12;
+const ZONE_ROWS = [[1, 5], [6, 8], [9, 11]];
+const zoneOf = r => r <= 0 ? -1 : r <= 5 ? 0 : r <= 8 ? 1 : 2;
+const bandOf = r => r <= 0 ? 0 : r <= 5 ? 1 : r <= 8 ? 2 : 3;
 const BAND_LIFT = [0, 0, 0.30, 0.62];
 // The board was one beige. Now it steps cool-to-warm from the enemy side to
 // the base, so the three zones are legible at a glance and the orange swarm
@@ -828,66 +826,54 @@ const ASSAULTS = [
 //   H  command centre
 // Rows 0-1 are the approach and are never buildable; 2-7 / 8-11 / 12-15 are
 // the three build zones. Every map must leave a path from row 0 to the H block.
-const APPROACH = 14;
+const APPROACH = 10;
 const HIGH_LIFT = 0.46, HIGH_RANGE = 1.20, HIGH_DMG = 1.12, ROUGH_SPD = 0.60;
 const MAPS = [
   { name: "적하장", sub: "LOADING YARD", tag: "표준", diff: 1.00, start: 700,
     desc: "컨테이너 더미가 접근로를 세 갈래로 나눕니다. 방어 구역 안은 완전히 비어 있어 원하는 대로 지을 수 있습니다. 측면 고지에 화기를 올리면 세 갈래를 다 걸칩니다.",
-    lanes: [1, 4, 7],
-    g: [".........",
-        "..#...#..",
-        "..#...#..",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        "^.......^",
-        "^.......^",
-        ".........",
-        ".........",
-        ".........",
-        "...HHH...",
-        "...HHH..."] },
+    lanes: [1, 5, 9],
+    g: ["...........",
+        "..##...##..",
+        "..##...##..",
+        "...........",
+        "...........",
+        "...........",
+        "^.........^",
+        "^.........^",
+        "...........",
+        "...........",
+        "....HHH....",
+        "....HHH...."] },
   { name: "정련로", sub: "SMELTER", tag: "통로전", diff: 0.94, start: 640,
     desc: "가운데가 통째로 막혀 있어 좌우 두 갈래로만 들어옵니다. 통로 입구는 깨진 바닥이라 느려집니다. 좁은 대신 두 곳을 동시에 지켜야 합니다.",
-    lanes: [1, 7],
-    g: [".........",
-        "...###...",
-        "...###...",
-        "..~~~~~..",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".^.....^.",
-        ".^.....^.",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        "...HHH...",
-        "...HHH..."] },
+    lanes: [1, 9],
+    g: ["...........",
+        "....###....",
+        "....###....",
+        "...~~~~~...",
+        "...........",
+        "...........",
+        ".^.......^.",
+        ".^.......^.",
+        "...........",
+        "...........",
+        "....HHH....",
+        "....HHH...."] },
   { name: "개활지", sub: "OPEN GROUND", tag: "고난도", diff: 1.16, start: 880,
     desc: "가려주는 게 없습니다. 통로는 직접 벽을 세워 만들어야 합니다. 대신 후방 양옆에 넓은 고지대가 있어 중장비를 올릴 수 있습니다.",
-    lanes: [0, 4, 8],
-    g: ["#.......#",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        ".........",
-        "^^.....^^",
-        ".........",
-        "...HHH...",
-        "...HHH..."] }
+    lanes: [0, 5, 10],
+    g: ["#.........#",
+        "...........",
+        "...........",
+        "...........",
+        "...........",
+        "...........",
+        "...........",
+        "...........",
+        "^^.......^^",
+        "...........",
+        "....HHH....",
+        "....HHH...."] }
 ];
 let mapIdx = 0;
 
@@ -1430,7 +1416,7 @@ function updateSoldiers(dt) {
       // assault teams hold nothing; they go where the line just failed
       const rp2 = reactPoint();
       if (rp2) stepTo(s, clamp(rp2[0], .3, COLS - .3), clamp(rp2[1], 1, ROWS - .6), u.spd, dt);
-      else stepTo(s, 4.5 + ((i % 5) - 2) * .7, 12.6, u.spd, dt);
+      else stepTo(s, 5.5 + ((i % 5) - 2) * .7, 9.4, u.spd, dt);
     } else {
       const rp = G.rallyPost;
       if (rp && !rp.dead && rp.done && s.post && s.post !== rp && rp.crew.length < garrisonOf(rp.key)) {
@@ -1441,7 +1427,7 @@ function updateSoldiers(dt) {
       if (s.state === "seek") {
         const p = findPost();
         if (p) { p.crew.push(s); s.post = p; s.state = "move"; }
-        else stepTo(s, 4.5 + ((i % 5) - 2) * .5, 13.5, u.spd, dt);
+        else stepTo(s, 5.5 + ((i % 5) - 2) * .5, 9.6, u.spd, dt);
       } else if (s.state === "move") {
         if (!s.post) s.state = "seek";
         else {
@@ -2089,7 +2075,7 @@ const VIEW = (() => {
   // top of the frame is better spent on the approach corridor: you watch the
   // swarm walk in from a long way off, which is information, not decoration.
   const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.5, 300);
-  const CAM = { pos: new THREE.Vector3(0, 21.0, 23.6), look: new THREE.Vector3(0, 0.5, -1.3) };
+  const CAM = { pos: new THREE.Vector3(0, 15.4, 17.2), look: new THREE.Vector3(0, 0.4, -1.0) };
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
@@ -4379,14 +4365,10 @@ const VIEW = (() => {
   const dummy = new THREE.Object3D();
   const shakeOff = new THREE.Vector3();
 
-  // On desktop a 306px rail sits on the right, so the frustum is offset to
-  // keep the board centred in what is left rather than under the panel.
   function fitView() {
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
-    const rail = IS_PC ? 372 : 0;
-    if (rail) camera.setViewOffset(innerWidth + rail, innerHeight, rail, 0, innerWidth, innerHeight);
-    else camera.clearViewOffset();
+    camera.clearViewOffset();
     camera.updateProjectionMatrix();
     POST.resize();
   }
