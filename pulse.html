@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05060a">
+<title>PULSE</title>
+<style>
+  :root {
+    --bg: #05060a;
+    --panel: rgba(10,14,24,.88);
+    --line: #1b2440;
+    --ink: #d6f5ff;
+    --dim: #5b7a99;
+    --cyan: #00fff0;
+    --mag: #ff2d95;
+    --gold: #ffe14d;
+    --violet: #a56bff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  /* author display rules beat the UA [hidden] rule, so state it explicitly */
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    touch-action: none; overscroll-behavior: none; user-select: none;
+  }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  .overlay {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 24px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+    background: rgba(5,6,10,.92);
+    overflow-y: auto;
+  }
+  .overlay[hidden] { display: none; }
+
+  .title {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 46px; font-weight: 700; letter-spacing: .22em;
+    color: var(--cyan); text-shadow: 0 0 22px rgba(0,255,240,.55);
+    text-align: center; margin: 0;
+  }
+  .sub {
+    text-align: center; color: var(--dim); font-size: 12.5px;
+    margin: 10px 0 0; letter-spacing: .02em; line-height: 1.6;
+  }
+  .label {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px; letter-spacing: .18em; color: var(--dim);
+    text-align: center; margin: 26px 0 10px;
+  }
+
+  .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; text-align: left; cursor: pointer;
+    background: var(--panel); color: var(--ink);
+    border: 1px solid var(--line); padding: 13px 14px;
+    clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
+    transition: border-color .12s, background .12s;
+  }
+  .card:active { background: rgba(0,255,240,.08); }
+  .pick .card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 12px; }
+  .card .nm { font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+  .card .ds { font-size: 11.5px; color: var(--dim); line-height: 1.45; }
+  .card .tg {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9px; letter-spacing: .16em;
+  }
+  .card svg { flex: 0 0 auto; }
+  .card.evolve { border-color: var(--gold); box-shadow: 0 0 18px rgba(255,225,77,.22); }
+
+  #cardList { display: flex; flex-direction: column; gap: 10px; }
+  #cardList .card { gap: 14px; }
+  #cardList .txt { flex: 1; min-width: 0; }
+
+  .btn {
+    display: block; width: 100%; cursor: pointer;
+    background: transparent; color: var(--cyan);
+    border: 1px solid var(--cyan); padding: 15px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: .18em;
+    clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+    box-shadow: 0 0 16px rgba(0,255,240,.18) inset;
+    margin-top: 18px;
+  }
+  .btn:active { background: rgba(0,255,240,.14); }
+  .btn.ghost { color: var(--dim); border-color: var(--line); box-shadow: none; margin-top: 8px; }
+
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--line); border: 1px solid var(--line); margin-top: 20px;
+  }
+  .stats div { background: var(--bg); padding: 12px 14px; }
+  .stats .k {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9px; letter-spacing: .16em; color: var(--dim);
+  }
+  .stats .v {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 22px; font-weight: 700; margin-top: 3px;
+  }
+
+  #pauseBtn {
+    position: fixed; z-index: 6; right: 12px;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    width: 38px; height: 38px; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--line); color: var(--dim);
+    font-size: 13px; line-height: 1;
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
+  #pauseBtn[hidden] { display: none; }
+
+  .rt { color: var(--mag); }
+  .gd { color: var(--gold); }
+  .cy { color: var(--cyan); }
+  .vi { color: var(--violet); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<button id="pauseBtn" class="mono" hidden>❚❚</button>
+
+<!-- Title / weapon pick -->
+<div class="overlay" id="titleScreen">
+  <h1 class="title">PULSE</h1>
+  <p class="sub">화면을 손가락으로 끌어 이동합니다.<br>공격은 자동. 5분을 버티고 보스를 잡으세요.</p>
+  <div class="label">시작 무기를 고르세요</div>
+  <div class="pick" id="pickList"></div>
+  <div class="stats" id="bestBox" hidden>
+    <div><div class="k">BEST TIME</div><div class="v" id="bestTime">--:--</div></div>
+    <div><div class="k">BEST KILLS</div><div class="v" id="bestKills">0</div></div>
+  </div>
+</div>
+
+<!-- Level-up cards -->
+<div class="overlay" id="cardScreen" hidden>
+  <div style="text-align:center">
+    <div class="mono" style="font-size:13px;font-weight:700;letter-spacing:.2em;color:var(--gold);text-shadow:0 0 16px rgba(255,225,77,.5)">LEVEL UP</div>
+    <div class="sub" style="margin-top:8px">강화를 하나 고르세요</div>
+  </div>
+  <div id="cardList" style="margin-top:20px"></div>
+</div>
+
+<!-- Pause -->
+<div class="overlay" id="pauseScreen" hidden>
+  <div class="mono" style="text-align:center;font-size:16px;letter-spacing:.2em;color:var(--dim)">PAUSED</div>
+  <div id="buildBox" style="margin-top:18px"></div>
+  <button class="btn" id="resumeBtn">계속하기</button>
+  <button class="btn ghost" id="quitBtn">포기하고 처음으로</button>
+</div>
+
+<!-- Result -->
+<div class="overlay" id="resultScreen" hidden>
+  <div id="resultTitle" class="title" style="font-size:30px"></div>
+  <p class="sub" id="resultSub"></p>
+  <div class="stats">
+    <div><div class="k">SURVIVED</div><div class="v" id="rTime">00:00</div></div>
+    <div><div class="k">KILLS</div><div class="v" id="rKills">0</div></div>
+    <div><div class="k">LEVEL</div><div class="v" id="rLevel">1</div></div>
+    <div><div class="k">BEST TIME</div><div class="v" id="rBest">00:00</div></div>
+  </div>
+  <div class="label" style="margin-bottom:8px">최종 빌드</div>
+  <div id="resultBuild"></div>
+  <button class="btn" id="retryBtn">다시 하기</button>
+</div>
+
+<script>
+"use strict";
+
+// ===========================================================================
+// Canvas
+// ===========================================================================
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d", { alpha: false });
+let W = 0, H = 0, DPR = 1;
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+const C = {
+  bg: "#05060a", grid: "#0c1424",
+  cyan: "#00fff0", mag: "#ff2d95", gold: "#ffe14d",
+  violet: "#a56bff", red: "#ff2d55", white: "#ffffff",
+  dim: "#5b7a99", line: "#1b2440", ink: "#d6f5ff"
+};
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+
+// Cheap glow: a wide translucent pass under a bright thin pass.
+// Much faster than shadowBlur when hundreds of shapes are on screen.
+function glowStroke(build, color, width, strength) {
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.strokeStyle = color;
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.globalAlpha = 0.26 * (strength || 1);
+  ctx.lineWidth = width * 3.4;
+  build(); ctx.stroke();
+  ctx.globalAlpha = Math.min(1, strength || 1);
+  ctx.lineWidth = width;
+  build(); ctx.stroke();
+  ctx.restore();
+}
+function glowFill(build, color, alpha) {
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  build(); ctx.fill();
+  ctx.restore();
+}
+function polyPath(x, y, r, sides, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = rot + (i / sides) * Math.PI * 2;
+    const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+function chamfer(x, y, w, h, c) {
+  ctx.beginPath();
+  ctx.moveTo(x + c, y); ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + h - c); ctx.lineTo(x + w - c, y + h);
+  ctx.lineTo(x, y + h); ctx.lineTo(x, y + c);
+  ctx.closePath();
+}
+
+// ===========================================================================
+// Content: weapons, evolutions, passives
+// ===========================================================================
+const WEAPONS = {
+  pulse: {
+    name: "펄스", sides: 12, color: C.cyan,
+    desc: "주변으로 충격파를 터뜨린다",
+    up: ["범위 +", "피해 +", "간격 -", "범위 ++", "피해 ++"],
+    evo: { need: "size", key: "nova", name: "노바", desc: "충격파가 두 겹으로 터지고 적을 밀어낸다" }
+  },
+  bolt: {
+    name: "볼트", sides: 3, color: C.gold,
+    desc: "가장 가까운 적을 자동으로 쏜다",
+    up: ["피해 +", "발사 +1", "간격 -", "피해 ++", "발사 +1"],
+    evo: { need: "multi", key: "shotgun", name: "산탄 볼트", desc: "부채꼴로 흩뿌리고 적을 관통한다" }
+  },
+  orb: {
+    name: "오브", sides: 4, color: C.violet,
+    desc: "주위를 도는 오브가 적을 갈아낸다",
+    up: ["오브 +1", "피해 +", "크기 +", "오브 +1", "피해 ++"],
+    evo: { need: "haste", key: "saw", name: "톱날 궤도", desc: "궤도가 넓어지고 회전이 훨씬 빨라진다" }
+  },
+  chain: {
+    name: "체인", sides: 5, color: C.mag,
+    desc: "번개가 적 사이를 튕겨 다닌다",
+    up: ["튕김 +1", "피해 +", "간격 -", "튕김 +1", "피해 ++"],
+    evo: { need: "magnet", key: "storm", name: "폭풍", desc: "튕김이 크게 늘고 맞은 적이 잠깐 멈춘다" }
+  }
+};
+
+const PASSIVES = {
+  speed: { name: "가속 장치", desc: "이동 속도 +12%", color: C.cyan },
+  haste: { name: "냉각 장치", desc: "공격 간격 -12%", color: C.gold },
+  multi: { name: "분열 코어", desc: "투사체 +1", color: C.violet },
+  size:  { name: "증폭 코일", desc: "공격 범위 +14%", color: C.mag },
+  drain: { name: "흡수 회로", desc: "처치 시 체력 회복", color: C.red },
+  magnet:{ name: "자기장", desc: "경험치 획득 범위 +45%", color: C.cyan }
+};
+
+const MAX_W = 5, MAX_P = 5, SLOTS = 3;
+
+// ===========================================================================
+// Game state
+// ===========================================================================
+const TOTAL = 300;      // seconds per run
+const BOSS_AT = 60;     // boss spawns with this much time left
+
+let S = null;
+let mode = "title";     // title | play | cards | pause | result
+
+function newGame(startWeapon) {
+  S = {
+    t: TOTAL, elapsed: 0,
+    player: { x: W / 2, y: H * 0.62, r: 13, hp: 140, maxHp: 140, inv: 0, rot: -Math.PI / 2 },
+    weapons: { [startWeapon]: 1 },
+    evolved: {},
+    passives: {},
+    cd: {},
+    level: 1, xp: 0, xpNeed: 5, kills: 0,
+    enemies: [], bullets: [], eBullets: [], gems: [], parts: [], zaps: [], rings: [], orbs: [],
+    orbAngle: 0,
+    shake: 0, hitStop: 0, flash: 0,
+    spawnAcc: 0, eliteIdx: 0, boss: null, bossWarned: false,
+    result: null
+  };
+  S.cd[startWeapon] = 0;
+}
+
+// ---------------------------------------------------------------------------
+// Derived stats
+// ---------------------------------------------------------------------------
+const pLv = k => S.passives[k] || 0;
+const hasteMul = () => Math.pow(0.88, pLv("haste"));
+const sizeMul = () => Math.pow(1.14, pLv("size"));
+const speedMul = () => Math.pow(1.12, pLv("speed"));
+const magnetR = () => 130 * Math.pow(1.4, pLv("magnet"));
+
+// ===========================================================================
+// Spawning
+// ===========================================================================
+const ETYPE = {
+  grunt:    { sides: 3, r: 11, hp: 3,  spd: 54,  dmg: 5,  xp: 1 },
+  rusher:   { sides: 4, r: 12, hp: 4,  spd: 34,  dmg: 7,  xp: 1 },
+  shooter:  { sides: 6, r: 13, hp: 5,  spd: 26,  dmg: 6,  xp: 2 },
+  splitter: { sides: 5, r: 16, hp: 8,  spd: 40,  dmg: 7,  xp: 2 }
+};
+
+function difficulty() { return 1 + Math.pow(S.elapsed / TOTAL, 1.5) * 6.0; }
+// Contact and bullet damage grow through the run, so late waves stay scary
+// even once lifesteal and a finished build are online.
+function dmgScale() { return 0.85 + (S.elapsed / TOTAL) * 1.3; }
+
+function edgePoint() {
+  const m = 44, e = (Math.random() * 4) | 0;
+  if (e === 0) return { x: rand(0, W), y: -m };
+  if (e === 1) return { x: W + m, y: rand(0, H) };
+  if (e === 2) return { x: rand(0, W), y: H + m };
+  return { x: -m, y: rand(0, H) };
+}
+
+function spawnEnemy(type, x, y, scale) {
+  const t = ETYPE[type];
+  const s = scale || 1;
+  const p = (x === undefined) ? edgePoint() : { x, y };
+  S.enemies.push({
+    type, x: p.x, y: p.y, r: t.r * s, sides: t.sides,
+    hp: t.hp * difficulty() * s * s, maxHp: t.hp * difficulty() * s * s,
+    spd: t.spd, dmg: t.dmg, xp: t.xp * s, rot: rand(0, 6.28),
+    flash: 0, stun: 0, cd: rand(0, 2), dash: 0, kb: { x: 0, y: 0 }, scale: s
+  });
+}
+
+function spawnElite() {
+  const types = ["grunt", "rusher", "shooter", "splitter"];
+  const t = types[S.eliteIdx % 4];
+  const p = edgePoint();
+  const e = S.enemies[S.enemies.push({
+    type: t, x: p.x, y: p.y, r: ETYPE[t].r * 2.4, sides: ETYPE[t].sides,
+    hp: 0, maxHp: 0, spd: ETYPE[t].spd * 0.8, dmg: 16, xp: 14,
+    rot: 0, flash: 0, stun: 0, cd: 0, dash: 0, kb: { x: 0, y: 0 }, scale: 2.4, elite: true
+  }) - 1];
+  e.hp = e.maxHp = 90 * difficulty();
+  S.eliteIdx++;
+  banner("ELITE", C.gold);
+}
+
+function spawnBoss() {
+  S.boss = {
+    x: W / 2, y: -80, r: 46, hp: 4000 + S.level * 850, maxHp: 4000 + S.level * 850,
+    rot: 0, phase: 0, cd: 2.4, dashT: 0, dashA: 0, tele: 0, flash: 0, entering: true
+  };
+  banner("BOSS", C.red);
+}
+
+let bannerText = null;
+function banner(text, color) { bannerText = { text, color, life: 2.2 }; }
+
+// ===========================================================================
+// Weapons
+// ===========================================================================
+function fireWeapons(dt) {
+  const p = S.player;
+  for (const key in S.weapons) {
+    const lv = S.weapons[key];
+    const evo = S.evolved[key];
+    S.cd[key] -= dt;
+    if (S.cd[key] > 0) continue;
+
+    if (key === "pulse") {
+      const radius = (evo ? 215 : 104 + lv * 22) * sizeMul();
+      const dmg = evo ? 58 : 12 + lv * 7;
+      S.rings.push({ x: p.x, y: p.y, r: 12, max: radius, dmg, life: 1, hit: new Set(), kb: !!evo });
+      if (evo) S.rings.push({ x: p.x, y: p.y, r: 12, max: radius * 0.62, dmg: dmg * 0.6, life: 1, hit: new Set(), kb: true, delay: 0.18 });
+      S.cd[key] = (evo ? 1.6 : 2.1 - lv * 0.18) * hasteMul();
+      S.shake = Math.max(S.shake, 3);
+    }
+
+    else if (key === "bolt") {
+      const target = nearestEnemy(p.x, p.y, 900);
+      if (!target) { S.cd[key] = 0.1; continue; }
+      const base = Math.atan2(target.y - p.y, target.x - p.x);
+      const n = evo ? 5 + pLv("multi") : 1 + ((lv >= 2) ? 1 : 0) + ((lv >= 5) ? 1 : 0) + pLv("multi");
+      const spread = evo ? 0.62 : 0.10;
+      const dmg = evo ? 30 : 10 + lv * 5;
+      for (let i = 0; i < n; i++) {
+        const a = base + (n === 1 ? 0 : (i / (n - 1) - 0.5) * spread);
+        S.bullets.push({
+          x: p.x, y: p.y, vx: Math.cos(a) * 560, vy: Math.sin(a) * 560,
+          a, dmg, life: 1.4, pierce: evo ? 2 : 0, r: 5 * sizeMul(), hit: new Set()
+        });
+      }
+      S.cd[key] = (evo ? 0.40 : 0.55 - lv * 0.05) * hasteMul();
+    }
+
+    else if (key === "chain") {
+      const target = nearestEnemy(p.x, p.y, (evo ? 340 : 220) * sizeMul());
+      if (!target) { S.cd[key] = 0.15; continue; }
+      const jumps = evo ? 9 + pLv("multi") : 2 + lv + Math.floor(pLv("multi") / 2);
+      const dmg = evo ? 52 : 14 + lv * 7;
+      chainFrom(p.x, p.y, target, jumps, dmg, (evo ? 300 : 190) * sizeMul(), !!evo);
+      S.cd[key] = (evo ? 0.90 : 1.60 - lv * 0.15) * hasteMul();
+    }
+  }
+
+  // Orbs are continuous, not on a cooldown.
+  if (S.weapons.orb) {
+    const lv = S.weapons.orb, evo = S.evolved.orb;
+    const n = (evo ? 4 : 1 + lv) + pLv("multi");
+    const dist = (evo ? 108 : 62 + lv * 5) * sizeMul();
+    const orbR = (evo ? 17 : 7 + lv * 1.8) * sizeMul();
+    const dps = (evo ? 96 : 26 + lv * 11);
+    S.orbAngle += dt * (evo ? 4.6 : 2.2) / hasteMul();
+    S.orbs = [];
+    for (let i = 0; i < n; i++) {
+      const a = S.orbAngle + (i / n) * Math.PI * 2;
+      S.orbs.push({ x: p.x + Math.cos(a) * dist, y: p.y + Math.sin(a) * dist, r: orbR, dps, a });
+    }
+  } else S.orbs = [];
+}
+
+function nearestEnemy(x, y, maxD, skip) {
+  let best = null, bd = maxD * maxD;
+  for (const e of S.enemies) {
+    if (skip && skip.has(e)) continue;
+    const d = (e.x - x) ** 2 + (e.y - y) ** 2;
+    if (d < bd) { bd = d; best = e; }
+  }
+  if (S.boss && !S.boss.entering && (!skip || !skip.has(S.boss))) {
+    const d = (S.boss.x - x) ** 2 + (S.boss.y - y) ** 2;
+    if (d < bd) best = S.boss;
+  }
+  return best;
+}
+
+function chainFrom(sx, sy, first, jumps, dmg, range, stun) {
+  const seen = new Set();
+  let cx = sx, cy = sy, cur = first;
+  const pts = [{ x: sx, y: sy }];
+  for (let i = 0; i < jumps && cur; i++) {
+    pts.push({ x: cur.x, y: cur.y });
+    damage(cur, dmg);
+    if (stun) cur.stun = 0.45;
+    seen.add(cur);
+    cx = cur.x; cy = cur.y;
+    cur = nearestEnemy(cx, cy, range, seen);
+  }
+  S.zaps.push({ pts, life: 1 });
+}
+
+// ===========================================================================
+// Damage
+// ===========================================================================
+function damage(e, amount) {
+  e.hp -= amount;
+  e.flash = 1;
+  if (e === S.boss) {
+    if (e.hp <= 0) winGame();
+    return;
+  }
+  if (e.hp <= 0 && !e.dead) {
+    e.dead = true;
+    killEnemy(e);
+  }
+}
+
+function killEnemy(e) {
+  S.kills++;
+  burst(e.x, e.y, e.elite ? C.gold : C.mag, e.elite ? 26 : 8, e.elite ? 220 : 130);
+  const drops = e.elite ? 10 : 1;
+  for (let i = 0; i < drops; i++) {
+    S.gems.push({ x: e.x + rand(-14, 14), y: e.y + rand(-14, 14), vx: rand(-40, 40), vy: rand(-40, 40), xp: e.xp, age: 0 });
+  }
+  if (e.type === "splitter" && !e.elite && e.scale >= 1) {
+    for (let i = 0; i < 2; i++) spawnEnemy("grunt", e.x + rand(-16, 16), e.y + rand(-16, 16), 0.7);
+  }
+  if (pLv("drain")) {
+    S.player.hp = Math.min(S.player.maxHp, S.player.hp + 0.14 * pLv("drain"));
+  }
+  S.hitStop = Math.max(S.hitStop, e.elite ? 0.09 : 0.022);
+  S.shake = Math.max(S.shake, e.elite ? 9 : 1.8);
+}
+
+function burst(x, y, color, n, power) {
+  if (S.parts.length > 420) return;
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, 6.2832), s = rand(0.25, 1) * power;
+    S.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, col: color, size: rand(1.5, 3.6) });
+  }
+}
+
+function hurtPlayer(amount) {
+  const p = S.player;
+  if (p.inv > 0) return;
+  p.hp -= amount;
+  p.inv = 1.0;
+  S.shake = Math.max(S.shake, 9);
+  S.flash = 0.35;
+  burst(p.x, p.y, C.red, 12, 150);
+  if (p.hp <= 0) { p.hp = 0; loseGame("체력이 모두 소진되었습니다"); }
+}
+
+// ===========================================================================
+// Update
+// ===========================================================================
+const pointer = { active: false, x: 0, y: 0 };
+
+function update(dt) {
+  const p = S.player;
+  S.elapsed += dt;
+  S.t -= dt;
+
+  if (S.t <= 0) {
+    S.t = 0;
+    if (S.boss) loseGame("시간 안에 보스를 쓰러뜨리지 못했습니다");
+    return;
+  }
+
+  // --- player movement -----------------------------------------------------
+  if (pointer.active) {
+    const dx = pointer.x - p.x, dy = pointer.y - p.y;
+    const d = Math.hypot(dx, dy);
+    if (d > 1) {
+      const step = Math.min(d, 268 * speedMul() * dt);
+      p.x += (dx / d) * step; p.y += (dy / d) * step;
+      p.rot = Math.atan2(dy, dx);
+    }
+  }
+  p.x = clamp(p.x, 16, W - 16); p.y = clamp(p.y, 16, H - 16);
+  p.inv = Math.max(0, p.inv - dt);
+  // slow repair: stops chip damage from snowballing into an unwinnable run,
+  // without saving anyone who stands in a crowd
+  if (p.hp < p.maxHp) p.hp = Math.min(p.maxHp, p.hp + 0.6 * dt);
+
+  // --- spawning ------------------------------------------------------------
+  {
+    // waves keep coming during the boss, thinned out so the fight stays readable
+    const rate = (1.0 + Math.pow(S.elapsed, 1.7) * 0.0020) * (S.boss ? 0.12 : 1);
+    S.spawnAcc += dt * rate;
+    while (S.spawnAcc >= 1 && S.enemies.length < 170) {
+      S.spawnAcc -= 1;
+      const r = Math.random();
+      const late = S.elapsed / TOTAL;
+      let type = "grunt";
+      if (r < 0.30 + late * 0.1) type = "grunt";
+      else if (r < 0.58) type = "rusher";
+      else if (r < 0.80) type = "shooter";
+      else type = "splitter";
+      spawnEnemy(type);
+    }
+    const eliteTimes = [60, 120, 180, 225];
+    if (!S.boss && S.eliteIdx < eliteTimes.length && S.elapsed >= eliteTimes[S.eliteIdx]) spawnElite();
+    if (!S.boss && S.t <= BOSS_AT) spawnBoss();
+  }
+
+  // --- enemies -------------------------------------------------------------
+  for (let i = S.enemies.length - 1; i >= 0; i--) {
+    const e = S.enemies[i];
+    if (e.dead) { S.enemies.splice(i, 1); continue; }
+    e.flash = Math.max(0, e.flash - dt * 6);
+    e.stun = Math.max(0, e.stun - dt);
+    e.rot += dt * 0.9;
+
+    // knockback decay
+    e.x += e.kb.x * dt; e.y += e.kb.y * dt;
+    e.kb.x *= 0.86; e.kb.y *= 0.86;
+
+    if (e.stun <= 0) {
+      const dx = p.x - e.x, dy = p.y - e.y;
+      const d = Math.hypot(dx, dy) || 1;
+
+      if (e.type === "rusher") {
+        e.cd -= dt;
+        if (e.dash > 0) {
+          e.dash -= dt;
+          e.x += Math.cos(e.dashA) * 330 * dt;
+          e.y += Math.sin(e.dashA) * 330 * dt;
+        } else if (e.cd <= 0 && d < 340) {
+          e.dash = 0.55; e.dashA = Math.atan2(dy, dx); e.cd = rand(2.0, 3.2);
+        } else {
+          e.x += (dx / d) * e.spd * dt; e.y += (dy / d) * e.spd * dt;
+        }
+      }
+      else if (e.type === "shooter") {
+        const want = 210;
+        const dir = d > want + 30 ? 1 : (d < want - 30 ? -1 : 0);
+        e.x += (dx / d) * e.spd * dir * dt; e.y += (dy / d) * e.spd * dir * dt;
+        e.cd -= dt;
+        if (e.cd <= 0 && d < 420) {
+          e.cd = rand(3.2, 4.6);
+          const a = Math.atan2(dy, dx);
+          S.eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 200, vy: Math.sin(a) * 200, r: 4.5, life: 4, dmg: 9 });
+        }
+      }
+      else {
+        e.x += (dx / d) * e.spd * dt; e.y += (dy / d) * e.spd * dt;
+      }
+    }
+
+    // contact
+    const cd = Math.hypot(p.x - e.x, p.y - e.y);
+    if (cd < e.r + p.r) hurtPlayer(e.dmg * dmgScale());
+
+    // orbs
+    for (const o of S.orbs) {
+      if ((e.x - o.x) ** 2 + (e.y - o.y) ** 2 < (e.r + o.r) ** 2) {
+        damage(e, o.dps * dt);
+      }
+    }
+  }
+
+  // --- boss ----------------------------------------------------------------
+  if (S.boss) {
+    const b = S.boss;
+    b.flash = Math.max(0, b.flash - dt * 6);
+    b.rot += dt * 0.5;
+    if (b.entering) {
+      b.y += 130 * dt;
+      if (b.y >= H * 0.24) b.entering = false;
+    } else {
+      const dx = p.x - b.x, dy = p.y - b.y, d = Math.hypot(dx, dy) || 1;
+      if (b.dashT > 0) {
+        b.dashT -= dt;
+        b.x += Math.cos(b.dashA) * 460 * dt;
+        b.y += Math.sin(b.dashA) * 460 * dt;
+        b.x = clamp(b.x, 40, W - 40); b.y = clamp(b.y, 40, H - 40);
+      } else if (b.tele > 0) {
+        b.tele -= dt;
+        if (b.tele <= 0) { b.dashT = 0.9; b.dashA = Math.atan2(dy, dx); }
+      } else {
+        b.x += (dx / d) * 44 * dt; b.y += (dy / d) * 44 * dt;
+        b.cd -= dt;
+        if (b.cd <= 0) {
+          b.phase = (b.phase + 1) % 3;
+          const rush = b.hp / b.maxHp < 0.5 ? 0.62 : 1;
+          if (b.phase === 0) {
+            const n = 18, off = rand(0, 1);
+            for (let i = 0; i < n; i++) {
+              const a = off + (i / n) * 6.2832;
+              S.eBullets.push({ x: b.x, y: b.y, vx: Math.cos(a) * 165, vy: Math.sin(a) * 165, r: 6, life: 6, dmg: 11 });
+            }
+            b.cd = 3.0 * rush;
+          } else if (b.phase === 1) {
+            b.tele = 0.85 * rush; b.cd = 3.4 * rush;
+          } else {
+            for (let i = 0; i < 5; i++) spawnEnemy("grunt", b.x + rand(-60, 60), b.y + rand(-40, 40), 0.85);
+            b.cd = 3.6 * rush;
+          }
+        }
+      }
+      if (Math.hypot(p.x - b.x, p.y - b.y) < b.r + p.r) hurtPlayer(14 * dmgScale());
+      for (const o of S.orbs) {
+        if ((b.x - o.x) ** 2 + (b.y - o.y) ** 2 < (b.r + o.r) ** 2) damage(b, o.dps * dt);
+      }
+    }
+  }
+
+  // --- weapons -------------------------------------------------------------
+  fireWeapons(dt);
+
+  // --- player bullets ------------------------------------------------------
+  for (let i = S.bullets.length - 1; i >= 0; i--) {
+    const b = S.bullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    let gone = b.life <= 0 || b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40;
+    if (!gone) {
+      const targets = S.boss && !S.boss.entering ? S.enemies.concat([S.boss]) : S.enemies;
+      for (const e of targets) {
+        if (b.hit.has(e)) continue;
+        if ((e.x - b.x) ** 2 + (e.y - b.y) ** 2 < (e.r + b.r) ** 2) {
+          damage(e, b.dmg);
+          b.hit.add(e);
+          burst(b.x, b.y, C.cyan, 3, 70);
+          if (b.pierce > 0) b.pierce--; else { gone = true; }
+          break;
+        }
+      }
+    }
+    if (gone) S.bullets.splice(i, 1);
+  }
+
+  // --- enemy bullets -------------------------------------------------------
+  for (let i = S.eBullets.length - 1; i >= 0; i--) {
+    const b = S.eBullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if (Math.hypot(p.x - b.x, p.y - b.y) < b.r + p.r) { hurtPlayer(b.dmg * dmgScale()); S.eBullets.splice(i, 1); continue; }
+    if (b.life <= 0 || b.x < -60 || b.x > W + 60 || b.y < -60 || b.y > H + 60) S.eBullets.splice(i, 1);
+  }
+
+  // --- pulse rings ---------------------------------------------------------
+  for (let i = S.rings.length - 1; i >= 0; i--) {
+    const g = S.rings[i];
+    if (g.delay > 0) { g.delay -= dt; continue; }
+    g.r += dt * 640;
+    g.life -= dt * 1.55;
+    const targets = S.boss && !S.boss.entering ? S.enemies.concat([S.boss]) : S.enemies;
+    for (const e of targets) {
+      if (g.hit.has(e)) continue;
+      const d = Math.hypot(e.x - g.x, e.y - g.y);
+      if (d < g.r + e.r && d > g.r - 34) {
+        damage(e, g.dmg); g.hit.add(e);
+        if (g.kb && e !== S.boss) {
+          const a = Math.atan2(e.y - g.y, e.x - g.x);
+          e.kb.x = Math.cos(a) * 340; e.kb.y = Math.sin(a) * 340;
+        }
+      }
+    }
+    if (g.life <= 0 || g.r > g.max) S.rings.splice(i, 1);
+  }
+
+  // --- zaps ----------------------------------------------------------------
+  for (let i = S.zaps.length - 1; i >= 0; i--) {
+    S.zaps[i].life -= dt * 4.5;
+    if (S.zaps[i].life <= 0) S.zaps.splice(i, 1);
+  }
+
+  // --- gems ----------------------------------------------------------------
+  const mr = magnetR();
+  for (let i = S.gems.length - 1; i >= 0; i--) {
+    const g = S.gems[i];
+    g.age += dt;
+    const dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy) || 1;
+    // Old gems, and gems in an overcrowded field, come home on their own.
+    // Otherwise a long run carpets the screen in uncollected pickups.
+    const forced = g.age > 13 || i > 120;
+    if (d < mr || forced) {
+      const pull = (forced ? 2600 : 1500) / Math.max(d, 26);
+      g.vx += (dx / d) * pull * dt * 26; g.vy += (dy / d) * pull * dt * 26;
+    }
+    g.vx *= 0.92; g.vy *= 0.92;
+    g.x += g.vx * dt; g.y += g.vy * dt;
+    if (d < 20) {
+      S.gems.splice(i, 1);
+      S.xp += g.xp;
+      // One card screen at a time; applyCard chains into the next level-up.
+      if (S.xp >= S.xpNeed) {
+        S.xp -= S.xpNeed;
+        S.level++;
+        S.xpNeed = Math.round(6 + S.level * 6);
+        openCards();
+        return;
+      }
+    }
+  }
+
+  // --- particles -----------------------------------------------------------
+  for (let i = S.parts.length - 1; i >= 0; i--) {
+    const q = S.parts[i];
+    q.x += q.vx * dt; q.y += q.vy * dt;
+    q.vx *= 0.92; q.vy *= 0.92;
+    q.life -= dt * 1.9;
+    if (q.life <= 0) S.parts.splice(i, 1);
+  }
+
+  S.shake = Math.max(0, S.shake - dt * 22);
+  S.flash = Math.max(0, S.flash - dt * 2.4);
+  if (bannerText) { bannerText.life -= dt; if (bannerText.life <= 0) bannerText = null; }
+}
+
+// ===========================================================================
+// Render
+// ===========================================================================
+function drawBackground() {
+  // motion trails: never fully clear
+  ctx.fillStyle = "rgba(5,6,10,.34)";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = C.grid;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  const g = 46;
+  for (let x = 0; x < W; x += g) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+  for (let y = 0; y < H; y += g) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+  ctx.stroke();
+}
+
+function drawEnemies() {
+  for (const e of S.enemies) {
+    const col = e.elite ? C.gold : (e.flash > 0 ? C.white : C.mag);
+    const build = () => polyPath(e.x, e.y, e.r, e.sides, e.rot);
+    glowStroke(build, col, e.elite ? 2.4 : 1.6, e.elite ? 1.3 : 0.85);
+    glowFill(build, col, e.flash > 0 ? 0.5 : 0.12);
+    if (e.elite) {
+      const w = e.r * 2.2;
+      ctx.fillStyle = "rgba(255,225,77,.22)";
+      ctx.fillRect(e.x - w / 2, e.y + e.r + 8, w, 3);
+      ctx.fillStyle = C.gold;
+      ctx.fillRect(e.x - w / 2, e.y + e.r + 8, w * clamp(e.hp / e.maxHp, 0, 1), 3);
+    }
+    if (e.type === "rusher" && e.dash > 0) {
+      glowStroke(() => { ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x - Math.cos(e.dashA) * 26, e.y - Math.sin(e.dashA) * 26); }, C.white, 1.4, .8);
+    }
+  }
+}
+
+function drawBoss() {
+  const b = S.boss;
+  if (!b) return;
+  const col = b.flash > 0 ? C.white : (b.tele > 0 ? C.red : C.violet);
+  glowStroke(() => polyPath(b.x, b.y, b.r, 8, b.rot), col, 3, 1.5);
+  glowStroke(() => polyPath(b.x, b.y, b.r * 0.62, 4, -b.rot * 1.6), col, 2, 1.2);
+  glowFill(() => polyPath(b.x, b.y, b.r, 8, b.rot), col, 0.14);
+  if (b.tele > 0) {
+    const a = Math.atan2(S.player.y - b.y, S.player.x - b.x);
+    glowStroke(() => {
+      ctx.beginPath(); ctx.moveTo(b.x, b.y);
+      ctx.lineTo(b.x + Math.cos(a) * 520, b.y + Math.sin(a) * 520);
+    }, C.red, 1.6, 1);
+  }
+}
+
+function drawPlayer() {
+  const p = S.player;
+  if (p.inv > 0 && Math.floor(p.inv * 22) % 2 === 0) return;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rot);
+  const body = () => {
+    ctx.beginPath();
+    ctx.moveTo(19, 0); ctx.lineTo(4, 13); ctx.lineTo(-13, 9);
+    ctx.lineTo(-8, 0); ctx.lineTo(-13, -9); ctx.lineTo(4, -13);
+    ctx.closePath();
+  };
+  glowStroke(body, C.cyan, 2, 1.4);
+  glowFill(body, C.cyan, 0.2);
+  ctx.restore();
+
+  // aim marker
+  glowStroke(() => { ctx.beginPath(); ctx.arc(p.x, p.y, 30, 0, 6.2832); }, C.cyan, 0.8, 0.35);
+}
+
+function drawEffects() {
+  // pulse rings
+  for (const g of S.rings) {
+    if (g.delay > 0) continue;
+    glowStroke(() => { ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, 6.2832); }, C.cyan, 2.2, clamp(g.life, 0, 1) * 1.2);
+  }
+  // chain zaps
+  for (const z of S.zaps) {
+    glowStroke(() => {
+      ctx.beginPath();
+      ctx.moveTo(z.pts[0].x, z.pts[0].y);
+      for (let i = 1; i < z.pts.length; i++) {
+        const a = z.pts[i - 1], b = z.pts[i];
+        const mx = (a.x + b.x) / 2 + rand(-11, 11), my = (a.y + b.y) / 2 + rand(-11, 11);
+        ctx.lineTo(mx, my); ctx.lineTo(b.x, b.y);
+      }
+    }, C.mag, 2, clamp(z.life, 0, 1) * 1.4);
+  }
+  // orbs
+  for (const o of S.orbs || []) {
+    const build = () => polyPath(o.x, o.y, o.r, 4, o.a * 2.4);
+    glowStroke(build, C.violet, 1.8, 1.1);
+    glowFill(build, C.violet, 0.22);
+  }
+  // player bullets
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (const b of S.bullets) {
+    ctx.strokeStyle = C.cyan;
+    ctx.globalAlpha = .25; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(b.x - Math.cos(b.a) * 14, b.y - Math.sin(b.a) * 14); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(b.x - Math.cos(b.a) * 11, b.y - Math.sin(b.a) * 11); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+  // enemy bullets
+  for (const b of S.eBullets) {
+    ctx.fillStyle = C.red;
+    ctx.globalAlpha = .22;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 1.7, 0, 6.2832); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.75, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.3, 0, 6.2832); ctx.fill();
+  }
+  // gems
+  for (const g of S.gems) {
+    ctx.fillStyle = C.cyan;
+    ctx.globalAlpha = .22;
+    ctx.fillRect(g.x - 4, g.y - 4, 8, 8);
+    ctx.globalAlpha = .95;
+    ctx.fillRect(g.x - 1.5, g.y - 1.5, 3, 3);
+  }
+  // particles
+  for (const q of S.parts) {
+    ctx.globalAlpha = clamp(q.life, 0, 1);
+    ctx.fillStyle = q.col;
+    ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+  }
+  ctx.restore();
+}
+
+function drawHud() {
+  const pad = 14;
+  const top = (window.__safeTop || 0) + 12;
+  const p = S.player;
+
+  // timer
+  const rem = Math.max(0, S.t);
+  const mm = String(Math.floor(rem / 60)).padStart(2, "0");
+  const ss = String(Math.floor(rem % 60)).padStart(2, "0");
+  ctx.textAlign = "left";
+  ctx.fillStyle = C.dim; ctx.font = `9px ${MONO}`;
+  ctx.fillText("TIME LEFT", pad, top + 12);
+  ctx.fillStyle = S.boss ? C.red : C.ink;
+  ctx.font = `700 26px ${MONO}`;
+  ctx.fillText(`${mm}:${ss}`, pad, top + 38);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = C.dim; ctx.font = `9px ${MONO}`;
+  ctx.fillText("KILLS", W / 2, top + 12);
+  ctx.fillStyle = C.ink; ctx.font = `700 20px ${MONO}`;
+  ctx.fillText(String(S.kills).padStart(3, "0"), W / 2, top + 34);
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = C.dim; ctx.font = `9px ${MONO}`;
+  ctx.fillText("LEVEL", W - pad - 46, top + 12);
+  ctx.fillStyle = C.gold; ctx.font = `700 20px ${MONO}`;
+  ctx.fillText(String(S.level).padStart(2, "0"), W - pad - 46, top + 34);
+
+  // xp bar
+  const xw = W - pad * 2;
+  ctx.fillStyle = "rgba(27,36,64,.9)";
+  ctx.fillRect(pad, top + 50, xw, 3);
+  ctx.fillStyle = C.gold;
+  ctx.fillRect(pad, top + 50, xw * clamp(S.xp / S.xpNeed, 0, 1), 3);
+
+  // hp bar
+  const low = p.hp / p.maxHp < 0.34;
+  ctx.fillStyle = "rgba(27,36,64,.9)";
+  ctx.fillRect(pad, top + 58, xw, 6);
+  ctx.fillStyle = low ? C.red : C.cyan;
+  ctx.fillRect(pad, top + 58, xw * clamp(p.hp / p.maxHp, 0, 1), 6);
+  ctx.fillStyle = C.bg;
+  for (let i = 1; i < 4; i++) ctx.fillRect(pad + (xw / 4) * i, top + 58, 2, 6);
+
+  // boss health
+  if (S.boss) {
+    const by = top + 78;
+    ctx.textAlign = "left";
+    ctx.fillStyle = C.red; ctx.font = `9px ${MONO}`;
+    ctx.fillText("BOSS", pad, by + 9);
+    ctx.fillStyle = "rgba(27,36,64,.9)";
+    ctx.fillRect(pad + 40, by + 2, xw - 40, 8);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(pad + 40, by + 2, (xw - 40) * clamp(S.boss.hp / S.boss.maxHp, 0, 1), 8);
+  }
+
+  // weapon strip
+  const wy = H - (window.__safeBottom || 0) - 40;
+  const keys = Object.keys(S.weapons);
+  ctx.textAlign = "center";
+  keys.forEach((k, i) => {
+    const x = pad + i * 76;
+    const evo = S.evolved[k];
+    const w = WEAPONS[k];
+    ctx.strokeStyle = evo ? C.gold : C.line;
+    ctx.lineWidth = 1;
+    chamfer(x, wy, 70, 26, 6); ctx.stroke();
+    ctx.fillStyle = evo ? C.gold : w.color;
+    ctx.font = `8px ${MONO}`;
+    const nm = evo ? WEAPONS[k].evo.name : w.name;
+    ctx.fillText(nm.toUpperCase().slice(0, 7), x + 35, wy + 12);
+    ctx.fillStyle = C.dim;
+    ctx.fillText(evo ? "MAX" : "LV." + S.weapons[k], x + 35, wy + 21);
+  });
+
+  // banner
+  if (bannerText) {
+    const a = clamp(bannerText.life / 0.6, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.textAlign = "center";
+    ctx.fillStyle = bannerText.color;
+    ctx.font = `700 30px ${MONO}`;
+    ctx.fillText(bannerText.text, W / 2, H * 0.34);
+    ctx.font = `10px ${MONO}`;
+    ctx.fillText("WARNING", W / 2, H * 0.34 + 20);
+    ctx.restore();
+  }
+
+  // low health vignette
+  if (low) {
+    const a = 0.16 + Math.sin(S.elapsed * 7) * 0.07;
+    const grd = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.26, W / 2, H / 2, Math.max(W, H) * 0.62);
+    grd.addColorStop(0, "rgba(0,0,0,0)");
+    grd.addColorStop(1, `rgba(255,45,85,${a})`);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+  }
+  if (S.flash > 0) {
+    ctx.fillStyle = `rgba(255,45,85,${S.flash * 0.35})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ===========================================================================
+// Loop
+// ===========================================================================
+let last = performance.now(), acc = 0;
+const STEP = 1 / 60;
+
+function frame(now) {
+  let dt = (now - last) / 1000; last = now;
+  if (dt > 0.2) dt = 0.2;
+
+  if (mode === "play" && S) {
+    if (S.hitStop > 0) S.hitStop -= dt;
+    else {
+      acc += dt;
+      let guard = 0;
+      while (acc >= STEP && guard++ < 5) { update(STEP); acc -= STEP; }
+      if (acc > 0.5) acc = 0;
+    }
+  }
+
+  if (S) {
+    ctx.save();
+    if (S.shake > 0.2) ctx.translate(rand(-S.shake, S.shake), rand(-S.shake, S.shake));
+    drawBackground();
+    drawEffects();
+    drawEnemies();
+    drawBoss();
+    drawPlayer();
+    ctx.restore();
+    drawHud();
+  } else {
+    ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+    drawBackground();
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ===========================================================================
+// Upgrade cards
+// ===========================================================================
+const $ = id => document.getElementById(id);
+const screens = {
+  title: $("titleScreen"), cards: $("cardScreen"),
+  pause: $("pauseScreen"), result: $("resultScreen")
+};
+
+function show(name) {
+  for (const k in screens) screens[k].hidden = (k !== name);
+  $("pauseBtn").hidden = (name !== null);
+  if (name === null) $("pauseBtn").hidden = (mode !== "play");
+}
+
+function svgIcon(sides, color, size) {
+  const r = size / 2 - 2, cx = size / 2, cy = size / 2;
+  let pts = "";
+  for (let i = 0; i < sides; i++) {
+    const a = -Math.PI / 2 + (i / sides) * Math.PI * 2;
+    pts += `${(cx + Math.cos(a) * r).toFixed(1)},${(cy + Math.sin(a) * r).toFixed(1)} `;
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <polygon points="${pts.trim()}" fill="${color}" fill-opacity="0.16"
+      stroke="${color}" stroke-width="2" stroke-linejoin="round"
+      style="filter:drop-shadow(0 0 6px ${color})"/></svg>`;
+}
+
+function evoReady(key) {
+  const w = WEAPONS[key];
+  return S.weapons[key] >= MAX_W && !S.evolved[key] && pLv(w.evo.need) >= MAX_P;
+}
+
+function buildPool() {
+  const pool = [];
+  // evolutions first — they are the payoff, so they always show when ready
+  for (const k in S.weapons) {
+    if (evoReady(k)) {
+      pool.push({ kind: "evolve", key: k, tier: "EVOLVE", color: C.gold,
+        name: WEAPONS[k].evo.name, desc: WEAPONS[k].evo.desc,
+        sub: `${WEAPONS[k].name} 진화`, sides: WEAPONS[k].sides });
+    }
+  }
+  if (pool.length) return pool.slice(0, 3);
+
+  for (const k in WEAPONS) {
+    const have = S.weapons[k];
+    const w = WEAPONS[k];
+    if (have) {
+      if (have < MAX_W) {
+        pool.push({ kind: "weapon", key: k, tier: "무기 강화", color: w.color,
+          name: w.name, desc: w.up[have - 1], sub: `LV.${have} → LV.${have + 1}`, sides: w.sides });
+      } else if (!S.evolved[k]) {
+        pool.push({ kind: "hint", key: k, tier: "진화 대기", color: C.dim,
+          name: w.name + " 진화", desc: `${PASSIVES[w.evo.need].name}를 최대로 올리면 진화한다`,
+          sub: `${PASSIVES[w.evo.need].name} ${pLv(w.evo.need)}/5`, sides: w.sides, disabled: true });
+      }
+    } else if (Object.keys(S.weapons).length < SLOTS) {
+      pool.push({ kind: "weapon", key: k, tier: "새 무기", color: w.color,
+        name: w.name, desc: w.desc, sub: "NEW", sides: w.sides });
+    }
+  }
+  for (const k in PASSIVES) {
+    const lv = pLv(k);
+    if (lv < MAX_P) {
+      const q = PASSIVES[k];
+      pool.push({ kind: "passive", key: k, tier: "패시브", color: q.color,
+        name: q.name, desc: q.desc, sub: `LV.${lv} → LV.${lv + 1}`, sides: 6 });
+    }
+  }
+  return pool;
+}
+
+function pick3(pool) {
+  const real = pool.filter(o => !o.disabled);
+  const out = [];
+  // Guarantee one weapon option. A hand of three passives is a dead level-up:
+  // damage never keeps pace with the wave and the run is lost without a choice.
+  let wSum = 0;
+  for (const k in S.weapons) wSum += S.weapons[k];
+  const starving = wSum < 2 + S.level * 0.55;
+  const wOpts = real.filter(o => o.kind === "weapon" || o.kind === "evolve");
+  if (starving && wOpts.length) out.push(wOpts[(Math.random() * wOpts.length) | 0]);
+  const src = real.filter(o => o !== out[0]);
+  while (out.length < 3 && src.length) {
+    out.push(src.splice((Math.random() * src.length) | 0, 1)[0]);
+  }
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  if (!out.length) {
+    out.push({ kind: "heal", tier: "회복", color: C.red, name: "긴급 수리",
+      desc: "체력을 30 회복한다", sub: "", sides: 6 });
+  }
+  return out;
+}
+
+function openCards() {
+  if (mode === "result") return;
+  const opts = pick3(buildPool());
+  const list = $("cardList");
+  list.innerHTML = "";
+  opts.forEach(o => {
+    const el = document.createElement("button");
+    el.className = "card" + (o.kind === "evolve" ? " evolve" : "");
+    el.innerHTML = `${svgIcon(o.sides, o.color, 44)}
+      <div class="txt">
+        <div class="tg" style="color:${o.color}">${o.tier}</div>
+        <div class="nm">${o.name}</div>
+        <div class="ds">${o.desc}</div>
+        <div class="tg" style="color:var(--dim);margin-top:4px">${o.sub}</div>
+      </div>`;
+    el.addEventListener("click", () => applyCard(o));
+    list.appendChild(el);
+  });
+  mode = "cards";
+  show("cards");
+}
+
+function applyCard(o) {
+  if (o.kind === "weapon") {
+    if (S.weapons[o.key]) S.weapons[o.key]++;
+    else { S.weapons[o.key] = 1; S.cd[o.key] = 0; }
+  } else if (o.kind === "passive") {
+    S.passives[o.key] = pLv(o.key) + 1;
+  } else if (o.kind === "evolve") {
+    S.evolved[o.key] = true;
+    banner("EVOLVED", C.gold);
+    S.shake = 12;
+  } else if (o.kind === "heal") {
+    S.player.hp = Math.min(S.player.maxHp, S.player.hp + 30);
+  }
+  if (S.xp >= S.xpNeed) {
+    S.xp -= S.xpNeed; S.level++; S.xpNeed = Math.round(6 + S.level * 6);
+    openCards();
+    return;
+  }
+  mode = "play";
+  last = performance.now();
+  show(null);
+}
+
+// ===========================================================================
+// Build summary (pause + result)
+// ===========================================================================
+function buildSummary() {
+  let html = "";
+  for (const k in S.weapons) {
+    const w = WEAPONS[k];
+    const evo = S.evolved[k];
+    html += `<div class="card" style="pointer-events:none;margin-bottom:8px${evo ? ";border-color:var(--gold)" : ""}">
+      ${svgIcon(w.sides, evo ? C.gold : w.color, 34)}
+      <div class="txt"><div class="nm" style="font-size:14px">${evo ? w.evo.name : w.name}</div>
+      <div class="ds">${evo ? "진화 완료"
+        : `LV.${S.weapons[k]} / ${MAX_W} · 진화 조건: ${PASSIVES[w.evo.need].name} ${pLv(w.evo.need)}/${MAX_P}`}</div></div></div>`;
+  }
+  const ps = Object.keys(S.passives).filter(k => S.passives[k] > 0);
+  if (ps.length) {
+    html += `<div class="mono" style="font-size:9px;letter-spacing:.16em;color:var(--dim);margin:12px 0 6px">PASSIVE</div>`;
+    html += `<div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    ps.forEach(k => {
+      html += `<div class="mono" style="font-size:10px;padding:6px 9px;border:1px solid var(--line);color:${PASSIVES[k].color}">
+        ${PASSIVES[k].name} ${S.passives[k]}</div>`;
+    });
+    html += `</div>`;
+  }
+  return html;
+}
+
+// ===========================================================================
+// Flow
+// ===========================================================================
+function fmt(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(Math.floor(sec % 60)).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function loadBest() {
+  try { return JSON.parse(localStorage.getItem("pulse-best") || "{}"); } catch (e) { return {}; }
+}
+function saveBest(b) {
+  try { localStorage.setItem("pulse-best", JSON.stringify(b)); } catch (e) {}
+}
+
+function endRun(won, reason) {
+  const survived = TOTAL - S.t;
+  const best = loadBest();
+  best.time = Math.max(best.time || 0, survived);
+  best.kills = Math.max(best.kills || 0, S.kills);
+  if (won) best.wins = (best.wins || 0) + 1;
+  saveBest(best);
+
+  $("resultTitle").textContent = won ? "CLEAR" : "GAME OVER";
+  $("resultTitle").style.color = won ? C.cyan : C.mag;
+  $("resultSub").textContent = reason;
+  $("rTime").textContent = fmt(survived);
+  $("rKills").textContent = S.kills;
+  $("rLevel").textContent = S.level;
+  $("rBest").textContent = fmt(best.time || 0);
+  $("resultBuild").innerHTML = buildSummary();
+  mode = "result";
+  show("result");
+}
+
+function winGame() { if (mode !== "result") endRun(true, "보스를 쓰러뜨렸습니다"); }
+function loseGame(reason) { if (mode !== "result") endRun(false, reason); }
+
+function start(weapon) {
+  newGame(weapon);
+  bannerText = null;
+  mode = "play";
+  last = performance.now(); acc = 0;
+  show(null);
+}
+
+function toTitle() {
+  mode = "title";
+  const best = loadBest();
+  if (best.time) {
+    $("bestBox").hidden = false;
+    $("bestTime").textContent = fmt(best.time);
+    $("bestKills").textContent = best.kills || 0;
+  }
+  show("title");
+}
+
+// Title weapon picker
+const pick = $("pickList");
+for (const k in WEAPONS) {
+  const w = WEAPONS[k];
+  const el = document.createElement("button");
+  el.className = "card";
+  el.innerHTML = `${svgIcon(w.sides, w.color, 38)}
+    <div><div class="nm" style="font-size:14px">${w.name}</div>
+    <div class="ds">${w.desc}</div></div>`;
+  el.addEventListener("click", () => start(k));
+  pick.appendChild(el);
+}
+
+$("pauseBtn").addEventListener("click", () => {
+  if (mode !== "play") return;
+  mode = "pause";
+  $("buildBox").innerHTML = buildSummary();
+  show("pause");
+});
+$("resumeBtn").addEventListener("click", () => {
+  mode = "play"; last = performance.now(); show(null);
+});
+$("quitBtn").addEventListener("click", () => { S = null; toTitle(); });
+$("retryBtn").addEventListener("click", () => toTitle());
+
+// ===========================================================================
+// Input
+// ===========================================================================
+function setPointer(ev) {
+  const t = ev.touches ? ev.touches[0] : ev;
+  if (!t) return;
+  pointer.active = true; pointer.x = t.clientX; pointer.y = t.clientY;
+}
+cv.addEventListener("touchstart", e => { setPointer(e); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchmove", e => { setPointer(e); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchend", () => { pointer.active = false; });
+cv.addEventListener("touchcancel", () => { pointer.active = false; });
+cv.addEventListener("mousedown", setPointer);
+cv.addEventListener("mousemove", e => { if (e.buttons) setPointer(e); });
+cv.addEventListener("mouseup", () => { pointer.active = false; });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && mode === "play") $("pauseBtn").click();
+});
+
+// Safe-area probe for the canvas HUD
+(function () {
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;top:0;left:0;height:env(safe-area-inset-top,0px);width:1px;";
+  document.body.appendChild(d);
+  window.__safeTop = d.getBoundingClientRect().height || 0;
+  d.style.height = "env(safe-area-inset-bottom,0px)";
+  window.__safeBottom = d.getBoundingClientRect().height || 0;
+  d.remove();
+})();
+
+toTitle();
+</script>
+</body>
+</html>

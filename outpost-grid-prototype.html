@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>OUTPOST</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1a1d22;
+    --panel2: #22262c;
+    --line: #2c3138;
+    --ink: #e6e8ea;
+    --dim: #7d858e;
+    --accent: #ff6a1f;
+    --cyan: #4fd6e0;
+    --danger: #d43350;
+    --gold: #ffc93d;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    touch-action: none; overscroll-behavior: none; user-select: none;
+  }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  /* ---------- top status ---------- */
+  #top {
+    position: fixed; z-index: 5; left: 0; right: 0;
+    top: 0; padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px 8px;
+    background: linear-gradient(to bottom, var(--bg) 72%, transparent);
+    pointer-events: none;
+  }
+  #res { display: flex; gap: 6px; }
+  .stat {
+    flex: 1; background: var(--panel); border: 1px solid var(--line);
+    padding: 6px 8px 7px;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .stat .k {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8px; letter-spacing: .14em; color: var(--dim);
+  }
+  .stat .v {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 17px; font-weight: 700; margin-top: 1px; line-height: 1.1;
+  }
+  .stat .v small { font-size: 10px; color: var(--dim); font-weight: 400; }
+  #waveLine {
+    display: flex; align-items: baseline; gap: 8px; margin-top: 6px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 10px;
+    letter-spacing: .1em; color: var(--dim);
+  }
+  #waveLine b { color: var(--accent); font-size: 12px; }
+  #waveLine .cd { margin-left: auto; color: var(--ink); }
+
+  /* ---------- bottom sheet ---------- */
+  #sheet {
+    position: fixed; z-index: 6; left: 0; right: 0; bottom: 0;
+    padding: 9px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  #sheetHead {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9px; letter-spacing: .14em; color: var(--dim);
+  }
+  #sheetHead .nm { color: var(--accent); }
+  #sheetHead .x {
+    margin-left: auto; pointer-events: auto; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--dim);
+    padding: 4px 9px; font-size: 10px;
+  }
+  #sheetBody { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .act {
+    flex: 1 1 0; min-width: 72px; cursor: pointer; text-align: left;
+    background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    padding: 9px 9px 8px;
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
+  .act:active { background: var(--panel2); }
+  .act[disabled] { opacity: .38; }
+  .act .t { font-size: 12.5px; font-weight: 700; }
+  .act .c {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9.5px; color: var(--dim); margin-top: 3px;
+  }
+  .act .c .p { color: var(--cyan); }
+  .act.warn { border-color: var(--accent); }
+  .act.wide { flex-basis: 100%; }
+
+  /* ---------- overlays ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 26px 22px calc(env(safe-area-inset-bottom, 0px) + 26px);
+    background: rgba(20,22,26,.96); overflow-y: auto;
+  }
+  .title {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 38px; font-weight: 700; letter-spacing: .2em;
+    color: var(--accent); text-align: center; margin: 0;
+  }
+  .sub { text-align: center; color: var(--dim); font-size: 12.5px; line-height: 1.7; margin: 12px 0 0; }
+  .lbl {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9px; letter-spacing: .18em; color: var(--dim); margin: 22px 0 8px;
+  }
+  .rule { border-top: 1px solid var(--line); margin: 18px 0 0; }
+  .btn {
+    display: block; width: 100%; cursor: pointer; margin-top: 16px;
+    background: var(--accent); color: #14161a; border: 1px solid var(--accent);
+    padding: 15px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: .16em;
+    clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  }
+  .btn.ghost { background: transparent; color: var(--dim); border-color: var(--line); }
+  .help { font-size: 12.5px; line-height: 1.85; color: var(--ink); }
+  .help b { color: var(--accent); font-weight: 700; }
+  .help .d { color: var(--dim); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="top">
+  <div id="res">
+    <div class="stat"><div class="k">ORE</div><div class="v" id="sOre">0</div></div>
+    <div class="stat"><div class="k">POWER</div><div class="v" id="sPow">0</div></div>
+    <div class="stat"><div class="k">WORKERS</div><div class="v" id="sPop">0</div></div>
+    <div class="stat"><div class="k">CORE</div><div class="v" id="sCore">100<small>%</small></div></div>
+  </div>
+  <div id="waveLine">
+    <span>WAVE <b id="wNum">0</b> / 5</span>
+    <span id="wState">준비</span>
+    <span class="cd mono" id="wCd">00:40</span>
+  </div>
+</div>
+
+<div id="sheet">
+  <div id="sheetHead"><span class="nm" id="shTitle">기지</span><span id="shSub"></span>
+    <button class="x mono" id="shClose" hidden>닫기</button></div>
+  <div id="sheetBody"></div>
+</div>
+
+<!-- title -->
+<div class="overlay" id="titleScreen">
+  <h1 class="title">OUTPOST</h1>
+  <p class="sub">일꾼으로 광물을 캐고, 기지를 지어 방어선을 세우세요.<br>웨이브 5개를 막으면 됩니다.</p>
+  <div class="lbl">조작</div>
+  <div class="help">
+    <b>빈 칸을 탭</b> <span class="d">— 건물을 짓습니다</span><br>
+    <b>광물 지대를 탭</b> <span class="d">— 일꾼을 붙이거나 뺍니다</span><br>
+    <b>대피 버튼</b> <span class="d">— 모든 일꾼을 기지 안으로 숨깁니다</span>
+  </div>
+  <div class="rule"></div>
+  <div class="lbl">기억할 것</div>
+  <div class="help">
+    위쪽 광물이 <b>수익이 두 배</b>지만 적이 지나가는 길입니다.<br>
+    <span class="d">일꾼은 죽습니다. 언제 뺄지가 이 게임의 전부입니다.</span>
+  </div>
+  <button class="btn" id="startBtn">시작</button>
+</div>
+
+<!-- result -->
+<div class="overlay" id="endScreen" hidden>
+  <div class="title" id="endTitle" style="font-size:30px"></div>
+  <p class="sub" id="endSub"></p>
+  <div class="lbl">기록</div>
+  <div class="help mono" id="endStats" style="font-size:12px"></div>
+  <button class="btn" id="againBtn">다시 하기</button>
+</div>
+
+<script>
+"use strict";
+
+// ===========================================================================
+// Canvas + layout
+// ===========================================================================
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d", { alpha: false });
+const $ = id => document.getElementById(id);
+
+const COLS = 7, ROWS = 11;
+let W = 0, H = 0, DPR = 1, CELL = 40, GX = 0, GY = 0;
+let safeTop = 0, safeBottom = 0;
+
+function measureSafeArea() {
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top,0px)";
+  document.body.appendChild(d);
+  safeTop = d.getBoundingClientRect().height || 0;
+  d.style.height = "env(safe-area-inset-bottom,0px)";
+  safeBottom = d.getBoundingClientRect().height || 0;
+  d.remove();
+}
+measureSafeArea();
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const topH = safeTop + 82;
+  const botH = ($("sheet") ? $("sheet").offsetHeight : 120) + 6;
+  const playH = Math.max(120, H - topH - botH);
+  CELL = Math.min((W - 10) / COLS, playH / ROWS);
+  GX = (W - CELL * COLS) / 2;
+  GY = topH + Math.min(10, Math.max(0, playH - CELL * ROWS));
+}
+window.addEventListener("resize", () => { resize(); });
+
+const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+const K = {
+  bg: "#14161a", grid: "#1e2228", plate: "#191c21", plate2: "#1d2127",
+  panel: "#1a1d22", line: "#2c3138",
+  ink: "#e6e8ea", dim: "#7d858e",
+  accent: "#ff6a1f", cyan: "#4fd6e0", danger: "#d43350", gold: "#ffc93d",
+  outline: "#0d0f12", shade: "#0f1114"
+};
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const rand = (a, b) => a + Math.random() * (b - a);
+
+// screen position of a tile centre
+const px = c => GX + (c + 0.5) * CELL;
+const py = r => GY + (r + 0.5) * CELL;
+
+// ===========================================================================
+// Drawing helpers — flat fill, hard offset shadow, thin outline (cel shading)
+// ===========================================================================
+function chamferPath(x, y, w, h, cut) {
+  ctx.beginPath();
+  ctx.moveTo(x + cut, y); ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + h - cut); ctx.lineTo(x + w - cut, y + h);
+  ctx.lineTo(x, y + h); ctx.lineTo(x, y + cut);
+  ctx.closePath();
+}
+function polyPath(x, y, r, sides, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = rot + (i / sides) * Math.PI * 2;
+    const qx = x + Math.cos(a) * r, qy = y + Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
+  }
+  ctx.closePath();
+}
+function cel(build, fill, outline, drop) {
+  const d = drop === undefined ? 3 : drop;
+  if (d) {
+    ctx.save(); ctx.translate(d * 0.8, d);
+    ctx.fillStyle = K.shade; build(); ctx.fill(); ctx.restore();
+  }
+  ctx.fillStyle = fill; build(); ctx.fill();
+  if (outline) { ctx.lineWidth = 1.4; ctx.strokeStyle = outline; ctx.stroke(); }
+}
+function bar(x, y, w, h, frac, col, back) {
+  ctx.fillStyle = back || "#0d0f12";
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = col;
+  ctx.fillRect(x, y, w * clamp(frac, 0, 1), h);
+}
+
+// ===========================================================================
+// Map
+// ===========================================================================
+// S spawn  # rock  O rich ore  o safe ore  C core  . open
+const MAP = [
+  "S..S..S",
+  ".......",
+  ".O...O.",
+  "...#...",
+  ".......",
+  "#.....#",
+  "..O.O..",
+  ".......",
+  ".......",
+  "o..CC.o",
+  "...CC.."
+];
+
+const T = { OPEN: 0, ROCK: 1, ORE: 2, CORE: 3, SPAWN: 4 };
+
+// ===========================================================================
+// Content
+// ===========================================================================
+const BUILDINGS = {
+  wall:  { name: "방벽",     cost: 15, power: 0,  hp: 240, desc: "적을 막아 시간을 번다" },
+  mg:    { name: "기관총탑", cost: 50, power: 3,  hp: 130, desc: "단일 대상, 기본 방어",
+           dmg: 10, cd: 0.45, range: 2.4 },
+  flame: { name: "화염탑",   cost: 75, power: 4,  hp: 150, desc: "근거리 광역, 뭉친 적에 강함",
+           dmg: 7,  cd: 0.40, range: 1.6, splash: 0.95 },
+  power: { name: "발전소",   cost: 40, power: -7, hp: 110, desc: "전력을 공급한다" }
+};
+const BUILD_ORDER = ["mg", "flame", "wall", "power"];
+
+const ENEMIES = {
+  rusher: { name: "돌격병", hp: 42,  spd: 1.65, dmg: 6,  cd: 0.8, r: 0.30, sides: 3 },
+  armor:  { name: "중장갑", hp: 165, spd: 0.85, dmg: 14, cd: 1.2, r: 0.40, sides: 6 },
+  ranged: { name: "포격병", hp: 58,  spd: 1.05, dmg: 16, cd: 1.2, r: 0.32, sides: 5, range: 2.2 }
+};
+
+const WAVES = [
+  { rusher: 6 },
+  { rusher: 10 },
+  { rusher: 10, armor: 3 },
+  { rusher: 12, armor: 2, ranged: 4 },
+  { rusher: 14, armor: 6, ranged: 4 }
+];
+const PREP_FIRST = 30, PREP = 15;
+
+const WORKER_COST = 30, WORKER_TIME = 5, POP_MAX = 10;
+const GATHER_TIME = 1.6, BUILD_TIME = 3.2;
+const CORE_HP = 2500;
+const CORE_POWER = 6;
+
+// ===========================================================================
+// State
+// ===========================================================================
+let G = null;
+let mode = "title";      // title | play | end
+
+function newGame() {
+  const tiles = [];
+  const oreNodes = [];
+  const spawns = [];
+  let coreC = 3, coreR = 9;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const ch = MAP[r][c];
+      let t = T.OPEN;
+      if (ch === "#") t = T.ROCK;
+      else if (ch === "O" || ch === "o") {
+        t = T.ORE;
+        oreNodes.push({ c, r, rich: ch === "O", yield: ch === "O" ? 9 : 5, workers: [] });
+      } else if (ch === "C") { t = T.CORE; coreC = Math.min(coreC, c); coreR = Math.min(coreR, r); }
+      else if (ch === "S") { t = T.SPAWN; spawns.push({ c, r }); }
+      tiles.push({ c, r, type: t, b: null });
+    }
+  }
+  G = {
+    tiles, oreNodes, spawns,
+    core: { c: coreC, r: coreR, w: 2, h: 2, hp: CORE_HP, maxHp: CORE_HP },
+    ore: 180, workers: [], enemies: [], shots: [], parts: [], floats: [],
+    buildings: [],
+    wave: 0, phase: "prep", timer: PREP_FIRST, queue: [], spawnCd: 0, waveT: 0, berserk: false,
+    trainQ: 0, trainT: 0,
+    sheltered: false,
+    sel: null, shake: 0,
+    stat: { mined: 0, lost: 0, killed: 0 }
+  };
+  for (let i = 0; i < 3; i++) spawnWorker();
+  // start the first three on the safe seams so the opening reads itself
+  const safe = G.oreNodes.filter(n => !n.rich);
+  G.workers.forEach((w, i) => assignWorker(w, safe[i % safe.length]));
+}
+
+const tileAt = (c, r) => (c < 0 || r < 0 || c >= COLS || r >= ROWS) ? null : G.tiles[r * COLS + c];
+const isCore = (c, r) => { const t = tileAt(c, r); return t && t.type === T.CORE; };
+
+function powerSupply() {
+  let s = CORE_POWER;
+  for (const b of G.buildings) if (b.done && BUILDINGS[b.key].power < 0) s -= BUILDINGS[b.key].power;
+  return s;
+}
+function powerDemand() {
+  let d = 0;
+  for (const b of G.buildings) if (b.done && BUILDINGS[b.key].power > 0) d += BUILDINGS[b.key].power;
+  return d;
+}
+// Towers slow down when the grid is over-drawn. This is the pressure that
+// forces power plants into a build that would rather be all guns.
+function powerRatio() {
+  const s = powerSupply(), d = powerDemand();
+  return d <= s ? 1 : Math.max(0.35, s / d);
+}
+
+// ===========================================================================
+// Pathfinding (4-directional A*)
+// ===========================================================================
+function findPath(sc, sr, gc, gr, forEnemy) {
+  const start = sr * COLS + sc, goal = gr * COLS + gc;
+  if (start === goal) return [];
+  const open = [start];
+  const came = new Map(), gsc = new Map([[start, 0]]);
+  const h = i => Math.abs((i % COLS) - gc) + Math.abs(((i / COLS) | 0) - gr);
+  const f = new Map([[start, h(start)]]);
+  let guard = 0;
+  while (open.length && guard++ < 4000) {
+    let bi = 0;
+    for (let i = 1; i < open.length; i++) if ((f.get(open[i]) || 1e9) < (f.get(open[bi]) || 1e9)) bi = i;
+    const cur = open.splice(bi, 1)[0];
+    if (cur === goal) {
+      const out = [];
+      let n = cur;
+      while (n !== start) { out.push({ c: n % COLS, r: (n / COLS) | 0 }); n = came.get(n); }
+      return out.reverse();
+    }
+    const cc = cur % COLS, cr = (cur / COLS) | 0;
+    const nb = [[cc + 1, cr], [cc - 1, cr], [cc, cr + 1], [cc, cr - 1]];
+    for (const [nc, nr] of nb) {
+      const t = tileAt(nc, nr);
+      if (!t) continue;
+      if (t.type === T.ROCK) continue;
+      let cost = 1;
+      if (t.b && t.b.done) {
+        // enemies chew through walls; workers walk around them
+        if (!forEnemy) continue;
+        cost = 9;
+      }
+      if (!forEnemy && t.type === T.ORE && !(nc === gc && nr === gr)) cost = 1.6;
+      const ni = nr * COLS + nc;
+      const ng = (gsc.get(cur) || 0) + cost;
+      if (ng < (gsc.get(ni) === undefined ? Infinity : gsc.get(ni))) {
+        came.set(ni, cur); gsc.set(ni, ng); f.set(ni, ng + h(ni));
+        if (!open.includes(ni)) open.push(ni);
+      }
+    }
+  }
+  return null;
+}
+
+// ===========================================================================
+// Workers
+// ===========================================================================
+function spawnWorker() {
+  const w = {
+    x: px(G.core.c) + rand(-6, 6), y: py(G.core.r) + rand(-6, 6),
+    hp: 34, maxHp: 34, node: null, state: "idle", t: 0,
+    path: null, pi: 0, carry: 0, job: null, home: null, dead: false
+  };
+  G.workers.push(w);
+  return w;
+}
+
+function assignWorker(w, node) {
+  if (w.node) w.node.workers = w.node.workers.filter(x => x !== w);
+  w.node = node;
+  if (node) node.workers.push(w);
+  w.state = "toNode"; w.path = null; w.job = null;
+}
+
+function workerTile(w) {
+  return { c: clamp(Math.round((w.x - GX) / CELL - 0.5), 0, COLS - 1),
+           r: clamp(Math.round((w.y - GY) / CELL - 0.5), 0, ROWS - 1) };
+}
+
+function stepAlong(e, tx, ty, speed, dt) {
+  const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
+  const step = speed * CELL * dt;
+  if (d <= step) { e.x = tx; e.y = ty; return true; }
+  e.x += dx / d * step; e.y += dy / d * step;
+  return false;
+}
+
+function followPath(e, speed, dt) {
+  if (!e.path || e.pi >= e.path.length) return true;
+  const n = e.path[e.pi];
+  if (stepAlong(e, px(n.c), py(n.r), speed, dt)) e.pi++;
+  return e.pi >= e.path.length;
+}
+
+function routeWorker(w, gc, gr) {
+  const t = workerTile(w);
+  w.path = findPath(t.c, t.r, gc, gr, false);
+  w.pi = 0;
+  return !!w.path;
+}
+
+function updateWorkers(dt) {
+  for (let i = G.workers.length - 1; i >= 0; i--) {
+    const w = G.workers[i];
+    if (w.dead) { G.workers.splice(i, 1); continue; }
+
+    if (G.sheltered && w.state !== "shelter") {
+      w.state = "shelter"; w.path = null;
+    }
+
+    switch (w.state) {
+      case "shelter": {
+        if (!G.sheltered) { w.state = w.node ? "toNode" : "idle"; w.path = null; break; }
+        const done = stepAlong(w, px(G.core.c + 0.5), py(G.core.r + 0.5), 2.6, dt);
+        w.safe = done;
+        break;
+      }
+      case "idle":
+        w.safe = false;
+        if (w.node) w.state = "toNode";
+        break;
+      case "toNode": {
+        w.safe = false;
+        if (!w.node) { w.state = "idle"; break; }
+        if (!w.path && !routeWorker(w, w.node.c, w.node.r)) { w.state = "idle"; break; }
+        if (followPath(w, 2.3, dt)) { w.state = "mine"; w.t = GATHER_TIME; w.path = null; }
+        break;
+      }
+      case "mine":
+        w.t -= dt;
+        if (w.t <= 0) {
+          w.carry = w.node ? w.node.yield : 5;
+          w.state = "toCore";
+          routeWorker(w, G.core.c, G.core.r);
+        }
+        break;
+      case "toCore": {
+        if (!w.path && !routeWorker(w, G.core.c, G.core.r)) { w.state = "idle"; break; }
+        if (followPath(w, 2.3, dt)) {
+          G.ore += w.carry; G.stat.mined += w.carry;
+          floatText(w.x, w.y, "+" + w.carry, K.cyan);
+          w.carry = 0;
+          w.state = w.node ? "toNode" : "idle";
+          w.path = null;
+        }
+        break;
+      }
+      case "toBuild": {
+        if (!w.job || w.job.done || w.job.dead) { w.state = w.node ? "toNode" : "idle"; w.job = null; break; }
+        if (!w.path && !routeWorker(w, w.job.c, w.job.r)) { w.state = w.node ? "toNode" : "idle"; w.job = null; break; }
+        if (followPath(w, 2.3, dt)) { w.state = "build"; w.path = null; }
+        break;
+      }
+      case "build": {
+        const j = w.job;
+        if (!j || j.dead) { w.state = w.node ? "toNode" : "idle"; w.job = null; break; }
+        j.prog += dt / BUILD_TIME;
+        if (j.prog >= 1) {
+          j.prog = 1; j.done = true;
+          floatText(px(j.c), py(j.r), "완성", K.accent);
+          w.job = null;
+          w.state = w.node ? "toNode" : "idle";
+        }
+        break;
+      }
+    }
+  }
+}
+
+function dispatchBuilder(job) {
+  // prefer someone already idle, else pull the worker with the least invested trip
+  let best = null, bestScore = 1e9;
+  for (const w of G.workers) {
+    if (w.state === "build" || w.state === "toBuild") continue;
+    let score = Math.hypot(w.x - px(job.c), w.y - py(job.r));
+    if (w.state === "idle") score -= 400;
+    if (w.state === "toCore") score += 200;   // let a loaded worker finish first
+    if (score < bestScore) { bestScore = score; best = w; }
+  }
+  if (!best) return false;
+  best.job = job; best.state = "toBuild"; best.path = null;
+  return true;
+}
+
+// ===========================================================================
+// Buildings
+// ===========================================================================
+function placeBuilding(key, c, r) {
+  const t = tileAt(c, r);
+  const spec = BUILDINGS[key];
+  if (!t || t.type !== T.OPEN || t.b) return "빈 칸이 아닙니다";
+  if (G.ore < spec.cost) return "광물이 모자랍니다";
+  const b = { key, c, r, hp: spec.hp, maxHp: spec.hp, prog: 0, done: false, cd: 0, dead: false, aim: -Math.PI / 2 };
+  t.b = b; G.buildings.push(b);
+  // A wall that seals every route would end the game; enemies dig through
+  // instead, but check the path still resolves so nothing gets stuck.
+  const ok = findPath(G.spawns[0].c, G.spawns[0].r, G.core.c, G.core.r, true);
+  if (!ok) { t.b = null; G.buildings.pop(); return "길이 완전히 막힙니다"; }
+  G.ore -= spec.cost;
+  if (!dispatchBuilder(b)) { /* nobody free: it waits, and the sheet says so */ }
+  return null;
+}
+
+function removeBuilding(b, refund) {
+  const t = tileAt(b.c, b.r);
+  if (t) t.b = null;
+  b.dead = true;
+  G.buildings = G.buildings.filter(x => x !== b);
+  for (const w of G.workers) if (w.job === b) { w.job = null; w.state = w.node ? "toNode" : "idle"; }
+  if (refund) G.ore += Math.floor(BUILDINGS[b.key].cost * 0.5);
+  burst(px(b.c), py(b.r), K.dim, 10);
+  repathEnemies();
+}
+
+function damageBuilding(b, amount) {
+  b.hp -= amount;
+  if (b.hp <= 0) { removeBuilding(b, false); G.shake = Math.max(G.shake, 5); }
+}
+
+function updateBuildings(dt) {
+  const ratio = powerRatio();
+  for (const b of G.buildings) {
+    const spec = BUILDINGS[b.key];
+    if (!b.done) {
+      // an unattended site still creeps along, so losing every worker is a
+      // setback rather than a dead end
+      const manned = G.workers.some(w => w.job === b && w.state === "build");
+      if (!manned) {
+        b.prog += dt / BUILD_TIME * 0.3;
+        if (b.prog >= 1) { b.prog = 1; b.done = true; floatText(px(b.c), py(b.r), "완성", K.accent); }
+      }
+      continue;
+    }
+    if (!spec.dmg) continue;
+    b.cd -= dt * ratio;
+    if (b.cd > 0) continue;
+    const bx = px(b.c), by = py(b.r);
+    let target = null, bd = spec.range * CELL;
+    for (const e of G.enemies) {
+      const d = Math.hypot(e.x - bx, e.y - by);
+      if (d < bd) { bd = d; target = e; }
+    }
+    if (!target) continue;
+    b.aim = Math.atan2(target.y - by, target.x - bx);
+    b.cd = spec.cd;
+    b.flash = 0.09;
+    G.shots.push({
+      x: bx, y: by, tx: target.x, ty: target.y, t: 0, life: 0.09,
+      dmg: spec.dmg, splash: spec.splash || 0, target, kind: b.key
+    });
+  }
+}
+
+function updateShots(dt) {
+  for (let i = G.shots.length - 1; i >= 0; i--) {
+    const s = G.shots[i];
+    s.t += dt;
+    if (s.t < s.life) continue;
+    if (s.splash) {
+      for (const e of G.enemies) {
+        if (Math.hypot(e.x - s.tx, e.y - s.ty) < s.splash * CELL) hurtEnemy(e, s.dmg);
+      }
+      burst(s.tx, s.ty, K.accent, 6);
+    } else if (s.target && !s.target.dead) {
+      hurtEnemy(s.target, s.dmg);
+      burst(s.tx, s.ty, K.gold, 3);
+    }
+    G.shots.splice(i, 1);
+  }
+}
+
+// ===========================================================================
+// Enemies
+// ===========================================================================
+function repathEnemies() { for (const e of G.enemies) e.path = null; }
+
+function spawnEnemy(type) {
+  const s = G.spawns[(Math.random() * G.spawns.length) | 0];
+  const spec = ENEMIES[type];
+  const scale = 1 + G.wave * 0.14;
+  G.enemies.push({
+    type, x: px(s.c) + rand(-8, 8), y: py(s.r) - CELL * 0.6,
+    hp: spec.hp * scale, maxHp: spec.hp * scale,
+    spd: spec.spd, r: spec.r * CELL, rot: 0,
+    path: null, pi: 0, cd: rand(0, .5), flash: 0, dead: false
+  });
+}
+
+function hurtEnemy(e, amount) {
+  e.hp -= amount; e.flash = 1;
+  if (e.hp <= 0 && !e.dead) {
+    e.dead = true;
+    G.stat.killed++;
+    burst(e.x, e.y, K.danger, 10);
+  }
+}
+
+function updateEnemies(dt) {
+  for (let i = G.enemies.length - 1; i >= 0; i--) {
+    const e = G.enemies[i];
+    if (e.dead) { G.enemies.splice(i, 1); continue; }
+    const spec = ENEMIES[e.type];
+    e.flash = Math.max(0, e.flash - dt * 6);
+    e.cd -= dt;
+
+    // exposed workers are the softest thing on the board, and they know it
+    let prey = null, pd = CELL * 1.15;
+    for (const w of G.workers) {
+      if (w.safe) continue;
+      const d = Math.hypot(w.x - e.x, w.y - e.y);
+      if (d < pd) { pd = d; prey = w; }
+    }
+    if (prey) {
+      e.rot = Math.atan2(prey.y - e.y, prey.x - e.x);
+      if (e.cd <= 0) {
+        e.cd = spec.cd;
+        prey.hp -= spec.dmg;
+        burst(prey.x, prey.y, K.danger, 5);
+        if (prey.hp <= 0) {
+          prey.dead = true;
+          if (prey.node) prey.node.workers = prey.node.workers.filter(x => x !== prey);
+          G.stat.lost++;
+          floatText(prey.x, prey.y, "일꾼 사망", K.danger);
+          G.shake = Math.max(G.shake, 6);
+        }
+      }
+      continue;
+    }
+
+    const tc = clamp(Math.round((e.x - GX) / CELL - 0.5), 0, COLS - 1);
+    const tr = clamp(Math.round((e.y - GY) / CELL - 0.5), 0, ROWS - 1);
+
+    // ranged units stop and shell the first thing in reach
+    if (spec.range && !G.berserk) {
+      let tgt = null, td = spec.range * CELL;
+      for (const b of G.buildings) {
+        if (!b.done) continue;
+        const d = Math.hypot(px(b.c) - e.x, py(b.r) - e.y);
+        if (d < td) { td = d; tgt = b; }
+      }
+      if (tgt) {
+        e.rot = Math.atan2(py(tgt.r) - e.y, px(tgt.c) - e.x);
+        if (e.cd <= 0) {
+          e.cd = spec.cd;
+          damageBuilding(tgt, spec.dmg);
+          G.shots.push({ x: e.x, y: e.y, tx: px(tgt.c), ty: py(tgt.r), t: 0, life: 0.12, dmg: 0, hostile: true });
+        }
+        continue;
+      }
+    }
+
+    if (!e.path) { e.path = findPath(tc, tr, G.core.c, G.core.r, true); e.pi = 0; }
+    if (!e.path || e.pi >= e.path.length) {
+      // standing on the core: chew it
+      if (e.cd <= 0) {
+        e.cd = spec.cd;
+        G.core.hp -= spec.dmg;
+        G.shake = Math.max(G.shake, 4);
+        if (G.core.hp <= 0) { G.core.hp = 0; endGame(false, "본진이 파괴되었습니다"); return; }
+      }
+      continue;
+    }
+
+    const n = e.path[e.pi];
+    const nt = tileAt(n.c, n.r);
+    if (nt && nt.b && nt.b.done) {
+      e.rot = Math.atan2(py(n.r) - e.y, px(n.c) - e.x);
+      if (e.cd <= 0) { e.cd = spec.cd; damageBuilding(nt.b, spec.dmg); }
+      continue;
+    }
+    const before = e.pi;
+    if (followPath(e, e.spd * (G.berserk ? 1.6 : 1), dt) && e.pi > before) e.path = null;
+    if (e.pi > before) {
+      const p = e.path && e.path[e.pi - 1];
+      if (p) e.rot = Math.atan2(py(p.r) - e.y, px(p.c) - e.x) || e.rot;
+    }
+    if (isCore(tc, tr)) {
+      if (e.cd <= 0) {
+        e.cd = spec.cd;
+        G.core.hp -= spec.dmg;
+        G.shake = Math.max(G.shake, 4);
+        if (G.core.hp <= 0) { G.core.hp = 0; endGame(false, "본진이 파괴되었습니다"); return; }
+      }
+    }
+  }
+}
+
+// ===========================================================================
+// Effects
+// ===========================================================================
+function burst(x, y, col, n) {
+  if (G.parts.length > 260) return;
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, 6.2832), s = rand(20, 120);
+    G.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, col, size: rand(1.5, 3) });
+  }
+}
+function floatText(x, y, text, col) {
+  G.floats.push({ x, y, text, col, life: 1 });
+}
+function updateFx(dt) {
+  for (let i = G.parts.length - 1; i >= 0; i--) {
+    const p = G.parts[i];
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= 0.9; p.vy *= 0.9;
+    p.life -= dt * 2;
+    if (p.life <= 0) G.parts.splice(i, 1);
+  }
+  for (let i = G.floats.length - 1; i >= 0; i--) {
+    const f = G.floats[i];
+    f.y -= 26 * dt; f.life -= dt * 1.1;
+    if (f.life <= 0) G.floats.splice(i, 1);
+  }
+  G.shake = Math.max(0, G.shake - dt * 18);
+}
+
+// ===========================================================================
+// Waves + training
+// ===========================================================================
+function startWave() {
+  G.wave++;
+  G.phase = "wave";
+  const spec = WAVES[G.wave - 1];
+  G.queue = [];
+  for (const k in spec) for (let i = 0; i < spec[k]; i++) G.queue.push(k);
+  // shuffle so types arrive mixed
+  for (let i = G.queue.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [G.queue[i], G.queue[j]] = [G.queue[j], G.queue[i]];
+  }
+  G.spawnCd = 0;
+  G.waveT = 0; G.berserk = false;
+  floatText(W / 2, GY + CELL * 0.8, "WAVE " + G.wave, K.danger);
+}
+
+function updateWaves(dt) {
+  if (G.phase === "prep") {
+    G.timer -= dt;
+    if (G.timer <= 0) startWave();
+    return;
+  }
+  G.waveT += dt;
+  // A shelling unit parked outside every tower's reach can stall a wave
+  // indefinitely. Past a point the survivors give up and charge the core.
+  if (!G.berserk && !G.queue.length && G.waveT > 75 && G.enemies.length) {
+    G.berserk = true;
+    floatText(W / 2, GY + CELL * 0.8, "적 돌격", K.danger);
+    G.shake = 8;
+  }
+  G.spawnCd -= dt;
+  if (G.queue.length && G.spawnCd <= 0) {
+    spawnEnemy(G.queue.pop());
+    G.spawnCd = Math.max(0.28, 1.05 - G.wave * 0.09);
+  }
+  if (!G.queue.length && !G.enemies.length) {
+    if (G.wave >= WAVES.length) { endGame(true, "웨이브 5를 모두 막아냈습니다"); return; }
+    G.phase = "prep"; G.timer = PREP;
+    G.ore += 60;
+    floatText(W / 2, GY + CELL * 0.8, "웨이브 격퇴  +60", K.accent);
+  }
+}
+
+function updateTraining(dt) {
+  if (G.trainQ <= 0) return;
+  G.trainT -= dt;
+  if (G.trainT <= 0) {
+    G.trainQ--;
+    const w = spawnWorker();
+    const safe = G.oreNodes.filter(n => !n.rich);
+    assignWorker(w, safe[(Math.random() * safe.length) | 0]);
+    G.trainT = WORKER_TIME;
+  }
+}
+
+// ===========================================================================
+// Render
+// ===========================================================================
+function drawGrid() {
+  ctx.fillStyle = K.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // board plate
+  ctx.fillStyle = K.plate;
+  ctx.fillRect(GX - 4, GY - 4, CELL * COLS + 8, CELL * ROWS + 8);
+  ctx.strokeStyle = K.line; ctx.lineWidth = 1;
+  ctx.strokeRect(GX - 4.5, GY - 4.5, CELL * COLS + 9, CELL * ROWS + 9);
+
+  for (const t of G.tiles) {
+    const x = GX + t.c * CELL, y = GY + t.r * CELL;
+    if (t.type === T.ROCK) {
+      ctx.fillStyle = "#101216";
+      ctx.fillRect(x, y, CELL, CELL);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x, y, CELL, CELL); ctx.clip();
+      ctx.strokeStyle = "#191d23"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let k2 = -CELL; k2 < CELL * 2; k2 += 6) { ctx.moveTo(x + k2, y); ctx.lineTo(x + k2 - CELL, y + CELL); }
+      ctx.stroke();
+      ctx.restore();
+      // a few flat chunks, no outline: terrain, not a unit
+      cel(() => polyPath(x + CELL * .38, y + CELL * .42, CELL * .19, 5, 0.8), "#272c33", null, 2);
+      cel(() => polyPath(x + CELL * .64, y + CELL * .60, CELL * .15, 4, 0.3), "#22262d", null, 2);
+      cel(() => polyPath(x + CELL * .60, y + CELL * .32, CELL * .12, 6, 0.1), "#2b3038", null, 2);
+    } else {
+      ctx.fillStyle = ((t.c + t.r) % 2) ? K.plate : K.plate2;
+      ctx.fillRect(x, y, CELL, CELL);
+    }
+    ctx.strokeStyle = K.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(x + .5, y + .5, CELL - 1, CELL - 1);
+  }
+
+  // spawn markers
+  for (const s of G.spawns) {
+    const x = GX + s.c * CELL, y = GY + s.r * CELL;
+    ctx.fillStyle = "rgba(212,51,80,.14)";
+    ctx.fillRect(x, y, CELL, CELL);
+    ctx.strokeStyle = K.danger; ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(x + CELL * .3, y + CELL * .32); ctx.lineTo(x + CELL * .5, y + CELL * .58);
+    ctx.lineTo(x + CELL * .7, y + CELL * .32);
+    ctx.stroke();
+  }
+
+  // ore seams — tinted at the tile level so workers standing on them
+  // never hide where the income is coming from
+  for (const n of G.oreNodes) {
+    const x = px(n.c), y = py(n.r);
+    const tx = GX + n.c * CELL, ty = GY + n.r * CELL;
+    const col = n.rich ? K.cyan : "#3d8f97";
+    ctx.fillStyle = n.rich ? "rgba(79,214,224,.10)" : "rgba(79,214,224,.05)";
+    ctx.fillRect(tx, ty, CELL, CELL);
+    ctx.strokeStyle = n.rich ? "rgba(79,214,224,.45)" : "rgba(79,214,224,.22)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(tx + 1.5, ty + 1.5, CELL - 3, CELL - 3);
+    for (let i = 0; i < 3; i++) {
+      const a = i * 2.1 + 0.4;
+      cel(() => polyPath(x + Math.cos(a) * CELL * .17, y + Math.sin(a) * CELL * .15,
+        CELL * (n.rich ? .13 : .11), 4, 0.7), col, K.outline, 2);
+    }
+    ctx.fillStyle = col; ctx.font = `7px ${MONO}`; ctx.textAlign = "center";
+    ctx.fillText(n.rich ? "RICH " + n.yield : "+" + n.yield, x, ty + CELL - 4);
+    if (n.workers.length) {
+      ctx.fillStyle = K.bg;
+      ctx.fillRect(tx + CELL - 15, ty + 2, 13, 12);
+      ctx.strokeStyle = col; ctx.strokeRect(tx + CELL - 14.5, ty + 2.5, 12, 11);
+      ctx.fillStyle = K.ink; ctx.font = `700 9px ${MONO}`;
+      ctx.fillText(String(n.workers.length), tx + CELL - 8.5, ty + 11);
+    }
+  }
+}
+
+function drawCore() {
+  const x = GX + G.core.c * CELL, y = GY + G.core.r * CELL;
+  const w = CELL * 2, h = CELL * 2;
+  cel(() => chamferPath(x + 3, y + 3, w - 6, h - 6, CELL * .30), "#262b32", K.outline, 4);
+  cel(() => chamferPath(x + CELL * .42, y + CELL * .42, w - CELL * .84, h - CELL * .84, CELL * .2), "#31373f", K.line, 0);
+  ctx.fillStyle = K.accent;
+  ctx.fillRect(x + w / 2 - CELL * .22, y + h / 2 - CELL * .22, CELL * .44, CELL * .44);
+  ctx.fillStyle = "#14161a";
+  ctx.fillRect(x + w / 2 - CELL * .07, y + h / 2 - CELL * .07, CELL * .14, CELL * .14);
+  bar(x + 6, y + h - 11, w - 12, 5, G.core.hp / G.core.maxHp, G.core.hp / G.core.maxHp < .35 ? K.danger : K.cyan);
+  if (G.sheltered) {
+    const shel = G.workers.filter(w2 => w2.safe).length;
+    ctx.fillStyle = K.gold; ctx.font = `700 9px ${MONO}`; ctx.textAlign = "center";
+    ctx.fillText("대피 " + shel, x + w / 2, y + 13);
+  }
+}
+
+const TOWER_SHAPE = {
+  mg: (x, y, s) => chamferPath(x - s * .3, y - s * .3, s * .6, s * .6, s * .14),
+  flame: (x, y, s) => {
+    ctx.beginPath();
+    ctx.moveTo(x - s * .30, y + s * .28); ctx.lineTo(x - s * .18, y - s * .26);
+    ctx.lineTo(x + s * .18, y - s * .26); ctx.lineTo(x + s * .30, y + s * .28);
+    ctx.closePath();
+  },
+  wall: (x, y, s) => chamferPath(x - s * .36, y - s * .28, s * .72, s * .56, s * .1),
+  power: (x, y, s) => polyPath(x, y, s * .33, 5, -Math.PI / 2)
+};
+const TOWER_COLOR = { mg: "#5c646e", flame: "#8a4a24", wall: "#454b53", power: "#3f5560" };
+
+function drawBuildings() {
+  for (const b of G.buildings) {
+    const x = px(b.c), y = py(b.r);
+    const spec = BUILDINGS[b.key];
+    if (!b.done) {
+      ctx.save();
+      ctx.globalAlpha = .5;
+      cel(() => TOWER_SHAPE[b.key](x, y, CELL), "#23272d", K.line, 2);
+      ctx.restore();
+      bar(x - CELL * .34, y + CELL * .30, CELL * .68, 4, b.prog, K.accent);
+      ctx.fillStyle = K.dim; ctx.font = `7px ${MONO}`; ctx.textAlign = "center";
+      ctx.fillText("건설중", x, y - CELL * .30);
+      continue;
+    }
+    cel(() => TOWER_SHAPE[b.key](x, y, CELL), TOWER_COLOR[b.key], K.outline, 3);
+    if (spec.dmg) {
+      ctx.save();
+      ctx.translate(x, y); ctx.rotate(b.aim);
+      ctx.fillStyle = b.flash > 0 ? K.gold : K.accent;
+      ctx.fillRect(CELL * .10, -CELL * .07, CELL * .30, CELL * .14);
+      ctx.restore();
+      b.flash = Math.max(0, (b.flash || 0) - 0.016);
+    }
+    if (b.key === "power") {
+      ctx.fillStyle = K.cyan;
+      ctx.fillRect(x - CELL * .10, y - CELL * .10, CELL * .20, CELL * .20);
+    }
+    if (b.hp < b.maxHp) bar(x - CELL * .32, y + CELL * .31, CELL * .64, 3, b.hp / b.maxHp, K.danger);
+  }
+}
+
+function drawWorkers() {
+  for (const w of G.workers) {
+    if (w.safe) continue;
+    const s = CELL * .17;
+    cel(() => chamferPath(w.x - s, w.y - s, s * 2, s * 2, s * .6), "#c8ced3", K.outline, 2);
+    ctx.fillStyle = w.carry > 0 ? K.cyan : K.accent;
+    ctx.fillRect(w.x - s * .38, w.y - s * .38, s * .76, s * .76);
+    if (w.hp < w.maxHp) bar(w.x - s, w.y - s - 6, s * 2, 3, w.hp / w.maxHp, K.danger);
+  }
+}
+
+function drawEnemies() {
+  for (const e of G.enemies) {
+    const spec = ENEMIES[e.type];
+    const fill = e.flash > 0 ? K.ink : "#5c646e";
+    cel(() => polyPath(e.x, e.y, e.r, spec.sides, e.rot + Math.PI / 2), fill, K.danger, 3);
+    if (e.hp < e.maxHp) bar(e.x - e.r, e.y + e.r + 3, e.r * 2, 3, e.hp / e.maxHp, K.danger);
+  }
+}
+
+function drawShots() {
+  for (const s of G.shots) {
+    const k = 1 - s.t / s.life;
+    ctx.strokeStyle = s.hostile ? K.danger : (s.splash ? K.accent : K.gold);
+    ctx.lineWidth = s.splash ? 3 : 1.8;
+    ctx.globalAlpha = clamp(k, 0, 1);
+    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.tx, s.ty); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawFx() {
+  for (const p of G.parts) {
+    ctx.globalAlpha = clamp(p.life, 0, 1);
+    ctx.fillStyle = p.col;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+  }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = "center";
+  for (const f of G.floats) {
+    ctx.globalAlpha = clamp(f.life, 0, 1);
+    ctx.fillStyle = f.col;
+    ctx.font = `700 11px ${MONO}`;
+    ctx.fillText(f.text, f.x, f.y);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawSelection() {
+  if (!G.sel) return;
+  const { c, r } = G.sel;
+  const x = GX + c * CELL, y = GY + r * CELL;
+  ctx.strokeStyle = K.accent; ctx.lineWidth = 2;
+  const L = CELL * .3;
+  ctx.beginPath();
+  ctx.moveTo(x, y + L); ctx.lineTo(x, y); ctx.lineTo(x + L, y);
+  ctx.moveTo(x + CELL - L, y); ctx.lineTo(x + CELL, y); ctx.lineTo(x + CELL, y + L);
+  ctx.moveTo(x + CELL, y + CELL - L); ctx.lineTo(x + CELL, y + CELL); ctx.lineTo(x + CELL - L, y + CELL);
+  ctx.moveTo(x + L, y + CELL); ctx.lineTo(x, y + CELL); ctx.lineTo(x, y + CELL - L);
+  ctx.stroke();
+
+  const t = tileAt(c, r);
+  if (t && t.b && BUILDINGS[t.b.key].range) {
+    ctx.strokeStyle = "rgba(255,106,31,.35)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 5]);
+    ctx.beginPath();
+    ctx.arc(px(c), py(r), BUILDINGS[t.b.key].range * CELL, 0, 6.2832);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function render() {
+  ctx.save();
+  if (G.shake > .2) ctx.translate(rand(-G.shake, G.shake), rand(-G.shake, G.shake));
+  drawGrid();
+  drawSelection();
+  drawCore();
+  drawBuildings();
+  drawWorkers();
+  drawEnemies();
+  drawShots();
+  drawFx();
+  ctx.restore();
+
+  if (G.core.hp / G.core.maxHp < 0.35) {
+    const a = .12 + Math.sin(performance.now() / 160) * .05;
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .3, W / 2, H / 2, Math.max(W, H) * .62);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, `rgba(212,51,80,${a})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ===========================================================================
+// HUD + sheet
+// ===========================================================================
+function fmt(t) {
+  const m = String(Math.floor(Math.max(0, t) / 60)).padStart(2, "0");
+  const s = String(Math.floor(Math.max(0, t) % 60)).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function syncTop() {
+  const sup = powerSupply(), dem = powerDemand();
+  $("sOre").textContent = Math.floor(G.ore);
+  $("sPow").innerHTML = `${dem}<small>/${sup}</small>`;
+  $("sPow").style.color = dem > sup ? K.danger : K.ink;
+  $("sPop").innerHTML = `${G.workers.length}<small>/${POP_MAX}</small>`;
+  $("sCore").innerHTML = `${Math.ceil(G.core.hp / G.core.maxHp * 100)}<small>%</small>`;
+  $("sCore").style.color = G.core.hp / G.core.maxHp < .35 ? K.danger : K.ink;
+  $("wNum").textContent = G.wave;
+  if (G.phase === "prep") {
+    $("wState").textContent = "다음 웨이브까지";
+    $("wCd").textContent = fmt(G.timer);
+    $("wCd").style.color = G.timer < 6 ? K.accent : K.ink;
+  } else {
+    $("wState").textContent = G.berserk ? "적 돌격 중" : "교전 중";
+    $("wCd").textContent = `남은 적 ${G.queue.length + G.enemies.length}`;
+    $("wCd").style.color = K.danger;
+  }
+}
+
+function btn(label, cost, onTap, opts) {
+  const b = document.createElement("button");
+  b.className = "act" + (opts && opts.wide ? " wide" : "") + (opts && opts.warn ? " warn" : "");
+  b.innerHTML = `<div class="t">${label}</div><div class="c">${cost}</div>`;
+  if (opts && opts.off) b.disabled = true;
+  else b.addEventListener("click", onTap);
+  return b;
+}
+
+function syncSheet() {
+  const head = $("shTitle"), sub = $("shSub"), body = $("sheetBody");
+  body.innerHTML = "";
+  $("shClose").hidden = !G.sel;
+
+  const t = G.sel ? tileAt(G.sel.c, G.sel.r) : null;
+
+  if (!t) {
+    head.textContent = "기지";
+    sub.textContent = "칸을 눌러 건설";
+    const cost = `광물 ${WORKER_COST}` + (G.trainQ ? `  ·  생산 중 ${G.trainQ} (${G.trainT.toFixed(1)}s)` : "");
+    body.appendChild(btn("일꾼 생산", cost, () => {
+      if (G.workers.length + G.trainQ >= POP_MAX) return;
+      if (G.ore < WORKER_COST) return;
+      G.ore -= WORKER_COST;
+      if (G.trainQ === 0) G.trainT = WORKER_TIME;
+      G.trainQ++;
+      syncSheet();
+    }, { off: G.ore < WORKER_COST || G.workers.length + G.trainQ >= POP_MAX }));
+    body.appendChild(btn(G.sheltered ? "작업 복귀" : "전원 대피",
+      G.sheltered ? "일꾼을 다시 내보냅니다" : "일꾼을 기지 안으로", () => {
+        G.sheltered = !G.sheltered;
+        syncSheet();
+      }, { warn: !G.sheltered }));
+    return;
+  }
+
+  if (t.type === T.ORE) {
+    const n = G.oreNodes.find(o => o.c === t.c && o.r === t.r);
+    head.textContent = n.rich ? "광물 지대 (고수익)" : "광물 지대";
+    sub.textContent = `회당 ${n.yield}  ·  배치 ${n.workers.length}명`;
+    body.appendChild(btn("일꾼 배치", "가까운 일꾼을 보냅니다", () => {
+      let best = null, bd = 1e9;
+      for (const w of G.workers) {
+        if (w.node === n) continue;
+        const d = Math.hypot(w.x - px(n.c), w.y - py(n.r)) + (w.node ? 0 : -300);
+        if (d < bd) { bd = d; best = w; }
+      }
+      if (best) { assignWorker(best, n); G.sheltered = false; }
+      syncSheet();
+    }));
+    body.appendChild(btn("일꾼 회수", "이 지대에서 뺍니다", () => {
+      const w = n.workers[n.workers.length - 1];
+      if (w) assignWorker(w, null);
+      syncSheet();
+    }, { off: !n.workers.length }));
+    return;
+  }
+
+  if (t.b) {
+    const spec = BUILDINGS[t.b.key];
+    head.textContent = spec.name;
+    sub.textContent = t.b.done
+      ? `내구 ${Math.ceil(t.b.hp)}/${spec.maxHp || spec.hp}` + (spec.power > 0 ? `  ·  전력 ${spec.power}` : "")
+      : `건설 ${Math.floor(t.b.prog * 100)}%`;
+    body.appendChild(btn("철거", `광물 ${Math.floor(spec.cost * .5)} 회수`, () => {
+      removeBuilding(t.b, true); G.sel = null; syncSheet();
+    }));
+    return;
+  }
+
+  if (t.type === T.OPEN) {
+    head.textContent = "빈 칸";
+    sub.textContent = `${t.c + 1}열 ${t.r + 1}행`;
+    for (const key of BUILD_ORDER) {
+      const spec = BUILDINGS[key];
+      const pw = spec.power > 0 ? `<span class="p">전력 ${spec.power}</span>` : (spec.power < 0 ? `<span class="p">전력 +${-spec.power}</span>` : "");
+      body.appendChild(btn(spec.name, `광물 ${spec.cost}  ${pw}`, () => {
+        const err = placeBuilding(key, t.c, t.r);
+        if (err) { floatText(px(t.c), py(t.r) - CELL * .4, err, K.danger); }
+        else G.sel = null;
+        syncSheet();
+      }, { off: G.ore < spec.cost }));
+    }
+    return;
+  }
+
+  head.textContent = t.type === T.ROCK ? "암반" : (t.type === T.SPAWN ? "적 진입구" : "본진");
+  sub.textContent = t.type === T.ROCK ? "지을 수 없습니다"
+    : (t.type === T.SPAWN ? "여기로 적이 들어옵니다" : `내구 ${Math.ceil(G.core.hp)}`);
+}
+
+// ===========================================================================
+// Loop
+// ===========================================================================
+let last = performance.now(), acc = 0, sheetT = 0;
+const STEP = 1 / 60;
+
+function frame(now) {
+  let dt = (now - last) / 1000; last = now;
+  if (dt > 0.2) dt = 0.2;
+
+  if (mode === "play") {
+    acc += dt;
+    let guard = 0;
+    while (acc >= STEP && guard++ < 5) { step(STEP); acc -= STEP; }
+    if (acc > .4) acc = 0;
+    syncTop();
+    sheetT += dt;
+    if (sheetT > 0.25) { sheetT = 0; if (!G.sel) syncSheet(); }
+  }
+  if (G) render();
+  requestAnimationFrame(frame);
+}
+
+function step(dt) {
+  updateWaves(dt);
+  if (mode !== "play") return;
+  updateTraining(dt);
+  updateWorkers(dt);
+  updateBuildings(dt);
+  updateEnemies(dt);
+  updateShots(dt);
+  updateFx(dt);
+}
+
+// ===========================================================================
+// Flow
+// ===========================================================================
+function endGame(won, reason) {
+  if (mode === "end") return;
+  mode = "end";
+  $("endTitle").textContent = won ? "방어 성공" : "방어 실패";
+  $("endTitle").style.color = won ? K.cyan : K.danger;
+  $("endSub").textContent = reason;
+  $("endStats").innerHTML =
+    `도달 웨이브 &nbsp; <b>${G.wave} / ${WAVES.length}</b><br>` +
+    `캔 광물 &nbsp; <b>${G.stat.mined}</b><br>` +
+    `잃은 일꾼 &nbsp; <b>${G.stat.lost}</b><br>` +
+    `처치 &nbsp; <b>${G.stat.killed}</b><br>` +
+    `남은 본진 &nbsp; <b>${Math.ceil(G.core.hp / G.core.maxHp * 100)}%</b>`;
+  $("endScreen").hidden = false;
+}
+
+function start() {
+  newGame();
+  resize();
+  mode = "play";
+  last = performance.now(); acc = 0;
+  $("titleScreen").hidden = true;
+  $("endScreen").hidden = true;
+  syncTop(); syncSheet();
+}
+
+$("startBtn").addEventListener("click", start);
+$("againBtn").addEventListener("click", start);
+$("shClose").addEventListener("click", () => { G.sel = null; syncSheet(); });
+
+// ===========================================================================
+// Input
+// ===========================================================================
+function tapAt(cx, cy) {
+  if (mode !== "play") return;
+  const c = Math.floor((cx - GX) / CELL), r = Math.floor((cy - GY) / CELL);
+  if (c < 0 || r < 0 || c >= COLS || r >= ROWS) { G.sel = null; syncSheet(); return; }
+  G.sel = { c, r };
+  syncSheet();
+}
+cv.addEventListener("click", e => tapAt(e.clientX, e.clientY));
+cv.addEventListener("touchend", e => {
+  const t = e.changedTouches[0];
+  if (t) tapAt(t.clientX, t.clientY);
+  e.preventDefault();
+}, { passive: false });
+cv.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
