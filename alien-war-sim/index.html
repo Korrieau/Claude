@@ -73,14 +73,21 @@
   #build{display:flex;background:var(--s1);border-top:1px solid var(--line);
     flex:none;overflow-x:auto}
   .bcard{background:transparent;border:none;border-right:1px solid var(--line);
-    border-top:2px solid transparent;color:var(--text);padding:9px 14px 10px;cursor:pointer;
-    text-align:left;min-width:126px;display:flex;flex-direction:column;gap:5px;
+    border-top:2px solid transparent;color:var(--text);padding:9px 13px 10px;cursor:pointer;
+    text-align:left;min-width:152px;display:flex;align-items:center;gap:10px;
     font-family:var(--ui);position:relative}
+  .bcard .ic{flex:none;width:32px;height:32px;display:grid;place-items:center;
+    color:var(--muted);background:#0D1015;border:1px solid var(--line);
+    clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+  .bcard .ic svg{width:20px;height:20px}
+  .bcard.sel .ic{color:var(--signal);border-color:var(--signalDim);background:#181509}
+  .bcard .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .bcard .c i{font-style:normal;color:var(--dim);font-size:8px;vertical-align:1px}
   .bcard:hover{background:var(--s3)}
   .bcard.sel{background:var(--s3);border-top-color:var(--signal)}
   .bcard.sel .n{color:var(--signal)}
   .bcard.poor{opacity:.32}
-  .bcard .n{font-size:11.5px;color:var(--text);letter-spacing:.01em}
+  .bcard .n{font-size:11.5px;color:var(--text);letter-spacing:.01em;white-space:nowrap}
   .bcard .c{font-family:var(--tech);font-size:11px;color:var(--muted);
     font-variant-numeric:tabular-nums}
   .bcard .c .s{color:var(--signal)}
@@ -170,7 +177,7 @@
     .abtn{padding:13px 4px;font-size:11px}
     #insp .row{padding:7px 0}
 
-    .bcard{min-width:112px;padding:11px 13px 13px;gap:4px}
+    .bcard{min-width:140px;padding:10px 12px;gap:9px}
     .bcard .n{font-size:12px}
     #log{left:8px;right:8px;bottom:8px;top:auto;width:auto}
     #log div{font-size:10px;padding:5px 9px}
@@ -189,8 +196,10 @@
     .cell{padding:5px 8px 4px}
     .cell .v{font-size:14px}
     #wavebar{left:8px;right:8px;transform:none;justify-content:space-between}
-    .bcard{min-width:100px;padding:10px 11px 12px}
+    .bcard{min-width:124px;padding:9px 10px;gap:8px}
     .bcard .k{display:none}
+    .bcard .ic{width:28px;height:28px}
+    .bcard .ic svg{width:17px;height:17px}
     .cell{padding:5px 7px 4px}
     .cell .v{font-size:13px}
     #over h1{font-size:20px;letter-spacing:.2em}
@@ -289,7 +298,9 @@ const C = {
 // The terrain is drawn once into its own layer as smooth merged silhouettes,
 // so nothing on screen reads as a grid of cubes.
 const terrainCv = document.createElement('canvas');
-terrainCv.width = WW; terrainCv.height = WH;
+// supersample the terrain on desktop so close zooms stay crisp
+const TS = (matchMedia('(pointer:coarse)').matches || innerWidth < 900) ? 1 : 1.5;
+terrainCv.width = Math.round(WW * TS); terrainCv.height = Math.round(WH * TS);
 // ---- value noise, for terrain that has structure instead of static -------
 const NP = new Uint8Array(512);
 for (let i = 0; i < 256; i++) { const v = (Math.random() * 256) | 0; NP[i] = v; NP[i + 256] = v; }
@@ -309,7 +320,8 @@ function fbm(x, y) {
 
 function buildTerrainLayer() {
   const t = terrainCv.getContext('2d');
-  t.clearRect(0, 0, WW, WH);
+  t.setTransform(1, 0, 0, 1, 0, 0);
+  t.clearRect(0, 0, terrainCv.width, terrainCv.height);
 
   // ---- ground: sediment bands driven by low-frequency noise ----
   // Three materials read across the plain: shadowed packed earth, warm dry
@@ -323,79 +335,76 @@ function buildTerrainLayer() {
     vf[i] = fbm(x / 21 + 91.7, y / 21 + 41.3);
   }
 
-  // Daylight surface. Sun from the top left is warm, the fill light from
-  // the sky is cool, and materials band by relief with scrub laid over
-  // wherever the moisture field is high.
-  const im = t.createImageData(WW, WH), dd = im.data;
-  const HOLLOW = [92, 99, 104];   // damp shaded hollow, sky-lit
-  const EARTH  = [131, 117, 93];  // dry packed earth
-  const GRAVEL = [176, 168, 148]; // sun-bleached gravel
-  const SCRUB  = [94, 103, 68];   // low vegetation
-  for (let y = 0; y < WH; y++) {
-    const hy = y >> 1;
-    for (let x = 0; x < WW; x++) {
-      const hx = x >> 1, hi = hy * HWD + hx;
-      const n = hf[hi];
+  // Stylised daylight surface. Materials are flat and quantised with clean
+  // boundaries, lighting is stepped, and detail comes from painted clumps
+  // rather than per-pixel grain. Photographic noise reads as a map; flat
+  // material zones read as art direction.
+  const PW = terrainCv.width, PH = terrainCv.height;
+  const im = t.createImageData(PW, PH), dd = im.data;
+  const MAT = [
+    [141, 127, 99],   // 0 shaded earth
+    [170, 155, 122],  // 1 dry earth, the dominant surface
+    [190, 178, 148],  // 2 bleached gravel on the ridges
+    [140, 140, 104],  // 3 dry scrub
+    [116, 120, 86],   // 4 damp scrub in the hollows
+  ];
+  const STEP = [0.93, 1.0, 1.07];
+  for (let y = 0; y < PH; y++) {
+    const hy = ((y / TS) | 0) >> 1;
+    for (let x = 0; x < PW; x++) {
+      const hx = ((x / TS) | 0) >> 1, hi = hy * HWD + hx;
+      const n = hf[hi], v = vf[hi];
+      let m;
+      if (v > 0.70 && n < 0.50) m = 4;
+      else if (v > 0.63 && n < 0.56) m = 3;
+      else if (n > 0.70) m = 2;
+      else if (n > 0.44) m = 1;
+      else m = 0;
       const gx = (hx < HWD - 2 ? hf[hi + 2] : n) - n;
       const gy = (hy < HHT - 2 ? hf[hi + HWD + HWD] : n) - n;
-      const lit = clamp(0.5 - (gx + gy) * 7.0, 0, 1);
-
-      let r, g2, b2;
-      if (n < 0.44) { const u = n / 0.44;
-        r = HOLLOW[0] + (EARTH[0] - HOLLOW[0]) * u;
-        g2 = HOLLOW[1] + (EARTH[1] - HOLLOW[1]) * u;
-        b2 = HOLLOW[2] + (EARTH[2] - HOLLOW[2]) * u;
-      } else { const u = (n - 0.44) / 0.56;
-        r = EARTH[0] + (GRAVEL[0] - EARTH[0]) * u;
-        g2 = EARTH[1] + (GRAVEL[1] - EARTH[1]) * u;
-        b2 = EARTH[2] + (GRAVEL[2] - EARTH[2]) * u;
-      }
-      // scrub takes hold on damp mid ground, thinning out on bare gravel
-      const veg = clamp((vf[hi] - 0.50) * 4.4, 0, 1) * clamp((0.80 - n) * 3.4, 0, 1);
-      if (veg > 0) {
-        r += (SCRUB[0] - r) * veg; g2 += (SCRUB[1] - g2) * veg; b2 += (SCRUB[2] - b2) * veg;
-      }
-
-      // warm where the sun lands, cool in the sky-filled shade
-      const k = 0.80 + lit * 0.40;
-      const wr = 0.94 + lit * 0.13, wb = 1.09 - lit * 0.19;
-      const j = ((x * 7 + y * 13) % 19) - 9;
-      const i = (y * WW + x) * 4;
-      dd[i] = r * k * wr + j;
-      dd[i + 1] = g2 * k + j;
-      dd[i + 2] = b2 * k * wb + j;
+      const sl = -(gx + gy);
+      const k = STEP[sl > 0.012 ? 2 : sl < -0.012 ? 0 : 1];
+      const c = MAT[m];
+      const j = ((x * 5 + y * 11) % 7) - 3;
+      const i = (y * PW + x) * 4;
+      dd[i] = c[0] * k + j; dd[i + 1] = c[1] * k + j; dd[i + 2] = c[2] * k * 0.99 + j;
       dd[i + 3] = 255;
     }
   }
   t.putImageData(im, 0, 0);
+  // everything after this point draws in world units
+  t.setTransform(TS, 0, 0, TS, 0, 0);
 
-  // ---- fine surface detail so the ground has grain, not just gradients ----
+  // ---- painted detail: deliberate clumps, not static ----
   const HW2 = WW >> 1;
-  for (let i = 0; i < 9000; i++) {
-    const x = Math.random() * WW, y = Math.random() * WH;
-    const hi = Math.min(hf.length - 1, ((y >> 1) * HW2 + (x >> 1)) | 0);
-    const n = hf[hi];
-    if (n > 0.62) {
-      t.fillStyle = Math.random() < 0.5 ? 'rgba(226,216,190,0.30)' : 'rgba(74,68,54,0.22)';
-      t.fillRect(x, y, rnd(1, 2.6), rnd(1, 2.2));
-    } else if (n < 0.40) {
-      t.fillStyle = 'rgba(58,70,74,0.20)';
-      t.fillRect(x, y, rnd(1, 2.2), rnd(1, 1.8));
-    }
-  }
-  for (let i = 0; i < 2600; i++) {
-    const x = Math.random() * WW, y = Math.random() * WH;
-    const hi = Math.min(vf.length - 1, ((y >> 1) * HW2 + (x >> 1)) | 0);
-    if (vf[hi] < 0.56 || hf[hi] > 0.76) continue;
-    t.strokeStyle = Math.random() < 0.5 ? 'rgba(58,68,40,0.42)' : 'rgba(126,134,88,0.34)';
-    t.lineWidth = 1;
-    const n = 3 + ((Math.random() * 3) | 0);
-    t.beginPath();
+  const sample = (arr, x, y) => arr[Math.min(arr.length - 1, ((y >> 1) * HW2 + (x >> 1)) | 0)];
+  const clump = (x, y, r, col, n) => {
+    t.fillStyle = col;
     for (let k = 0; k < n; k++) {
-      const a = -1.5708 + rnd(-0.7, 0.7), L = rnd(2.5, 5.5);
-      t.moveTo(x, y); t.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L);
+      t.beginPath();
+      t.ellipse(x + rnd(-r, r), y + rnd(-r * 0.7, r * 0.7),
+        rnd(r * 0.35, r * 0.8), rnd(r * 0.22, r * 0.5), rnd(0, 3.14), 0, 6.2832);
+      t.fill();
     }
-    t.stroke();
+  };
+  for (let i = 0; i < 300; i++) {          // brush, only in the damp low ground
+    const x = Math.random() * WW, y = Math.random() * WH;
+    if (sample(vf, x, y) < 0.64 || sample(hf, x, y) > 0.58) continue;
+    clump(x, y, rnd(9, 24), Math.random() < 0.5 ? 'rgba(96,102,66,0.30)' : 'rgba(150,152,110,0.24)', 4);
+  }
+  for (let i = 0; i < 340; i++) {          // gravel breaking through on the ridges
+    const x = Math.random() * WW, y = Math.random() * WH;
+    if (sample(hf, x, y) < 0.62) continue;
+    clump(x, y, rnd(10, 28), Math.random() < 0.5 ? 'rgba(206,195,164,0.26)' : 'rgba(154,140,110,0.20)', 3);
+  }
+  for (let i = 0; i < 300; i++) {          // loose stones, drawn not sprinkled
+    const x = Math.random() * WW, y = Math.random() * WH;
+    if (sample(hf, x, y) < 0.5) continue;
+    const r = rnd(1.6, 4);
+    t.fillStyle = 'rgba(72,66,52,0.34)';
+    t.beginPath(); t.ellipse(x + 1, y + 1.4, r, r * 0.7, 0, 0, 6.2832); t.fill();
+    t.fillStyle = 'rgba(214,203,172,0.62)';
+    t.beginPath(); t.ellipse(x, y, r, r * 0.7, 0, 0, 6.2832); t.fill();
   }
 
   // ---- worn haul routes: the site has been used ----
@@ -440,44 +449,39 @@ function buildTerrainLayer() {
   t.fillStyle = '#000'; shape(TILE * 0.62, 0, 0); t.fill();
   t.restore();
   // sunlit crest, then the body pulled down-right off it
-  t.fillStyle = '#CFC2A0'; shape(TILE * 0.632, 0, 0); t.fill();      // sunlit crest
-  t.fillStyle = '#7A7364'; shape(TILE * 0.626, 2.0, 2.6); t.fill();  // body
-  t.fillStyle = '#5E594E'; shape(TILE * 0.616, 3.4, 4.4); t.fill();  // shaded flank
+  // Terraced mesa: each inset ring is an eroded copy of the silhouette, so
+  // a rock mass reads as stacked benches rather than one poured blob.
+  t.fillStyle = '#4E483C'; shape(TILE * 0.652, 2.6, 3.4); t.fill();   // contact shadow
+  t.fillStyle = '#D8CBA6'; shape(TILE * 0.632, 0, 0); t.fill();       // sunlit crest
+  t.fillStyle = '#7D7462'; shape(TILE * 0.628, 1.6, 2.1); t.fill();   // lower bench
+  t.fillStyle = '#C4B695'; shape(TILE * 0.50, -0.4, -0.8); t.fill();  // mid crest
+  t.fillStyle = '#8B8269'; shape(TILE * 0.495, 1.2, 1.6); t.fill();   // mid bench
+  t.fillStyle = '#D2C4A0'; shape(TILE * 0.35, -0.6, -1.0); t.fill();  // top crest
+  t.fillStyle = '#998F76'; shape(TILE * 0.345, 1.0, 1.4); t.fill();   // top bench
 
-  // ---- rock surface: broad weathering, bedding planes, loose scree ----
+  // ---- rock surface: parallel bedding, sparse weathering ----
   t.save();
-  shape(TILE * 0.626, 2.0, 2.6); t.clip();
-
-  for (let i = 0; i < 130; i++) {   // broad weathering patches
-    const x = Math.random() * WW, y = Math.random() * WH, r = rnd(24, 130);
+  shape(TILE * 0.628, 1.6, 2.1); t.clip();
+  const BED = -0.13;   // one bedding direction for the whole formation
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * WW, y = Math.random() * WH, r = rnd(50, 170);
     const g = t.createRadialGradient(x, y, 0, x, y, r);
-    const dark = Math.random() < 0.55;
-    g.addColorStop(0, dark ? 'rgba(44,40,32,0.34)' : 'rgba(214,203,176,0.26)');
+    g.addColorStop(0, Math.random() < 0.5 ? 'rgba(58,52,40,0.22)' : 'rgba(232,222,196,0.18)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     t.fillStyle = g; t.beginPath(); t.arc(x, y, r, 0, 6.2832); t.fill();
   }
-
-  for (let i = 0; i < 1400; i++) {  // bedding planes, near horizontal
-    const x = Math.random() * WW, y = Math.random() * WH, w = rnd(18, 150);
-    t.strokeStyle = Math.random() < 0.5 ? 'rgba(40,36,29,0.34)' : 'rgba(230,220,194,0.22)';
-    t.lineWidth = rnd(0.7, 2.4);
-    t.beginPath(); t.moveTo(x, y);
-    t.quadraticCurveTo(x + w * 0.5, y + rnd(-5, 5), x + w, y + rnd(-3, 3));
-    t.stroke();
+  for (let i = 0; i < 300; i++) {
+    const x = Math.random() * WW, y = Math.random() * WH, w = rnd(90, 340);
+    t.fillStyle = Math.random() < 0.5 ? 'rgba(50,44,34,0.20)' : 'rgba(238,229,204,0.20)';
+    t.beginPath();
+    t.ellipse(x, y, w * 0.5, rnd(1.6, 4.5), BED + rnd(-0.03, 0.03), 0, 6.2832);
+    t.fill();
   }
-
-  for (let i = 0; i < 4200; i++) {  // scree and chipped faces
-    const x = Math.random() * WW, y = Math.random() * WH;
-    t.fillStyle = Math.random() < 0.5 ? 'rgba(236,226,199,0.24)' : 'rgba(38,34,27,0.26)';
-    t.fillRect(x, y, rnd(0.8, 2.6), rnd(0.8, 2.2));
-  }
-
-  // fracture seams cutting across the mass
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 26; i++) {   // fracture seams cut across the bedding
     let x = Math.random() * WW, y = Math.random() * WH;
-    t.strokeStyle = 'rgba(26,23,18,0.42)'; t.lineWidth = rnd(1, 2.2);
+    t.strokeStyle = 'rgba(38,33,25,0.42)'; t.lineWidth = rnd(1.2, 2.4);
     t.beginPath(); t.moveTo(x, y);
-    for (let k = 0; k < 7; k++) { x += rnd(-34, 34); y += rnd(-26, 26); t.lineTo(x, y); }
+    for (let k = 0; k < 5; k++) { x += rnd(10, 60); y += rnd(-46, 12); t.lineTo(x, y); }
     t.stroke();
   }
   t.restore();
@@ -679,7 +683,7 @@ function buildMap() {
   // two ridges split the western half into three wide lanes
   const ridge = (yc, x0, x1) => {
     for (let x = x0; x < x1; x++) {
-      const th = 2.4 + Math.sin(x * 0.21) * 1.5 + Math.sin(x * 0.07) * 1.2;
+      const th = 1.9 + Math.sin(x * 0.21) * 1.2 + Math.sin(x * 0.07) * 1.0;
       const yy = yc + Math.sin(x * 0.11) * 2.4;
       for (let y = Math.round(yy - th); y <= Math.round(yy + th); y++)
         if (inb(x, y)) terrain[idx(x, y)] = T_ROCK;
@@ -1539,7 +1543,7 @@ function draw() {
   const ty0 = clamp((vy0 / TILE | 0) - 1, 0, GH - 1), ty1 = clamp((vy1 / TILE | 0) + 1, 0, GH - 1);
 
   // ---- pre-rendered terrain, then decals, then the living blight ----
-  ctx.drawImage(terrainCv, 0, 0);
+  ctx.drawImage(terrainCv, 0, 0, terrainCv.width, terrainCv.height, 0, 0, WW, WH);
   ctx.drawImage(gc, 0, 0);
 
   // blight reads as a soft creeping stain, not painted squares
@@ -2054,6 +2058,18 @@ function log(msg, cls) {
   while ($('log').children.length > 7) $('log').lastChild.remove();
   setTimeout(() => el.remove(), 7000);
 }
+// small line glyphs, drawn in the same language as the world icons
+const GLYPH = {
+  wall: '<path d="M2 6h16v8H2z"/><path d="M6 14v3M10 14v3M14 14v3"/>',
+  trench: '<path d="M2 6h16M2 14h16"/><circle cx="6" cy="10" r="1.3"/><circle cx="10" cy="10" r="1.3"/><circle cx="14" cy="10" r="1.3"/>',
+  torch: '<path d="M2 6h16M2 14h16"/><path d="M7 10h4l3-2.5v5L11 10"/>',
+  bunker: '<path d="M6 3h8l4 4v6l-4 4H6l-4-4V7z"/><path d="M5 10h10"/>',
+  autogun: '<circle cx="8" cy="10" r="4"/><path d="M12 10h6"/>',
+  mortar: '<circle cx="7" cy="12" r="4"/><path d="M10 10l7-4M10 13l7-1"/>',
+  siege: '<circle cx="7" cy="10" r="3.4"/><path d="M10.4 10H19"/><path d="M4 7L2 4M4 13l-2 3M10 7l1-3M10 13l1 3"/>',
+  gen: '<rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 5.5a4.5 4.5 0 1 1-4.4 5.4"/><circle cx="10" cy="10" r="1.2"/>',
+  extractor: '<rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 5.5L14 10l-4 4.5L6 10z"/>',
+};
 function buildBar() {
   const bar = $('build'); bar.innerHTML = '';
   for (const t of BUILD_ORDER) {
@@ -2062,9 +2078,13 @@ function buildBar() {
     const el = document.createElement('button');
     el.className = 'bcard';
     el.dataset.t = t;
-    el.innerHTML = `<div class="n">${d.name}</div>
-      <div class="c"><span class="s">${cs}</span>${cc ? ` · <span class="y">${cc}</span>` : ''}</div>
-      <div class="k">[${d.key}] ${d.code}</div>`;
+    el.innerHTML = `<span class="ic"><svg viewBox="0 0 20 20" fill="none"
+        stroke="currentColor" stroke-width="1.3" stroke-linecap="square">${GLYPH[t] || ''}</svg></span>
+      <span class="tx">
+        <span class="n">${d.name}</span>
+        <span class="c"><span class="s">${cs}</span>${cc ? ` <i>◆</i> <span class="y">${cc}</span>` : ''}</span>
+        <span class="k">[${d.key}] ${d.code}</span>
+      </span>`;
     el.onclick = () => selectGhost(t);
     bar.appendChild(el);
   }

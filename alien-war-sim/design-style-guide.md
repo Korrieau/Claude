@@ -91,6 +91,9 @@ makes it read as a generic sci-fi shooter.
 - Panel background is `#171B22` at ~92% with a backdrop blur where the
   world shows through.
 - Status is a **diamond** (`◆` filled / `◇` hollow), never a dot.
+- Every asset in the build rail carries a **line glyph in a chamfered
+  well**, drawn in the same language as its in-world icon. A rail of
+  names alone reads as a text list, not as equipment.
 
 ## World rendering
 
@@ -134,6 +137,26 @@ squares. The specific offenders and their fixes:
 Terrain is rendered once into its own layer as merged rounded masses, so
 the map never shows tile seams. Rock is near-black with a single hairline
 rim and a soft cast shadow.
+
+## Stylised, not photographic
+
+Procedural noise laid down raw reads as a satellite photo. The fix is to
+quantise it:
+
+- Materials are **flat and banded** with clean boundaries - shaded earth,
+  dry earth, bleached gravel, dry scrub, damp scrub - not gradients.
+- Lighting is **stepped to three values**, not continuous.
+- Vegetation is tied to damp low ground so it forms channels. Scattered
+  evenly at high contrast it reads as camouflage cloth; kept sparse and
+  close in value to the earth it reads as terrain.
+- Detail is **painted clumps** - soft overlapping ellipses of brush,
+  gravel and stones - never per-pixel speckle.
+- Rock is a **terraced mesa**: a contact shadow, then benches made by
+  eroding the silhouette inward, each with its own lit crest, with
+  bedding planes all running in one direction and a few decisive
+  fracture seams cutting across them.
+- The terrain layer is supersampled 1.5x on desktop so close zooms stay
+  crisp; phones stay at 1x for memory.
 
 ## Mobile
 
