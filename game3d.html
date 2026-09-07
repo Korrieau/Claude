@@ -2426,113 +2426,122 @@ const VIEW = (() => {
       scene.add(c);
     } }
   // ---------------------------------------------------------------------
-  // Distance. Three bands behind the approach, none of them in front of it:
-  // The camera pitches down ~38 degrees with a 38 degree fov, so its top ray
-  // meets the ground at about z = -40. Anything past that is simply not on
-  // screen. All three bands live inside that, behind the approach (ends -15):
-  //   -17..-24  outer yard, low enough to see over
-  //   -24..-38  the plant - halls, silo banks, stacks, cooling towers
-  //   -38..-43  skyline silhouettes, cut by the top of the frame
-  // Fog does the fading, so each band is just a flatter, cooler material.
+  // Distance.
+  // The camera pitches ~38 degrees down with a 38 degree VERTICAL fov on a
+  // portrait screen, so the horizontal half-angle is only atan(tan(19)*0.46)
+  // = 9 degrees. At the top of the frame that is about +-9 world units of
+  // width, and the ground there is around z = -21. Scenery scattered across
+  // +-100 in x, or past z = -40, is simply not on screen - which is exactly
+  // why the top of the picture kept coming back empty. Everything here is
+  // packed into the cone that is actually visible.
   // ---------------------------------------------------------------------
-  { const B1 = new THREE.MeshStandardMaterial({ color: 0x232a31, roughness: .95, flatShading: true });
-    const B1b = new THREE.MeshStandardMaterial({ color: 0x2b2620, roughness: 1, flatShading: true });
-    const B2 = new THREE.MeshStandardMaterial({ color: 0x1b232c, roughness: 1, flatShading: true });
-    const B2b = new THREE.MeshStandardMaterial({ color: 0x262e36, roughness: 1, flatShading: true });
-    const B3 = new THREE.MeshStandardMaterial({ color: 0x1e242c, roughness: 1, flatShading: true });
+  { const B1 = new THREE.MeshStandardMaterial({ color: 0x161b21, roughness: .95, flatShading: true });
+    const B1b = new THREE.MeshStandardMaterial({ color: 0x1c1812, roughness: 1, flatShading: true });
+    const B2 = new THREE.MeshBasicMaterial({ color: 0x3b4551, fog: true });
+    const B2b = new THREE.MeshBasicMaterial({ color: 0x49535f, fog: true });
+    const B3 = new THREE.MeshBasicMaterial({ color: 0x646f7a, fog: true });
+    // half-width of the view frustum at a given z, with a little margin
+    const halfW = z => Math.abs(24.6 - z) * 0.159 + 3;
     const put = (m, w, h, d, x, z, ry) => {
       const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
       b.position.set(x, -TILE_H + h / 2, z); b.rotation.y = ry || 0;
       b.receiveShadow = true; scene.add(b); return b;
     };
-    // --- outer yard: broken sheds, container rows, tank farm ---------------
-    for (let i = 0; i < 26; i++) {
-      const w = 2.4 + Math.random() * 6, h = 1.2 + Math.random() * 2.6;
-      put(Math.random() < .4 ? B1b : B1, w, h, 2 + Math.random() * 5,
-          (Math.random() - .5) * 62, -BZ - 9 - Math.random() * 7, Math.random() * .7);
+    const spread = z => rnd(-halfW(z), halfW(z));
+
+    // --- outer yard, just behind the approach -----------------------------
+    for (let i = 0; i < 30; i++) {
+      const z = -16 - Math.random() * 5;
+      put(Math.random() < .4 ? B1b : B1, 1.8 + Math.random() * 4.5, 1.2 + Math.random() * 2.8,
+          1.8 + Math.random() * 4, spread(z), z, Math.random() * .7);
     }
-    for (let i = 0; i < 9; i++) {
-      const h = 3 + Math.random() * 3;
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(1.5 + Math.random(), 1.5 + Math.random(), h, 12), B1);
-      t.position.set((Math.random() - .5) * 52, -TILE_H + h / 2, -BZ - 10 - Math.random() * 6);
-      scene.add(t);
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(1.6, 12, 6, 0, 6.283, 0, 1.0), B1b);
-      cap.position.set(t.position.x, -TILE_H + h, t.position.z); scene.add(cap);
+    for (let i = 0; i < 8; i++) {
+      const z = -17 - Math.random() * 4, h = 2.6 + Math.random() * 2.4, rr = 1.1 + Math.random() * .8;
+      const x = spread(z);
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, h, 12), B1);
+      t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
+      const capm = new THREE.Mesh(new THREE.SphereGeometry(rr * 1.02, 12, 6, 0, 6.283, 0, 1.0), B1b);
+      capm.position.set(x, -TILE_H + h, z); scene.add(capm);
     }
-    // --- the plant: long halls, silo banks, stacks, cooling towers ---------
-    for (let i = 0; i < 18; i++) {
-      const w = 10 + Math.random() * 26, h = 6 + Math.random() * 13, d = 8 + Math.random() * 16;
-      const b = put(B2, w, h, d, (Math.random() - .5) * 105, -BZ - 17 - Math.random() * 12, (Math.random() - .5) * .5);
-      // a shallow roof so the block does not read as a plain box
+
+    // --- the plant: this is what fills the top of the picture --------------
+    for (let i = 0; i < 22; i++) {
+      const z = -21 - Math.random() * 9;
+      const w = 4 + Math.random() * 9, h = 6 + Math.random() * 11, d = 5 + Math.random() * 9;
+      const b = put(B2, w, h, d, spread(z), z, (Math.random() - .5) * .5);
       const rf = new THREE.Mesh(new THREE.CylinderGeometry(w * .52, w * .52, d, 3, 1, false), B2b);
-      rf.rotation.set(0, 0, Math.PI / 2);
+      rf.rotation.set(0, b.rotation.y, Math.PI / 2);
       rf.position.set(b.position.x, -TILE_H + h + w * .13, b.position.z);
-      rf.rotation.y = b.rotation.y; scene.add(rf);
+      scene.add(rf);
     }
     for (let g2 = 0; g2 < 5; g2++) {
-      const gx = (Math.random() - .5) * 92, gz = -BZ - 18 - Math.random() * 11;
-      const n = 3 + ((Math.random() * 4) | 0), rr = 2.2 + Math.random() * 1.6, h = 12 + Math.random() * 12;
-      for (let i = 0; i < n; i++) {
+      const z = -22 - Math.random() * 8, rr = 1.4 + Math.random() * 1.0, h = 9 + Math.random() * 9;
+      const gx = spread(z) - rr * 2;
+      for (let i = 0; i < 3 + ((Math.random() * 3) | 0); i++) {
+        const x = gx + i * rr * 2.05;
         const t = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, h, 14), B2b);
-        t.position.set(gx + i * rr * 2.05, -TILE_H + h / 2, gz);
-        scene.add(t);
+        t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
         const cn = new THREE.Mesh(new THREE.ConeGeometry(rr * 1.05, rr * .8, 14), B2);
-        cn.position.set(t.position.x, -TILE_H + h + rr * .4, gz); scene.add(cn);
+        cn.position.set(x, -TILE_H + h + rr * .4, z); scene.add(cn);
       }
     }
     const stacks = [];
-    for (let i = 0; i < 7; i++) {
-      const h = 22 + Math.random() * 20, rr = .9 + Math.random() * .7;
+    for (let i = 0; i < 8; i++) {
+      const z = -23 - Math.random() * 9, h = 16 + Math.random() * 16, rr = .7 + Math.random() * .6;
+      const x = spread(z);
       const t = new THREE.Mesh(new THREE.CylinderGeometry(rr * .72, rr * 1.25, h, 12), B2b);
-      const x = (Math.random() - .5) * 100, z = -BZ - 19 - Math.random() * 11;
       t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
       for (let k = 1; k < 4; k++) {
-        const bd = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.05, .13, 5, 12), B2);
+        const bd = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.1, .10, 5, 12), B2);
         bd.rotation.x = Math.PI / 2;
         bd.position.set(x, -TILE_H + h * k / 4, z); scene.add(bd);
       }
       stacks.push([x, -TILE_H + h, z]);
     }
-    for (let i = 0; i < 3; i++) {
-      const h = 24 + Math.random() * 10, rb = 7 + Math.random() * 3;
-      const ct = new THREE.Mesh(new THREE.CylinderGeometry(rb * .62, rb, h, 18, 1, true), B2b);
-      const x = (Math.random() - .5) * 96, z = -BZ - 24 - Math.random() * 7;
-      ct.position.set(x, -TILE_H + h / 2, z); ct.material.side = THREE.DoubleSide; scene.add(ct);
+    for (let i = 0; i < 4; i++) {
+      const z = -27 - Math.random() * 8, h = 16 + Math.random() * 9, rb = 4 + Math.random() * 2.4;
+      const x = spread(z);
+      const ct = new THREE.Mesh(new THREE.CylinderGeometry(rb * .6, rb, h, 18, 1, true), B2b);
+      ct.material = B2b.clone(); ct.material.side = THREE.DoubleSide;
+      ct.position.set(x, -TILE_H + h / 2, z); scene.add(ct);
       stacks.push([x, -TILE_H + h, z]);
     }
-    // gantry cranes on the skyline
     for (let i = 0; i < 4; i++) {
-      const x = (Math.random() - .5) * 88, z = -BZ - 16 - Math.random() * 9, h = 12 + Math.random() * 6;
-      for (const dx of [-7, 7]) {
-        const l = new THREE.Mesh(new THREE.BoxGeometry(1.1, h, 1.1), B2);
+      const z = -20 - Math.random() * 8, h = 9 + Math.random() * 5, x = spread(z);
+      for (const dx of [-4.5, 4.5]) {
+        const l = new THREE.Mesh(new THREE.BoxGeometry(.8, h, .8), B2);
         l.position.set(x + dx, -TILE_H + h / 2, z); scene.add(l);
       }
-      put(B2b, 20, 1.4, 2.0, x, z).position.y = -TILE_H + h;
-      put(B2, 1.0, 5, 1.0, x, z).position.y = -TILE_H + h + 1.4;
+      put(B2b, 13, 1.0, 1.4, x, z).position.y = -TILE_H + h;
+      put(B2, .8, 3.4, .8, x, z).position.y = -TILE_H + h + 1.0;
     }
-    // --- haze band: silhouettes that read as a city, not as boxes ---------
-    for (let i = 0; i < 64; i++) {
-      const w = 9 + Math.random() * 28, h = 14 + Math.random() * 32, d = 8 + Math.random() * 20;
+
+    // --- skyline behind the plant -----------------------------------------
+    for (let i = 0; i < 40; i++) {
+      const z = -32 - Math.random() * 10;
+      const w = 4 + Math.random() * 11, h = 14 + Math.random() * 26, d = 5 + Math.random() * 10;
       const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), B3);
-      b.position.set((Math.random() - .5) * 180, -TILE_H + h / 2, -BZ - 31 - Math.random() * 6);
+      b.position.set(spread(z), -TILE_H + h / 2, z);
       b.rotation.y = Math.random() * .6; scene.add(b);
     }
-    // --- smoke standing over the plant ------------------------------------
+
+    // --- smoke standing over the stacks ------------------------------------
     const smokeMat = new THREE.MeshBasicMaterial({
       map: canvasTex(64, (g, S) => {
         const gr = g.createRadialGradient(S / 2, S / 2, 1, S / 2, S / 2, S * .5);
-        gr.addColorStop(0, "rgba(206,212,214,.55)");
-        gr.addColorStop(1, "rgba(206,212,214,0)");
+        gr.addColorStop(0, "rgba(150,158,164,.42)");
+        gr.addColorStop(1, "rgba(188,196,200,0)");
         g.fillStyle = gr; g.fillRect(0, 0, S, S);
-      }), transparent: true, depthWrite: false, opacity: .5 });
+      }), transparent: true, depthWrite: false, opacity: .36 });
     for (const [x, y, z] of stacks) {
-      for (let k = 0; k < 7; k++) {
-        const sc2 = 5 + k * 3.4;
+      for (let k = 0; k < 6; k++) {
+        const sc2 = 3.5 + k * 2.6;
         const q = new THREE.Mesh(new THREE.PlaneGeometry(sc2, sc2), smokeMat);
-        q.position.set(x + (Math.random() - .5) * k * 3.5 + k * 1.6, y + 2 + k * 4.2, z + (Math.random() - .5) * 4);
+        q.position.set(x + (Math.random() - .5) * k * 2.2 + k * 1.1, y + 1.5 + k * 3.0, z + (Math.random() - .5) * 3);
         smokePlumes.push(q); scene.add(q);
       }
     } }
+
   // ---- fires beyond the wire ----
   const fireMat = new THREE.MeshBasicMaterial({
     map: canvasTex(64, (g, S) => {
