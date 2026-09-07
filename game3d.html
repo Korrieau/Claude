@@ -30,8 +30,8 @@
 
   #obj {
     position: absolute; left: 50%; transform: translateX(-50%);
-    top: calc(env(safe-area-inset-top,0px) + 6px);
-    text-align: center; width: 186px;
+    top: calc(env(safe-area-inset-top,0px) + 8px);
+    text-align: center; width: 168px;
   }
   #obj .br { color: #4d6070; font-size: 11px; vertical-align: 2px; }
   .oTitle {
@@ -49,7 +49,7 @@
   }
 
   #pills {
-    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 60px);
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 66px);
     display: flex; flex-direction: column; overflow: hidden; gap: 5px;
   }
   .pill {
@@ -77,7 +77,7 @@
   .pbar i { display: block; height: 100%; background: var(--cyan); }
 
   #asl {
-    position: absolute; right: 10px; top: calc(env(safe-area-inset-top,0px) + 60px);
+    position: absolute; right: 10px; top: calc(env(safe-area-inset-top,0px) + 66px);
     text-align: right;
   }
   .aLab {
@@ -101,10 +101,13 @@
   }
   .aKill i { font-style: normal; color: #c6d4e0; }
 
+  /* moved out of the bottom-left: the ability row lives there now */
   #cmdPanel {
-    position: absolute; left: 12px;
-    bottom: calc(env(safe-area-inset-bottom,0px) + 156px);
-    width: 68px; height: 68px;
+    position: absolute; left: 10px;
+    top: calc(env(safe-area-inset-top,0px) + 188px);
+    width: 132px; height: 72px; padding: 2px 0 0 2px;
+    background: rgba(7,10,15,.72); border: 1px solid rgba(122,150,175,.24);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
   .arc { width: 68px; height: 68px; transform: rotate(-90deg); }
   .arc circle { fill: none; stroke-width: 3; }
@@ -118,16 +121,80 @@
   #cmdPanel.crit .fill { stroke: var(--danger); filter: drop-shadow(0 0 7px rgba(232,56,79,.8)); }
   #cmdPanel.crit { animation: pulse 1.05s infinite; }
   .aCtr {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    position: absolute; left: 2px; top: 2px; width: 68px; height: 68px;
+    display: flex; align-items: center; justify-content: center;
     font-family: ui-monospace, monospace;
   }
   .aCtr b { font-size: 17px; font-weight: 700; }
   .aCtr s { text-decoration: none; font-size: 8px; color: #4f6273; margin-left: 1px; }
   .aName {
-    position: absolute; left: 76px; top: 16px; white-space: nowrap;
+    position: absolute; left: 78px; top: 20px; white-space: nowrap;
     font-family: ui-monospace, monospace; font-size: 6.5px; letter-spacing: .26em;
     color: #4f6273; line-height: 1.7;
   }
+
+  /* speed / pause, top-right under the wave ticks */
+  #speed {
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 8px);
+    display: flex; gap: 4px; pointer-events: auto;
+  }
+  #speed button {
+    width: 30px; height: 24px; cursor: pointer; color: #93a7b8;
+    background: rgba(9,13,18,.58); border: 1px solid rgba(122,150,175,.24);
+    font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700;
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  }
+  #speed button[data-on="1"] { color: #ffd7bb; border-color: var(--accent); background: rgba(255,122,42,.16); }
+
+  /* floating combo counter */
+  #combo {
+    position: absolute; right: 12px; top: calc(env(safe-area-inset-top,0px) + 152px);
+    text-align: right;
+    font-family: ui-monospace, monospace; font-size: 22px; font-weight: 700;
+    color: var(--gold); text-shadow: 0 0 16px rgba(255,201,61,.5); letter-spacing: .04em;
+  }
+  #combo s { display: block; text-decoration: none; font-size: 6px; letter-spacing: .3em; color: #8a8262; }
+
+  /* damage numbers, projected from the 3D scene */
+  #dmgs { position: absolute; inset: 0; overflow: hidden; }
+  #dmgs b {
+    position: absolute; font-family: ui-monospace, monospace; font-weight: 700;
+    font-size: 13px; color: #ffe2b0; text-shadow: 0 1px 3px rgba(0,0,0,.85);
+    transform: translate(-50%, -50%);
+  }
+  #dmgs b.big { font-size: 21px; color: var(--gold); }
+
+  /* inspector for a placed building */
+  #insp {
+    position: fixed; z-index: 7; left: 10px; right: 10px;
+    bottom: calc(env(safe-area-inset-bottom,0px) + 9px); min-height: 148px;
+    background: #070a0f; border: 1px solid rgba(122,150,175,.3);
+    padding: 13px 14px 12px;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  #insp .hd { display: flex; align-items: baseline; gap: 8px; }
+  #insp .hd b { font-size: 15px; font-weight: 700; }
+  #insp .hd u {
+    text-decoration: none; font-family: ui-monospace, monospace; font-size: 9px;
+    letter-spacing: .18em; color: var(--gold); border: 1px solid rgba(255,201,61,.4); padding: 1px 5px;
+  }
+  #insp .hd em { margin-left: auto; font-style: normal; font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; }
+  #insp .st {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 11px;
+    font-family: ui-monospace, monospace;
+  }
+  #insp .st div { background: rgba(122,150,175,.08); padding: 6px 8px 7px; }
+  #insp .st s { display: block; text-decoration: none; font-size: 6px; letter-spacing: .2em; color: #4f6273; }
+  #insp .st i { font-style: normal; font-size: 13px; font-weight: 700; color: #eaf2f8; }
+  #insp .row { display: flex; gap: 6px; }
+  #insp .row button {
+    flex: 1; cursor: pointer; padding: 11px 6px; font-weight: 700; font-size: 12px;
+    background: rgba(79,227,240,.12); color: var(--cyan); border: 1px solid rgba(79,227,240,.4);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  #insp .row button.dn { background: rgba(232,56,79,.10); color: #ff8a99; border-color: rgba(232,56,79,.38); }
+  #insp .row button.gh { background: rgba(122,150,175,.08); color: #93a7b8; border-color: rgba(122,150,175,.26); }
+  #insp .row button[disabled] { opacity: .3; }
 
   #scan {
     position: absolute; inset: 0; opacity: .04;
@@ -326,6 +393,13 @@
     <div class="aName">COMMAND<br>사령부</div>
   </div>
 
+  <div id="speed">
+    <button data-sp="0">II</button>
+    <button data-sp="1" data-on="1">1x</button>
+    <button data-sp="2">2x</button>
+  </div>
+  <div id="combo" hidden></div>
+  <div id="dmgs"></div>
   <div id="scan"></div>
 </div>
 
@@ -367,6 +441,8 @@
   <button class="btn" id="startBtn">전투 시작</button>
 </div>
 
+<div id="insp" hidden></div>
+
 <div class="overlay" id="draft" hidden>
   <div class="lbl" style="text-align:center;margin-top:0">DOCTRINE &nbsp;/&nbsp; 교리 선택</div>
   <div class="title" id="draftTitle" style="font-size:20px">전열 재정비</div>
@@ -398,7 +474,10 @@ const ZONE_ROWS = [[2, 7], [8, 11], [12, 15]];
 const zoneOf = r => r <= 1 ? -1 : r <= 7 ? 0 : r <= 11 ? 1 : 2;
 const bandOf = r => r <= 1 ? 0 : r <= 7 ? 1 : r <= 11 ? 2 : 3;
 const BAND_LIFT = [0, 0, 0.30, 0.62];
-const BAND_COL = [0x39414c, 0x9d968a, 0xb3ac9f, 0xc8c2b4];
+// The board was one beige. Now it steps cool-to-warm from the enemy side to
+// the base, so the three zones are legible at a glance and the orange swarm
+// and blue infantry both have something to sit against.
+const BAND_COL = [0x2f2a33, 0x7e8288, 0x9aa0a4, 0xb6b3a8];
 const TILE_H = 0.55;
 const liftAt = r => BAND_LIFT[bandOf(Math.max(0, Math.min(ROWS - 1, Math.floor(r))))];
 const wx = x => x - COLS / 2;
@@ -461,14 +540,14 @@ const ZONE_BUILDS = [
 // A ladder of size. The small ones arrive in dozens; the large ones are meant
 // to be seen over the line before they arrive.
 const E = {
-  spore:    { name: "포자체",   hp: 7,    spd: 1.75, dmg: 3,  cd: 0.5,  r: 0.10, kill: 1,  sc: 0.52 },
-  swarm:    { name: "군체",     hp: 16,   spd: 1.50, dmg: 4,  cd: 0.55, r: 0.15, kill: 1,  sc: 0.80 },
-  charger:  { name: "돌진체",   hp: 30,   spd: 2.55, dmg: 9,  cd: 0.65, r: 0.16, kill: 2,  sc: 0.86 },
-  carapace: { name: "갑각체",   hp: 120,  spd: 0.95, dmg: 18, cd: 1.0,  r: 0.24, kill: 5,  sc: 1.12 },
-  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42 },
-  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78 },
-  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25 },
-  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95 }
+  spore:    { name: "포자체",   hp: 7,    spd: 1.75, dmg: 3,  cd: 0.5,  r: 0.10, kill: 1,  sc: 0.52, ec: 0xd85a10 },
+  swarm:    { name: "군체",     hp: 16,   spd: 1.50, dmg: 4,  cd: 0.55, r: 0.15, kill: 1,  sc: 0.80, ec: 0xc74a0c },
+  charger:  { name: "돌진체",   hp: 30,   spd: 2.55, dmg: 9,  cd: 0.65, r: 0.16, kill: 2,  sc: 0.86, ec: 0xdd5c10 },
+  carapace: { name: "갑각체",   hp: 120,  spd: 0.95, dmg: 18, cd: 1.0,  r: 0.24, kill: 5,  sc: 1.12, ec: 0xb03c0a },
+  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42, ec: 0xc2450c },
+  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78, ec: 0xa8380a },
+  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25, ec: 0xcf4a0c },
+  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95, ec: 0xd8540e }
 };
 // `big` entries are rolled in on their own timers so a wave is a tide with
 // landmarks in it rather than a uniform stream.
@@ -545,7 +624,8 @@ function newGame() {
     assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowDirty: true, dens: new Int16Array(COLS * ROWS),
     kia: 0, kills: 0, t: 0, shake: 0, breach: 0,
-    doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null
+    doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null,
+    dmgs: [], rings: [], hitstop: 0, combo: 0, comboT: 0, speed: 1, sel: null
   };
 }
 const at = (c, r) => (c < 0 || r < 0 || c >= COLS || r >= ROWS) ? null : G.tiles[r * COLS + c];
@@ -592,6 +672,33 @@ function solDmg() { return SOLDIER.dmg * (has("vet") ? 1.5 : 1); }
 function solMaxHp() { return SOLDIER.hp * (has("vet") ? 1.3 : 1); }
 function solCost() { return Math.round(SOLDIER.mat * (has("draft") ? .7 : 1)); }
 function abCd(k) { return ABIL[k].cd * (has("cmd") ? .65 : 1); }
+
+// Emplacements earn rank from what they kill, and can be paid up a level.
+// Both are growth you can see on a single building rather than a global number.
+const RANK_XP = [0, 40, 130, 340, 800];
+const RANK_N = ["", "I", "II", "III", "IV"];
+function rankOf(xp) { let r = 0; for (let i = 1; i < RANK_XP.length; i++) if (xp >= RANK_XP[i]) r = i; return r; }
+function wDmgB(b) { return wDmg(b.key) * (1 + .16 * b.up) * (1 + .10 * rankOf(b.xp)); }
+function wCdB(b) { return wCd(b.key) * (1 - .055 * rankOf(b.xp)); }
+function upCost(b) { return Math.round(bCost(b.key) * .55 * (b.up + 1)); }
+function upgradeB(b) {
+  if (b.up >= 3) return "이미 최대 강화입니다";
+  const c = upCost(b);
+  if (G.mat < c) return "자원이 부족합니다";
+  G.mat -= c; b.up++;
+  const nm = Math.round(bMaxHp(b.key) * (1 + .22 * b.up));
+  b.hp += nm - b.maxHp; b.maxHp = nm;
+  b.flash = 1; G.rings.push({ x: b.c + .5, z: b.r + .5, life: .5, max: .5, r: 1.1, col: 0x4fe3f0 });
+  floatText(B[b.key].name + " 강화 " + (b.up) + "단계");
+  return null;
+}
+function sellB(b) {
+  let paid = bCost(b.key);
+  for (let i = 1; i <= b.up; i++) paid += Math.round(bCost(b.key) * .55 * i);
+  G.mat += Math.round(paid * .5);
+  b.hp = 0; killBuilding(b);
+  floatText("철거  자원 +" + Math.round(paid * .5));
+}
 
 // ---- commander abilities ---------------------------------------------------
 function fireAbility(k, c, r) {
@@ -684,7 +791,7 @@ function place(key, c, r) {
   if (G.mat < cost) return "자원이 부족합니다";
   G.mat -= cost;
   const mhp = bMaxHp(key);
-  const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0,
+  const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0, up: 0, xp: 0, rank: 0,
               cd: rnd(0, .4), aim: -Math.PI / 2, flash: 0, crew: [], dead: false, obj: null };
   t.b = b; G.buildings.push(b);
   G.flowDirty = true;
@@ -692,6 +799,7 @@ function place(key, c, r) {
   return null;
 }
 function killBuilding(b) {
+  if (G.sel === b) { G.sel = null; const el = document.getElementById("insp"); if (el) el.hidden = true; }
   const t = at(b.c, b.r);
   if (t) t.b = null;
   b.dead = true;
@@ -801,6 +909,7 @@ function updateBuildings(dt) {
         if (d < mR) hurtEnemy(e, mD * (1 - d / mR * .4));
       }
       boom(bx, bz, mR, 22);
+      G.rings.push({ x: bx, z: bz, life: .45, max: .45, r: mR * 1.4, col: 0xffc93d });
       G.shake = Math.max(G.shake, .14);
       b.hp = 0; killBuilding(b);
       continue;
@@ -809,18 +918,18 @@ function updateBuildings(dt) {
     b.cd -= dt;
     if (b.cd > 0) continue;
     const maxR = wRange(b.key), minR = spec.minRange || 0;
-    const dmg = wDmg(b.key);
+    const dmg = wDmgB(b);
 
     // aura: everything inside the ring, no target needed
     if (spec.aura) {
       let n = 0;
       for (const e of G.enemies) {
         if (Math.hypot(e.x - bx, e.z - bz) > maxR) continue;
-        hurtEnemy(e, dmg);
+        hurtEnemy(e, dmg, b);
         if (n < 6) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .09, hot: false });
         n++;
       }
-      b.cd = n ? wCd(b.key) : .15;
+      b.cd = n ? wCdB(b) : .15;
       if (n) b.flash = 1;
       continue;
     }
@@ -836,7 +945,7 @@ function updateBuildings(dt) {
     }
     if (!tgt) { b.cd = .12; continue; }
     b.aim = Math.atan2(tgt.x - bx, tgt.z - bz);
-    b.cd = wCd(b.key);
+    b.cd = wCdB(b);
     b.flash = 1;
 
     if (spec.arc) {
@@ -847,7 +956,7 @@ function updateBuildings(dt) {
         const sp = shots > 1 ? .95 : .3;
         G.shells.push({
           x0: bx, z0: bz, x1: tgt.x + rnd(-sp, sp), z1: tgt.z + rnd(-sp, sp),
-          t: 0, dur: base + i * .26, dmg: dmg, splash: spec.splash, big: b.key === "siege"
+          t: 0, dur: base + i * .26, dmg: dmg, splash: spec.splash, big: b.key === "siege", src: b
         });
       }
       G.shake = Math.max(G.shake, b.key === "siege" ? .07 : .035);
@@ -860,7 +969,7 @@ function updateBuildings(dt) {
         const vx = ex - bx, vz = ez - bz;
         const t = clamp(((e.x - bx) * vx + (e.z - bz) * vz) / (vx * vx + vz * vz), 0, 1);
         const d = Math.hypot(e.x - (bx + vx * t), e.z - (bz + vz * t));
-        if (d < wBeamW(b.key)) hurtEnemy(e, dmg);
+        if (d < wBeamW(b.key)) hurtEnemy(e, dmg, b);
       }
       G.shake = Math.max(G.shake, spec.wide ? .16 : .05);
     } else if (spec.cone) {
@@ -874,13 +983,13 @@ function updateBuildings(dt) {
         while (da > Math.PI) da -= 6.2832;
         while (da < -Math.PI) da += 6.2832;
         if (Math.abs(da) > spec.cone) continue;
-        hurtEnemy(e, dmg);
+        hurtEnemy(e, dmg, b);
         if (n < 5) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .07, hot: true });
         n++;
       }
       if (!n) b.cd = .15;
     } else {
-      hurtEnemy(tgt, dmg);
+      hurtEnemy(tgt, dmg, b);
       G.tracers.push({ x1: bx, z1: bz, x2: tgt.x, z2: tgt.z, life: .055, hot: true });
     }
   }
@@ -893,9 +1002,10 @@ function updateShells(dt) {
     const r = s.splash;
     for (const e of G.enemies) {
       const d = Math.hypot(e.x - s.x1, e.z - s.z1);
-      if (d < r) hurtEnemy(e, s.dmg * (1 - d / r * .45));
+      if (d < r) hurtEnemy(e, s.dmg * (1 - d / r * .45), s.src);
     }
     boom(s.x1, s.z1, r, s.big ? 26 : 16);
+    G.rings.push({ x: s.x1, z: s.z1, life: .4, max: .4, r: r * 1.5, col: 0xffb35c });
     G.shake = Math.max(G.shake, s.big ? .18 : .10);
     G.shells.splice(i, 1);
   }
@@ -913,13 +1023,32 @@ function spawnEnemy(type) {
     off: rnd(-.30, .30), wob: rnd(0, 6.28), sc: spec.sc * rnd(.9, 1.1)
   });
 }
-function hurtEnemy(e, dmg) {
+function hurtEnemy(e, dmg, src) {
   if (e.dead) return;
   e.hp -= dmg; e.flash = 1;
+  const spec = E[e.type];
+  // a shove backwards, scaled to how much of the thing the hit took off
+  e.z -= Math.min(.11, dmg / spec.hp * .30);
+  if (dmg >= 34 && G.dmgs.length < 20)
+    G.dmgs.push({ x: e.x + rnd(-.35, .35), z: e.z + rnd(-.3, .3), v: Math.round(dmg),
+                  life: .7, big: dmg >= 200 });
   if (e.hp <= 0) {
     e.dead = true; G.kills++;
-    if (has("salvage")) G.mat += E[e.type].kill * .55;
-    spray(e.x, e.z, E[e.type].kill > 4 ? 8 : 3);
+    G.combo++; G.comboT = 1.6;
+    if (src) {
+      src.xp += spec.kill;
+      const nr = rankOf(src.xp);
+      if (nr > src.rank) {
+        src.rank = nr;
+        floatText(B[src.key].name + " 승급 " + RANK_N[nr]);
+        G.rings.push({ x: src.c + .5, z: src.r + .5, life: .55, max: .55, r: 1.0, col: 0xffc93d });
+      }
+    }
+    if (has("salvage")) G.mat += spec.kill * .55;
+    shatter(e.x, e.z, spec);
+    // the board stops for a beat when something large dies
+    if (spec.kill >= 26) G.hitstop = Math.max(G.hitstop, spec.kill >= 70 ? .10 : .06);
+    if (spec.kill >= 12) G.shake = Math.max(G.shake, spec.kill >= 70 ? .20 : .09);
   }
 }
 // the swarm hits harder as the campaign runs, or a saturated board never loses
@@ -996,12 +1125,25 @@ function updateEnemies(dt) {
 
 // ---------------------------------------------------------------- effects
 function spray(x, z, n) {
-  if (G.parts.length > 400) return;
+  if (G.parts.length > 500) return;
   for (let i = 0; i < n; i++) {
     const a = rnd(0, 6.2832), s = rnd(.4, 2.2);
     G.parts.push({ x, y: liftAt(z) + .2, z, vx: Math.cos(a) * s, vy: rnd(.6, 2.4), vz: Math.sin(a) * s,
                    life: 1, col: 0x7d1f2c, size: rnd(.03, .06) });
   }
+}
+// a kill throws the creature's own mineral, so a wave of deaths lights up
+function shatter(x, z, spec) {
+  if (G.parts.length > 500) return;
+  const n = spec.kill >= 70 ? 30 : spec.kill >= 12 ? 16 : spec.kill >= 5 ? 9 : 5;
+  const pw = .8 + spec.sc * .7;
+  for (let i = 0; i < n; i++) {
+    const a = rnd(0, 6.2832), sp = rnd(.6, 3.4) * pw;
+    G.parts.push({ x, y: liftAt(z) + .12 + spec.sc * .12, z,
+                   vx: Math.cos(a) * sp, vy: rnd(1.0, 3.6) * pw, vz: Math.sin(a) * sp,
+                   life: 1, col: i % 4 ? spec.ec : 0x2a242e, size: rnd(.035, .04 + spec.sc * .05) });
+  }
+  if (spec.kill >= 12) G.rings.push({ x, z, life: .35, max: .35, r: .5 + spec.sc * .5, col: spec.ec });
 }
 function boom(x, z, r, n) {
   if (G.parts.length > 400) return;
@@ -1050,6 +1192,10 @@ function updateWar(dt) {
   G.man = Math.min(G.manCap, G.man + manRate() * dt);
   G.timer -= dt;
   G.rally = Math.max(0, G.rally - dt);
+  for (let i = G.rings.length - 1; i >= 0; i--) { G.rings[i].life -= dt; if (G.rings[i].life <= 0) G.rings.splice(i, 1); }
+  for (let i = G.dmgs.length - 1; i >= 0; i--) { G.dmgs[i].life -= dt; if (G.dmgs[i].life <= 0) G.dmgs.splice(i, 1); }
+  G.comboT -= dt;
+  if (G.comboT <= 0) { G.combo = 0; G.comboT = 0; }
   if (G.mark) { G.mark.life -= dt; if (G.mark.life <= 0) G.mark = null; }
   for (const k in G.ab) if (G.ab[k] > 0) G.ab[k] = Math.max(0, G.ab[k] - dt);
   if (G.phase === "lull") {
@@ -1390,7 +1536,29 @@ const VIEW = (() => {
 
   // ---- board ----
   const tileGeo = new THREE.BoxGeometry(.975, 1, .975);
-  const bandTex = BAND_COL.map(c => concreteTex(c));
+  // the strip the swarm walks in from is corroded, with mineral in the cracks
+  function corruptTex(hex) {
+    const base = "#" + hex.toString(16).padStart(6, "0");
+    return canvasTex(256, (g, S) => {
+      g.fillStyle = base; g.fillRect(0, 0, S, S);
+      blobs(g, 40, S, 10, 46, () => `rgba(30,22,28,${.18 + Math.random() * .3})`);
+      blobs(g, 130, S, 2, 11, () => Math.random() < .35
+        ? `rgba(196,74,14,${.16 + Math.random() * .34})` : `rgba(16,12,16,${.2 + Math.random() * .3})`);
+      g.lineCap = "round";
+      for (let i = 0; i < 26; i++) {
+        g.strokeStyle = `rgba(224,96,20,${.10 + Math.random() * .3})`;
+        g.lineWidth = .6 + Math.random() * 1.8;
+        let x = Math.random() * S, y = Math.random() * S;
+        g.beginPath(); g.moveTo(x, y);
+        for (let k = 0; k < 5; k++) { x += rnd(-26, 26); y += rnd(-26, 26); g.lineTo(x, y); }
+        g.stroke();
+      }
+      const vg = g.createRadialGradient(S / 2, S / 2, S * .2, S / 2, S / 2, S * .8);
+      vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(10,6,10,.42)");
+      g.fillStyle = vg; g.fillRect(0, 0, S, S);
+    });
+  }
+  const bandTex = BAND_COL.map((c, i) => i === 0 ? corruptTex(c) : concreteTex(c));
   const bandMat = BAND_COL.map((c, i) => {
     const out = [];
     for (let v = 0; v < 4; v++) out.push(new THREE.MeshStandardMaterial({
@@ -1410,6 +1578,30 @@ const VIEW = (() => {
       m.castShadow = true; m.receiveShadow = true;
       m.userData = { c, r };
       scene.add(m); tileMeshes.push(m);
+    }
+  }
+  // Hazard kerbs on the two zone seams and a cyan line at the command
+  // perimeter: industrial paint is the cheapest colour a grey site can get.
+  { const hazTex = canvasTex(128, (g, S) => {
+      g.fillStyle = "#22201d"; g.fillRect(0, 0, S, S);
+      g.fillStyle = "#a8801a";
+      for (let i = -S; i < S * 2; i += 26) { g.save(); g.translate(i, 0); g.rotate(.5); g.fillRect(0, -S, 13, S * 3); g.restore(); }
+      g.fillStyle = "rgba(30,26,20,.34)";
+      for (let i = 0; i < 60; i++) g.fillRect(Math.random() * S, Math.random() * S, rnd(2, 9), rnd(1, 4));
+    });
+    hazTex.repeat.set(10, 1);
+    const hazMat = new THREE.MeshStandardMaterial({ map: hazTex, roughness: .82 });
+    for (const [row, lift] of [[8, BAND_LIFT[2]], [12, BAND_LIFT[3]]]) {
+      const k = new THREE.Mesh(new THREE.BoxGeometry(COLS, .035, .13), hazMat);
+      k.position.set(0, lift + .018, wz(row) + .02);
+      k.receiveShadow = true; scene.add(k);
+    }
+    const line = new THREE.Mesh(new THREE.BoxGeometry(3.4, .05, .10),
+      new THREE.MeshStandardMaterial({ color: 0x2c6f7a, emissive: 0x1a8f9e, emissiveIntensity: .8, roughness: .5 }));
+    line.position.set(0, BAND_LIFT[3] + .026, wz(14) - .04); scene.add(line);
+    for (const dx of [-1.75, 1.75]) {
+      const p2 = new THREE.Mesh(new THREE.BoxGeometry(.10, .05, 2.0), line.material);
+      p2.position.set(dx, BAND_LIFT[3] + .026, wz(15)); scene.add(p2);
     }
   }
   const APRON = 34;
@@ -1994,11 +2186,15 @@ const VIEW = (() => {
     const cap = { matriarch: 4, colossus: 12, heavy: 24, breaker: 44, carapace: 120 }[t] || MAX_ENEMIES;
     const bm = new THREE.InstancedMesh(bg, rockMat, cap);
     bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    bm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
+    bm.instanceColor.setUsage(THREE.DynamicDrawUsage);
     scene.add(bm);
     const om = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({
       color: SRGB(P.col), emissive: P.em, emissiveIntensity: P.ei,
       roughness: .46, metalness: .08, flatShading: true }), cap);
     om.castShadow = true; om.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    om.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
+    om.instanceColor.setUsage(THREE.DynamicDrawUsage);
     scene.add(om);
     eBody[t] = bm; eOre[t] = om; eCount[t] = 0;
   }
@@ -2074,7 +2270,7 @@ const VIEW = (() => {
   const shellGeo = new THREE.SphereGeometry(.07, 8, 6);
   const shellMat = new THREE.MeshStandardMaterial({ color: 0xffe0a8, emissive: 0xffa54a, emissiveIntensity: 1.2 });
   const shellPool = [];
-  const beamMat = new THREE.MeshStandardMaterial({ color: 0xa8f4ff, emissive: 0x6fe6ff, emissiveIntensity: 2.4, transparent: true, opacity: .8 });
+  const beamMat = new THREE.MeshStandardMaterial({ color: 0x6ad8ec, emissive: 0x2fbcd8, emissiveIntensity: 1.5, transparent: true, opacity: .55 });
   const beamPool = [];
   // Damage was invisible: a building died with no warning and a big enemy
   // soaked fire with nothing to show for it. Bars only appear once hurt.
@@ -2096,6 +2292,31 @@ const VIEW = (() => {
   const markMat = new THREE.MeshBasicMaterial({ color: 0xff7a2a, transparent: true, opacity: .5,
                                                 depthTest: false, side: THREE.DoubleSide });
   const markMesh = new THREE.Mesh(new THREE.RingGeometry(1.85, 2.2, 28), markMat);
+  // expanding shock rings: the cheapest way to make a hit land
+  const ringGeo = new THREE.RingGeometry(.80, 1.0, 26);
+  const ringPool = [];
+  function ringAt(i) {
+    while (ringPool.length <= i) {
+      const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({
+        transparent: true, depthTest: false, side: THREE.DoubleSide }));
+      m.rotation.x = -Math.PI / 2; m.renderOrder = 880; m.frustumCulled = false;
+      scene.add(m); ringPool.push(m);
+    }
+    return ringPool[i];
+  }
+  // muzzle flare, billboarded, one per firing emplacement
+  const flareGeo = new THREE.PlaneGeometry(1, 1);
+  const flareMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true,
+                                                 depthTest: false, blending: THREE.AdditiveBlending });
+  const flarePool = [];
+  function flareAt(i) {
+    while (flarePool.length <= i) {
+      const m = new THREE.Mesh(flareGeo, flareMat);
+      m.renderOrder = 885; m.frustumCulled = false;
+      scene.add(m); flarePool.push(m);
+    }
+    return flarePool[i];
+  }
   markMesh.rotation.x = -Math.PI / 2; markMesh.renderOrder = 890;
   markMesh.visible = false; scene.add(markMesh);
 
@@ -2384,6 +2605,32 @@ const VIEW = (() => {
     };
   })();
 
+  // Numbers live in the DOM rather than as 3D text: there are never many, and
+  // this keeps them crisp at any pixel ratio.
+  const DMG = (() => {
+    const host = document.getElementById("dmgs");
+    const pool = [];
+    const v = new THREE.Vector3();
+    return { sync(list, cam) {
+      while (pool.length < list.length) {
+        const el = document.createElement("b");
+        el.hidden = true; host.appendChild(el); pool.push(el);
+      }
+      list.forEach((d, i) => {
+        const el = pool[i];
+        v.set(wx(d.x), liftAt(d.z) + .55 + (1 - d.life / .7) * .95, wz(d.z)).project(cam);
+        if (v.z > 1) { el.hidden = true; return; }
+        el.hidden = false;
+        el.textContent = d.v;
+        el.className = d.big ? "big" : "";
+        el.style.left = ((v.x * .5 + .5) * innerWidth) + "px";
+        el.style.top = ((-v.y * .5 + .5) * innerHeight) + "px";
+        el.style.opacity = Math.min(1, d.life / .3);
+      });
+      for (let i = list.length; i < pool.length; i++) pool[i].hidden = true;
+    } };
+  })();
+
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
   const dummy = new THREE.Object3D();
@@ -2469,11 +2716,18 @@ const VIEW = (() => {
         const i = eCount[e.type]++;
         bm.setMatrixAt(i, dummy.matrix);
         eOre[e.type].setMatrixAt(i, dummy.matrix);
+        // white-hot on the frame it is struck; instanceColor multiplies albedo
+        const k = 1 + e.flash * 5.5;
+        const ca = bm.instanceColor.array, cb2 = eOre[e.type].instanceColor.array;
+        ca[i * 3] = ca[i * 3 + 1] = ca[i * 3 + 2] = k;
+        cb2[i * 3] = cb2[i * 3 + 1] = cb2[i * 3 + 2] = k;
       }
       for (const t in eCount) {
         eBody[t].count = eCount[t]; eOre[t].count = eCount[t];
         eBody[t].instanceMatrix.needsUpdate = true;
         eOre[t].instanceMatrix.needsUpdate = true;
+        eBody[t].instanceColor.needsUpdate = true;
+        eOre[t].instanceColor.needsUpdate = true;
       }
 
       // soldiers
@@ -2560,7 +2814,7 @@ const VIEW = (() => {
 
       // beams
       while (beamPool.length < G.beams.length) {
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, 1, 6), beamMat);
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, 1, 6), beamMat);
         scene.add(m); beamPool.push(m);
       }
       beamPool.forEach((m, i) => {
@@ -2572,8 +2826,17 @@ const VIEW = (() => {
         m.position.set((x1 + x2) / 2, liftAt(b.z1) + .9, (z1 + z2) / 2);
         m.scale.set(b.w || 1, len, b.w || 1);
         m.rotation.set(Math.PI / 2, 0, -Math.atan2(x2 - x1, z2 - z1));
-        m.material.opacity = clamp(b.life / .18, 0, 1) * .85;
+        m.material.opacity = clamp(b.life / .18, 0, 1) * .6;
       });
+
+      // the inspected building gets a ring so you know what the panel is about
+      if (G.sel && !G.sel.dead) {
+        markMesh.visible = true;
+        markMesh.position.set(wx(G.sel.c + .5), BAND_LIFT[bandOf(G.sel.r)] + .05, wz(G.sel.r + .5));
+        markMesh.scale.setScalar(.30);
+        markMat.color.setHex(0x4fe3f0);
+        markMat.opacity = .55 + Math.sin(now * 4) * .18;
+      }
 
       // health bars: buildings that have been hurt, and every big enemy
       let bi = 0;
@@ -2601,14 +2864,50 @@ const VIEW = (() => {
       }
       for (let i = bi; i < barPool.length; i++) { barPool[i].back.visible = false; barPool[i].fill.visible = false; }
 
+      // shock rings
+      let ri = 0;
+      for (const rg of G.rings) {
+        if (ri >= 40) break;
+        const m = ringAt(ri++);
+        const k = 1 - rg.life / rg.max;
+        m.visible = true;
+        m.position.set(wx(rg.x), liftAt(rg.z) + .12, wz(rg.z));
+        m.scale.setScalar(rg.r * (.35 + k * 1.15));
+        m.material.color.setHex(rg.col);
+        m.material.opacity = (1 - k) * .8;
+      }
+      for (let i = ri; i < ringPool.length; i++) ringPool[i].visible = false;
+
+      // muzzle flares
+      let fi = 0;
+      for (const b of G.buildings) {
+        if (fi >= 30) break;
+        if (!b.done || b.flash < .12 || !B[b.key].dmg) continue;
+        const m = flareAt(fi++);
+        const reach = B[b.key].beam ? .42 : B[b.key].arc ? .34 : .30;
+        m.visible = true;
+        m.position.set(wx(b.c + .5) + Math.sin(b.aim) * reach,
+                       BAND_LIFT[bandOf(b.r)] + .42,
+                       wz(b.r + .5) + Math.cos(b.aim) * reach);
+        m.quaternion.copy(camera.quaternion);
+        const sc2 = (B[b.key].beam ? .52 : B[b.key].arc ? .46 : .30) * (.55 + b.flash * .7);
+        m.scale.set(sc2, sc2, 1);
+      }
+      for (let i = fi; i < flarePool.length; i++) flarePool[i].visible = false;
+      flareMat.opacity = .85;
+
       // artillery marker
       if (G.mark) {
         markMesh.visible = true;
         markMesh.position.set(wx(G.mark.x), liftAt(G.mark.z) + .06, wz(G.mark.z));
         const k = G.mark.life / .9;
         markMesh.scale.setScalar(1.15 - k * .35);
+        markMat.color.setHex(0xff7a2a);
         markMat.opacity = k * .65;
-      } else markMesh.visible = false;
+      } else if (!G.sel || G.sel.dead) markMesh.visible = false;
+
+      // damage numbers
+      DMG.sync(G.dmgs, camera);
 
       // camera shake
       const sh = G.shake;
@@ -2697,6 +2996,12 @@ function syncTop() {
     $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
   }
   syncAbils();
+  const cb = $("combo");
+  if (G.combo >= 8 && G.comboT > 0) {
+    cb.hidden = false;
+    cb.innerHTML = G.combo + "<s>KILL CHAIN</s>";
+    cb.style.opacity = Math.min(1, G.comboT / .5);
+  } else cb.hidden = true;
 }
 function mkAct(title, cost, on, opts) {
   const b = document.createElement("button");
@@ -2709,6 +3014,42 @@ function mkAct(title, cost, on, opts) {
   return b;
 }
 let armed = null;   // an ability waiting for a map tap
+
+// --- inspector: tap a placed building to see what it has become -------------
+function closeInsp() {
+  if (G) G.sel = null;
+  $("insp").hidden = true;
+  $("tabs").hidden = false; $("body").hidden = false; $("hint").hidden = false; $("abils").hidden = false;
+}
+function syncInsp() {
+  const b = G && G.sel;
+  const el = $("insp");
+  if (!b || b.dead) { closeInsp(); return; }
+  $("tabs").hidden = true; $("body").hidden = true; $("hint").hidden = true; $("abils").hidden = true;
+  const sp = B[b.key], rk = rankOf(b.xp);
+  const dps = sp.dmg ? (wDmgB(b) / Math.max(.05, wCdB(b))).toFixed(0) : "—";
+  const cost = upCost(b);
+  el.hidden = false;
+  el.innerHTML =
+    `<div class="hd"><b>${sp.name}</b>` +
+    (b.up ? `<u>강화 ${b.up}</u>` : "") +
+    (rk ? `<u>${RANK_N[rk]}</u>` : "") +
+    `<em>${b.c + 1}열 ${b.r + 1}행</em></div>` +
+    `<div class="st">` +
+      `<div><s>HP</s><i>${Math.ceil(b.hp)}<span style="font-size:9px;color:#4f6273">/${b.maxHp}</span></i></div>` +
+      `<div><s>DPS</s><i>${dps}</i></div>` +
+      `<div><s>KILLS</s><i>${b.xp}</i></div>` +
+    `</div>` +
+    `<div class="row">` +
+      `<button id="ibUp"${b.up >= 3 || G.mat < cost ? " disabled" : ""}>` +
+        (b.up >= 3 ? "최대 강화" : `강화 · ${cost}`) + `</button>` +
+      `<button class="dn" id="ibSell">철거</button>` +
+      `<button class="gh" id="ibX">닫기</button>` +
+    `</div>`;
+  $("ibUp").onclick = () => { const e2 = upgradeB(b); if (e2) floatText(e2); syncInsp(); syncTop(); };
+  $("ibSell").onclick = () => { sellB(b); closeInsp(); syncTop(); };
+  $("ibX").onclick = closeInsp;
+}
 function syncAbils() {
   const bar = $("abils");
   if (bar.childElementCount !== 3) {
@@ -2803,6 +3144,7 @@ function syncSheet() {
                 : spec.wall     ? `<em>내구 ${bMaxHp(key)}</em> · ` : "";
     body.appendChild(mkAct(spec.name, `${extra}${spec.desc}`, () => {
       pick = (pick === key) ? null : key; armed = null;
+      closeInsp();
       syncSheet();
     }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key }));
   }
@@ -2816,12 +3158,15 @@ function frame(now) {
   if (dt > .2) dt = .2;
   try {
     if (mode === "play") {
-      acc += dt;
-      let guard = 0;
-      while (acc >= STEP && guard++ < 4) { step(STEP); acc -= STEP; }
-      if (acc > .4) acc = 0;
+      if (G.hitstop > 0) { G.hitstop -= dt; acc = 0; }
+      else if (G.speed > 0) {
+        acc += dt * G.speed;
+        let guard = 0;
+        while (acc >= STEP && guard++ < 8) { step(STEP); acc -= STEP; }
+        if (acc > .4) acc = 0;
+      }
       uiT += dt;
-      if (uiT > .12) { uiT = 0; syncTop(); }
+      if (uiT > .12) { uiT = 0; syncTop(); if (G.sel) syncInsp(); }
     }
     if (G) VIEW.sync(dt);
   } catch (err) { console.error(err); }
@@ -2848,7 +3193,8 @@ function start() {
   for (const b of (G ? G.buildings : [])) VIEW.removeBuilding(b);
   newGame();
   mode = "play"; pick = null; tab = 0; armed = null;
-  $("draft").hidden = true;
+  $("draft").hidden = true; $("insp").hidden = true;
+  document.querySelectorAll("#speed button").forEach(x => x.dataset.on = (+x.dataset.sp === 1) ? "1" : "0");
   last = performance.now(); acc = 0;
   $("titleScreen").hidden = true; $("endScreen").hidden = true;
   syncTop(); syncSheet();
@@ -2858,30 +3204,55 @@ $("againBtn").addEventListener("click", start);
 document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => { tab = +t.dataset.zone; syncSheet(); }));
 
+let lastCell = -1;
 function tap(cx, cy) {
   if (mode !== "play") return;
+  const hit = VIEW.pickTile(cx, cy);
+  if (!hit) return;
   if (armed) {
-    const h = VIEW.pickTile(cx, cy);
-    if (!h) return;
-    const err = fireAbility(armed, h.c, h.r);
+    const err = fireAbility(armed, hit.c, hit.r);
     if (err) floatText(err); else armed = null;
     syncSheet();
     return;
   }
-  if (!pick) return;
-  const hit = VIEW.pickTile(cx, cy);
-  if (!hit) return;
+  if (!pick) {
+    // nothing selected: tapping a building opens its panel
+    const t = at(hit.c, hit.r);
+    if (t && t.b) { G.sel = t.b; syncInsp(); } else closeInsp();
+    return;
+  }
+  closeInsp();
   const err = place(pick, hit.c, hit.r);
   if (err) floatText(err);
   syncSheet();
 }
-VIEW.renderer.domElement.addEventListener("click", e => tap(e.clientX, e.clientY));
-VIEW.renderer.domElement.addEventListener("touchend", e => {
-  const t = e.changedTouches[0];
-  if (t) tap(t.clientX, t.clientY);
-  e.preventDefault();
-}, { passive: false });
-VIEW.renderer.domElement.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+// dragging with something selected paints a run of them - laying a wall line
+// one careful tap at a time was the single worst thing about building
+function drag(cx, cy) {
+  if (mode !== "play" || !pick || armed) return;
+  const hit = VIEW.pickTile(cx, cy);
+  if (!hit) return;
+  const cell = hit.r * COLS + hit.c;
+  if (cell === lastCell) return;
+  lastCell = cell;
+  if (G.mat < bCost(pick)) return;
+  if (!place(pick, hit.c, hit.r)) syncSheet();
+}
+const cv = VIEW.renderer.domElement;
+let down = false;
+cv.addEventListener("pointerdown", e => { down = true; lastCell = -1; tap(e.clientX, e.clientY); });
+cv.addEventListener("pointermove", e => { if (down) drag(e.clientX, e.clientY); });
+addEventListener("pointerup", () => { down = false; lastCell = -1; });
+addEventListener("pointercancel", () => { down = false; lastCell = -1; });
+cv.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+cv.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+
+document.querySelectorAll("#speed button").forEach(btn => btn.addEventListener("click", () => {
+  const v = +btn.dataset.sp;
+  if (mode === "end") return;
+  G.speed = v;
+  document.querySelectorAll("#speed button").forEach(x => x.dataset.on = (+x.dataset.sp === v) ? "1" : "0");
+}));
 
 newGame();
 mode = "title";
