@@ -81,8 +81,16 @@ makes it read as a generic sci-fi shooter.
 - Terrain is one pre-rendered organic silhouette. No visible tile grid, no
   per-tile shading, no cube tops. Rock is a near-black mass with a single
   hairline rim in `line bright`.
-- The walkable plain is a low-contrast dark field with soft large-scale
-  mottling and an extremely faint survey grid at 4-tile spacing.
+- The plain is not noise. A low-frequency value-noise height field is
+  banded into three materials - shadowed packed earth (cool), dry dirt
+  (warm), exposed gravel - and shaded from a single light direction taken
+  from the noise gradient, so every rise catches light on the same side.
+- Worn haul routes run from each gate to the hub and from each spawn mouth
+  to its gate. A site that has been used reads as a place; a clean field
+  reads as a board.
+- Rock is a raised mass, not a hole: pooled ambient occlusion at its base,
+  a thin lit crest on the top-left, a dark body offset down-right off that
+  crest, and bedding-plane strata clipped inside it.
 - Structures are **designed icons**: chamfered body, hairline stroke, one
   interior glyph, one signal accent element. They are lit from the top-left
   by a 1px bright edge, nothing more.
