@@ -632,7 +632,7 @@ const ASSAULTS = [
 //   H  command centre
 // Rows 0-1 are the approach and are never buildable; 2-7 / 8-11 / 12-15 are
 // the three build zones. Every map must leave a path from row 0 to the H block.
-const APPROACH = 7;
+const APPROACH = 14;
 const HIGH_LIFT = 0.46, HIGH_RANGE = 1.20, HIGH_DMG = 1.12, ROUGH_SPD = 0.60;
 const MAPS = [
   { name: "적하장", sub: "LOADING YARD", tag: "표준", diff: 1.00, start: 700,
@@ -1391,10 +1391,10 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = (1 + G.assault * 0.27) * MAPS[G.map].diff;
+  const scale = (1 + G.assault * 0.30) * MAPS[G.map].diff;
   const lane = G.lanes[(Math.random() * G.lanes.length) | 0];
   G.enemies.push({
-    type, x: clamp(lane + .5 + rnd(-1.1, 1.1), .25, COLS - .25), z: rnd(-APPROACH + .4, -.4),
+    type, x: clamp(lane + .5 + rnd(-1.3, 1.3), .25, COLS - .25), z: rnd(-APPROACH + .5, -APPROACH + 3.5),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
     r: spec.r, cd: rnd(0, 1), flash: 0, dead: false, dir: 0,
     off: rnd(-.30, .30), wob: rnd(0, 6.28), sc: spec.sc * rnd(.9, 1.1),
@@ -1454,7 +1454,9 @@ function updateEnemies(dt) {
     const c = clamp(Math.floor(e.x), 0, COLS - 1);
     const rRaw = Math.floor(e.z);
     // off the board they march straight down the approach, a little quicker
-    if (rRaw < 0) { e.z += spec.spd * 1.5 * dt; e.dir = 0; continue; }
+    // they cross the corridor quickly: it is there to be seen coming, not
+    // to buy the player five free seconds every wave
+    if (rRaw < 0) { e.z += spec.spd * 3.4 * dt; e.dir = 0; continue; }
     const r = Math.min(rRaw, ROWS - 1);
     const here = at(c, r);
     // a wreck block is a dead zone in the flow field: anything that ends up
@@ -1752,21 +1754,63 @@ const VIEW = (() => {
   document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xbcc7c0, 58, 340);
+  scene.fog = new THREE.Fog(0xc6cfcb, 60, 460);
 
-  { const c = document.createElement("canvas");
-    c.width = 4; c.height = 256;
+  // The sky is a screen-space backdrop: the camera never moves, so a painted
+  // sheet is both cheaper and better looking than a dome. The horizon sits at
+  // about 14% down the frame, which is where the haze band goes.
+  { const W = 512, H = 512, HZ = .095;
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
     const g = c.getContext("2d");
-    const grd = g.createLinearGradient(0, 0, 0, 256);
-    grd.addColorStop(0, "#5b86ad"); grd.addColorStop(0.30, "#8fb0c6");
-    grd.addColorStop(0.50, "#bcc7c0"); grd.addColorStop(0.56, "#bcc7c0");
-    grd.addColorStop(0.62, "#8f9a78"); grd.addColorStop(1, "#4a563a");
-    g.fillStyle = grd; g.fillRect(0, 0, 4, 256);
+    const grd = g.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0.00, "#3f74a6");
+    grd.addColorStop(0.030, "#5f92bb");
+    grd.addColorStop(0.058, "#8fb5cf");
+    grd.addColorStop(HZ,   "#cdd6d2");
+    grd.addColorStop(0.115, "#b9c3ba");
+    grd.addColorStop(0.26, "#8f9a78");
+    grd.addColorStop(1.00, "#4a563a");
+    g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    // sun, low and to the left, where the key light comes from
+    const sx = W * .26, sy = H * .055;
+    let sg = g.createRadialGradient(sx, sy, 2, sx, sy, W * .42);
+    sg.addColorStop(0, "rgba(255,246,222,.85)");
+    sg.addColorStop(.14, "rgba(255,238,200,.34)");
+    sg.addColorStop(1, "rgba(255,238,200,0)");
+    g.fillStyle = sg; g.fillRect(0, 0, W, H * HZ);
+    // cloud banks: soft ellipses, flatter and paler as they near the horizon
+    const rnd2 = (a, b) => a + Math.random() * (b - a);
+    for (let i = 0; i < 46; i++) {
+      const t2 = Math.pow(Math.random(), .5);             // bunch toward the horizon
+      const cy = H * (.012 + t2 * (HZ - .022));
+      const cw = W * rnd2(.14, .46) * (1.15 - t2 * .45);
+      const ch = H * rnd2(.010, .030) * (1.2 - t2 * .55);
+      const cx = rnd2(-.1, 1.1) * W;
+      const a = (.16 + Math.random() * .34) * (1 - t2 * .35);
+      const cg = g.createRadialGradient(cx, cy, 0, cx, cy, cw);
+      cg.addColorStop(0, `rgba(255,253,248,${a})`);
+      cg.addColorStop(.55, `rgba(238,242,246,${a * .5})`);
+      cg.addColorStop(1, "rgba(238,242,246,0)");
+      g.save(); g.translate(cx, cy); g.scale(1, ch / cw); g.translate(-cx, -cy);
+      g.fillStyle = cg; g.beginPath(); g.arc(cx, cy, cw, 0, 6.283); g.fill(); g.restore();
+    }
+    // a thin bright line right on the horizon reads as distance
+    const hg = g.createLinearGradient(0, H * (HZ - .012), 0, H * (HZ + .014));
+    hg.addColorStop(0, "rgba(232,238,236,0)");
+    hg.addColorStop(.5, "rgba(240,244,240,.55)");
+    hg.addColorStop(1, "rgba(232,238,236,0)");
+    g.fillStyle = hg; g.fillRect(0, H * (HZ - .012), W, H * .026);
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
     scene.background = t; }
 
-  const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.5, 240);
-  const CAM = { pos: new THREE.Vector3(0, 22.6, 24.6), look: new THREE.Vector3(0, 0.5, -3.4) };
+  // Pitched shallow enough that the horizon is in frame: the top ray sits
+  // about 5 degrees above horizontal, so the upper sixth of the screen is sky.
+  // Laying the camera back to fit sky in flattened the board into a smear. The
+  // top of the frame is better spent on the approach corridor: you watch the
+  // swarm walk in from a long way off, which is information, not decoration.
+  const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.5, 300);
+  const CAM = { pos: new THREE.Vector3(0, 21.4, 24.0), look: new THREE.Vector3(0, 0.6, -4.6) };
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
@@ -2109,7 +2153,7 @@ const VIEW = (() => {
   ];
   const apMeshes = [];
   for (let k = 1; k <= APPROACH; k++) for (let c = 0; c < COLS; c++) {
-    const drop = k * .06;
+    const drop = k * .035;
     const h = TILE_H + drop;
     const m = new THREE.Mesh(tileGeo, apMat[0]);
     m.scale.y = h;
@@ -2132,7 +2176,7 @@ const VIEW = (() => {
   function applyMap() {
     clearTerrain();
     for (const m of apMeshes) {
-      const near = G.lanes.some(l => Math.abs(l - m.userData.c) <= (m.userData.k > 4 ? 1 : 0));
+      const near = G.lanes.some(l => Math.abs(l - m.userData.c) <= (m.userData.k > 3 ? 1 : 0));
       m.material = apMat[near ? 1 : 0];
     }
     for (const m of tileMeshes) {
@@ -2433,118 +2477,157 @@ const VIEW = (() => {
       scene.add(c);
     } }
   // ---------------------------------------------------------------------
-  // Distance.
-  // The camera pitches ~38 degrees down with a 38 degree VERTICAL fov on a
-  // portrait screen, so the horizontal half-angle is only atan(tan(19)*0.46)
-  // = 9 degrees. At the top of the frame that is about +-9 world units of
-  // width, and the ground there is around z = -21. Scenery scattered across
-  // +-100 in x, or past z = -40, is simply not on screen - which is exactly
-  // why the top of the picture kept coming back empty. Everything here is
-  // packed into the cone that is actually visible.
+  // The backdrop.
+  // The camera never moves, so this is a stage flat rather than a world: a
+  // composed plant profile laid out by hand in three depth layers, not boxes
+  // thrown at random. halfW(z) is the frustum half-width at that depth, so
+  // nothing is built where it cannot be seen.
   // ---------------------------------------------------------------------
-  { const B1 = new THREE.MeshStandardMaterial({ color: 0x161b21, roughness: .95, flatShading: true });
-    const B1b = new THREE.MeshStandardMaterial({ color: 0x1c1812, roughness: 1, flatShading: true });
-    const B2 = new THREE.MeshBasicMaterial({ color: 0x3b4551, fog: true });
-    const B2b = new THREE.MeshBasicMaterial({ color: 0x49535f, fog: true });
-    const B3 = new THREE.MeshBasicMaterial({ color: 0x646f7a, fog: true });
-    // half-width of the view frustum at a given z, with a little margin
-    const halfW = z => Math.abs(24.6 - z) * 0.159 + 3;
-    const put = (m, w, h, d, x, z, ry) => {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-      b.position.set(x, -TILE_H + h / 2, z); b.rotation.y = ry || 0;
-      b.receiveShadow = true; scene.add(b); return b;
-    };
-    const spread = z => rnd(-halfW(z), halfW(z));
+  const smokeStacks = [];
+  { const M1 = new THREE.MeshStandardMaterial({ color: 0x1a1f26, roughness: .95, flatShading: true });
+    const M1b = new THREE.MeshStandardMaterial({ color: 0x241e18, roughness: 1, flatShading: true });
+    const M2 = new THREE.MeshBasicMaterial({ color: 0x39434f, fog: true });
+    const M2b = new THREE.MeshBasicMaterial({ color: 0x47525e, fog: true });
+    const M2c = new THREE.MeshBasicMaterial({ color: 0x2e3742, fog: true });
+    const M3 = new THREE.MeshBasicMaterial({ color: 0x4a5561, fog: true });
+    const M4 = new THREE.MeshBasicMaterial({ color: 0x5c6773, fog: true });
+    const add = (m, x, y, z, ry) => { m.position.set(x, y, z); if (ry) m.rotation.y = ry;
+                                      scene.add(m); return m; };
+    const G0 = -TILE_H;
+    const bx = (w, h, d, mat, x, z, ry) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat), x, G0 + h / 2, z, ry);
 
-    // --- outer yard, just behind the approach -----------------------------
-    for (let i = 0; i < 30; i++) {
-      const z = -16 - Math.random() * 5;
-      put(Math.random() < .4 ? B1b : B1, 1.8 + Math.random() * 4.5, 1.2 + Math.random() * 2.8,
-          1.8 + Math.random() * 4, spread(z), z, Math.random() * .7);
+    // --- a hall with a saw-tooth roof: the signature factory profile -------
+    function hall(x, z, w, d, h, bays, mat, matb) {
+      bx(w, h, d, mat, x, z);
+      const bw = w / bays;
+      for (let i = 0; i < bays; i++) {
+        const px = x - w / 2 + bw * (i + .5);
+        const tri = new THREE.Mesh(new THREE.CylinderGeometry(bw * .52, bw * .52, d, 3, 1, false), matb);
+        tri.rotation.set(0, 0, Math.PI / 2);
+        add(tri, px, G0 + h + bw * .12, z);
+      }
+      for (let i = 0; i <= bays; i += 2) bx(.22, h * .16, d * 1.02, matb, x - w / 2 + bw * i, z);
     }
-    for (let i = 0; i < 8; i++) {
-      const z = -17 - Math.random() * 4, h = 2.6 + Math.random() * 2.4, rr = 1.1 + Math.random() * .8;
-      const x = spread(z);
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, h, 12), B1);
-      t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
-      const capm = new THREE.Mesh(new THREE.SphereGeometry(rr * 1.02, 12, 6, 0, 6.283, 0, 1.0), B1b);
-      capm.position.set(x, -TILE_H + h, z); scene.add(capm);
+    // --- a banded chimney -------------------------------------------------
+    function stack(x, z, h, r, mat, band) {
+      add(new THREE.Mesh(new THREE.CylinderGeometry(r * .62, r, h, 14), mat), x, G0 + h / 2, z);
+      for (let i = 1; i <= 3; i++) {
+        const rr = r * (1 - .38 * (i / 4));
+        const b2 = new THREE.Mesh(new THREE.CylinderGeometry(rr * 1.10, rr * 1.10, h * .055, 14), band);
+        add(b2, x, G0 + h * (i / 4), z);
+      }
+      smokeStacks.push([x, G0 + h, z, r]);
     }
-
-    // --- the plant: this is what fills the top of the picture --------------
-    for (let i = 0; i < 22; i++) {
-      const z = -21 - Math.random() * 9;
-      const w = 4 + Math.random() * 9, h = 6 + Math.random() * 11, d = 5 + Math.random() * 9;
-      const b = put(B2, w, h, d, spread(z), z, (Math.random() - .5) * .5);
-      const rf = new THREE.Mesh(new THREE.CylinderGeometry(w * .52, w * .52, d, 3, 1, false), B2b);
-      rf.rotation.set(0, b.rotation.y, Math.PI / 2);
-      rf.position.set(b.position.x, -TILE_H + h + w * .13, b.position.z);
-      scene.add(rf);
+    // --- a cooling tower: a real hyperboloid, lathed ------------------------
+    function tower(x, z, h, rb, mat) {
+      const pts = [];
+      for (let i = 0; i <= 10; i++) {
+        const t = i / 10;
+        const rr = rb * (1 - 1.15 * t + .72 * t * t);      // waist about two thirds up
+        pts.push(new THREE.Vector2(Math.max(rb * .30, rr) * .9 + rb * .32, t * h));
+      }
+      const m = new THREE.Mesh(new THREE.LatheGeometry(pts, 22), mat);
+      m.material = mat.clone(); m.material.side = THREE.DoubleSide;
+      add(m, x, G0, z);
+      smokeStacks.push([x, G0 + h, z, rb * .55]);
     }
-    for (let g2 = 0; g2 < 5; g2++) {
-      const z = -22 - Math.random() * 8, rr = 1.4 + Math.random() * 1.0, h = 9 + Math.random() * 9;
-      const gx = spread(z) - rr * 2;
-      for (let i = 0; i < 3 + ((Math.random() * 3) | 0); i++) {
-        const x = gx + i * rr * 2.05;
-        const t = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, h, 14), B2b);
-        t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
-        const cn = new THREE.Mesh(new THREE.ConeGeometry(rr * 1.05, rr * .8, 14), B2);
-        cn.position.set(x, -TILE_H + h + rr * .4, z); scene.add(cn);
+    // --- a row of storage tanks -------------------------------------------
+    function tanks(x, z, n, r, h, mat, matb) {
+      for (let i = 0; i < n; i++) {
+        const px = x + i * r * 2.5;
+        add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), mat), px, G0 + h / 2, z);
+        add(new THREE.Mesh(new THREE.SphereGeometry(r, 16, 7, 0, 6.283, 0, 1.05), matb), px, G0 + h, z);
+        bx(r * .18, h, r * .18, matb, px + r * .95, z - r * .5);
       }
     }
-    const stacks = [];
-    for (let i = 0; i < 8; i++) {
-      const z = -23 - Math.random() * 9, h = 16 + Math.random() * 16, rr = .7 + Math.random() * .6;
-      const x = spread(z);
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(rr * .72, rr * 1.25, h, 12), B2b);
-      t.position.set(x, -TILE_H + h / 2, z); scene.add(t);
-      for (let k = 1; k < 4; k++) {
-        const bd = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.1, .10, 5, 12), B2);
-        bd.rotation.x = Math.PI / 2;
-        bd.position.set(x, -TILE_H + h * k / 4, z); scene.add(bd);
-      }
-      stacks.push([x, -TILE_H + h, z]);
+    // --- a silo bank with a headhouse --------------------------------------
+    function silos(x, z, n, r, h, mat, matb) {
+      for (let i = 0; i < n; i++)
+        add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 14), mat), x + i * r * 2.02, G0 + h / 2, z);
+      bx(n * r * 2.1, h * .28, r * 2.4, matb, x + (n - 1) * r, z);
+      const head = bx(n * r * 2.1, h * .28, r * 2.4, matb, x + (n - 1) * r, z);
+      head.position.y = G0 + h + h * .14;
     }
-    for (let i = 0; i < 4; i++) {
-      const z = -27 - Math.random() * 8, h = 16 + Math.random() * 9, rb = 4 + Math.random() * 2.4;
-      const x = spread(z);
-      const ct = new THREE.Mesh(new THREE.CylinderGeometry(rb * .6, rb, h, 18, 1, true), B2b);
-      ct.material = B2b.clone(); ct.material.side = THREE.DoubleSide;
-      ct.position.set(x, -TILE_H + h / 2, z); scene.add(ct);
-      stacks.push([x, -TILE_H + h, z]);
-    }
-    for (let i = 0; i < 4; i++) {
-      const z = -20 - Math.random() * 8, h = 9 + Math.random() * 5, x = spread(z);
-      for (const dx of [-4.5, 4.5]) {
-        const l = new THREE.Mesh(new THREE.BoxGeometry(.8, h, .8), B2);
-        l.position.set(x + dx, -TILE_H + h / 2, z); scene.add(l);
+    // --- a pipe bridge on trestles -----------------------------------------
+    function pipeBridge(x1, x2, z, y, mat) {
+      const len = Math.abs(x2 - x1);
+      for (const dy of [0, .55, 1.05]) {
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(.28, .28, len, 8), mat);
+        t.rotation.z = Math.PI / 2;
+        add(t, (x1 + x2) / 2, G0 + y + dy, z);
       }
-      put(B2b, 13, 1.0, 1.4, x, z).position.y = -TILE_H + h;
-      put(B2, .8, 3.4, .8, x, z).position.y = -TILE_H + h + 1.0;
+      for (let i = 0; i <= 5; i++) {
+        const px = x1 + (x2 - x1) * (i / 5);
+        bx(.5, y, .5, mat, px, z);
+        bx(2.2, .35, .6, mat, px, z).position.y = G0 + y;
+      }
+    }
+    // --- a lattice pylon ----------------------------------------------------
+    function pylon(x, z, h, mat) {
+      for (const sx of [-1, 1]) {
+        const l = bx(.30, h, .30, mat, x + sx * h * .10, z);
+        l.rotation.z = sx * .055;
+      }
+      for (let i = 1; i <= 5; i++) {
+        const y = h * (i / 6);
+        bx(h * .20 * (1 - i / 8), .22, .3, mat, x, z).position.y = G0 + y;
+      }
+      for (const dy of [.78, .90]) bx(h * .48, .20, .3, mat, x, z).position.y = G0 + h * dy;
+      bx(.24, h * .12, .24, mat, x, z).position.y = G0 + h;
     }
 
-    // --- skyline behind the plant -----------------------------------------
-    for (let i = 0; i < 40; i++) {
-      const z = -32 - Math.random() * 10;
-      const w = 4 + Math.random() * 11, h = 14 + Math.random() * 26, d = 5 + Math.random() * 10;
-      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), B3);
-      b.position.set(spread(z), -TILE_H + h / 2, z);
-      b.rotation.y = Math.random() * .6; scene.add(b);
-    }
+    // ============ layer 1: the yard, just behind the approach =============
+    hall(-11, -26, 9, 6, 3.2, 4, M1, M1b);
+    hall(10, -27, 8, 6, 2.8, 3, M1, M1b);
+    tanks(-4.5, -25, 3, 1.15, 2.2, M1, M1b);
+    bx(5.0, 2.2, 4.0, M1, 4.5, -25.5, .2);
+    bx(3.2, 1.6, 3.0, M1b, -1.0, -24, -.15);
 
-    // --- smoke standing over the stacks ------------------------------------
+    // ============ layer 2: the plant proper ===============================
+    hall(-17, -33, 20, 12, 8, 7, M2, M2b);
+    hall(13, -36, 22, 13, 9, 8, M2, M2b);
+    hall(-2, -44, 26, 14, 7, 9, M2c, M2);
+    silos(-28, -31, 5, 1.8, 12, M2b, M2);
+    silos(23, -35, 4, 2.0, 13, M2b, M2);
+    tanks(-36, -34, 4, 2.6, 5, M2, M2b);
+    tanks(27, -30, 3, 2.4, 5, M2, M2b);
+    tower(-25, -47, 15, 6.5, M2b);
+    tower(-8, -50, 13, 5.6, M2c);
+    tower(21, -48, 16, 6.8, M2b);
+    stack(-34, -45, 18, 1.3, M2b, M2c);
+    stack(3, -43, 20, 1.5, M2b, M2c);
+    stack(33, -46, 17, 1.2, M2b, M2c);
+    stack(-7, -38, 15, 1.0, M2, M2c);
+    pipeBridge(-38, -13, -28, 5.0, M2);
+    pipeBridge(6, 31, -29, 4.6, M2);
+    for (let i = 0; i < 5; i++) bx(6 + i, 3 + i * .5, 6, M2c, -42 + i * 2, -50 - i * 2);
+
+    // The corridor now fills the top of the frame, so only a sliver past its
+    // far end is ever on screen. Layer 3 is a thin band right behind it
+    // rather than a whole city that nothing would ever see.
+    const SKY = [
+      [-26, -40, 11, 15], [-13, -44, 14, 12], [2, -41, 10, 17], [15, -45, 15, 13], [28, -42, 11, 16]
+    ];
+    for (const [x, z, w, h] of SKY) {
+      bx(w, h, w * .8, M3, x, z, (x % 7) * .04);
+      bx(w * .5, h * .12, w * .5, M4, x, z).position.y = G0 + h;
+    }
+    pylon(-20, -38, 15, M3); pylon(19, -39, 14, M3);
+
+    // --- smoke over the stacks and towers ---------------------------------
     const smokeMat = new THREE.MeshBasicMaterial({
       map: canvasTex(64, (g, S) => {
         const gr = g.createRadialGradient(S / 2, S / 2, 1, S / 2, S / 2, S * .5);
-        gr.addColorStop(0, "rgba(150,158,164,.42)");
-        gr.addColorStop(1, "rgba(188,196,200,0)");
+        gr.addColorStop(0, "rgba(214,220,222,.55)");
+        gr.addColorStop(1, "rgba(214,220,222,0)");
         g.fillStyle = gr; g.fillRect(0, 0, S, S);
-      }), transparent: true, depthWrite: false, opacity: .36 });
-    for (const [x, y, z] of stacks) {
-      for (let k = 0; k < 6; k++) {
-        const sc2 = 3.5 + k * 2.6;
+      }), transparent: true, depthWrite: false, opacity: .40 });
+    for (const [x, y, z, r] of smokeStacks) {
+      for (let k = 0; k < 7; k++) {
+        const sc2 = r * (2.4 + k * 1.5);
         const q = new THREE.Mesh(new THREE.PlaneGeometry(sc2, sc2), smokeMat);
-        q.position.set(x + (Math.random() - .5) * k * 2.2 + k * 1.1, y + 1.5 + k * 3.0, z + (Math.random() - .5) * 3);
+        q.position.set(x + k * r * .9 + (Math.random() - .5) * r, y + r + k * r * 1.5,
+                       z + (Math.random() - .5) * r * 2);
         smokePlumes.push(q); scene.add(q);
       }
     } }
@@ -2725,7 +2808,7 @@ const VIEW = (() => {
     const bushGeo = new THREE.IcosahedronGeometry(.42, 0);
     for (let i = 0; i < 46; i++) {
       const x = (Math.random() - .5) * (APRON - 2.5), z = (Math.random() - .5) * (APRON + 3.5);
-      if (Math.abs(x) < COLS / 2 + .4 && Math.abs(z) < ROWS / 2 + .4) continue;
+      if (Math.abs(x) < COLS / 2 + .4 && z > -ROWS / 2 - APPROACH - .5 && z < ROWS / 2 + .4) continue;
       const g = new THREE.Group();
       g.position.set(x, -TILE_H + .02, z);
       scene.add(g);
@@ -2740,7 +2823,7 @@ const VIEW = (() => {
     }
     for (let i = 0; i < 14; i++) {
       const x = (Math.random() - .5) * (APRON - 3), z = (Math.random() - .5) * (APRON + 3);
-      if (Math.abs(x) < COLS / 2 + 2.5 && Math.abs(z) < ROWS / 2 + 2.5) continue;
+      if (Math.abs(x) < COLS / 2 + 2.5 && z > -ROWS / 2 - APPROACH - 2 && z < ROWS / 2 + 2.5) continue;
       const g = new THREE.Group();
       g.position.set(x, -TILE_H + .02, z);
       g.rotation.y = Math.random() * 6.28;
