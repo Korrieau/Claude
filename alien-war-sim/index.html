@@ -634,7 +634,7 @@ function buildTrees() {
   for (let gy = 1; gy < GH - 1; gy++) for (let gx = 1; gx < GW - 1; gx++) {
     if (terrain[idx(gx, gy)] !== T_OPEN) continue;
     if (!nearRock(gx, gy)) continue;
-    if (Math.random() > 0.20) continue;
+    if (Math.random() > 0.13) continue;
     spots.push([gx * TILE + rnd(0, TILE), gy * TILE + rnd(0, TILE)]);
   }
   trees.length = 0;
@@ -927,41 +927,60 @@ function buildMap() {
   terrain.fill(T_OPEN);
   const hx = (GW / 2) | 0, hy = (GH * 0.80) | 0;
 
-  // two ridges split the far ground into three lanes running toward camera
-  const ridge = (xc, y0, y1) => {
-    for (let y = y0; y < y1; y++) {
-      const th = 1.9 + Math.sin(y * 0.21) * 1.2 + Math.sin(y * 0.07) * 1.0;
-      const xx = xc + Math.sin(y * 0.11) * 2.4;
-      for (let x = Math.round(xx - th); x <= Math.round(xx + th); x++)
-        if (inb(x, y)) terrain[idx(x, y)] = T_ROCK;
+  // ---- landforms ----------------------------------------------------
+  // Rock goes down as thick organic mesas, never as thin ribbons. A ridge
+  // one or two tiles wide renders as a hedge; a mass eight to fourteen
+  // tiles across renders as a cliff with a plateau on top, which is the
+  // entire reason the camera is tilted.
+  const mesa = (pts, th, seed) => {
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+      const steps = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.6));
+      for (let k = 0; k <= steps; k++) {
+        const u = k / steps, x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * u;
+        blob(x, y, th * (0.62 + 0.72 * vn(x * 0.17 + seed, y * 0.17 + seed)));
+      }
     }
   };
-  ridge(GW * 0.34, 5, (GH * 0.60) | 0);
-  ridge(GW * 0.66, 5, (GH * 0.60) | 0);
 
-  // scattered cover so the plain is not featureless
-  for (let i = 0; i < 30; i++) {
-    const px = rnd(4, GW - 6), py = rnd(3, GH - 3);
-    blob(px, py, rnd(1.4, 3.2));
+  // two long spurs running toward the camera split the far ground into
+  // three approach lanes
+  mesa([[GW * 0.30, 3], [GW * 0.33, 16], [GW * 0.28, 30],
+        [GW * 0.34, 44], [GW * 0.31, GH * 0.56]], 4.8, 11.3);
+  mesa([[GW * 0.70, 3], [GW * 0.67, 15], [GW * 0.73, 29],
+        [GW * 0.66, 43], [GW * 0.70, GH * 0.56]], 4.8, 57.9);
+
+  // a far pass, so each lane squeezes once before it opens out again
+  mesa([[GW * 0.04, GH * 0.21], [GW * 0.18, GH * 0.24], [GW * 0.25, GH * 0.19]], 5.0, 3.1);
+  mesa([[GW * 0.42, GH * 0.23], [GW * 0.57, GH * 0.19]], 4.8, 21.7);
+  mesa([[GW * 0.77, GH * 0.20], [GW * 0.95, GH * 0.24]], 5.0, 44.5);
+
+  // freestanding outcrops so the plain is not a board
+  for (let i = 0; i < 14; i++) {
+    const px = rnd(5, GW - 6), py = rnd(4, GH * 0.58);
+    mesa([[px, py], [px + rnd(-6, 6), py + rnd(-4, 4)]], rnd(2.6, 4.6), i * 7.7);
   }
 
   // A curtain wall closes off the inner ground, pierced by exactly three
   // gates. Those gates are the defensible line the player starts from; the
   // crystal sits outside them, which is the whole tension of the map.
-  const GATE_Y = (GH * 0.62) | 0;
-  for (let x = 0; x < GW; x++)
-    for (let y = GATE_Y; y < GATE_Y + 4; y++) terrain[idx(x, y)] = T_ROCK;
+  const GATE_Y = (GH * 0.63) | 0;
+  for (let x = 0; x < GW; x++) {
+    const th = 3.2 + vn(x * 0.12, 5.5) * 5.4;
+    const y0 = GATE_Y - Math.round(th * 0.45), y1 = GATE_Y + Math.round(th);
+    for (let y = y0; y < y1; y++) if (inb(x, y)) terrain[idx(x, y)] = T_ROCK;
+  }
   const laneX = [(GW * 0.16) | 0, (GW * 0.5) | 0, (GW * 0.84) | 0];
   GATES.length = 0;
   for (const gx of laneX) {
-    for (let x = gx - 2; x <= gx + 2; x++)
-      for (let y = GATE_Y - 1; y < GATE_Y + 5; y++)
+    for (let x = gx - 3; x <= gx + 3; x++)
+      for (let y = GATE_Y - 7; y < GATE_Y + 9; y++)
         if (inb(x, y)) terrain[idx(x, y)] = T_OPEN;
-    GATES.push({ x: gx, y: GATE_Y + 2 });
+    GATES.push({ x: gx, y: GATE_Y + 3 });
   }
 
   // the held ground in front of the camera
-  for (let y = GATE_Y + 5; y < GH - 2; y++)
+  for (let y = GATE_Y + 9; y < GH - 2; y++)
     for (let x = 2; x < GW - 2; x++) terrain[idx(x, y)] = T_OPEN;
   carveDisc(hx, hy, 11);
 
