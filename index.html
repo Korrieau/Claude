@@ -1534,78 +1534,132 @@ const VIEW = (() => {
   // ---- units ----
   // The swarm: dark carapace with mineral growing straight out of it. Body and
   // crystal are separate meshes so the ore can glow on its own.
-  // Not an animal. A walking mineral: an angular dark mass with crystal that
-  // dominates the silhouette. No smooth sphere, no snout — those read as a pig.
-  function creatureBody() {
+  // Each enemy type gets its own mineral profile: the four were one model at
+  // four scales, which made a wave read as a single repeated prop.
+  function creatureBody(P) {
     const parts = [];
-    // faceted core, low and wide
-    parts.push({ g: new THREE.IcosahedronGeometry(.19, 0), m: T(0, .04, .02, .3, .6, 0, 1.0, .62, 1.05) });
-    parts.push({ g: new THREE.IcosahedronGeometry(.13, 0), m: T(0, .02, -.20, -.2, 1.1, 0, 1.0, .60, 1.0) });
-    parts.push({ g: new THREE.OctahedronGeometry(.10, 0), m: T(0, .05, .20, .4, .3, 0, 1.0, .7, 1.1) });
-    // six thin struts for legs, angular not organic
-    const strut = new THREE.BoxGeometry(.026, .026, .24);
+    parts.push({ g: new THREE.IcosahedronGeometry(.19 * P.bulk, 0),
+                 m: T(0, .04, .02, .3, .6, 0, 1.0, .62 * P.squat, 1.05 * P.long) });
+    parts.push({ g: new THREE.IcosahedronGeometry(.13 * P.bulk, 0),
+                 m: T(0, .02, -.20 * P.long, -.2, 1.1, 0, 1.0, .60 * P.squat, 1.0) });
+    parts.push({ g: new THREE.OctahedronGeometry(.10 * P.bulk, 0),
+                 m: T(0, .05, .20 * P.long, .4, .3, 0, 1.0, .7 * P.squat, 1.1) });
+    const strut = new THREE.BoxGeometry(.026 * P.bulk, .026 * P.bulk, .24);
     for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) {
-      const z = -.15 + i * .16;
-      parts.push({ g: strut, m: T(sx * .17, -.04, z, .55, sx * (.9 + i * .1), 0) });
-      parts.push({ g: new THREE.BoxGeometry(.02, .02, .17), m: T(sx * .28, -.15, z + .04, 1.1, sx * .4, 0) });
+      const z = (-.15 + i * .16) * P.long;
+      parts.push({ g: strut, m: T(sx * .17 * P.bulk, -.04, z, .55, sx * (.9 + i * .1), 0) });
+      parts.push({ g: new THREE.BoxGeometry(.02, .02, .17),
+                   m: T(sx * .28 * P.bulk, -.15, z + .04, 1.1, sx * .4, 0) });
     }
     return mergeGeos(parts);
   }
-  function creatureCrystal() {
+  function creatureCrystal(P) {
     const parts = [];
-    // long shards read as the creature; short ones fill the cluster
     const shard = (x, y, z, len, w, tilt, yaw, roll) =>
       parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
-                   m: T(x, y, z, tilt, yaw, roll || 0, w, len, w) });
-    shard(0, .22, .02, 2.7, .78, -.30, 0);          // spine, tallest
+                   m: T(x, y, z * P.long, tilt + P.sweep, yaw, roll || 0,
+                        w * P.thick, len * P.spike, w * P.thick) });
+    shard(0, .22, .02, 2.7, .78, -.30, 0);
     shard(-.11, .18, -.06, 2.0, .66, -.50, .7, .3);
     shard(.13, .19, -.02, 2.1, .68, -.45, -.6, -.3);
     shard(-.06, .16, .20, 1.7, .60, -.20, .3);
     shard(.09, .15, .22, 1.6, .58, -.15, -.4);
     shard(-.18, .10, .04, 1.4, .54, -1.0, 1.1, .5);
     shard(.19, .10, .06, 1.4, .54, -1.0, -1.0, -.5);
-    shard(0, .08, -.24, 1.2, .50, -1.4, 0);
-    shard(-.10, .06, -.20, 1.0, .44, -1.5, .5);
-    shard(.11, .06, -.20, 1.0, .44, -1.5, -.5);
+    if (P.crown) {
+      shard(-.05, .28, -.02, 3.4, .60, -.16, .35, .2);
+      shard(.06, .28, -.02, 3.4, .60, -.16, -.35, -.2);
+      shard(0, .26, .18, 2.6, .55, .05, 0);
+    }
+    if (P.ram) {
+      shard(0, .08, -.30, 2.2, .62, -1.45, 0);
+      shard(-.11, .06, -.26, 1.7, .52, -1.5, .5);
+      shard(.12, .06, -.26, 1.7, .52, -1.5, -.5);
+    } else {
+      shard(0, .08, -.24, 1.2, .50, -1.4, 0);
+      shard(-.10, .06, -.20, 1.0, .44, -1.5, .5);
+      shard(.11, .06, -.20, 1.0, .44, -1.5, -.5);
+    }
     return mergeGeos(parts);
   }
-  const enemyGeo = creatureBody();
-  const crystalGeo = creatureCrystal();
-  enemyGeo.scale(1.15, 1.15, 1.15);
-  crystalGeo.scale(1.15, 1.15, 1.15);
-  const enemyMesh = new THREE.InstancedMesh(enemyGeo, M.enemy, MAX_ENEMIES);
-  enemyMesh.castShadow = true; enemyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  scene.add(enemyMesh);
-  const eyeMesh = new THREE.InstancedMesh(crystalGeo, M.eye, MAX_ENEMIES);
-  eyeMesh.castShadow = true; eyeMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  scene.add(eyeMesh);
+  // molten, not pink: dark rock with heat running through the seams
+  const ORE = {
+    swarm:   { bulk: 1.0, squat: 1.0, long: 1.0, spike: 1.0, thick: 1.0, sweep: 0,    ram: false, crown: false,
+               col: 0x7a2408, em: 0xff6a14, ei: 1.05 },
+    charger: { bulk: .95, squat: .85, long: 1.25, spike: .9, thick: .95, sweep: -.35, ram: true,  crown: false,
+               col: 0x8a3006, em: 0xff8c1e, ei: 1.35 },
+    brute:   { bulk: 1.35, squat: 1.1, long: 1.05, spike: .85, thick: 1.5, sweep: .1,  ram: false, crown: false,
+               col: 0x5e1c06, em: 0xd4520c, ei: .85 },
+    titan:   { bulk: 1.5, squat: 1.15, long: 1.15, spike: 1.35, thick: 1.35, sweep: 0, ram: false, crown: true,
+               col: 0x4a1404, em: 0xff9a2a, ei: 1.55 }
+  };
+  const rockMat = new THREE.MeshStandardMaterial({
+    color: 0x2b2630, roughness: .8, metalness: .12, flatShading: true });
+  const eBody = {}, eOre = {}, eCount = {};
+  for (const t in ORE) {
+    const P = ORE[t];
+    const bg = creatureBody(P), cg = creatureCrystal(P);
+    bg.scale(1.15, 1.15, 1.15); cg.scale(1.15, 1.15, 1.15);
+    const cap = t === "titan" ? 24 : t === "brute" ? 90 : MAX_ENEMIES;
+    const bm = new THREE.InstancedMesh(bg, rockMat, cap);
+    bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(bm);
+    const om = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({
+      color: P.col, emissive: P.em, emissiveIntensity: P.ei,
+      roughness: .30, metalness: .1, flatShading: true }), cap);
+    om.castShadow = true; om.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(om);
+    eBody[t] = bm; eOre[t] = om; eCount[t] = 0;
+  }
 
-  // Infantry read as machines: an angular chassis on a walker frame with a lit
-  // sensor band, so friend and swarm never blur together.
+  // Infantry: a plated walker with an exposed reactor core in the chest, so it
+  // reads as machinery of the same family as the base rather than a figurine.
   const soldierGeo = mergeGeos([
-    { g: new THREE.BoxGeometry(.20, .22, .16), m: T(0, .30, 0) },
-    { g: new THREE.BoxGeometry(.24, .07, .18), m: T(0, .41, 0) },
-    { g: new THREE.BoxGeometry(.13, .11, .13), m: T(0, .49, -.01) },
-    { g: new THREE.BoxGeometry(.05, .05, .09), m: T(.08, .43, -.05) },
-    { g: new THREE.CylinderGeometry(.03, .022, .20, 5), m: T(-.07, .12, .01) },
-    { g: new THREE.CylinderGeometry(.03, .022, .20, 5), m: T(.07, .12, .01) },
-    { g: new THREE.BoxGeometry(.09, .04, .13), m: T(-.07, .02, .01) },
-    { g: new THREE.BoxGeometry(.09, .04, .13), m: T(.07, .02, .01) },
-    { g: new THREE.BoxGeometry(.045, .045, .34), m: T(.10, .33, -.14) }
+    // digitigrade legs
+    { g: new THREE.CylinderGeometry(.034, .026, .18, 6), m: T(-.075, .11, .02, .18, 0, 0) },
+    { g: new THREE.CylinderGeometry(.034, .026, .18, 6), m: T(.075, .11, .02, .18, 0, 0) },
+    { g: new THREE.CylinderGeometry(.026, .020, .15, 6), m: T(-.085, .02, -.03, -.35, 0, 0) },
+    { g: new THREE.CylinderGeometry(.026, .020, .15, 6), m: T(.085, .02, -.03, -.35, 0, 0) },
+    { g: new THREE.BoxGeometry(.085, .032, .15), m: T(-.085, .012, -.06) },
+    { g: new THREE.BoxGeometry(.085, .032, .15), m: T(.085, .012, -.06) },
+    // hips and a tapered chest
+    { g: new THREE.BoxGeometry(.16, .07, .13), m: T(0, .22, 0) },
+    { g: new THREE.CylinderGeometry(.115, .095, .21, 6), m: T(0, .34, 0, 0, Math.PI / 6, 0) },
+    { g: new THREE.BoxGeometry(.21, .05, .15), m: T(0, .44, 0) },
+    // pauldrons, angled outward
+    { g: new THREE.BoxGeometry(.09, .10, .13), m: T(-.135, .42, 0, 0, 0, .34) },
+    { g: new THREE.BoxGeometry(.09, .10, .13), m: T(.135, .42, 0, 0, 0, -.34) },
+    // head and sensor fin
+    { g: new THREE.BoxGeometry(.10, .085, .11), m: T(0, .51, -.005) },
+    { g: new THREE.BoxGeometry(.022, .07, .05), m: T(.055, .55, .01, -.25, 0, -.2) },
+    // dorsal pack with vents
+    { g: new THREE.BoxGeometry(.15, .13, .07), m: T(0, .36, .095) },
+    { g: new THREE.BoxGeometry(.035, .09, .02), m: T(-.045, .36, .132) },
+    { g: new THREE.BoxGeometry(.035, .09, .02), m: T(.045, .36, .132) },
+    // rifle
+    { g: new THREE.BoxGeometry(.045, .05, .30), m: T(.105, .36, -.13) },
+    { g: new THREE.BoxGeometry(.028, .028, .10), m: T(.105, .36, -.31) },
+    { g: new THREE.BoxGeometry(.03, .06, .05), m: T(.105, .31, -.06) }
   ]);
   const soldierLit = mergeGeos([
-    { g: new THREE.BoxGeometry(.10, .028, .02), m: T(0, .50, -.07) },
-    { g: new THREE.BoxGeometry(.03, .03, .02), m: T(-.09, .34, .08) }
+    { g: new THREE.CylinderGeometry(.045, .045, .028, 8), m: T(0, .35, -.10, Math.PI / 2, 0, 0) }, // core
+    { g: new THREE.BoxGeometry(.075, .022, .015), m: T(0, .515, -.058) },                          // visor
+    { g: new THREE.BoxGeometry(.10, .012, .012), m: T(0, .285, -.068) },                           // chest seam
+    { g: new THREE.BoxGeometry(.012, .05, .012), m: T(-.148, .42, -.02) },
+    { g: new THREE.BoxGeometry(.012, .05, .012), m: T(.148, .42, -.02) },
+    { g: new THREE.BoxGeometry(.02, .02, .012), m: T(.105, .36, -.355) }                           // muzzle
   ]);
-  soldierGeo.scale(1.25, 1.25, 1.25);
-  soldierLit.scale(1.25, 1.25, 1.25);
+  soldierGeo.scale(1.3, 1.3, 1.3);
+  soldierLit.scale(1.3, 1.3, 1.3);
   const infMat = new THREE.MeshStandardMaterial({
-    map: metalTex(0x99a6b4), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
-    roughness: .5, metalness: .45 });
+    map: metalTex(0x5f7fa6), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
+    roughness: .42, metalness: .62 });
+  const infLitMat = new THREE.MeshStandardMaterial({
+    color: 0x64e0ff, emissive: 0x2ec6ff, emissiveIntensity: 2.1, roughness: .25 });
   const soldierMesh = new THREE.InstancedMesh(soldierGeo, infMat, 90);
   soldierMesh.castShadow = true; soldierMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierMesh);
-  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, M.cyan, 90);
+  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, infLitMat, 90);
   soldierLitMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierLitMesh);
 
@@ -1901,21 +1955,25 @@ const VIEW = (() => {
         f.l.intensity = f.power * k * k;
         if (f.life <= 0) { f.l.visible = false; f.l.intensity = 0; }
       }
-      // enemies
-      let n = 0, en = 0;
+      // enemies, one instanced pair per type
+      for (const t in eCount) eCount[t] = 0;
       for (const e of G.enemies) {
+        const bm = eBody[e.type];
+        if (!bm || eCount[e.type] >= bm.instanceMatrix.count) continue;
         const y = liftAt(e.z) + .10;
         dummy.position.set(wx(e.x), y, wz(e.z));
         dummy.rotation.set(0, e.dir + Math.PI, 0);
         dummy.scale.setScalar(e.sc);
         dummy.updateMatrix();
-        enemyMesh.setMatrixAt(n, dummy.matrix);
-        eyeMesh.setMatrixAt(n, dummy.matrix);
-        n++; en++;
+        const i = eCount[e.type]++;
+        bm.setMatrixAt(i, dummy.matrix);
+        eOre[e.type].setMatrixAt(i, dummy.matrix);
       }
-      enemyMesh.count = n; eyeMesh.count = en;
-      enemyMesh.instanceMatrix.needsUpdate = true;
-      eyeMesh.instanceMatrix.needsUpdate = true;
+      for (const t in eCount) {
+        eBody[t].count = eCount[t]; eOre[t].count = eCount[t];
+        eBody[t].instanceMatrix.needsUpdate = true;
+        eOre[t].instanceMatrix.needsUpdate = true;
+      }
 
       // soldiers
       let sn = 0;
