@@ -155,6 +155,16 @@
   }
   #combo s { display: block; text-decoration: none; font-size: 6px; letter-spacing: .3em; color: #8a8262; }
 
+  #breach {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top,0px) + 74px);
+    padding: 5px 14px 6px; white-space: nowrap;
+    background: rgba(232,56,79,.16); border: 1px solid rgba(232,56,79,.55);
+    font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: .16em; color: #ffb0bb;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    animation: pulse .7s infinite;
+  }
+
   /* damage numbers, projected from the 3D scene */
   #dmgs { position: absolute; inset: 0; overflow: hidden; }
   #dmgs b {
@@ -179,8 +189,10 @@
     letter-spacing: .18em; color: var(--gold); border: 1px solid rgba(255,201,61,.4); padding: 1px 5px;
   }
   #insp .hd em { margin-left: auto; font-style: normal; font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; }
+  #insp .hb { height: 4px; background: rgba(122,150,175,.16); margin-top: 9px; }
+  #insp .hb i { display: block; height: 100%; background: var(--cyan); }
   #insp .st {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 11px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0 11px;
     font-family: ui-monospace, monospace;
   }
   #insp .st div { background: rgba(122,150,175,.08); padding: 6px 8px 7px; }
@@ -188,7 +200,7 @@
   #insp .st i { font-style: normal; font-size: 13px; font-weight: 700; color: #eaf2f8; }
   #insp .row { display: flex; gap: 6px; }
   #insp .row button {
-    flex: 1; cursor: pointer; padding: 11px 6px; font-weight: 700; font-size: 12px;
+    flex: 1; cursor: pointer; padding: 10px 4px; font-weight: 700; font-size: 12px;
     background: rgba(79,227,240,.12); color: var(--cyan); border: 1px solid rgba(79,227,240,.4);
     clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   }
@@ -399,6 +411,7 @@
     <button data-sp="2">2x</button>
   </div>
   <div id="combo" hidden></div>
+  <div id="breach" hidden></div>
   <div id="dmgs"></div>
   <div id="scan"></div>
 </div>
@@ -551,10 +564,10 @@ const E = {
   swarm:    { name: "군체",     hp: 16,   spd: 1.50, dmg: 4,  cd: 0.55, r: 0.15, kill: 1,  sc: 0.80, ec: 0xc74a0c },
   charger:  { name: "돌진체",   hp: 30,   spd: 2.55, dmg: 9,  cd: 0.65, r: 0.16, kill: 2,  sc: 0.86, ec: 0xdd5c10 },
   carapace: { name: "갑각체",   hp: 120,  spd: 0.95, dmg: 18, cd: 1.0,  r: 0.24, kill: 5,  sc: 1.12, ec: 0xb03c0a },
-  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42, ec: 0xc2450c },
-  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78, ec: 0xa8380a },
-  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25, ec: 0xcf4a0c },
-  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95, ec: 0xd8540e }
+  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42, ec: 0xc2450c, smash: true, sdmg: 2.6 },
+  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78, ec: 0xa8380a, smash: true, sdmg: 3.0 },
+  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25, ec: 0xcf4a0c, smash: true, sdmg: 3.6 },
+  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95, ec: 0xd8540e, smash: true, sdmg: 4.2 }
 };
 // `big` entries are rolled in on their own timers so a wave is a tide with
 // landmarks in it rather than a uniform stream.
@@ -629,7 +642,8 @@ function newGame() {
     mat: 700, man: 44, manCap: 120,
     hq: { hp: HQ_HP, max: HQ_HP },
     assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
-    flow: new Int16Array(COLS * ROWS), flowDirty: true, dens: new Int16Array(COLS * ROWS),
+    flow: new Int16Array(COLS * ROWS), flowS: new Int16Array(COLS * ROWS),
+    flowDirty: true, dens: new Int16Array(COLS * ROWS), holes: [], rallyPost: null,
     kia: 0, kills: 0, t: 0, shake: 0, breach: 0,
     doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null,
     dmgs: [], rings: [], hitstop: 0, combo: 0, comboT: 0, speed: 1, sel: null
@@ -699,6 +713,22 @@ function upgradeB(b) {
   floatText(B[b.key].name + " 강화 " + (b.up) + "단계");
   return null;
 }
+function repairCost(b) {
+  const miss = 1 - b.hp / b.maxHp;
+  return Math.max(1, Math.round(bCost(b.key) * (1 + .55 * b.up) * miss * .6));
+}
+function repairB(b) {
+  if (b.hp >= b.maxHp) return "이미 온전합니다";
+  const c = repairCost(b);
+  if (G.mat < c) return "자원이 부족합니다";
+  G.mat -= c; b.hp = b.maxHp; b.flash = 1;
+  G.rings.push({ x: b.c + .5, z: b.r + .5, life: .4, max: .4, r: .9, col: 0x4fe3f0 });
+  return null;
+}
+function setRally(b) {
+  G.rallyPost = (G.rallyPost === b) ? null : b;
+  floatText(G.rallyPost ? (b.c + 1) + "열 집결" : "집결 해제");
+}
 function sellB(b) {
   let paid = bCost(b.key);
   for (let i = 1; i <= b.up; i++) paid += Math.round(bCost(b.key) * .55 * i);
@@ -763,8 +793,11 @@ function upkeepDrain() { return upkeep() * 0.42 * (has("overload") ? 1.6 : 1); }
 
 // ---------------------------------------------------------------- flow field
 const flowQ = [];
-function rebuildFlow() {
-  const f = G.flow;
+// Two fields. The small ones use `flow`, which charges for structures, so they
+// stream through whatever gap exists. The big ones use `flowS`, which charges
+// nothing, so they walk straight at the wall in front of them and break it.
+// That is the whole shape of a fight: siege opens a hole, the swarm pours in.
+function bfs(f, walled) {
   f.fill(30000);
   flowQ.length = 0;
   let head = 0;
@@ -779,11 +812,15 @@ function rebuildFlow() {
       if (nc < 0 || nr < 0 || nc >= COLS || nr >= ROWS) continue;
       const ni = nr * COLS + nc, t = G.tiles[ni];
       const sp = (t.b && t.b.done) ? B[t.b.key] : null;
-      // walls are expensive to walk through, so the tide bends around them
-      const step = !sp ? 1 : sp.walk ? 1 : sp.wall ? 20 : sp.garrison ? 9 : 6;
+      const step = !walled ? 1
+        : !sp ? 1 : sp.walk ? 1 : sp.wall ? 11 : sp.garrison ? 7 : 5;
       if (d + step < f[ni]) { f[ni] = d + step; flowQ.push(ni); }
     }
   }
+}
+function rebuildFlow() {
+  bfs(G.flow, true);
+  bfs(G.flowS, false);
   G.flowDirty = false;
 }
 
@@ -807,6 +844,7 @@ function place(key, c, r) {
 }
 function killBuilding(b) {
   if (G.sel === b) { G.sel = null; const el = document.getElementById("insp"); if (el) el.hidden = true; }
+  if (G.rallyPost === b) G.rallyPost = null;
   const t = at(b.c, b.r);
   if (t) t.b = null;
   b.dead = true;
@@ -816,7 +854,14 @@ function killBuilding(b) {
   G.shake = Math.max(G.shake, 0.16);
   G.flowDirty = true;
   VIEW.removeBuilding(b);
-  if (B[b.key].garrison) { G.breach = 1.6; floatText("방어선 붕괴"); }
+  const sp = B[b.key];
+  if (sp.wall || sp.garrison) {
+    G.holes.push({ c: b.c, r: b.r, life: 2.2 });
+    if (G.holes.length > 12) G.holes.shift();
+    G.breach = 1.6;
+    G.shake = Math.max(G.shake, .22);
+    floatText((b.c + 1) + "열 돌파  " + sp.name + " 파괴");
+  }
 }
 function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 
@@ -833,6 +878,8 @@ function spawnSoldier() {
   return true;
 }
 function findPost() {
+  const rp = G.rallyPost;
+  if (rp && !rp.dead && rp.done && rp.crew.length < garrisonOf(rp.key)) return rp;
   let best = null, bestR = 99;
   for (const b of G.buildings) {
     if (!b.done || !B[b.key].garrison) continue;
@@ -854,6 +901,13 @@ function updateSoldiers(dt) {
     if (s.dead) { G.soldiers.splice(i, 1); G.kia++; continue; }
     s.fire = Math.max(0, s.fire - dt);
     if (s.post && (s.post.dead || !s.post.done)) { s.post = null; s.state = "seek"; }
+    // a rally order pulls men out of wherever they are until it is full
+    const rp = G.rallyPost;
+    if (rp && !rp.dead && rp.done && s.post && s.post !== rp && rp.crew.length < garrisonOf(rp.key)) {
+      const ix = s.post.crew.indexOf(s);
+      if (ix >= 0) s.post.crew.splice(ix, 1);
+      s.post = null; s.state = "seek";
+    }
     if (s.state === "seek") {
       const p = findPost();
       if (p) { p.crew.push(s); s.post = p; s.state = "move"; }
@@ -1027,7 +1081,8 @@ function spawnEnemy(type) {
     type, x: rnd(.25, COLS - .25), z: rnd(-1.6, -.2),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
     r: spec.r, cd: rnd(0, 1), flash: 0, dead: false, dir: 0,
-    off: rnd(-.30, .30), wob: rnd(0, 6.28), sc: spec.sc * rnd(.9, 1.1)
+    off: rnd(-.30, .30), wob: rnd(0, 6.28), sc: spec.sc * rnd(.9, 1.1),
+    lane: clamp(Math.round(rnd(-.6, COLS - .4)), 0, COLS - 1)
   });
 }
 function hurtEnemy(e, dmg, src) {
@@ -1036,9 +1091,15 @@ function hurtEnemy(e, dmg, src) {
   const spec = E[e.type];
   // a shove backwards, scaled to how much of the thing the hit took off
   e.z -= Math.min(.11, dmg / spec.hp * .30);
-  if (dmg >= 34 && G.dmgs.length < 20)
-    G.dmgs.push({ x: e.x + rnd(-.35, .35), z: e.z + rnd(-.3, .3), v: Math.round(dmg),
-                  life: .7, big: dmg >= 200 });
+  // one number per patch of ground, or a burst of identical hits turns the
+  // screen into a wall of the same digits
+  if (dmg >= 34 && G.dmgs.length < 14) {
+    let near = null;
+    for (const d of G.dmgs) if (Math.abs(d.x - e.x) < .9 && Math.abs(d.z - e.z) < .9) { near = d; break; }
+    if (near) { near.v += Math.round(dmg); near.life = Math.max(near.life, .55); near.big = near.v >= 200; }
+    else G.dmgs.push({ x: e.x + rnd(-.25, .25), z: e.z + rnd(-.2, .2), v: Math.round(dmg),
+                       life: .7, big: dmg >= 200 });
+  }
   if (e.hp <= 0) {
     e.dead = true; G.kills++;
     G.combo++; G.comboT = 1.6;
@@ -1103,23 +1164,34 @@ function updateEnemies(dt) {
       }
       continue;
     }
+    const ff = spec.smash ? G.flowS : f;
     const i0 = r * COLS + c;
-    let bestI = i0, bestV = f[i0] * 10 + dens[i0] * 5;
+    // crowding costs a lot, so a mass of them fans across the width instead of
+    // queueing single file into whichever cell happens to be cheapest
+    // the lane term must be charged to the cell it is standing on too,
+    // or staying put is always the cheapest option and the wave stalls
+    let bestI = i0, bestV = ff[i0] * 10 + dens[i0] * 11 + (c - e.lane) * (c - e.lane) * 2;
     const nb = [[c, r + 1], [c + 1, r], [c - 1, r], [c, r - 1]];
     for (const [nc, nr] of nb) {
       if (nc < 0 || nr < 0 || nc >= COLS || nr >= ROWS) continue;
       const ni = nr * COLS + nc;
-      const v = f[ni] * 10 + dens[ni] * 5;
+      const v = ff[ni] * 10 + dens[ni] * 11 + (nc - e.lane) * (nc - e.lane) * 2;
       if (v < bestV) { bestV = v; bestI = ni; }
     }
     const tc = bestI % COLS, tr = (bestI / COLS) | 0;
     const nt = G.tiles[bestI];
     if (nt.b && nt.b.done && !B[nt.b.key].walk) {
-      if (e.cd <= 0) { e.cd = spec.cd; hurtBuilding(nt.b, spec.dmg * difficultyDamage()); }
+      if (e.cd <= 0) {
+        e.cd = spec.cd;
+        hurtBuilding(nt.b, spec.dmg * (spec.sdmg || 1) * difficultyDamage());
+      }
       e.dir = Math.atan2(tc + .5 - e.x, tr + .5 - e.z);
       continue;
     }
-    let spd = spec.spd * (G.berserk ? 1.6 : 1);
+    // a fresh hole pulls everything nearby through it, and fast
+    let surge = 1;
+    for (const h of G.holes) if (h.life > 1.4 && Math.abs(h.c - e.x) < 3.2 && Math.abs(h.r - e.z) < 3.6) { surge = 1.5; break; }
+    let spd = spec.spd * (G.berserk ? 1.6 : 1) * surge;
     if (here && here.b && here.b.done && B[here.b.key].slow) spd *= B[here.b.key].slow;
     e.wob += dt * spd * 3.2;
     const tx2 = tc + .5 + e.off + Math.sin(e.wob) * .07;
@@ -1199,6 +1271,7 @@ function updateWar(dt) {
   G.man = Math.min(G.manCap, G.man + manRate() * dt);
   G.timer -= dt;
   G.rally = Math.max(0, G.rally - dt);
+  for (let i = G.holes.length - 1; i >= 0; i--) { G.holes[i].life -= dt; if (G.holes[i].life <= 0) G.holes.splice(i, 1); }
   for (let i = G.rings.length - 1; i >= 0; i--) { G.rings[i].life -= dt; if (G.rings[i].life <= 0) G.rings.splice(i, 1); }
   for (let i = G.dmgs.length - 1; i >= 0; i--) { G.dmgs[i].life -= dt; if (G.dmgs[i].life <= 0) G.dmgs.splice(i, 1); }
   G.comboT -= dt;
@@ -2871,8 +2944,19 @@ const VIEW = (() => {
       }
       for (let i = bi; i < barPool.length; i++) { barPool[i].back.visible = false; barPool[i].fill.visible = false; }
 
-      // shock rings
       let ri = 0;
+      // breach markers: a hole in the line is the thing you must react to
+      for (const h of G.holes) {
+        if (ri >= 40) break;
+        const m = ringAt(ri++);
+        m.visible = true;
+        m.position.set(wx(h.c + .5), BAND_LIFT[bandOf(h.r)] + .10, wz(h.r + .5));
+        m.scale.setScalar(.62 + Math.sin(now * 7) * .06);
+        m.material.color.setHex(0xe8384f);
+        m.material.opacity = .35 + Math.min(1, h.life / 2.2) * .45;
+      }
+
+      // shock rings
       for (const rg of G.rings) {
         if (ri >= 40) break;
         const m = ringAt(ri++);
@@ -3003,6 +3087,12 @@ function syncTop() {
     $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
   }
   syncAbils();
+  const br = $("breach");
+  if (G.holes.length) {
+    const cols = [...new Set(G.holes.map(h => h.c + 1))].sort((a, b2) => a - b2);
+    br.hidden = false;
+    br.textContent = "돌파  " + cols.join(" · ") + "열";
+  } else br.hidden = true;
   const cb = $("combo");
   if (G.combo >= 8 && G.comboT > 0) {
     cb.hidden = false;
@@ -3037,23 +3127,35 @@ function syncInsp() {
   const dps = sp.dmg ? (wDmgB(b) / Math.max(.05, wCdB(b))).toFixed(0) : "—";
   const cost = upCost(b);
   el.hidden = false;
+  const hurt = b.hp < b.maxHp, rc = repairCost(b);
+  const gar = garrisonOf(b.key);
   el.innerHTML =
     `<div class="hd"><b>${sp.name}</b>` +
     (b.up ? `<u>강화 ${b.up}</u>` : "") +
     (rk ? `<u>${RANK_N[rk]}</u>` : "") +
+    (G.rallyPost === b ? `<u style="color:var(--cyan);border-color:rgba(79,227,240,.5)">집결지</u>` : "") +
     `<em>${b.c + 1}열 ${b.r + 1}행</em></div>` +
+    `<div class="hb"><i style="width:${(b.hp / b.maxHp * 100).toFixed(0)}%"></i></div>` +
     `<div class="st">` +
       `<div><s>HP</s><i>${Math.ceil(b.hp)}<span style="font-size:9px;color:#4f6273">/${b.maxHp}</span></i></div>` +
-      `<div><s>DPS</s><i>${dps}</i></div>` +
+      (gar ? `<div><s>병사</s><i>${b.crew.length}<span style="font-size:9px;color:#4f6273">/${gar}</span></i></div>`
+           : `<div><s>DPS</s><i>${dps}</i></div>`) +
       `<div><s>KILLS</s><i>${b.xp}</i></div>` +
     `</div>` +
     `<div class="row">` +
+      `<button id="ibFix"${!hurt || G.mat < rc ? " disabled" : ""}>` +
+        (hurt ? `수리 · ${rc}` : "온전함") + `</button>` +
       `<button id="ibUp"${b.up >= 3 || G.mat < cost ? " disabled" : ""}>` +
-        (b.up >= 3 ? "최대 강화" : `강화 · ${cost}`) + `</button>` +
+        (b.up >= 3 ? "최대" : `강화 · ${cost}`) + `</button>` +
+    `</div>` +
+    `<div class="row" style="margin-top:6px">` +
+      (gar ? `<button class="gh" id="ibRally">${G.rallyPost === b ? "집결 해제" : "병력 집결"}</button>` : "") +
       `<button class="dn" id="ibSell">철거</button>` +
       `<button class="gh" id="ibX">닫기</button>` +
     `</div>`;
+  $("ibFix").onclick = () => { const e2 = repairB(b); if (e2) floatText(e2); syncInsp(); syncTop(); };
   $("ibUp").onclick = () => { const e2 = upgradeB(b); if (e2) floatText(e2); syncInsp(); syncTop(); };
+  if ($("ibRally")) $("ibRally").onclick = () => { setRally(b); syncInsp(); };
   $("ibSell").onclick = () => { sellB(b); closeInsp(); syncTop(); };
   $("ibX").onclick = closeInsp;
 }
