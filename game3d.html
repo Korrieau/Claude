@@ -506,18 +506,18 @@ const B = {
   // --- zone 0: the line itself ------------------------------------------
   wire:      { z: 0, name: "철조망",       mat: 15,  hp: 320,  slow: 0.34,
                desc: "지나가는 적을 크게 늦춘다" },
-  barricade: { z: 0, name: "강판 바리케이드", mat: 30,  hp: 900,  wall: true, slow: 0.62,
+  barricade: { z: 0, name: "강판 바리케이드", mat: 30,  hp: 2000, wall: true, slow: 0.62,
                desc: "값싼 벽. 적이 부수거나 돌아간다" },
-  dragon:    { z: 0, name: "대전차 방책",   mat: 55,  hp: 1500, wall: true, slow: 0.30,
+  dragon:    { z: 0, name: "대전차 방책",   mat: 55,  hp: 3400, wall: true, slow: 0.30,
                desc: "대형을 확실히 묶어 둔다" },
-  wall:      { z: 0, name: "콘크리트 방벽", mat: 95,  hp: 3600, wall: true,
+  wall:      { z: 0, name: "콘크리트 방벽", mat: 95,  hp: 8000, wall: true,
                desc: "가장 단단한 벽. 적의 진로를 바꾼다" },
   mine:      { z: 0, name: "압력 지뢰",     mat: 35,  hp: 90,   walk: true,
                mineDmg: 340, mineR: 1.45, trigger: 0.55,
                desc: "밟으면 터진다. 한 번 쓰고 사라진다" },
-  trench:    { z: 0, name: "참호",          mat: 40,  hp: 620,  garrison: 3, cover: 0.35,
+  trench:    { z: 0, name: "참호",          mat: 40,  hp: 900,  garrison: 3, cover: 0.35,
                desc: "병사 3명, 피해 65% 감소" },
-  bunker:    { z: 0, name: "벙커",          mat: 110, hp: 1500, garrison: 2, cover: 0.12, rof: 0.7,
+  bunker:    { z: 0, name: "벙커",          mat: 110, hp: 2200, garrison: 2, cover: 0.12, rof: 0.7,
                desc: "병사 2명, 피해 88% 감소, 사격 속도 +40%" },
 
   // --- zone 1: direct fire ----------------------------------------------
@@ -557,10 +557,10 @@ const E = {
   swarm:    { name: "군체",     hp: 16,   spd: 1.50, dmg: 4,  cd: 0.55, r: 0.15, kill: 1,  sc: 0.80, ec: 0xc74a0c },
   charger:  { name: "돌진체",   hp: 30,   spd: 2.55, dmg: 9,  cd: 0.65, r: 0.16, kill: 2,  sc: 0.86, ec: 0xdd5c10 },
   carapace: { name: "갑각체",   hp: 120,  spd: 0.95, dmg: 18, cd: 1.0,  r: 0.24, kill: 5,  sc: 1.12, ec: 0xb03c0a },
-  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42, ec: 0xc2450c, smash: true, sdmg: 2.6 },
-  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78, ec: 0xa8380a, smash: true, sdmg: 3.0 },
-  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25, ec: 0xcf4a0c, smash: true, sdmg: 3.6 },
-  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95, ec: 0xd8540e, smash: true, sdmg: 4.2 }
+  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42, ec: 0xc2450c, smash: true, sdmg: 1.9 },
+  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78, ec: 0xa8380a, smash: true, sdmg: 2.2 },
+  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25, ec: 0xcf4a0c, smash: true, sdmg: 2.6 },
+  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95, ec: 0xd8540e, smash: true, sdmg: 3.0 }
 };
 // `big` entries are rolled in on their own timers so a wave is a tide with
 // landmarks in it rather than a uniform stream.
@@ -575,16 +575,31 @@ const ASSAULTS = [
   { dur: 44, rate: 23,   mix: { spore: .34, swarm: .36, charger: .22, carapace: .08 },
     big: [["carapace", 9], ["breaker", 5]] },
   { dur: 46, rate: 28,   mix: { spore: .32, swarm: .35, charger: .23, carapace: .10 },
-    big: [["breaker", 9], ["heavy", 4]] },
+    big: [["breaker", 12], ["heavy", 6]] },
   { dur: 48, rate: 34,   mix: { spore: .32, swarm: .34, charger: .24, carapace: .10 },
-    big: [["breaker", 11], ["heavy", 7], ["colossus", 2]] },
+    big: [["breaker", 15], ["heavy", 10], ["colossus", 3]] },
   { dur: 50, rate: 40,   mix: { spore: .30, swarm: .34, charger: .24, carapace: .12 },
-    big: [["breaker", 14], ["heavy", 10], ["colossus", 4]] },
+    big: [["breaker", 19], ["heavy", 14], ["colossus", 6]] },
   { dur: 66, rate: 48,   mix: { spore: .30, swarm: .33, charger: .25, carapace: .12 },
-    big: [["breaker", 18], ["heavy", 14], ["colossus", 8], ["matriarch", 3]] }
+    big: [["breaker", 24], ["heavy", 19], ["colossus", 11], ["matriarch", 4]] }
 ];
 const LULL = 17, LULL_RATE = 0.7;
-const SOLDIER = { mat: 15, man: 4, hp: 46, dmg: 6, cd: 0.62, range: 3.4, spd: 1.9 };
+// Five things you can produce. Four hold a post; the assault team does not
+// need one, which is what makes it the answer to a breach.
+const UNITS = {
+  rifle: { name: "소총병",   mat: 15, man: 4, hp: 46,  dmg: 6,  cd: .62, range: 3.4, spd: 1.9,
+           g: "inf", desc: "기본 보병. 참호에 들어간다" },
+  at:    { name: "대전차병", mat: 55, man: 7, hp: 54,  dmg: 44, cd: 1.5, range: 4.4, spd: 1.7,
+           g: "at",  heavy: 2.4, desc: "대형에게 피해 2.4배. 거체 전담" },
+  eng:   { name: "공병",     mat: 45, man: 6, hp: 62,  dmg: 3,  cd: 1.2, range: 2.2, spd: 1.9,
+           g: "eng", fix: 30, desc: "주변 3칸 건물을 초당 30 수리" },
+  medic: { name: "위생병",   mat: 40, man: 5, hp: 56,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.0,
+           g: "med", heal: 11, desc: "주변 3칸 아군을 초당 11 회복" },
+  guard: { name: "돌격대",   mat: 75, man: 8, hp: 190, dmg: 17, cd: .50, range: 2.6, spd: 2.35,
+           g: "gd",  free: true, desc: "참호 없이 싸운다. 돌파 지점으로 달려간다" }
+};
+const SOLDIER = UNITS.rifle;
+const SUPPORT_R = 3.0;
 const HQ_HP = 7000;
 const MAX_ENEMIES = 700;
 
@@ -682,9 +697,9 @@ function coverOf(key) {
 }
 function mineDmgOf(key) { return B[key].mineDmg * (has("minefld") ? 1.3 : 1); }
 function mineROf(key) { return B[key].mineR * (has("minefld") ? 1.45 : 1); }
-function solDmg() { return SOLDIER.dmg * (has("vet") ? 1.5 : 1); }
-function solMaxHp() { return SOLDIER.hp * (has("vet") ? 1.3 : 1); }
-function solCost() { return Math.round(SOLDIER.mat * (has("draft") ? .7 : 1)); }
+function solDmg(t) { return UNITS[t || "rifle"].dmg * (has("vet") ? 1.5 : 1); }
+function solMaxHp(t) { return UNITS[t || "rifle"].hp * (has("vet") ? 1.3 : 1); }
+function solCost(t) { return Math.round(UNITS[t || "rifle"].mat * (has("draft") ? .7 : 1)); }
 function abCd(k) { return ABIL[k].cd * (has("cmd") ? .65 : 1); }
 
 // Emplacements earn rank from what they kill, and can be paid up a level.
@@ -859,14 +874,16 @@ function killBuilding(b) {
 function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 
 // ---------------------------------------------------------------- soldiers
-function spawnSoldier() {
-  const cost = solCost();
-  if (G.mat < cost || G.man < SOLDIER.man) return false;
-  G.mat -= cost; G.man -= SOLDIER.man;
-  const mhp = solMaxHp();
+function spawnSoldier(t) {
+  t = t || "rifle";
+  const u = UNITS[t], cost = solCost(t);
+  if (G.mat < cost || G.man < u.man) return false;
+  G.mat -= cost; G.man -= u.man;
+  const mhp = solMaxHp(t);
   G.soldiers.push({
-    x: 4.5 + rnd(-.8, .8), z: 15.4, hp: mhp, maxHp: mhp,
-    post: null, state: "seek", cd: rnd(0, .5), dead: false, aim: -Math.PI / 2, fire: 0
+    t, x: 4.5 + rnd(-.8, .8), z: 15.4, hp: mhp, maxHp: mhp,
+    post: null, state: u.free ? "roam" : "seek", cd: rnd(0, .5), dead: false,
+    aim: -Math.PI / 2, fire: 0, sup: 0
   });
   return true;
 }
@@ -888,49 +905,103 @@ function stepTo(o, tx2, tz2, spd, dt) {
   o.x += dx / d * st; o.z += dz / d * st;
   return false;
 }
+// where an assault team runs: the newest breach, else the enemy that has got
+// deepest into the site
+function reactPoint() {
+  if (G.holes.length) { const h = G.holes[G.holes.length - 1]; return [h.c + .5, h.r + 1.1]; }
+  let best = null, bz = 1.5;
+  for (const e of G.enemies) if (e.z > bz) { bz = e.z; best = e; }
+  return best ? [best.x, best.z - .5] : null;
+}
 function updateSoldiers(dt) {
   for (let i = G.soldiers.length - 1; i >= 0; i--) {
     const s = G.soldiers[i];
     if (s.dead) { G.soldiers.splice(i, 1); G.kia++; continue; }
+    const u = UNITS[s.t || "rifle"];
     s.fire = Math.max(0, s.fire - dt);
+    s.sup = Math.max(0, s.sup - dt);
     if (s.post && (s.post.dead || !s.post.done)) { s.post = null; s.state = "seek"; }
-    // a rally order pulls men out of wherever they are until it is full
-    const rp = G.rallyPost;
-    if (rp && !rp.dead && rp.done && s.post && s.post !== rp && rp.crew.length < garrisonOf(rp.key)) {
-      const ix = s.post.crew.indexOf(s);
-      if (ix >= 0) s.post.crew.splice(ix, 1);
-      s.post = null; s.state = "seek";
-    }
-    if (s.state === "seek") {
-      const p = findPost();
-      if (p) { p.crew.push(s); s.post = p; s.state = "move"; }
-      else stepTo(s, 4.5 + ((i % 5) - 2) * .5, 13.5, SOLDIER.spd, dt);
-    } else if (s.state === "move") {
-      if (!s.post) s.state = "seek";
-      else {
-        const idx = s.post.crew.indexOf(s);
-        const off = (idx - (garrisonOf(s.post.key) - 1) / 2) * .26;
-        if (stepTo(s, s.post.c + .5 + off, s.post.r + .5, SOLDIER.spd, dt)) s.state = "hold";
+
+    if (u.free) {
+      // assault teams hold nothing; they go where the line just failed
+      const rp2 = reactPoint();
+      if (rp2) stepTo(s, clamp(rp2[0], .3, COLS - .3), clamp(rp2[1], 1, ROWS - .6), u.spd, dt);
+      else stepTo(s, 4.5 + ((i % 5) - 2) * .7, 12.6, u.spd, dt);
+    } else {
+      const rp = G.rallyPost;
+      if (rp && !rp.dead && rp.done && s.post && s.post !== rp && rp.crew.length < garrisonOf(rp.key)) {
+        const ix = s.post.crew.indexOf(s);
+        if (ix >= 0) s.post.crew.splice(ix, 1);
+        s.post = null; s.state = "seek";
+      }
+      if (s.state === "seek") {
+        const p = findPost();
+        if (p) { p.crew.push(s); s.post = p; s.state = "move"; }
+        else stepTo(s, 4.5 + ((i % 5) - 2) * .5, 13.5, u.spd, dt);
+      } else if (s.state === "move") {
+        if (!s.post) s.state = "seek";
+        else {
+          const idx = s.post.crew.indexOf(s);
+          const off = (idx - (garrisonOf(s.post.key) - 1) / 2) * .26;
+          if (stepTo(s, s.post.c + .5 + off, s.post.r + .5, u.spd, dt)) s.state = "hold";
+        }
       }
     }
+
+    // support work runs on its own clock, not the firing clock
+    if (u.fix && s.sup <= 0) {
+      let tgt = null, worst = 1;
+      for (const b of G.buildings) {
+        if (!b.done || b.hp >= b.maxHp) continue;
+        if (Math.abs(b.c + .5 - s.x) > SUPPORT_R || Math.abs(b.r + .5 - s.z) > SUPPORT_R) continue;
+        const f = b.hp / b.maxHp;
+        if (f < worst) { worst = f; tgt = b; }
+      }
+      if (tgt) {
+        tgt.hp = Math.min(tgt.maxHp, tgt.hp + u.fix * .5);
+        s.sup = .5; s.fire = .12;
+        s.aim = Math.atan2(tgt.c + .5 - s.x, tgt.r + .5 - s.z);
+        G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.c + .5, z2: tgt.r + .5, life: .12, hot: false, fix: true });
+      }
+    }
+    if (u.heal && s.sup <= 0) {
+      let tgt = null, worst = 1;
+      for (const o of G.soldiers) {
+        if (o === s || o.dead || o.hp >= o.maxHp) continue;
+        if (Math.abs(o.x - s.x) > SUPPORT_R || Math.abs(o.z - s.z) > SUPPORT_R) continue;
+        const f = o.hp / o.maxHp;
+        if (f < worst) { worst = f; tgt = o; }
+      }
+      if (tgt) {
+        tgt.hp = Math.min(tgt.maxHp, tgt.hp + u.heal * .5);
+        s.sup = .5; s.fire = .12;
+        G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .12, hot: false, fix: true });
+      }
+    }
+
     s.cd -= dt;
     if (s.cd <= 0) {
       const spec = s.post ? B[s.post.key] : null;
       const rof = (spec && spec.rof ? spec.rof : 1) * (G.rally > 0 ? .5 : 1);
-      const R2 = SOLDIER.range * SOLDIER.range;
+      const R2 = u.range * u.range;
       let tgt = null, seen = 0;
       for (const e of G.enemies) {
         const dx = e.x - s.x, dz = e.z - s.z;
         if (dx * dx + dz * dz > R2) continue;
+        // anti-armour ignores the small stuff while anything big is in reach
+        if (u.heavy && !E[e.type].smash && seen > 0 && tgt && E[tgt.type].smash) continue;
+        if (u.heavy && E[e.type].smash && (!tgt || !E[tgt.type].smash)) { tgt = e; seen = 1; continue; }
         seen++;
         if (Math.random() * seen < 1) tgt = e;
       }
       if (tgt) {
-        s.cd = SOLDIER.cd * rof;
+        s.cd = u.cd * rof;
         s.fire = .12;
         s.aim = Math.atan2(tgt.x - s.x, tgt.z - s.z);
-        hurtEnemy(tgt, solDmg());
-        G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .07, hot: false });
+        let d = solDmg(s.t);
+        if (u.heavy && E[tgt.type].smash) d *= u.heavy;
+        hurtEnemy(tgt, d);
+        G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .07, hot: !!u.heavy });
       } else s.cd = .2;
     }
   }
@@ -1069,7 +1140,7 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = 1 + G.assault * 0.24;
+  const scale = 1 + G.assault * 0.27;
   G.enemies.push({
     type, x: rnd(.25, COLS - .25), z: rnd(-1.6, -.2),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
@@ -1126,7 +1197,7 @@ function updateEnemies(dt) {
     const e = G.enemies[i];
     if (e.dead) { G.enemies.splice(i, 1); continue; }
     const spec = E[e.type];
-    e.flash = Math.max(0, e.flash - dt * 7);
+    e.flash = Math.max(0, e.flash - dt * 11);
     e.cd -= dt;
     const c = clamp(Math.floor(e.x), 0, COLS - 1);
     const rRaw = Math.floor(e.z);
@@ -1192,6 +1263,60 @@ function updateEnemies(dt) {
     const ddx = tx2 - e.x, ddz = tz2 - e.z;
     if (ddx * ddx + ddz * ddz > .01) e.dir = Math.atan2(ddx, ddz);
     stepTo(e, tx2, tz2, spd, dt);
+  }
+  separate();
+}
+
+// Enemies used to occupy the same point: pathing charged for crowding but
+// nothing physically pushed them apart, so a wave read as one mashed blob.
+// Uniform grid at half a cell, one relaxation pass per frame.
+const SEP_W = 2, SEP_C = COLS * SEP_W, SEP_R = (ROWS + 4) * SEP_W;
+const sepHead = new Int32Array(SEP_C * SEP_R);
+const sepNext = new Int32Array(MAX_ENEMIES + 8);
+function separate() {
+  const list = G.enemies, n = list.length;
+  if (n < 2) return;
+  sepHead.fill(-1);
+  for (let i = 0; i < n; i++) {
+    const e = list[i];
+    const cx = clamp((e.x * SEP_W) | 0, 0, SEP_C - 1);
+    const cy = clamp(((e.z + 2) * SEP_W) | 0, 0, SEP_R - 1);
+    const k = cy * SEP_C + cx;
+    sepNext[i] = sepHead[k]; sepHead[k] = i;
+  }
+  for (let i = 0; i < n; i++) {
+    const a = list[i];
+    const ar = a.r * 1.25, am = a.sc;
+    const cx = clamp((a.x * SEP_W) | 0, 0, SEP_C - 1);
+    const cy = clamp(((a.z + 2) * SEP_W) | 0, 0, SEP_R - 1);
+    for (let dy = -1; dy <= 1; dy++) {
+      const ry = cy + dy;
+      if (ry < 0 || ry >= SEP_R) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        const rx = cx + dx;
+        if (rx < 0 || rx >= SEP_C) continue;
+        let j = sepHead[ry * SEP_C + rx];
+        while (j >= 0) {
+          if (j > i) {
+            const b = list[j];
+            const mind = ar + b.r * 1.25;
+            let ox = b.x - a.x, oz = b.z - a.z;
+            const d2 = ox * ox + oz * oz;
+            if (d2 < mind * mind && d2 > 1e-6) {
+              const d = Math.sqrt(d2), push = (mind - d) * .34 / d;
+              const bm = b.sc, tot = am + bm;
+              const wa = bm / tot, wb = am / tot;
+              a.x -= ox * push * wa; a.z -= oz * push * wa;
+              b.x += ox * push * wb; b.z += oz * push * wb;
+            } else if (d2 <= 1e-6) {
+              a.x -= .04; b.x += .04;
+            }
+          }
+          j = sepNext[j];
+        }
+      }
+    }
+    a.x = clamp(a.x, .12, COLS - .12);
   }
 }
 
@@ -2316,12 +2441,25 @@ const VIEW = (() => {
     roughness: .42, metalness: .62 });
   const infLitMat = new THREE.MeshStandardMaterial({
     color: 0x64e0ff, emissive: 0x2ec6ff, emissiveIntensity: 2.1, roughness: .25 });
-  const soldierMesh = new THREE.InstancedMesh(soldierGeo, infMat, 90);
+  const SOL_MAX = 120;
+  const soldierMesh = new THREE.InstancedMesh(soldierGeo, infMat, SOL_MAX);
   soldierMesh.castShadow = true; soldierMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  soldierMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SOL_MAX * 3).fill(1), 3);
+  soldierMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierMesh);
-  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, infLitMat, 90);
+  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, infLitMat, SOL_MAX);
   soldierLitMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  soldierLitMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SOL_MAX * 3).fill(1), 3);
+  soldierLitMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierLitMesh);
+  // role colour goes on the reactor core, chassis tint stays near-neutral
+  const ROLE = {
+    rifle: { core: [0.35, 1.55, 1.90], body: [1.00, 1.00, 1.00], sc: .80 },
+    at:    { core: [1.90, 1.35, 0.30], body: [1.06, 1.00, 0.88], sc: .86 },
+    eng:   { core: [0.60, 1.85, 0.75], body: [0.94, 1.04, 0.92], sc: .78 },
+    medic: { core: [1.85, 1.75, 1.85], body: [1.10, 1.10, 1.12], sc: .78 },
+    guard: { core: [1.95, 0.75, 0.45], body: [0.92, 0.94, 1.02], sc: 1.06 }
+  };
 
   // sparks
   const sparkGeo = new THREE.BufferGeometry();
@@ -2339,6 +2477,11 @@ const VIEW = (() => {
   const tracerLines = new THREE.LineSegments(trGeo, new THREE.LineBasicMaterial({
     color: 0xffd98a, transparent: true, opacity: .8 }));
   scene.add(tracerLines);
+  const FIX_MAX = 60;
+  const fixGeo = new THREE.BufferGeometry();
+  fixGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(FIX_MAX * 6), 3));
+  scene.add(new THREE.LineSegments(fixGeo, new THREE.LineBasicMaterial({
+    color: 0x6bf09a, transparent: true, opacity: .7 })));
 
   const shellGeo = new THREE.SphereGeometry(.07, 8, 6);
   const shellMat = new THREE.MeshStandardMaterial({ color: 0xffe0a8, emissive: 0xffa54a, emissiveIntensity: 1.2 });
@@ -2790,7 +2933,7 @@ const VIEW = (() => {
         bm.setMatrixAt(i, dummy.matrix);
         eOre[e.type].setMatrixAt(i, dummy.matrix);
         // white-hot on the frame it is struck; instanceColor multiplies albedo
-        const k = 1 + e.flash * 5.5;
+        const k = 1 + e.flash * e.flash * 3.2;
         const ca = bm.instanceColor.array, cb2 = eOre[e.type].instanceColor.array;
         ca[i * 3] = ca[i * 3 + 1] = ca[i * 3 + 2] = k;
         cb2[i * 3] = cb2[i * 3 + 1] = cb2[i * 3 + 2] = k;
@@ -2805,19 +2948,26 @@ const VIEW = (() => {
 
       // soldiers
       let sn = 0;
+      const sBody = soldierMesh.instanceColor.array, sCore = soldierLitMesh.instanceColor.array;
       for (const s of G.soldiers) {
-        if (sn >= 90) break;
+        if (sn >= SOL_MAX) break;
+        const rl = ROLE[s.t] || ROLE.rifle;
         dummy.position.set(wx(s.x), liftAt(s.z) + .02, wz(s.z));
         dummy.rotation.set(0, s.aim + Math.PI, 0);
-        dummy.scale.setScalar(.80);
+        dummy.scale.setScalar(rl.sc);
         dummy.updateMatrix();
         soldierMesh.setMatrixAt(sn, dummy.matrix);
         soldierLitMesh.setMatrixAt(sn, dummy.matrix);
+        const k = 1 + (s.fire > 0 ? .8 : 0);
+        sBody[sn * 3] = rl.body[0]; sBody[sn * 3 + 1] = rl.body[1]; sBody[sn * 3 + 2] = rl.body[2];
+        sCore[sn * 3] = rl.core[0] * k; sCore[sn * 3 + 1] = rl.core[1] * k; sCore[sn * 3 + 2] = rl.core[2] * k;
         sn++;
       }
       soldierMesh.count = sn; soldierLitMesh.count = sn;
       soldierMesh.instanceMatrix.needsUpdate = true;
       soldierLitMesh.instanceMatrix.needsUpdate = true;
+      soldierMesh.instanceColor.needsUpdate = true;
+      soldierLitMesh.instanceColor.needsUpdate = true;
 
       // turrets
       for (const b of G.buildings) {
@@ -2852,10 +3002,17 @@ const VIEW = (() => {
         }
       }
       // tracers
-      const tp = trGeo.attributes.position.array;
-      let tn = 0;
+      const tp = trGeo.attributes.position.array, fp = fixGeo.attributes.position.array;
+      let tn = 0, fn = 0;
       for (const t of G.tracers) {
-        if (tn >= TR_MAX) break;
+        if (t.fix) {
+          if (fn >= FIX_MAX) continue;
+          const j = fn * 6;
+          fp[j] = wx(t.x1); fp[j + 1] = liftAt(t.z1) + .34; fp[j + 2] = wz(t.z1);
+          fp[j + 3] = wx(t.x2); fp[j + 4] = liftAt(t.z2) + .34; fp[j + 5] = wz(t.z2);
+          fn++; continue;
+        }
+        if (tn >= TR_MAX) continue;
         const i = tn * 6;
         tp[i] = wx(t.x1); tp[i + 1] = liftAt(t.z1) + .3; tp[i + 2] = wz(t.z1);
         tp[i + 3] = wx(t.x2); tp[i + 4] = liftAt(t.z2) + .2; tp[i + 5] = wz(t.z2);
@@ -2863,6 +3020,8 @@ const VIEW = (() => {
       }
       trGeo.setDrawRange(0, tn * 2);
       trGeo.attributes.position.needsUpdate = true;
+      fixGeo.setDrawRange(0, fn * 2);
+      fixGeo.attributes.position.needsUpdate = true;
 
       // impacts throw light
       for (const s of G.shells) {
@@ -3025,6 +3184,10 @@ const GLYPH = {
   depot:  '<rect x="4" y="9" width="8" height="8"/><rect x="13" y="12" width="7" height="5"/><line x1="4" y1="12" x2="12" y2="12"/>',
   camp:   '<polygon points="7,18 12,6 17,18"/><line x1="4" y1="18" x2="20" y2="18"/>',
   inf:    '<circle cx="12" cy="7" r="3"/><polyline points="7,20 9,12 15,12 17,20"/>',
+  at:     '<circle cx="9" cy="6" r="2.6"/><polyline points="5,20 7,12 13,12 14,20"/><line x1="10" y1="11" x2="21" y2="7"/><circle cx="21" cy="7" r="1.6"/>',
+  eng:    '<circle cx="12" cy="6" r="2.8"/><polyline points="7,20 9,12 15,12 17,20"/><path d="M17 4 l3 3 -2.5 2.5 -3 -3z"/><line x1="14.5" y1="9.5" x2="11" y2="13"/>',
+  med:    '<circle cx="12" cy="6" r="2.8"/><polyline points="7,20 9,12 15,12 17,20"/><line x1="12" y1="14" x2="12" y2="19"/><line x1="9.5" y1="16.5" x2="14.5" y2="16.5"/>',
+  gd:     '<circle cx="12" cy="6" r="2.8"/><polyline points="6,20 8,12 16,12 18,20"/><polygon points="12,9 16,11 16,16 12,18 8,16 8,11"/>',
   barricade: '<line x1="2" y1="19" x2="22" y2="19"/><polyline points="5,19 8,7 20,7"/><line x1="7" y1="13" x2="20" y2="13"/>',
   wall:   '<rect x="3" y="14" width="18" height="5"/><rect x="5" y="9" width="14" height="5"/><rect x="8" y="4" width="8" height="5"/>',
   dragon: '<polygon points="3,18 6,10 9,18"/><polygon points="11,18 14,8 17,18"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="4" y1="14" x2="20" y2="12"/>',
@@ -3218,20 +3381,24 @@ function syncSheet() {
   body.innerHTML = "";
   document.querySelectorAll(".tab").forEach(t => t.dataset.on = (+t.dataset.zone === tab) ? "1" : "0");
   if (tab === 3) {
-    $("hint").textContent = "병사는 가장 앞쪽 빈 참호로 알아서 들어갑니다";
+    $("hint").textContent = "가장 앞쪽 빈 참호로 들어갑니다 · 참호를 눌러 집결 지정 가능";
     let free = 0;
     for (const b of G.buildings) if (b.done && B[b.key].garrison) free += garrisonOf(b.key) - b.crew.length;
-    const sc1 = solCost();
-    body.appendChild(mkAct("병사 1명", `인력 ${SOLDIER.man} 소모`, () => { spawnSoldier(); syncSheet(); },
-      { off: G.mat < sc1 || G.man < SOLDIER.man, cost: sc1, glyph: "inf" }));
-    body.appendChild(mkAct("병사 5명", `인력 ${SOLDIER.man * 5} 소모`, () => {
-      for (let i = 0; i < 5; i++) if (!spawnSoldier()) break; syncSheet();
-    }, { off: G.mat < sc1 * 5 || G.man < SOLDIER.man * 5, cost: sc1 * 5, glyph: "inf" }));
+    for (const t of ["rifle", "at", "eng", "medic", "guard"]) {
+      const u = UNITS[t], c1 = solCost(t);
+      const tag = u.free ? "<em>참호 불필요</em> · " : `<em>인력 ${u.man}</em> · `;
+      body.appendChild(mkAct(u.name, `${tag}${u.desc}`, () => { spawnSoldier(t); syncSheet(); },
+        { off: G.mat < c1 || G.man < u.man, cost: c1, glyph: u.g }));
+    }
+    const rc = solCost("rifle");
+    body.appendChild(mkAct("소총병 ×5", `한 번에 다섯 명`, () => {
+      for (let i = 0; i < 5; i++) if (!spawnSoldier("rifle")) break; syncSheet();
+    }, { off: G.mat < rc * 5 || G.man < UNITS.rifle.man * 5, cost: rc * 5, glyph: "inf" }));
     const info = document.createElement("div");
     info.className = "act"; info.style.cssText = "pointer-events:none";
     info.innerHTML = `<div class="art">${svgGlyph("trench")}</div>
       <div class="t" style="font-size:11px">빈 자리 ${free}칸</div>
-      <div class="c">배치 가능한 참호·벙커 슬롯</div>`;
+      <div class="c">참호·벙커의 남은 슬롯. 돌격대는 이 자리를 쓰지 않습니다</div>`;
     body.appendChild(info);
     VIEW.highlight(null);
     return;
