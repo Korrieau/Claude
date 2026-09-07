@@ -26,20 +26,22 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.80;
+renderer.toneMappingExposure = 0.92;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x121a26, 26, 56);
+scene.fog = new THREE.Fog(0x2b3a4e, 42, 110);
 
 { // graded backdrop
   const c = document.createElement("canvas");
   c.width = 4; c.height = 256;
   const g = c.getContext("2d");
   const grd = g.createLinearGradient(0, 0, 0, 256);
-  grd.addColorStop(0, "#070a0f");
-  grd.addColorStop(0.55, "#141c28");
-  grd.addColorStop(1, "#080b10");
+  grd.addColorStop(0, "#0c1420");
+  grd.addColorStop(0.42, "#25384f");
+  grd.addColorStop(0.62, "#4d5f6e");
+  grd.addColorStop(0.78, "#8a7a63");
+  grd.addColorStop(1, "#2a2b2c");
   g.fillStyle = grd; g.fillRect(0, 0, 4, 256);
   const tex = new THREE.CanvasTexture(c);
   tex.encoding = THREE.sRGBEncoding;
@@ -47,23 +49,23 @@ scene.fog = new THREE.Fog(0x121a26, 26, 56);
 }
 
 const camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, 0.5, 220);
-camera.position.set(0, 16.5, 20.5);
-camera.lookAt(0, 0.6, -2.6);
+camera.position.set(0, 26.0, 30.0);
+camera.lookAt(0, 0.4, -2.2);
 
 // ---------- lighting ----------
-const key = new THREE.DirectionalLight(0xfff2e0, 1.75);
-key.position.set(-8, 15, 7);
+const key = new THREE.DirectionalLight(0xffd39a, 2.15);
+key.position.set(-22, 13, 15);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
-key.shadow.camera.left = -8; key.shadow.camera.right = 8;
-key.shadow.camera.top = 13; key.shadow.camera.bottom = -13;
-key.shadow.camera.near = 1; key.shadow.camera.far = 60;
+key.shadow.camera.left = -16; key.shadow.camera.right = 16;
+key.shadow.camera.top = 22; key.shadow.camera.bottom = -22;
+key.shadow.camera.near = 1; key.shadow.camera.far = 90;
 key.shadow.bias = -0.0006;
 key.shadow.normalBias = 0.022;
 scene.add(key);
-scene.add(new THREE.HemisphereLight(0x8fb4de, 0x2e2a22, 0.30));
-const rim = new THREE.DirectionalLight(0x74acff, 0.35);
-rim.position.set(7, 6, -10);
+scene.add(new THREE.HemisphereLight(0x6f97cf, 0x231e17, 0.36));
+const rim = new THREE.DirectionalLight(0x5c8ee0, 0.55);
+rim.position.set(10, 7, -14);
 scene.add(rim);
 
 // ---------------------------------------------------------------------------
@@ -189,7 +191,7 @@ const M = {
   white: new THREE.MeshStandardMaterial({ color: 0xe9eef3, roughness: 0.68 }),
   orange:new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff4d00, emissiveIntensity: 1.1, roughness: 0.5 }),
   cyan:  new THREE.MeshStandardMaterial({ color: 0x4fe3f0, emissive: 0x18c8dc, emissiveIntensity: 2.0, roughness: 0.4 }),
-  enemy: new THREE.MeshStandardMaterial({ color: 0x0b0d11, roughness: 0.55, metalness: 0.3 }),
+  enemy: new THREE.MeshStandardMaterial({ color: 0x171b22, roughness: 0.42, metalness: 0.55 }),
   eye:   new THREE.MeshStandardMaterial({ color: 0xff3b52, emissive: 0xff2036, emissiveIntensity: 2.6 })
 };
 
@@ -380,6 +382,206 @@ function hq() {
 }
 
 // ---------------------------------------------------------------------------
+// The site around the board
+// The reference never floats its maps in a void: the playfield sits inside a
+// built environment — container stacks, sheds, pipe runs, gantries, floodlight
+// masts. That surrounding structure is also where the colour comes from.
+// ---------------------------------------------------------------------------
+const CONTAINER_COLS = [0x8a4238, 0x3c5a72, 0x6d6a3a, 0xa8813a, 0x4a5c52, 0x7a4a58];
+const containerMats = CONTAINER_COLS.map(c => new THREE.MeshStandardMaterial({
+  map: canvasTex(256, (g, S) => {
+    const base = "#" + c.toString(16).padStart(6, "0");
+    g.fillStyle = base; g.fillRect(0, 0, S, S);
+    // corrugation
+    for (let x = 0; x < S; x += 9) {
+      g.fillStyle = "rgba(255,255,255,.07)"; g.fillRect(x, 0, 4, S);
+      g.fillStyle = "rgba(0,0,0,.16)"; g.fillRect(x + 4, 0, 5, S);
+    }
+    g.fillStyle = "rgba(0,0,0,.30)";
+    g.fillRect(0, 0, S, 10); g.fillRect(0, S - 10, S, 10);
+    noiseBlobs(g, 30, S, 3, 18, () => `rgba(96,54,26,${.06 + Math.random() * .22})`);
+    noiseBlobs(g, 60, S, 1, 5, () => `rgba(0,0,0,${.08 + Math.random() * .2})`);
+    const vg = g.createLinearGradient(0, 0, 0, S);
+    vg.addColorStop(0, "rgba(255,255,255,.05)");
+    vg.addColorStop(1, "rgba(0,0,0,.28)");
+    g.fillStyle = vg; g.fillRect(0, 0, S, S);
+  }),
+  roughness: 0.88, metalness: 0.25
+}));
+
+const siteGroup = new THREE.Group();
+scene.add(siteGroup);
+
+function container(x, y, z, ry, i) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.15, 1.05),
+                           containerMats[i % containerMats.length]);
+  m.position.set(x, y + 0.575, z);
+  m.rotation.y = ry;
+  m.castShadow = true; m.receiveShadow = true;
+  siteGroup.add(m);
+  return m;
+}
+function shed(x, y, z, w, h, d, ry) {
+  const wall = new THREE.MeshStandardMaterial({
+    map: canvasTex(256, (g, S) => {
+      g.fillStyle = "#4e5459"; g.fillRect(0, 0, S, S);
+      for (let x2 = 0; x2 < S; x2 += 11) {
+        g.fillStyle = "rgba(255,255,255,.06)"; g.fillRect(x2, 0, 5, S);
+        g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(x2 + 5, 0, 6, S);
+      }
+      noiseBlobs(g, 26, S, 4, 20, () => `rgba(92,50,24,${.05 + Math.random() * .2})`);
+      g.fillStyle = "rgba(0,0,0,.35)"; g.fillRect(0, S - 24, S, 24);
+    }), roughness: 0.9, metalness: 0.2
+  });
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wall);
+  b.position.set(x, y + h / 2, z);
+  b.rotation.y = ry || 0;
+  b.castShadow = true; b.receiveShadow = true;
+  siteGroup.add(b);
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(w * 1.06, 0.14, d * 1.06), M.dark);
+  roof.position.set(x, y + h + 0.07, z);
+  roof.rotation.y = b.rotation.y;
+  roof.castShadow = true;
+  siteGroup.add(roof);
+  return b;
+}
+function floodMast(x, y, z, aimX, aimZ) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+  siteGroup.add(g);
+  cyl(0.07, 0.09, 4.6, 8, M.steel, 0, 0, 0, g);
+  box(0.5, 0.1, 0.5, M.dark, 0, 0, 0, g);
+  const head = new THREE.Group();
+  head.position.set(0, 4.5, 0);
+  head.lookAt(new THREE.Vector3(aimX - x, 0, aimZ - z));
+  g.add(head);
+  for (const dx of [-0.22, 0.22]) {
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0xffe9c2, emissive: 0xffca70, emissiveIntensity: 2.4 }));
+    lamp.position.set(dx, 0, 0.1);
+    head.add(lamp);
+    const hood = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.32, 0.16), M.dark);
+    hood.position.set(dx, 0, -0.02);
+    hood.castShadow = true;
+    head.add(hood);
+  }
+  const pl = new THREE.PointLight(0xffd9a0, 1.1, 11, 2);
+  pl.position.set(x, y + 4.4, z);
+  scene.add(pl);
+  return g;
+}
+function pipeRun(x, y, z, len, ry) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z); g.rotation.y = ry || 0;
+  siteGroup.add(g);
+  for (const [dy, r, mat] of [[0.55, 0.16, M.rust], [0.88, 0.11, M.steel], [0.30, 0.13, M.steel]]) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), mat);
+    t.rotation.z = Math.PI / 2;
+    t.position.set(0, dy, r * 1.4);
+    t.castShadow = true; t.receiveShadow = true;
+    g.add(t);
+  }
+  for (let i = -len / 2 + 0.6; i < len / 2; i += 2.4) {
+    box(0.16, 0.55, 0.5, M.dark, i, 0, 0.2, g);
+  }
+}
+function gantry(x, y, z, w) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+  siteGroup.add(g);
+  for (const dx of [-w / 2, w / 2]) {
+    for (const dz of [-0.35, 0.35]) cyl(0.055, 0.055, 3.4, 6, M.steel, dx, 0, dz, g);
+    for (let h = 0.8; h < 3.4; h += 0.85) {
+      box(0.05, 0.05, 0.78, M.steel, dx, h, 0, g);
+    }
+  }
+  box(w + 0.3, 0.10, 0.9, M.dark, 0, 3.4, 0, g);
+  for (let i = 0; i <= 6; i++) box(0.06, 0.34, 0.06, M.steel, -w / 2 + i * w / 6, 3.5, 0.42, g);
+  box(w + 0.3, 0.05, 0.06, M.steel, 0, 3.84, 0.42, g);
+}
+function fence(x, y, z, len, ry) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z); g.rotation.y = ry || 0;
+  siteGroup.add(g);
+  const mesh = new THREE.MeshStandardMaterial({
+    map: canvasTex(128, (gg, S) => {
+      gg.clearRect(0, 0, S, S);
+      gg.strokeStyle = "rgba(150,158,166,.9)"; gg.lineWidth = 2;
+      for (let i = -S; i < S * 2; i += 12) {
+        gg.beginPath(); gg.moveTo(i, 0); gg.lineTo(i + S, S); gg.stroke();
+        gg.beginPath(); gg.moveTo(i, S); gg.lineTo(i + S, 0); gg.stroke();
+      }
+    }), transparent: true, roughness: 0.8, metalness: 0.4, side: THREE.DoubleSide
+  });
+  mesh.map.repeat.set(len * 1.2, 2);
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(len, 1.7), mesh);
+  panel.position.set(0, 0.85, 0);
+  g.add(panel);
+  for (let i = -len / 2; i <= len / 2 + 0.01; i += 2.2) cyl(0.045, 0.045, 1.9, 6, M.steel, i, 0, 0, g);
+}
+
+// --- the yard the board sits in -------------------------------------------
+const BX = COLS / 2, BZ = ROWS / 2;
+// apron: a wider slab of the same construction, so the board is part of a site
+{
+  const apron = new THREE.Mesh(
+    new THREE.BoxGeometry(COLS + 13, 0.5, ROWS + 13),
+    new THREE.MeshStandardMaterial({ map: concreteTex(0x57554f), roughnessMap: ROUGH, roughness: 0.97 })
+  );
+  apron.material.map.repeat.set(7, 7);
+  apron.position.set(0, -TILE_H - 0.24, 0);
+  apron.receiveShadow = true;
+  scene.add(apron);
+}
+// container stacks flanking the yard
+let ci = 0;
+for (const sx of [-1, 1]) {
+  for (let k = 0; k < 5; k++) {
+    const x = sx * (BX + 2.1 + (k % 2) * 1.3);
+    const z = -BZ + 1.5 + k * 3.1;
+    container(x, -TILE_H + 0.02, z, sx * 0.02, ci++);
+    if (k % 2 === 0) container(x + sx * 0.1, -TILE_H + 1.19, z + 0.06, sx * -0.03, ci++);
+  }
+}
+// sheds and a warehouse wall at the far end
+shed(-6.4, -TILE_H + 0.02, -BZ - 4.2, 6.5, 3.2, 4.4, 0.06);
+shed(5.2, -TILE_H + 0.02, -BZ - 5.6, 8.0, 4.1, 5.2, -0.04);
+shed(-1.0, -TILE_H + 0.02, -BZ - 9.5, 13.0, 5.0, 4.0, 0.0);
+// rear compound behind the objective
+shed(-6.8, -TILE_H + 0.02, BZ + 4.0, 5.4, 2.6, 4.0, -0.05);
+shed(6.6, -TILE_H + 0.02, BZ + 4.6, 6.0, 3.0, 4.4, 0.04);
+pipeRun(-BX - 4.4, -TILE_H + 0.02, 2.0, 16, Math.PI / 2);
+pipeRun(BX + 4.6, -TILE_H + 0.02, -1.0, 14, Math.PI / 2);
+gantry(0, -TILE_H + 0.02, -BZ - 1.2, 7.5);
+gantry(0, -TILE_H + 0.02, BZ + 4.4, 6.5);
+fence(0, -TILE_H + 0.02, BZ + 6.6, 16, 0);
+fence(-BX - 5.6, -TILE_H + 0.02, 0, 20, Math.PI / 2);
+fence(BX + 5.8, -TILE_H + 0.02, 0, 20, Math.PI / 2);
+floodMast(-BX - 2.6, -TILE_H + 0.02, -1.5, 0, -2);
+floodMast(BX + 2.8, -TILE_H + 0.02, 3.5, 0, 3);
+floodMast(-BX - 2.4, -TILE_H + 0.02, BZ + 1.0, 0, BZ);
+
+// distant industry, flattened into fog
+{
+  const far = new THREE.MeshStandardMaterial({ color: 0x3d4f66, roughness: 1 });
+  for (let i = 0; i < 26; i++) {
+    const w = 2 + Math.random() * 7, h = 3 + Math.random() * 11, d = 2 + Math.random() * 6;
+    const x = (Math.random() - .5) * 90;
+    const z = -BZ - 16 - Math.random() * 46;
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), far);
+    b.position.set(x, -TILE_H + h / 2, z);
+    b.rotation.y = Math.random() * 0.4;
+    scene.add(b);
+  }
+  for (let i = 0; i < 5; i++) {
+    const x = (Math.random() - .5) * 70, z = -BZ - 24 - Math.random() * 40;
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.3, 16 + Math.random() * 10, 10), far);
+    t.position.set(x, -TILE_H + 9, z);
+    scene.add(t);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Clutter and markings
 // A perfectly regular grid reads as a diagram. Junk that does not line up with
 // the tiles, and paint that has been walked on, is what says "somewhere real".
@@ -505,6 +707,208 @@ scatter(12, rubbleGeo, M.dark, 2.5, 8.5);
   scene.add(dust);
 }
 
+// ---------------------------------------------------------------------------
+// What has grown back
+// Concrete that nothing lives on reads as a showroom. Grass in the joints,
+// moss creeping up the walls, standing water and vines over the fences are
+// what say the place has been here a while.
+// ---------------------------------------------------------------------------
+const grassTex = canvasTex(128, (g, S) => {
+  g.clearRect(0, 0, S, S);
+  for (let i = 0; i < 46; i++) {
+    const x = Math.random() * S;
+    const h = S * (0.35 + Math.random() * 0.6);
+    const lean = (Math.random() - .5) * S * 0.22;
+    const hue = 78 + Math.random() * 28;
+    const lig = 18 + Math.random() * 20;
+    g.strokeStyle = `hsl(${hue},${26 + Math.random() * 22}%,${lig}%)`;
+    g.lineWidth = 1.3 + Math.random() * 2.2;
+    g.beginPath();
+    g.moveTo(x, S);
+    g.quadraticCurveTo(x + lean * .4, S - h * .5, x + lean, S - h);
+    g.stroke();
+  }
+});
+const grassMat = new THREE.MeshStandardMaterial({
+  map: grassTex, transparent: true, alphaTest: 0.42, side: THREE.DoubleSide,
+  roughness: 0.95, color: 0xa8b98a
+});
+const bladeGeo = (() => {
+  const a = new THREE.PlaneGeometry(0.40, 0.30);
+  const b = new THREE.PlaneGeometry(0.40, 0.30);
+  b.rotateY(Math.PI / 2);
+  return mergeGeosUV([{ g: a, m: new THREE.Matrix4() }, { g: b, m: new THREE.Matrix4() }]);
+})();
+function mergeGeosUV(parts) {
+  const gs = parts.map(o => {
+    const g = (o.g.index ? o.g.toNonIndexed() : o.g.clone());
+    g.applyMatrix4(o.m); return g;
+  });
+  const total = gs.reduce((a, g) => a + g.attributes.position.count, 0);
+  const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), uv = new Float32Array(total * 2);
+  let off = 0;
+  for (const g of gs) {
+    pos.set(g.attributes.position.array, off * 3);
+    nor.set(g.attributes.normal.array, off * 3);
+    uv.set(g.attributes.uv.array, off * 2);
+    off += g.attributes.position.count;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  out.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+  out.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  out.computeBoundingSphere();
+  return out;
+}
+
+// grass pushing up through the joints, and rank growth off the platform
+{
+  const N = 1500;
+  const grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
+  grass.receiveShadow = true;
+  scene.add(grass);
+  const d = new THREE.Object3D();
+  let k = 0;
+  const put = (x, y, z, sc) => {
+    if (k >= N) return;
+    d.position.set(x, y + 0.15 * sc, z);
+    d.rotation.set(0, Math.random() * 6.28, (Math.random() - .5) * .18);
+    d.scale.set(sc, sc * (0.8 + Math.random() * 0.6), sc);
+    d.updateMatrix();
+    grass.setMatrixAt(k++, d.matrix);
+  };
+  // in the seams between tiles
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (Math.random() < 0.42) continue;
+      const y = surfaceY(r);
+      const edge = Math.random() < .5;
+      const x = tx(c) + (edge ? (Math.random() < .5 ? -.5 : .5) : (Math.random() - .5) * .9);
+      const z = tz(r) + (edge ? (Math.random() - .5) * .9 : (Math.random() < .5 ? -.5 : .5));
+      put(x, y, z, 0.5 + Math.random() * 0.4);
+    }
+  }
+  // reclaiming the apron and the yard
+  for (let i = 0; i < 620; i++) {
+    const x = (Math.random() - .5) * (COLS + 12);
+    const z = (Math.random() - .5) * (ROWS + 12);
+    if (Math.abs(x) < COLS / 2 && Math.abs(z) < ROWS / 2) continue;
+    put(x, -TILE_H + 0.02, z, 0.7 + Math.random() * 0.8);
+  }
+  // thick at the base of every wall
+  for (const [x0, z0, len, horiz] of [[-BX - 5.6, 0, 18, false], [BX + 5.8, 0, 18, false],
+                                      [0, -BZ - 3.4, 20, true], [0, BZ + 6.6, 16, true]]) {
+    for (let i = 0; i < 120; i++) {
+      const t = (Math.random() - .5) * len;
+      put(horiz ? x0 + t : x0 + (Math.random() - .5) * .7,
+          -TILE_H + 0.02,
+          horiz ? z0 + (Math.random() - .5) * .7 : z0 + t,
+          0.8 + Math.random() * 0.7);
+    }
+  }
+  grass.count = k;
+  grass.instanceMatrix.needsUpdate = true;
+}
+
+// moss: dark green bloom on concrete, heaviest where water sits
+const TEX_MOSS = decalTex((g, S) => {
+  g.clearRect(0, 0, S, S);
+  for (let i = 0; i < 260; i++) {
+    const x = Math.random() * S, y = Math.random() * S;
+    const r = 4 + Math.random() * 26;
+    const dd = Math.hypot(x - S / 2, y - S / 2) / (S / 2);
+    if (dd > 0.95) continue;
+    g.fillStyle = `hsla(${88 + Math.random() * 26},${30 + Math.random() * 26}%,${13 + Math.random() * 16}%,${(1 - dd) * (0.10 + Math.random() * 0.22)})`;
+    g.beginPath(); g.ellipse(x, y, r, r * (.5 + Math.random() * .6), Math.random() * 3, 0, 6.2832); g.fill();
+  }
+});
+for (let i = 0; i < 30; i++) {
+  const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
+  decal(TEX_MOSS, tx(c) + (Math.random() - .5) * .7, surfaceY(r) - 0.006,
+        tz(r) + (Math.random() - .5) * .7, .9 + Math.random(), .9 + Math.random(),
+        Math.random() * 3, .85);
+}
+for (let i = 0; i < 22; i++) {
+  decal(TEX_MOSS, (Math.random() - .5) * (COLS + 11), -TILE_H + 0.016,
+        (Math.random() - .5) * (ROWS + 11), 1.4 + Math.random() * 2, 1.4 + Math.random() * 2,
+        Math.random() * 3, .8);
+}
+
+// standing water
+const puddleMat = new THREE.MeshStandardMaterial({
+  color: 0x1b242c, roughness: 0.06, metalness: 0.35, transparent: true, opacity: 0.92
+});
+function puddle(x, y, z, rx, rz) {
+  const m = new THREE.Mesh(new THREE.CircleGeometry(1, 20), puddleMat);
+  m.rotation.x = -Math.PI / 2;
+  m.rotation.z = Math.random() * 3;
+  m.scale.set(rx, rz, 1);
+  m.position.set(x, y + 0.006, z);
+  scene.add(m);
+  // a wet rim of darker concrete around it
+  const ring = new THREE.Mesh(new THREE.CircleGeometry(1.28, 20),
+    new THREE.MeshStandardMaterial({ color: 0x3a3a34, roughness: 0.55, transparent: true, opacity: 0.55 }));
+  ring.rotation.x = -Math.PI / 2;
+  ring.scale.set(rx, rz, 1);
+  ring.position.set(x, y + 0.003, z);
+  scene.add(ring);
+}
+for (let i = 0; i < 9; i++) {
+  const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
+  puddle(tx(c) + (Math.random() - .5) * .5, surfaceY(r), tz(r) + (Math.random() - .5) * .5,
+         .22 + Math.random() * .26, .16 + Math.random() * .2);
+}
+for (let i = 0; i < 10; i++) {
+  puddle((Math.random() - .5) * (COLS + 10), -TILE_H + 0.02, (Math.random() - .5) * (ROWS + 10),
+         .4 + Math.random() * .7, .3 + Math.random() * .5);
+}
+
+// vines over the fences, containers and gantry legs
+const leafTex = canvasTex(128, (g, S) => {
+  g.clearRect(0, 0, S, S);
+  for (let i = 0; i < 30; i++) {
+    const x = Math.random() * S, y = Math.random() * S;
+    const r = 6 + Math.random() * 15;
+    g.fillStyle = `hsla(${92 + Math.random() * 24},${28 + Math.random() * 24}%,${16 + Math.random() * 16}%,.95)`;
+    g.beginPath();
+    g.ellipse(x, y, r, r * .62, Math.random() * 3, 0, 6.2832);
+    g.fill();
+  }
+});
+const leafMat = new THREE.MeshStandardMaterial({
+  map: leafTex, transparent: true, alphaTest: 0.45, side: THREE.DoubleSide,
+  roughness: 0.9, color: 0x93a878
+});
+function vines(x, y, z, w, h, ry, count) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z); g.rotation.y = ry || 0;
+  scene.add(g);
+  for (let i = 0; i < count; i++) {
+    const px = (Math.random() - .5) * w;
+    const climb = h * (0.35 + Math.random() * 0.62);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.02, climb, 5),
+      new THREE.MeshStandardMaterial({ color: 0x4a4a32, roughness: 1 }));
+    stem.position.set(px, climb / 2, 0.05);
+    stem.rotation.z = (Math.random() - .5) * .3;
+    g.add(stem);
+    const nLeaf = 3 + Math.floor(Math.random() * 4);
+    for (let k = 0; k < nLeaf; k++) {
+      const q = new THREE.Mesh(new THREE.PlaneGeometry(0.30, 0.26), leafMat);
+      q.position.set(px + (Math.random() - .5) * .28, climb * (0.25 + Math.random() * 0.8), 0.07);
+      q.rotation.set((Math.random() - .5) * .5, (Math.random() - .5) * .8, Math.random() * 3);
+      g.add(q);
+    }
+  }
+}
+vines(0, -TILE_H + 0.02, BZ + 6.52, 15, 1.7, 0, 22);
+vines(-BX - 5.5, -TILE_H + 0.02, 0, 19, 1.7, Math.PI / 2, 24);
+vines(BX + 5.7, -TILE_H + 0.02, 0, 19, 1.7, -Math.PI / 2, 24);
+for (const sx of [-1, 1]) {
+  vines(sx * (BX + 2.4), -TILE_H + 0.02, -BZ + 3.0, 2.2, 1.1, sx > 0 ? -Math.PI / 2 : Math.PI / 2, 8);
+  vines(sx * (BX + 2.4), -TILE_H + 0.02, BZ - 3.0, 2.2, 1.1, sx > 0 ? -Math.PI / 2 : Math.PI / 2, 8);
+}
+vines(-1.0, -TILE_H + 0.02, -BZ - 7.4, 12, 2.6, 0, 20);
+
 // ---------- lay out a defended line ----------
 for (let c = 0; c < COLS; c++) wire(c, 3);
 for (let c = 0; c < COLS; c++) trench(c, 5);
@@ -535,64 +939,118 @@ for (let c = 0; c < COLS; c++) {
 }
 
 // ---------- the swarm ----------
-const bodyGeo = new THREE.SphereGeometry(0.115, 12, 10);
-bodyGeo.scale(1.0, 0.62, 1.35);
+// Spheres read as counters on a board. A carapace, six legs, a snout and a
+// row of back spines give the thing a front, a gait and a silhouette.
+function mergeGeos(parts) {
+  const gs = parts.map(o => {
+    const g = (o.g.index ? o.g.toNonIndexed() : o.g.clone());
+    g.applyMatrix4(o.m);
+    return g;
+  });
+  const total = gs.reduce((a, g) => a + g.attributes.position.count, 0);
+  const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3);
+  let off = 0;
+  for (const g of gs) {
+    pos.set(g.attributes.position.array, off * 3);
+    nor.set(g.attributes.normal.array, off * 3);
+    off += g.attributes.position.count;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  out.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+  out.computeBoundingSphere();
+  return out;
+}
+function T(x, y, z, rx, ry, rz, sx, sy, sz) {
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx || 0, ry || 0, rz || 0));
+  m.compose(new THREE.Vector3(x, y, z), q,
+            new THREE.Vector3(sx === undefined ? 1 : sx, sy === undefined ? 1 : sy, sz === undefined ? 1 : sz));
+  return m;
+}
+function creatureGeo() {
+  const parts = [];
+  const body = new THREE.SphereGeometry(0.17, 12, 9);
+  parts.push({ g: body, m: T(0, 0.02, 0, 0, 0, 0, 1.0, 0.72, 1.5) });
+  // thorax
+  parts.push({ g: new THREE.SphereGeometry(0.12, 10, 8), m: T(0, 0.03, -0.20, 0, 0, 0, 1.0, 0.85, 1.1) });
+  // snout
+  const head = new THREE.ConeGeometry(0.10, 0.24, 8);
+  parts.push({ g: head, m: T(0, 0.02, -0.34, -Math.PI / 2, 0, 0) });
+  // mandibles
+  for (const sx of [-1, 1]) {
+    parts.push({ g: new THREE.ConeGeometry(0.028, 0.16, 5),
+                 m: T(sx * 0.06, -0.01, -0.44, -Math.PI / 2 + 0.25, 0, sx * 0.3) });
+  }
+  // back spines
+  for (let i = 0; i < 3; i++) {
+    parts.push({ g: new THREE.ConeGeometry(0.045 - i * 0.008, 0.16 - i * 0.03, 5),
+                 m: T(0, 0.14 - i * 0.012, 0.02 + i * 0.13, -0.4, 0, 0) });
+  }
+  // six legs
+  const leg = new THREE.CylinderGeometry(0.018, 0.010, 0.26, 5);
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const z = -0.16 + i * 0.17;
+      parts.push({ g: leg, m: T(sx * 0.15, -0.05, z, 0.2, 0, sx * (0.95 + i * 0.12)) });
+      parts.push({ g: new THREE.CylinderGeometry(0.011, 0.008, 0.17, 5),
+                   m: T(sx * 0.25, -0.14, z + 0.02, 0.1, 0, sx * 0.25) });
+    }
+  }
+  return mergeGeos(parts);
+}
+const bodyGeo = creatureGeo();
 const swarm = new THREE.InstancedMesh(bodyGeo, M.enemy, 260);
 swarm.castShadow = true; swarm.receiveShadow = true;
 scene.add(swarm);
-const eyeGeo = new THREE.SphereGeometry(0.035, 6, 5);
-const eyes = new THREE.InstancedMesh(eyeGeo, M.eye, 260);
+const eyeGeo = new THREE.SphereGeometry(0.028, 6, 5);
+const eyes = new THREE.InstancedMesh(eyeGeo, M.eye, 520);
 scene.add(eyes);
-const legGeo = new THREE.BoxGeometry(0.03, 0.03, 0.20);
-const legs = new THREE.InstancedMesh(legGeo, M.dark, 520);
-legs.castShadow = true;
-scene.add(legs);
 
 const dummy = new THREE.Object3D();
-let n = 0, ln = 0;
-for (let i = 0; i < 260; i++) {
-  const r = Math.random() * 5.2;
+let n = 0, en = 0;
+for (let i = 0; i < 150; i++) {
+  const r = Math.random() * 7.4;
   const c = Math.random() * COLS;
   const x = tx(0) + c * 1 - 0.5 + Math.random() * 0.4;
   const z = tz(0) + r - 0.5;
-  const y = surfaceY(Math.min(ROWS - 1, Math.max(0, Math.round(r)))) + 0.10;
-  const rot = (Math.random() - 0.5) * 0.7;
-  const sc = 0.75 + Math.random() * 0.35;
+  const rr = Math.min(ROWS - 1, Math.max(0, Math.round(r)));
+  const y = surfaceY(rr) + 0.12;
+  const rot = Math.PI + (Math.random() - 0.5) * 0.6;
+  const sc = 0.78 + Math.random() * 0.32;
   dummy.position.set(x, y, z);
   dummy.rotation.set(0, rot, 0);
   dummy.scale.setScalar(sc);
   dummy.updateMatrix();
-  swarm.setMatrixAt(n, dummy.matrix);
-  dummy.position.set(x + Math.sin(rot) * 0.16, y + 0.05, z - Math.cos(rot) * 0.18);
-  dummy.scale.setScalar(sc);
-  dummy.updateMatrix();
-  eyes.setMatrixAt(n, dummy.matrix);
-  for (const side of [-1, 1]) {
-    dummy.position.set(x + side * 0.12 * sc, y - 0.05, z + 0.02);
-    dummy.rotation.set(0, rot + side * 0.5, 0);
+  swarm.setMatrixAt(n++, dummy.matrix);
+  for (const sx of [-1, 1]) {
+    dummy.position.set(x + Math.cos(rot) * sx * 0.06 * sc,
+                       y + 0.06 * sc,
+                       z - Math.cos(rot) * 0.30 * sc + Math.sin(rot) * sx * 0.06 * sc);
     dummy.scale.setScalar(sc);
     dummy.updateMatrix();
-    legs.setMatrixAt(ln++, dummy.matrix);
+    eyes.setMatrixAt(en++, dummy.matrix);
   }
-  n++;
 }
-swarm.count = n; eyes.count = n; legs.count = ln;
+swarm.count = n; eyes.count = en;
 swarm.instanceMatrix.needsUpdate = true;
 eyes.instanceMatrix.needsUpdate = true;
-legs.instanceMatrix.needsUpdate = true;
 
 // a few heavies
 for (let i = 0; i < 5; i++) {
   const x = tx(1 + Math.floor(Math.random() * 7)) + (Math.random() - .5) * .4;
   const z = tz(1) + Math.random() * 3;
   const b = new THREE.Mesh(bodyGeo, M.enemy);
-  b.scale.setScalar(2.1);
-  b.position.set(x, surfaceY(2) + 0.20, z);
+  b.scale.setScalar(2.3);
+  b.rotation.y = Math.PI + (Math.random() - .5) * .4;
+  b.position.set(x, surfaceY(2) + 0.26, z);
   b.castShadow = true; scene.add(b);
-  const e = new THREE.Mesh(eyeGeo, M.eye);
-  e.scale.setScalar(2.2);
-  e.position.set(x, surfaceY(2) + 0.26, z - 0.36);
-  scene.add(e);
+  for (const sx of [-1, 1]) {
+    const e = new THREE.Mesh(eyeGeo, M.eye);
+    e.scale.setScalar(2.4);
+    e.position.set(x + sx * 0.14, surfaceY(2) + 0.40, z - 0.66);
+    scene.add(e);
+  }
 }
 
 addEventListener("resize", () => {
