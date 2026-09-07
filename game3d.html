@@ -3277,124 +3277,311 @@ const VIEW = (() => {
       new THREE.Vector3((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2), q,
       new THREE.Vector3(len, w, w));
   };
-  function creatureBody(P) {
-    const parts = [];
-    const K = P.bulk, L = P.long, Q = P.squat;
-    const add = (g, m) => parts.push({ g, m });
-
-    // Zerg proportions: long and low, highest at the shoulder hump, tapering
-    // back to a tail. Four limbs, not six - two heavy haunches behind and two
-    // scythe arms in front. Legs stay tucked close to the body; the previous
-    // build splayed them out like an ant and read wrong.
-
-    // shoulder hump - the tallest point, carried forward
-    add(new THREE.IcosahedronGeometry(.20 * K, 0),
-        T(0, .27 * K * Q, -.12 * L * K, -.18, .5, 0, 1.30, 1.00, 1.15));
-    // layered carapace plates sloping down the back
-    add(new THREE.BoxGeometry(.36 * K, .055 * K, .22 * K), T(0, .40 * K * Q, -.03 * L * K, -.26, 0, 0));
-    add(new THREE.BoxGeometry(.31 * K, .050 * K, .20 * K), T(0, .36 * K * Q, .15 * L * K, -.12, 0, 0));
-    add(new THREE.BoxGeometry(.25 * K, .045 * K, .17 * K), T(0, .30 * K * Q, .31 * L * K, .02, 0, 0));
-    // abdomen, dropping away behind
-    add(new THREE.IcosahedronGeometry(.155 * K, 0),
-        T(0, .20 * K * Q, .29 * L * K, .16, .3, 0, 1.02, .90, 1.30));
-    // tail
-    add(new THREE.OctahedronGeometry(.10 * K, 0),
-        T(0, .14 * K * Q, .53 * L * K, .35, 0, 0, .62, .58, 1.7));
-    // neck held low and forward
-    add(new THREE.BoxGeometry(.12 * K, .10 * K, .16 * K), T(0, .21 * K * Q, -.30 * L * K, .22, 0, 0));
-    // head: mostly jaw
-    add(new THREE.OctahedronGeometry(.105 * K, 0),
-        T(0, .17 * K * Q, -.44 * L * K, .30, .78, 0, 1.20, .78, 1.55));
+  // Every type gets its own build function, not one body at eight sets of
+  // proportions. What a thing does has to be readable from its outline at the
+  // size it appears on screen, which for most of them is very small.
+  function limbPair(parts, K, Q, L, hipZ, spec) {
+    // spec: [hipX, hipY, kneeX, kneeY, kneeZ, footX, footZ, w1, w2]
+    const [hx, hy, kx, ky, kz, fx, fz, w1, w2] = spec;
     for (const sx of [-1, 1]) {
-      add(new THREE.CylinderGeometry(.004, .030 * K, .24 * K, 4),
-          T(sx * .075 * K, .15 * K * Q, -.58 * L * K, -1.38, 0, sx * .46));
+      parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                   m: seg(sx * hx * K, hy * K * Q, hipZ * L * K,
+                          sx * kx * K, ky * K * Q, kz * L * K, w1 * K) });
+      parts.push({ g: new THREE.OctahedronGeometry(w1 * .8 * K, 0),
+                   m: T(sx * kx * K, ky * K * Q, kz * L * K) });
+      parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                   m: seg(sx * kx * K, ky * K * Q, kz * L * K,
+                          sx * fx * K, 0, fz * L * K, w2 * K) });
+      parts.push({ g: new THREE.BoxGeometry(.075 * K, .024 * K, .105 * K),
+                   m: T(sx * fx * K, .012 * K, fz * L * K, 0, sx * .3, 0) });
     }
-
-    // hind legs: thick haunch with the knee sitting above the back line,
-    // shin driving forward under the body
-    for (const sx of [-1, 1]) {
-      const hipX = sx * .13 * K, hipY = .26 * K * Q, hipZ = .10 * L * K;
-      const knX  = sx * .21 * K, knY  = .35 * K * Q, knZ  = .18 * L * K;
-      const anX  = sx * .19 * K, anY  = .10 * K * Q, anZ  = -.02 * L * K;
-      const toX  = sx * .18 * K, toZ  = -.14 * L * K;
-      add(new THREE.IcosahedronGeometry(.095 * K, 0),
-          T(sx * .18 * K, .29 * K * Q, .14 * L * K, 0, 0, 0, 1.05, 1.15, 1.20));
-      add(new THREE.BoxGeometry(1, 1, 1), seg(hipX, hipY, hipZ, knX, knY, knZ, .125 * K));
-      add(new THREE.BoxGeometry(1, 1, 1), seg(knX, knY, knZ, anX, anY, anZ, .090 * K));
-      add(new THREE.BoxGeometry(1, 1, 1), seg(anX, anY, anZ, toX, 0, toZ, .068 * K));
-      add(new THREE.BoxGeometry(.08 * K, .026 * K, .11 * K), T(toX, .013 * K, toZ, 0, sx * .28, 0));
-    }
-
-    // front scythe arms
-    for (const sx of [-1, 1]) {
-      const shX = sx * .15 * K, shY = .27 * K * Q, shZ = -.24 * L * K;
-      const elX = sx * .22 * K, elY = .15 * K * Q, elZ = -.38 * L * K;
-      add(new THREE.OctahedronGeometry(.058 * K, 0), T(shX, shY, shZ));
-      add(new THREE.BoxGeometry(1, 1, 1), seg(shX, shY, shZ, elX, elY, elZ, .085 * K));
-      // the blade: flattened, sweeping forward past the head
-      add(new THREE.CylinderGeometry(.006 * K, .055 * K, .42 * K, 4),
-          T(sx * .235 * K, .16 * K * Q, -.58 * L * K, -1.72, sx * .22, 0, .45, 1, 1));
-    }
-    return mergeGeos(parts);
   }
-  function creatureCrystal(P) {
+  function jaws(parts, K, Q, L, z, len, rad, spread) {
+    for (const sx of [-1, 1])
+      parts.push({ g: new THREE.CylinderGeometry(.004, rad * K, len * K, 4),
+                   m: T(sx * .075 * K, .14 * K * Q, z * L * K, -1.38, 0, sx * spread) });
+  }
+
+  const FORM = {
+    // a skittering nodule: barely a creature, four stubs and a crystal knot
+    spore(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.21 * K, 0),
+                   m: T(0, .19 * K * Q, 0, .2, .5, 0, 1.15, .95, 1.05) });
+      parts.push({ g: new THREE.OctahedronGeometry(.09 * K, 0),
+                   m: T(0, .13 * K * Q, -.24 * L * K, .3, .8, 0, 1.1, .8, 1.3) });
+      for (const sx of [-1, 1]) for (const dz of [-.13, .13]) {
+        parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                     m: seg(sx * .09 * K, .16 * K * Q, dz * L * K,
+                            sx * .19 * K, 0, (dz + .05) * L * K, .052 * K) });
+      }
+      jaws(parts, K, Q, L, -.33, .13, .018, .7);
+      return parts;
+    },
+    // the baseline: four limbs, pinched waist, head out front
+    swarm(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.19 * K, 0),
+                   m: T(0, .25 * K * Q, .26 * L * K, .28, .6, 0, 1.02, .84 * Q, 1.20) });
+      parts.push({ g: new THREE.OctahedronGeometry(.10 * K, 0),
+                   m: T(0, .16 * K * Q, .50 * L * K, .5, 0, 0, .62, .56, 1.7) });
+      parts.push({ g: new THREE.BoxGeometry(.11 * K, .10 * K, .13 * K), m: T(0, .19 * K * Q, .08 * L * K) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.155 * K, 0),
+                   m: T(0, .18 * K * Q, -.09 * L * K, -.22, 0, 0, 1.42, .78 * Q, 1.05) });
+      parts.push({ g: new THREE.BoxGeometry(.30 * K, .07 * K, .22 * K), m: T(0, .23 * K * Q, -.07 * L * K, -.15) });
+      parts.push({ g: new THREE.BoxGeometry(.12 * K, .10 * K, .16 * K), m: T(0, .21 * K * Q, -.30 * L * K, .22) });
+      parts.push({ g: new THREE.OctahedronGeometry(.105 * K, 0),
+                   m: T(0, .15 * K * Q, -.44 * L * K, .32, .78, 0, 1.25, .82, 1.65) });
+      jaws(parts, K, Q, L, -.58, .24, .030, .46);
+      limbPair(parts, K, Q, L, .10, [.13, .26, .21, .35, .18, .19, -.14, .125, .09]);
+      for (const sx of [-1, 1]) {
+        parts.push({ g: new THREE.OctahedronGeometry(.058 * K, 0), m: T(sx * .15 * K, .27 * K * Q, -.24 * L * K) });
+        parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                     m: seg(sx * .15 * K, .27 * K * Q, -.24 * L * K,
+                            sx * .22 * K, .15 * K * Q, -.38 * L * K, .085 * K) });
+        parts.push({ g: new THREE.CylinderGeometry(.006 * K, .055 * K, .42 * K, 4),
+                     m: T(sx * .235 * K, .16 * K * Q, -.58 * L * K, -1.72, sx * .22, 0, .45, 1, 1) });
+      }
+      return parts;
+    },
+    // built to close distance: long, low, huge folded haunches, ram crest
+    charger(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.155 * K, 0),
+                   m: T(0, .19 * K * Q, .30 * L * K, .3, .4, 0, .92, .72, 1.5) });
+      parts.push({ g: new THREE.OctahedronGeometry(.085 * K, 0),
+                   m: T(0, .14 * K * Q, .58 * L * K, .45, 0, 0, .5, .45, 2.0) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.15 * K, 0),
+                   m: T(0, .18 * K * Q, -.06 * L * K, -.3, 0, 0, 1.25, .70, 1.35) });
+      // a low wedge head faired straight into the body
+      parts.push({ g: new THREE.OctahedronGeometry(.115 * K, 0),
+                   m: T(0, .13 * K * Q, -.42 * L * K, .18, .78, 0, 1.15, .62, 2.1) });
+      parts.push({ g: new THREE.BoxGeometry(.20 * K, .05 * K, .30 * K), m: T(0, .19 * K * Q, -.30 * L * K, -.30) });
+      jaws(parts, K, Q, L, -.62, .20, .024, .30);
+      // haunches folded high and far back, shins raked forward
+      limbPair(parts, K, Q, L, .22, [.13, .24, .23, .44, .30, .19, -.06, .135, .085]);
+      for (const sx of [-1, 1])
+        parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                     m: seg(sx * .13 * K, .22 * K * Q, -.22 * L * K,
+                            sx * .17 * K, 0, -.40 * L * K, .062 * K) });
+      return parts;
+    },
+    // a shell on legs: dome carapace, limbs tucked underneath
+    carapace(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      const dome = new THREE.SphereGeometry(.30 * K, 10, 6, 0, 6.283, 0, 1.15);
+      parts.push({ g: dome, m: T(0, .12 * K * Q, .02 * L * K, 0, 0, 0, 1.12, .85 * Q, 1.28) });
+      for (let i = 0; i < 3; i++)
+        parts.push({ g: new THREE.BoxGeometry(.52 * K - i * .09 * K, .05 * K, .09 * K),
+                     m: T(0, (.20 + i * .07) * K * Q, (.16 - i * .12) * L * K, -.18 - i * .12) });
+      parts.push({ g: new THREE.BoxGeometry(.40 * K, .09 * K, .16 * K), m: T(0, .10 * K * Q, .34 * L * K, .25) });
+      // a small head barely clear of the rim
+      parts.push({ g: new THREE.OctahedronGeometry(.095 * K, 0),
+                   m: T(0, .10 * K * Q, -.36 * L * K, .3, .78, 0, 1.2, .7, 1.4) });
+      jaws(parts, K, Q, L, -.48, .17, .028, .5);
+      limbPair(parts, K, Q, L, .12, [.15, .17, .24, .21, .12, .25, -.06, .10, .075]);
+      limbPair(parts, K, Q, L, -.14, [.15, .17, .24, .21, -.18, .25, -.30, .095, .07]);
+      return parts;
+    },
+    // wall-breaker: everything is in the forelimbs
+    breaker(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.19 * K, 0),
+                   m: T(0, .22 * K * Q, .28 * L * K, .3, .5, 0, 1.0, .8, 1.15) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.20 * K, 0),
+                   m: T(0, .30 * K * Q, -.10 * L * K, -.3, 0, 0, 1.5, .95, 1.05) });
+      parts.push({ g: new THREE.BoxGeometry(.40 * K, .09 * K, .26 * K), m: T(0, .44 * K * Q, -.06 * L * K, -.22) });
+      parts.push({ g: new THREE.OctahedronGeometry(.10 * K, 0),
+                   m: T(0, .17 * K * Q, -.36 * L * K, .35, .78, 0, 1.1, .72, 1.4) });
+      jaws(parts, K, Q, L, -.48, .19, .026, .5);
+      // hind legs are small; the front arms are the animal
+      limbPair(parts, K, Q, L, .18, [.14, .22, .21, .28, .22, .19, .04, .095, .07]);
+      for (const sx of [-1, 1]) {
+        parts.push({ g: new THREE.OctahedronGeometry(.11 * K, 0), m: T(sx * .22 * K, .36 * K * Q, -.10 * L * K) });
+        parts.push({ g: new THREE.BoxGeometry(1, 1, 1),
+                     m: seg(sx * .22 * K, .36 * K * Q, -.10 * L * K,
+                            sx * .34 * K, .22 * K * Q, -.34 * L * K, .155 * K) });
+        // the maul: a blunt mass, not a blade
+        parts.push({ g: new THREE.IcosahedronGeometry(.16 * K, 0),
+                     m: T(sx * .38 * K, .16 * K * Q, -.50 * L * K, 0, 0, 0, 1.0, .9, 1.25) });
+        parts.push({ g: new THREE.BoxGeometry(.20 * K, .18 * K, .16 * K), m: T(sx * .38 * K, .16 * K * Q, -.60 * L * K) });
+      }
+      return parts;
+    },
+    // heavy quadruped under layered plate skirts
+    heavy(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.24 * K, 0),
+                   m: T(0, .26 * K * Q, .10 * L * K, 0, .4, 0, 1.35, .95, 1.45) });
+      for (let i = 0; i < 4; i++)
+        parts.push({ g: new THREE.BoxGeometry((.62 - i * .07) * K, .06 * K, .14 * K),
+                     m: T(0, (.30 + i * .085) * K * Q, (.30 - i * .16) * L * K, -.12 - i * .06) });
+      for (const sx of [-1, 1])
+        parts.push({ g: new THREE.BoxGeometry(.09 * K, .26 * K, .52 * K),
+                     m: T(sx * .30 * K, .12 * K * Q, .04 * L * K, 0, 0, sx * .22) });
+      parts.push({ g: new THREE.BoxGeometry(.16 * K, .12 * K, .18 * K), m: T(0, .22 * K * Q, -.30 * L * K, .2) });
+      parts.push({ g: new THREE.OctahedronGeometry(.13 * K, 0),
+                   m: T(0, .18 * K * Q, -.44 * L * K, .3, .78, 0, 1.3, .85, 1.5) });
+      jaws(parts, K, Q, L, -.60, .26, .036, .48);
+      limbPair(parts, K, Q, L, .26, [.17, .26, .27, .34, .30, .25, .12, .145, .105]);
+      limbPair(parts, K, Q, L, -.14, [.17, .26, .27, .34, -.16, .25, -.34, .135, .10]);
+      return parts;
+    },
+    // tall: long legs hold the body clear above the line
+    colossus(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      const H = .38;   // everything rides higher
+      parts.push({ g: new THREE.IcosahedronGeometry(.22 * K, 0),
+                   m: T(0, (.30 + H) * K * Q, .24 * L * K, .25, .5, 0, 1.05, .90, 1.30) });
+      parts.push({ g: new THREE.OctahedronGeometry(.13 * K, 0),
+                   m: T(0, (.24 + H) * K * Q, .52 * L * K, .5, 0, 0, .7, .6, 1.8) });
+      parts.push({ g: new THREE.BoxGeometry(.13 * K, .12 * K, .15 * K), m: T(0, (.26 + H) * K * Q, .04 * L * K) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.19 * K, 0),
+                   m: T(0, (.26 + H) * K * Q, -.14 * L * K, -.2, 0, 0, 1.45, .85, 1.10) });
+      parts.push({ g: new THREE.BoxGeometry(.40 * K, .07 * K, .26 * K), m: T(0, (.40 + H) * K * Q, -.10 * L * K, -.18) });
+      parts.push({ g: new THREE.BoxGeometry(.13 * K, .11 * K, .20 * K), m: T(0, (.22 + H) * K * Q, -.36 * L * K, .26) });
+      parts.push({ g: new THREE.OctahedronGeometry(.12 * K, 0),
+                   m: T(0, (.16 + H) * K * Q, -.52 * L * K, .32, .78, 0, 1.25, .82, 1.6) });
+      jaws(parts, K, Q, L, -.68, .27, .032, .46);
+      limbPair(parts, K, Q, L, .18, [.16, (.28 + H), .30, (.52 + H), .26, .30, -.06, .120, .085]);
+      limbPair(parts, K, Q, L, -.16, [.16, (.28 + H), .30, (.50 + H), -.22, .30, -.42, .110, .080]);
+      return parts;
+    },
+    // the brood mother: wide, crowned, dragging a swollen abdomen
+    matriarch(P) {
+      const K = P.bulk, L = P.long, Q = P.squat, parts = [];
+      parts.push({ g: new THREE.IcosahedronGeometry(.30 * K, 0),
+                   m: T(0, .26 * K * Q, .40 * L * K, .18, .5, 0, 1.25, 1.05, 1.45) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.19 * K, 0),
+                   m: T(0, .20 * K * Q, .72 * L * K, .3, .2, 0, .95, .8, 1.3) });
+      for (const sx of [-1, 1]) for (const dz of [.34, .58])
+        parts.push({ g: new THREE.IcosahedronGeometry(.10 * K, 0), m: T(sx * .26 * K, .16 * K * Q, dz * L * K) });
+      parts.push({ g: new THREE.BoxGeometry(.16 * K, .14 * K, .16 * K), m: T(0, .26 * K * Q, .12 * L * K) });
+      parts.push({ g: new THREE.IcosahedronGeometry(.26 * K, 0),
+                   m: T(0, .30 * K * Q, -.14 * L * K, -.22, 0, 0, 1.55, 1.0, 1.15) });
+      for (let i = 0; i < 3; i++)
+        parts.push({ g: new THREE.BoxGeometry((.62 - i * .10) * K, .06 * K, .16 * K),
+                     m: T(0, (.48 + i * .07) * K * Q, (.02 - i * .14) * L * K, -.18 - i * .08) });
+      parts.push({ g: new THREE.BoxGeometry(.17 * K, .14 * K, .20 * K), m: T(0, .24 * K * Q, -.38 * L * K, .24) });
+      parts.push({ g: new THREE.OctahedronGeometry(.15 * K, 0),
+                   m: T(0, .18 * K * Q, -.56 * L * K, .3, .78, 0, 1.35, .9, 1.6) });
+      jaws(parts, K, Q, L, -.76, .32, .042, .44);
+      limbPair(parts, K, Q, L, .30, [.19, .28, .33, .40, .34, .33, .16, .155, .115]);
+      limbPair(parts, K, Q, L, .00, [.19, .28, .33, .40, .00, .33, -.20, .150, .110]);
+      limbPair(parts, K, Q, L, -.26, [.19, .26, .31, .36, -.30, .31, -.50, .135, .10]);
+      return parts;
+    }
+  };
+
+  function creatureBody(P, t) { return mergeGeos(FORM[t](P)); }
+
+  // Ore grows where the type's mass is: down the spine of a runner, over the
+  // shell of a tank, into a crown on the big ones, along the maul of a breaker.
+  function creatureCrystal(P, t) {
     const parts = [];
     const K = P.bulk, L = P.long, Q = P.squat;
-    const S = .55 + K * .45;
+    const S = .46 + K * .34;
     const shard = (x, y, z, len, w, tilt, yaw, roll) =>
       parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
                    m: T(x * K, y * K * Q, z * L * K, tilt + P.sweep, yaw, roll || 0,
                         w * P.thick * S, len * P.spike * S, w * P.thick * S) });
-    // dorsal spines rooted in the carapace plates, swept back
-    shard(0,    .46, -.04, 1.7, .62, -.34, 0);
-    shard(-.12, .42,  .11, 1.4, .54, -.22, .5, .25);
-    shard(.13,  .42,  .11, 1.4, .54, -.22, -.5, -.25);
-    shard(0,    .35,  .29, 1.1, .48, -.02, 0);
-    // shoulder blades over the arms
-    shard(-.19, .31, -.16, 1.3, .52, -.92, .9, .4);
-    shard(.20,  .31, -.16, 1.3, .52, -.92, -.9, -.4);
-    if (P.crown) {
-      shard(0,    .53, -.03, 2.3, .58, -.32, 0);
-      shard(-.13, .49,  .07, 1.9, .52, -.34, .45, .2);
-      shard(.14,  .49,  .07, 1.9, .52, -.34, -.45, -.2);
-      shard(-.20, .38,  .22, 1.5, .48, -.55, .85, .35);
-      shard(.21,  .38,  .22, 1.5, .48, -.55, -.85, -.35);
-    }
-    // forehead ram
-    if (P.ram) {
-      shard(0,    .21, -.52, 1.8, .56, -1.54, 0);
-      shard(-.09, .19, -.44, 1.2, .44, -1.48, .45);
-      shard(.10,  .19, -.44, 1.2, .44, -1.48, -.45);
+    const eyes = (y, z, w) => {
+      for (const sx of [-1, 1])
+        parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
+                     m: T(sx * .065 * K, y * K * Q, z * L * K, 0, 0, 0,
+                          w * K, w * .7 * K, w * 1.15 * K) });
+    };
+    if (t === "spore") {
+      shard(0, .30, .02, 2.2, .78, -.20, 0);
+      shard(-.10, .26, -.04, 1.5, .60, -.55, .8, .3);
+      shard(.11, .26, -.04, 1.5, .60, -.55, -.8, -.3);
+      eyes(.15, -.27, .24);
+    } else if (t === "charger") {
+      // swept flat along the back: nothing sticks up on something this fast
+      shard(0, .30, .12, 1.5, .60, -.95, 0);
+      shard(-.10, .27, .28, 1.2, .52, -1.0, .5, .2);
+      shard(.11, .27, .28, 1.2, .52, -1.0, -.5, -.2);
+      shard(0, .18, -.52, 2.4, .62, -1.56, 0);            // the ram
+      shard(-.10, .16, -.44, 1.5, .48, -1.5, .45);
+      shard(.11, .16, -.44, 1.5, .48, -1.5, -.45);
+      eyes(.14, -.50, .26);
+    } else if (t === "carapace") {
+      // studded across the shell rather than spined
+      for (const [x, z] of [[0, .04], [-.17, -.06], [.18, -.06], [-.12, .22], [.13, .22], [0, -.22]])
+        shard(x, .40, z, .85, .95, -.10 + z * .5, x * 2);
+      shard(0, .34, .34, .9, .8, .5, 0);
+      eyes(.11, -.40, .22);
+    } else if (t === "breaker") {
+      shard(0, .48, -.06, 1.5, .70, -.30, 0);
+      shard(-.14, .44, .10, 1.2, .60, -.35, .5, .2);
+      shard(.15, .44, .10, 1.2, .60, -.35, -.5, -.2);
+      // the mauls glow: that is where the wall damage comes from
+      for (const sx of [-1, 1]) {
+        shard(sx * .38, .26, -.56, 1.5, .95, -1.2, sx * .3);
+        shard(sx * .34, .30, -.44, 1.0, .70, -1.0, sx * .5);
+      }
+      eyes(.18, -.42, .26);
+    } else if (t === "heavy") {
+      for (let i = 0; i < 4; i++)
+        shard(0, .34 + i * .085, .30 - i * .16, 1.5 - i * .18, .68, -.30 - i * .06, 0);
+      for (const sx of [-1, 1]) {
+        shard(sx * .22, .40, .12, 1.3, .58, -.85, sx * .9, sx * .4);
+        shard(sx * .30, .22, .04, 1.0, .70, -1.25, sx * 1.1, sx * .5);
+      }
+      eyes(.19, -.52, .30);
+    } else if (t === "colossus") {
+      const H = .38;
+      shard(0, .56 + H, .00, 2.6, .62, -.30, 0);
+      shard(-.13, .52 + H, .18, 2.1, .55, -.34, .45, .2);
+      shard(.14, .52 + H, .18, 2.1, .55, -.34, -.45, -.2);
+      shard(0, .46 + H, .40, 1.7, .52, .10, 0);
+      for (const sx of [-1, 1]) shard(sx * .21, .40 + H, -.16, 1.5, .54, -.95, sx * .95, sx * .4);
+      shard(0, .24 + H, -.58, 1.3, .48, -1.4, 0);
+      eyes(.17 + H, -.58, .30);
+    } else if (t === "matriarch") {
+      shard(0, .66, -.10, 2.8, .66, -.28, 0);
+      shard(-.15, .62, .06, 2.3, .58, -.32, .45, .2);
+      shard(.16, .62, .06, 2.3, .58, -.32, -.45, -.2);
+      shard(-.26, .52, .20, 1.8, .52, -.62, .9, .4);
+      shard(.27, .52, .20, 1.8, .52, -.62, -.9, -.4);
+      // brood sacs down the abdomen
+      for (const sx of [-1, 1]) for (const z of [.36, .60])
+        shard(sx * .26, .28, z, .9, 1.15, .35, sx * .5);
+      shard(0, .38, .78, 1.4, .85, .55, 0);
+      shard(0, .26, -.70, 2.0, .58, -1.5, 0);
+      eyes(.21, -.62, .34);
     } else {
-      shard(0,    .25, -.42, .9, .40, -1.42, 0);
+      // swarm
+      shard(0, .46, -.04, 1.7, .62, -.34, 0);
+      shard(-.12, .42, .11, 1.4, .54, -.22, .5, .25);
+      shard(.13, .42, .11, 1.4, .54, -.22, -.5, -.25);
+      shard(0, .35, .29, 1.1, .48, -.02, 0);
+      shard(-.19, .31, -.16, 1.3, .52, -.92, .9, .4);
+      shard(.20, .31, -.16, 1.3, .52, -.92, -.9, -.4);
+      shard(0, .25, -.42, 1.1, .44, -1.36, 0);
+      for (const sx of [-1, 1]) shard(sx * .245, .155, -.60, 1.5, .30, -1.74, sx * .22);
+      eyes(.195, -.47, .26);
     }
-    // lit edge on each scythe
-    for (const sx of [-1, 1]) shard(sx * .245, .155, -.60, 1.5, .30, -1.74, sx * .22);
-    // eyes
-    for (const sx of [-1, 1])
-      parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
-                   m: T(sx * .066 * K, .195 * K * Q, -.49 * L * K, 0, 0, 0,
-                        .26 * K, .18 * K, .30 * K) });
     return mergeGeos(parts);
   }
-  // molten, not pink: dark rock with heat running through the seams
+
   const ORE = {
     spore:    { bulk: 1.0, squat: 1.05, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
-                col: 0x7a2a0a, em: 0xd85a10, ei: .55 },
+                col: 0x7a2a0a, em: 0xd85a10, ei: .48 },
     swarm:    { bulk: 1.1, squat: 1.0, long: 1.0, spike: .85, thick: 1.10, sweep: 0, ram: false, crown: false,
-                col: 0x6c1e06, em: 0xc74a0c, ei: .48 },
+                col: 0x6c1e06, em: 0xc74a0c, ei: .42 },
     charger:  { bulk: 1.0, squat: .88, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
-                col: 0x7c2606, em: 0xdd5c10, ei: .60 },
+                col: 0x7c2606, em: 0xdd5c10, ei: .52 },
     carapace: { bulk: 1.26, squat: 1.02, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
-                col: 0x531705, em: 0xb03c0a, ei: .40 },
+                col: 0x531705, em: 0xb03c0a, ei: .34 },
     breaker:  { bulk: 1.32, squat: .98, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
-                col: 0x5d1c04, em: 0xc2450c, ei: .46 },
+                col: 0x5d1c04, em: 0xc2450c, ei: .40 },
     heavy:    { bulk: 1.38, squat: .96, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
-                col: 0x461204, em: 0xa8380a, ei: .42 },
+                col: 0x461204, em: 0xa8380a, ei: .36 },
     colossus: { bulk: 1.44, squat: .92, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
-                col: 0x431004, em: 0xcf4a0c, ei: .55 },
+                col: 0x431004, em: 0xcf4a0c, ei: .46 },
     matriarch:{ bulk: 1.52, squat: .92, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
-                col: 0x380c03, em: 0xd8540e, ei: .68 }
+                col: 0x380c03, em: 0xd8540e, ei: .56 }
   };
   const SRGB = h => new THREE.Color(h).convertSRGBToLinear();
   const rockMat = new THREE.MeshStandardMaterial({
@@ -3402,7 +3589,7 @@ const VIEW = (() => {
   const eBody = {}, eOre = {}, eCount = {};
   for (const t in ORE) {
     const P = ORE[t];
-    const bg = creatureBody(P), cg = creatureCrystal(P);
+    const bg = creatureBody(P, t), cg = creatureCrystal(P, t);
     bg.scale(1.15, 1.15, 1.15); cg.scale(1.15, 1.15, 1.15);
     const cap = { matriarch: 4, colossus: 10, heavy: 20, breaker: 36, carapace: 96 }[t] || MAX_ENEMIES;
     const bm = new THREE.InstancedMesh(bg, rockMat, cap);
@@ -3422,69 +3609,169 @@ const VIEW = (() => {
     eBody[t] = bm; eOre[t] = om; eCount[t] = 0;
   }
 
-  // Infantry: a plated walker with an exposed reactor core in the chest, so it
-  // reads as machinery of the same family as the base rather than a figurine.
-  const soldierGeo = mergeGeos([
-    // digitigrade legs
-    { g: new THREE.CylinderGeometry(.034, .026, .18, 6), m: T(-.075, .11, .02, .18, 0, 0) },
-    { g: new THREE.CylinderGeometry(.034, .026, .18, 6), m: T(.075, .11, .02, .18, 0, 0) },
-    { g: new THREE.CylinderGeometry(.026, .020, .15, 6), m: T(-.085, .02, -.03, -.35, 0, 0) },
-    { g: new THREE.CylinderGeometry(.026, .020, .15, 6), m: T(.085, .02, -.03, -.35, 0, 0) },
-    { g: new THREE.BoxGeometry(.085, .032, .15), m: T(-.085, .012, -.06) },
-    { g: new THREE.BoxGeometry(.085, .032, .15), m: T(.085, .012, -.06) },
-    // hips and a tapered chest
-    { g: new THREE.BoxGeometry(.16, .07, .13), m: T(0, .22, 0) },
-    { g: new THREE.CylinderGeometry(.115, .095, .21, 6), m: T(0, .34, 0, 0, Math.PI / 6, 0) },
-    { g: new THREE.BoxGeometry(.21, .05, .15), m: T(0, .44, 0) },
-    // pauldrons, angled outward
-    { g: new THREE.BoxGeometry(.09, .10, .13), m: T(-.135, .42, 0, 0, 0, .34) },
-    { g: new THREE.BoxGeometry(.09, .10, .13), m: T(.135, .42, 0, 0, 0, -.34) },
-    // head and sensor fin
-    { g: new THREE.BoxGeometry(.10, .085, .11), m: T(0, .51, -.005) },
-    { g: new THREE.BoxGeometry(.022, .07, .05), m: T(.055, .55, .01, -.25, 0, -.2) },
-    // dorsal pack with vents
-    { g: new THREE.BoxGeometry(.15, .13, .07), m: T(0, .36, .095) },
-    { g: new THREE.BoxGeometry(.035, .09, .02), m: T(-.045, .36, .132) },
-    { g: new THREE.BoxGeometry(.035, .09, .02), m: T(.045, .36, .132) },
-    // rifle
-    { g: new THREE.BoxGeometry(.045, .05, .30), m: T(.105, .36, -.13) },
-    { g: new THREE.BoxGeometry(.028, .028, .10), m: T(.105, .36, -.31) },
-    { g: new THREE.BoxGeometry(.03, .06, .05), m: T(.105, .31, -.06) }
-  ]);
-  const soldierLit = mergeGeos([
-    { g: new THREE.CylinderGeometry(.045, .045, .028, 8), m: T(0, .35, -.10, Math.PI / 2, 0, 0) }, // core
-    { g: new THREE.BoxGeometry(.075, .022, .015), m: T(0, .515, -.058) },                          // visor
-    { g: new THREE.BoxGeometry(.10, .012, .012), m: T(0, .285, -.068) },                           // chest seam
-    { g: new THREE.BoxGeometry(.012, .05, .012), m: T(-.148, .42, -.02) },
-    { g: new THREE.BoxGeometry(.012, .05, .012), m: T(.148, .42, -.02) },
-    { g: new THREE.BoxGeometry(.02, .02, .012), m: T(.105, .36, -.355) }                           // muzzle
-  ]);
-  soldierGeo.scale(1.3, 1.3, 1.3);
-  soldierLit.scale(1.3, 1.3, 1.3);
+  // Infantry, one chassis per role. They are 30 px tall on screen, so what
+  // separates them has to be at the silhouette scale: a launcher over the
+  // shoulder, a shield slab, a boom arm, a canopy.
+  function legs(scale) {
+    const k = scale === undefined ? 1 : scale;
+    return [
+      { g: new THREE.CylinderGeometry(.034 * k, .026 * k, .18 * k, 6), m: T(-.075 * k, .11 * k, .02, .18, 0, 0) },
+      { g: new THREE.CylinderGeometry(.034 * k, .026 * k, .18 * k, 6), m: T(.075 * k, .11 * k, .02, .18, 0, 0) },
+      { g: new THREE.CylinderGeometry(.026 * k, .020 * k, .15 * k, 6), m: T(-.085 * k, .02, -.03, -.35, 0, 0) },
+      { g: new THREE.CylinderGeometry(.026 * k, .020 * k, .15 * k, 6), m: T(.085 * k, .02, -.03, -.35, 0, 0) },
+      { g: new THREE.BoxGeometry(.085 * k, .032, .15 * k), m: T(-.085 * k, .012, -.06) },
+      { g: new THREE.BoxGeometry(.085 * k, .032, .15 * k), m: T(.085 * k, .012, -.06) },
+      { g: new THREE.BoxGeometry(.16 * k, .07, .13), m: T(0, .22 * k, 0) }
+    ];
+  }
+  function torso(w, h, y) {
+    return [
+      { g: new THREE.CylinderGeometry(.115 * w, .095 * w, .21 * h, 6), m: T(0, y, 0, 0, Math.PI / 6, 0) },
+      { g: new THREE.BoxGeometry(.21 * w, .05, .15), m: T(0, y + .10 * h, 0) }
+    ];
+  }
+  const SOLDIER_GEO = {
+    // line infantry: the reference chassis, rifle at the shoulder
+    rifle: () => [
+      ...legs(), ...torso(1, 1, .34),
+      { g: new THREE.BoxGeometry(.09, .10, .13), m: T(-.135, .42, 0, 0, 0, .34) },
+      { g: new THREE.BoxGeometry(.09, .10, .13), m: T(.135, .42, 0, 0, 0, -.34) },
+      { g: new THREE.BoxGeometry(.10, .085, .11), m: T(0, .51, -.005) },
+      { g: new THREE.BoxGeometry(.022, .07, .05), m: T(.055, .55, .01, -.25, 0, -.2) },
+      { g: new THREE.BoxGeometry(.15, .13, .07), m: T(0, .36, .095) },
+      { g: new THREE.BoxGeometry(.035, .09, .02), m: T(-.045, .36, .132) },
+      { g: new THREE.BoxGeometry(.035, .09, .02), m: T(.045, .36, .132) },
+      { g: new THREE.BoxGeometry(.045, .05, .30), m: T(.105, .36, -.13) },
+      { g: new THREE.BoxGeometry(.028, .028, .10), m: T(.105, .36, -.31) },
+      { g: new THREE.BoxGeometry(.03, .06, .05), m: T(.105, .31, -.06) }
+    ],
+    // anti-armour: braced low behind a shoulder tube with a counterweight
+    at: () => [
+      ...legs(1.08), ...torso(1.05, .9, .30),
+      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(-.15, .38, .01, 0, 0, .40) },
+      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(.15, .38, .01, 0, 0, -.40) },
+      { g: new THREE.BoxGeometry(.095, .08, .10), m: T(-.02, .47, -.02, .12, 0, 0) },
+      // the tube, over the right shoulder, muzzle forward and back-blast rear
+      { g: new THREE.CylinderGeometry(.052, .052, .46, 8), m: T(.115, .49, -.06, Math.PI / 2, 0, 0) },
+      { g: new THREE.CylinderGeometry(.068, .046, .09, 8), m: T(.115, .49, -.30, Math.PI / 2, 0, 0) },
+      { g: new THREE.CylinderGeometry(.040, .062, .08, 8), m: T(.115, .49, .20, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.05, .07, .07), m: T(.115, .42, -.02) },
+      // bipod folded on the chest
+      { g: new THREE.BoxGeometry(.018, .16, .018), m: T(-.10, .30, -.10, .5, 0, .3) },
+      { g: new THREE.BoxGeometry(.018, .16, .018), m: T(-.05, .30, -.10, .5, 0, -.3) },
+      { g: new THREE.BoxGeometry(.16, .11, .08), m: T(0, .33, .10) }
+    ],
+    // engineer: short, heavy pack, boom arm with a torch head
+    eng: () => [
+      ...legs(.95), ...torso(1.0, .82, .29),
+      { g: new THREE.BoxGeometry(.085, .09, .12), m: T(-.13, .38, 0, 0, 0, .34) },
+      { g: new THREE.BoxGeometry(.085, .09, .12), m: T(.13, .38, 0, 0, 0, -.34) },
+      { g: new THREE.BoxGeometry(.10, .075, .10), m: T(0, .45, -.005) },
+      // pack: tanks and a regulator
+      { g: new THREE.BoxGeometry(.18, .18, .10), m: T(0, .31, .12) },
+      { g: new THREE.CylinderGeometry(.037, .037, .19, 8), m: T(-.055, .33, .175) },
+      { g: new THREE.CylinderGeometry(.037, .037, .19, 8), m: T(.055, .33, .175) },
+      { g: new THREE.BoxGeometry(.07, .05, .05), m: T(0, .44, .14) },
+      // boom arm reaching forward
+      { g: new THREE.BoxGeometry(.038, .038, .22), m: T(.13, .40, -.12, .28, 0, 0) },
+      { g: new THREE.BoxGeometry(.032, .032, .17), m: T(.13, .32, -.26, -.35, 0, 0) },
+      { g: new THREE.BoxGeometry(.06, .05, .07), m: T(.13, .27, -.34) }
+    ],
+    // medic: slim, glazed canopy, dispenser arms
+    medic: () => [
+      ...legs(.92), ...torso(.92, .86, .30),
+      { g: new THREE.BoxGeometry(.075, .085, .11), m: T(-.125, .39, 0, 0, 0, .30) },
+      { g: new THREE.BoxGeometry(.075, .085, .11), m: T(.125, .39, 0, 0, 0, -.30) },
+      { g: new THREE.SphereGeometry(.062, 8, 6), m: T(0, .49, -.01, 0, 0, 0, 1, .95, 1.15) },
+      { g: new THREE.BoxGeometry(.14, .10, .09), m: T(0, .36, .10) },
+      { g: new THREE.BoxGeometry(.05, .13, .04), m: T(-.085, .36, .145) },
+      { g: new THREE.BoxGeometry(.05, .13, .04), m: T(.085, .36, .145) },
+      // two short dispenser arms, held out
+      { g: new THREE.BoxGeometry(.030, .030, .17), m: T(-.115, .35, -.11, .18, 0, 0) },
+      { g: new THREE.BoxGeometry(.030, .030, .17), m: T(.115, .35, -.11, .18, 0, 0) },
+      { g: new THREE.BoxGeometry(.045, .045, .05), m: T(-.115, .33, -.21) },
+      { g: new THREE.BoxGeometry(.045, .045, .05), m: T(.115, .33, -.21) }
+    ],
+    // assault team: heavier chassis behind a shield slab
+    guard: () => [
+      ...legs(1.18), ...torso(1.22, 1.05, .34),
+      { g: new THREE.BoxGeometry(.13, .13, .16), m: T(-.17, .43, 0, 0, 0, .30) },
+      { g: new THREE.BoxGeometry(.13, .13, .16), m: T(.17, .43, 0, 0, 0, -.30) },
+      { g: new THREE.BoxGeometry(.115, .10, .12), m: T(0, .54, -.01) },
+      { g: new THREE.BoxGeometry(.19, .16, .09), m: T(0, .38, .11) },
+      // the shield: a raked slab on the left arm, ribbed
+      { g: new THREE.BoxGeometry(.30, .40, .05), m: T(-.20, .28, -.17, .10, .22, .05) },
+      { g: new THREE.BoxGeometry(.05, .40, .07), m: T(-.33, .28, -.16, .10, .22, .05) },
+      { g: new THREE.BoxGeometry(.05, .40, .07), m: T(-.07, .28, -.18, .10, .22, .05) },
+      { g: new THREE.BoxGeometry(.26, .05, .07), m: T(-.20, .46, -.17, .10, .22, .05) },
+      // stubby weapon on the right
+      { g: new THREE.BoxGeometry(.055, .06, .20), m: T(.145, .38, -.11) },
+      { g: new THREE.BoxGeometry(.034, .034, .07), m: T(.145, .38, -.23) }
+    ]
+  };
+  const SOLDIER_LIT = {
+    rifle: () => [
+      { g: new THREE.CylinderGeometry(.045, .045, .028, 8), m: T(0, .35, -.10, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.075, .022, .015), m: T(0, .515, -.058) },
+      { g: new THREE.BoxGeometry(.10, .012, .012), m: T(0, .285, -.068) },
+      { g: new THREE.BoxGeometry(.02, .02, .012), m: T(.105, .36, -.355) }
+    ],
+    at: () => [
+      { g: new THREE.CylinderGeometry(.042, .042, .026, 8), m: T(0, .32, -.10, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.06, .020, .014), m: T(-.02, .475, -.072) },
+      { g: new THREE.CylinderGeometry(.030, .030, .014, 8), m: T(.115, .49, -.345, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.012, .04, .012), m: T(.148, .44, -.02) }
+    ],
+    eng: () => [
+      { g: new THREE.CylinderGeometry(.040, .040, .026, 8), m: T(0, .31, -.10, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.062, .020, .014), m: T(0, .455, -.055) },
+      { g: new THREE.SphereGeometry(.026, 6, 5), m: T(.13, .27, -.375) },
+      { g: new THREE.BoxGeometry(.055, .012, .012), m: T(0, .40, .175) }
+    ],
+    medic: () => [
+      { g: new THREE.SphereGeometry(.050, 8, 6), m: T(0, .49, -.02, 0, 0, 0, .95, .85, 1.05) },
+      { g: new THREE.BoxGeometry(.09, .022, .014), m: T(0, .30, -.062) },
+      { g: new THREE.BoxGeometry(.022, .07, .014), m: T(0, .30, -.062) },
+      { g: new THREE.BoxGeometry(.03, .03, .014), m: T(-.115, .33, -.24) },
+      { g: new THREE.BoxGeometry(.03, .03, .014), m: T(.115, .33, -.24) }
+    ],
+    guard: () => [
+      { g: new THREE.CylinderGeometry(.052, .052, .030, 8), m: T(0, .37, -.11, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.085, .024, .016), m: T(0, .545, -.065) },
+      { g: new THREE.BoxGeometry(.20, .022, .016), m: T(-.20, .36, -.20, .10, .22, .05) },
+      { g: new THREE.BoxGeometry(.024, .024, .014), m: T(.145, .38, -.27) }
+    ]
+  };
   const infMat = new THREE.MeshStandardMaterial({
     map: metalTex(0x5f7fa6), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
     roughness: .42, metalness: .62 });
   const infLitMat = new THREE.MeshStandardMaterial({
     color: 0x64e0ff, emissive: 0x2ec6ff, emissiveIntensity: 2.1, roughness: .25 });
-  const SOL_MAX = 120;
-  const soldierMesh = new THREE.InstancedMesh(soldierGeo, infMat, SOL_MAX);
-  soldierMesh.castShadow = true; soldierMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  soldierMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SOL_MAX * 3).fill(1), 3);
-  soldierMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
-  scene.add(soldierMesh);
-  const soldierLitMesh = new THREE.InstancedMesh(soldierLit, infLitMat, SOL_MAX);
-  soldierLitMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  soldierLitMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SOL_MAX * 3).fill(1), 3);
-  soldierLitMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
-  scene.add(soldierLitMesh);
-  // role colour goes on the reactor core, chassis tint stays near-neutral
+  // role colour on the reactor core, chassis tint near-neutral
   const ROLE = {
-    rifle: { core: [0.35, 1.55, 1.90], body: [1.00, 1.00, 1.00], sc: .80 },
-    at:    { core: [1.90, 1.35, 0.30], body: [1.06, 1.00, 0.88], sc: .86 },
-    eng:   { core: [0.60, 1.85, 0.75], body: [0.94, 1.04, 0.92], sc: .78 },
-    medic: { core: [1.85, 1.75, 1.85], body: [1.10, 1.10, 1.12], sc: .78 },
-    guard: { core: [1.95, 0.75, 0.45], body: [0.92, 0.94, 1.02], sc: 1.06 }
+    rifle: { core: [0.35, 1.55, 1.90], body: [1.00, 1.00, 1.00], sc: .80, cap: 70 },
+    at:    { core: [1.90, 1.35, 0.30], body: [1.06, 1.00, 0.88], sc: .86, cap: 24 },
+    eng:   { core: [0.60, 1.85, 0.75], body: [0.94, 1.04, 0.92], sc: .80, cap: 16 },
+    medic: { core: [1.85, 1.75, 1.85], body: [1.10, 1.10, 1.12], sc: .80, cap: 14 },
+    guard: { core: [1.95, 0.75, 0.45], body: [0.92, 0.94, 1.02], sc: 1.06, cap: 20 }
   };
+  const sBody = {}, sLit = {}, sCount = {};
+  for (const t in ROLE) {
+    const cap = ROLE[t].cap;
+    const bg = mergeGeos(SOLDIER_GEO[t]()), lg = mergeGeos(SOLDIER_LIT[t]());
+    bg.scale(1.3, 1.3, 1.3); lg.scale(1.3, 1.3, 1.3);
+    const bm = new THREE.InstancedMesh(bg, infMat, cap);
+    bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    bm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
+    bm.instanceColor.setUsage(THREE.DynamicDrawUsage);
+    scene.add(bm);
+    const lm = new THREE.InstancedMesh(lg, infLitMat, cap);
+    lm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    lm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
+    lm.instanceColor.setUsage(THREE.DynamicDrawUsage);
+    scene.add(lm);
+    sBody[t] = bm; sLit[t] = lm; sCount[t] = 0;
+  }
 
   // sparks
   const sparkGeo = new THREE.BufferGeometry();
@@ -4057,11 +4344,12 @@ const VIEW = (() => {
       }
 
       // soldiers
-      let sn = 0;
-      const sBody = soldierMesh.instanceColor.array, sCore = soldierLitMesh.instanceColor.array;
+      for (const t in sCount) sCount[t] = 0;
       for (const s of G.soldiers) {
-        if (sn >= SOL_MAX) break;
-        const rl = ROLE[s.t] || ROLE.rifle;
+        const t = ROLE[s.t] ? s.t : "rifle";
+        const bm = sBody[t], lm = sLit[t];
+        if (sCount[t] >= ROLE[t].cap) continue;
+        const rl = ROLE[t];
         // a stride while walking, a slow sway at post, and a recoil kick
         const moving = s.px !== undefined && (Math.abs(s.x - s.px) + Math.abs(s.z - s.pz)) > .0015;
         s.gait = (s.gait || 0) + dt * (moving ? 11 : 2.2);
@@ -4072,18 +4360,21 @@ const VIEW = (() => {
         dummy.scale.setScalar(rl.sc * (1 - kick * .05));
         s.px = s.x; s.pz = s.z;
         dummy.updateMatrix();
-        soldierMesh.setMatrixAt(sn, dummy.matrix);
-        soldierLitMesh.setMatrixAt(sn, dummy.matrix);
+        const i = sCount[t]++;
+        bm.setMatrixAt(i, dummy.matrix);
+        lm.setMatrixAt(i, dummy.matrix);
         const k = 1 + (s.fire > 0 ? .8 : 0);
-        sBody[sn * 3] = rl.body[0]; sBody[sn * 3 + 1] = rl.body[1]; sBody[sn * 3 + 2] = rl.body[2];
-        sCore[sn * 3] = rl.core[0] * k; sCore[sn * 3 + 1] = rl.core[1] * k; sCore[sn * 3 + 2] = rl.core[2] * k;
-        sn++;
+        const ba = bm.instanceColor.array, ca = lm.instanceColor.array;
+        ba[i * 3] = rl.body[0]; ba[i * 3 + 1] = rl.body[1]; ba[i * 3 + 2] = rl.body[2];
+        ca[i * 3] = rl.core[0] * k; ca[i * 3 + 1] = rl.core[1] * k; ca[i * 3 + 2] = rl.core[2] * k;
       }
-      soldierMesh.count = sn; soldierLitMesh.count = sn;
-      soldierMesh.instanceMatrix.needsUpdate = true;
-      soldierLitMesh.instanceMatrix.needsUpdate = true;
-      soldierMesh.instanceColor.needsUpdate = true;
-      soldierLitMesh.instanceColor.needsUpdate = true;
+      for (const t in sCount) {
+        sBody[t].count = sCount[t]; sLit[t].count = sCount[t];
+        sBody[t].instanceMatrix.needsUpdate = true;
+        sLit[t].instanceMatrix.needsUpdate = true;
+        sBody[t].instanceColor.needsUpdate = true;
+        sLit[t].instanceColor.needsUpdate = true;
+      }
 
       // turrets
       for (const b of G.buildings) {
