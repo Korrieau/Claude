@@ -166,6 +166,14 @@
     font-size: 11.5px; line-height: 1.5; color: #bcd6e4;
     clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
   }
+  #goBtn {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom,0px) + 196px);
+    pointer-events: auto; cursor: pointer; min-height: 44px; padding: 11px 22px 12px;
+    background: rgba(255,122,42,.18); border: 1px solid var(--accent); color: #ffd7bb;
+    font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; letter-spacing: .12em;
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
   #breach {
     position: absolute; left: 50%; transform: translateX(-50%);
     top: calc(env(safe-area-inset-top,0px) + 74px);
@@ -180,10 +188,10 @@
   #dmgs { position: absolute; inset: 0; overflow: hidden; }
   #dmgs b {
     position: absolute; font-family: ui-monospace, monospace; font-weight: 700;
-    font-size: 13px; color: #ffe2b0; text-shadow: 0 1px 3px rgba(0,0,0,.85);
+    font-size: 13.5px; color: #fff0cc; text-shadow: 0 0 8px rgba(0,0,0,.9), 0 2px 4px rgba(0,0,0,.9);
     transform: translate(-50%, -50%);
   }
-  #dmgs b.big { font-size: 21px; color: var(--gold); }
+  #dmgs b.big { font-size: 19px; color: var(--gold); text-shadow: 0 0 12px rgba(255,201,61,.5), 0 2px 4px rgba(0,0,0,.9); }
 
   /* inspector for a placed building */
   #insp {
@@ -234,7 +242,7 @@
   .tab {
     flex: 1; cursor: pointer; position: relative; text-align: left;
     background: rgba(9,13,18,.5); color: #8b98a6;
-    border: 1px solid rgba(122,150,175,.22); padding: 9px 4px 9px 15px; min-height: 46px;
+    border: 1px solid rgba(122,150,175,.22); padding: 7px 4px 7px 15px; min-height: 44px;
     clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
   .tab i {
@@ -242,6 +250,14 @@
     font-family: ui-monospace, monospace; font-size: 6px; color: #3f5162;
   }
   .tab b { display: block; font-size: 11.5px; font-weight: 700; }
+  .tab::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--zc, transparent);
+  }
+  .tab[data-zone="0"] { --zc: #2f6fa8; }
+  .tab[data-zone="1"] { --zc: #8a8f95; }
+  .tab[data-zone="2"] { --zc: #b08a2c; }
+  .tab[data-zone="3"] { --zc: #4fe3f0; }
   .tab s {
     display: block; text-decoration: none; font-family: ui-monospace, monospace;
     font-size: 6px; letter-spacing: .22em; color: #45586a; margin-top: 1px;
@@ -253,7 +269,7 @@
   .tab[data-on="1"] s, .tab[data-on="1"] i { color: rgba(255,190,150,.7); }
 
   #body {
-    display: flex; gap: 6px; align-items: stretch; min-height: 92px;
+    display: flex; gap: 6px; align-items: stretch; min-height: 74px;
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
@@ -261,7 +277,7 @@
   }
   #body::-webkit-scrollbar { display: none; }
   .act {
-    flex: 0 0 112px; min-width: 0; cursor: pointer; position: relative; text-align: left;
+    flex: 0 0 106px; min-width: 0; cursor: pointer; position: relative; text-align: left;
     background: rgba(9,13,18,.55);
     border: 1px solid rgba(122,150,175,.22); padding: 0 0 7px;
     clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
@@ -269,19 +285,19 @@
     display: flex; flex-direction: column;
   }
   .act .art {
-    height: 34px; display: flex; align-items: center; justify-content: center;
+    height: 26px; display: flex; align-items: center; justify-content: center;
     background: linear-gradient(180deg, rgba(122,150,175,.10), rgba(122,150,175,0));
     border-bottom: 1px solid rgba(122,150,175,.16);
   }
-  .act .art svg { width: 22px; height: 22px; fill: none; stroke: #93a7b8; stroke-width: 1.5; }
+  .act .art svg { width: 19px; height: 19px; fill: none; stroke: #93a7b8; stroke-width: 1.5; }
   .act .t {
-    font-size: 12px; font-weight: 700; margin: 6px 8px 0;
+    font-size: 11.5px; font-weight: 700; margin: 4px 7px 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .act .c {
     font-family: ui-monospace, monospace; font-size: 7.5px; color: #5d7182;
-    margin: 3px 8px 0; line-height: 1.55;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    margin: 2px 7px 0; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .act .c em { font-style: normal; color: var(--cyan); }
   .act .cost {
@@ -301,7 +317,7 @@
   #abils { display: flex; gap: 5px; margin-bottom: 7px; }
   .ab {
     flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; overflow: hidden;
-    text-align: left; padding: 9px 8px 10px; min-height: 48px; color: #cfe0ec;
+    text-align: left; padding: 8px 8px 9px; min-height: 46px; color: #cfe0ec;
     background: rgba(9,13,18,.62); border: 1px solid rgba(79,227,240,.30);
     clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
   }
@@ -375,7 +391,7 @@
   #held { font-size: 11px; color: var(--dim); line-height: 1.9; margin-top: 4px; }
   #held em { font-style: normal; color: var(--cyan); }
   #hint {
-    font-size: 8px; color: #3d4d5c; margin-top: 8px; text-align: center;
+    font-size: 8px; color: #3d4d5c; margin-top: 5px; text-align: center;
     font-family: ui-monospace, monospace; letter-spacing: .2em;
   }
 
@@ -460,6 +476,7 @@
 
   <div id="speed"><button id="spBtn">1x</button><button id="sndBtn">♪</button></div>
   <div id="combo" hidden></div>
+  <button id="goBtn" hidden>공세 개시 &#10217;</button>
   <div id="breach" hidden></div>
   <div id="brief" hidden></div>
   <div id="dmgs"></div>
@@ -555,7 +572,9 @@ const BAND_LIFT = [0, 0, 0.30, 0.62];
 // The board was one beige. Now it steps cool-to-warm from the enemy side to
 // the base, so the three zones are legible at a glance and the orange swarm
 // and blue infantry both have something to sit against.
-const BAND_COL = [0x2c2830, 0x8b9298, 0xa4acb1, 0xbcc0c0];
+// front / mid / rear now step cool-blue -> neutral -> warm sand, so the
+// three build zones are told apart at a glance and not only by the tab
+const BAND_COL = [0x2c2830, 0x74828e, 0x9ea3a4, 0xc0b9a6];
 const TILE_H = 0.55;
 const liftAt = r => BAND_LIFT[bandOf(Math.max(0, Math.min(ROWS - 1, Math.floor(r))))];
 const wx = x => x - COLS / 2;
@@ -630,9 +649,9 @@ const E = {
 // `big` entries are rolled in on their own timers so a wave is a tide with
 // landmarks in it rather than a uniform stream.
 const ASSAULTS = [
-  { dur: 34, rate: 4.5,  mix: { spore: .55, swarm: .45 } },
-  { dur: 36, rate: 7,    mix: { spore: .48, swarm: .52 } },
-  { dur: 38, rate: 10,   mix: { spore: .42, swarm: .42, charger: .16 } },
+  { dur: 32, rate: 3.0,  mix: { spore: .62, swarm: .38 } },
+  { dur: 34, rate: 5,    mix: { spore: .52, swarm: .48 } },
+  { dur: 36, rate: 8,    mix: { spore: .44, swarm: .42, charger: .14 } },
   { dur: 40, rate: 14,   mix: { spore: .38, swarm: .40, charger: .18, carapace: .04 },
     big: [["carapace", 4]] },
   { dur: 42, rate: 18,   mix: { spore: .36, swarm: .38, charger: .20, carapace: .06 },
@@ -737,6 +756,7 @@ const BRIEF = [
 ];
 
 const LULL = 17, LULL_RATE = 0.7;
+const PREP = 45;
 // Five things you can produce. Four hold a post; the assault team does not
 // need one, which is what makes it the answer to a breach.
 const UNITS = {
@@ -858,7 +878,11 @@ const SFX = (() => {
     lose:   [.5,   () => { tone(220, 60, 1.4, "sawtooth", .20); tone(110, 40, 1.6, "sine", .16); }]
   };
   return {
-    unlock() { if (!init()) return; if (ctx.state === "suspended") ctx.resume(); },
+    unlock() {
+      if (!init()) return;
+      if (ctx.state !== "running") { try { ctx.resume(); } catch (e) {} }
+    },
+    live() { return !!ctx && ctx.state === "running"; },
     frame() { frameVoices = 0; },
     muted() { return muted; },
     toggle() {
@@ -900,7 +924,7 @@ function newGame() {
     parts: [], floats: [], beams: [],
     mat: M.start, man: 44, manCap: 120,
     hq: { hp: HQ_HP, max: HQ_HP },
-    assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
+    assault: 0, phase: "lull", timer: PREP, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowS: new Int16Array(COLS * ROWS),
     flowDirty: true, dens: new Int16Array(COLS * ROWS), holes: [], rallyPost: null,
     map: mapIdx, lanes: M.lanes.slice(),
@@ -1405,7 +1429,7 @@ function updateShells(dt) {
       if (d < r) hurtEnemy(e, s.dmg * (1 - d / r * .45), s.src);
     }
     boom(s.x1, s.z1, r, s.big ? 26 : 16);
-    G.rings.push({ x: s.x1, z: s.z1, life: .4, max: .4, r: r * 1.5, col: 0xffb35c });
+    G.rings.push({ x: s.x1, z: s.z1, life: .45, max: .45, r: r * 1.9, col: 0xffb35c });
     SFX.play(s.big ? 'bigboom' : 'boom');
     G.shake = Math.max(G.shake, s.big ? .18 : .10);
     G.shells.splice(i, 1);
@@ -1431,15 +1455,15 @@ function hurtEnemy(e, dmg, src) {
   e.hp -= dmg; e.flash = 1;
   const spec = E[e.type];
   // a shove backwards, scaled to how much of the thing the hit took off
-  e.z -= Math.min(.11, dmg / spec.hp * .30);
+  e.z -= Math.min(.16, dmg / spec.hp * .42);
   // one number per patch of ground, or a burst of identical hits turns the
   // screen into a wall of the same digits
-  if (dmg >= 34 && G.dmgs.length < 14) {
+  if (dmg >= 11 && G.dmgs.length < 16) {
     let near = null;
     for (const d of G.dmgs) if (Math.abs(d.x - e.x) < .9 && Math.abs(d.z - e.z) < .9) { near = d; break; }
-    if (near) { near.v += Math.round(dmg); near.life = Math.max(near.life, .55); near.big = near.v >= 200; }
+    if (near) { near.v += Math.round(dmg); near.life = Math.max(near.life, .55); near.big = near.v >= 120; }
     else G.dmgs.push({ x: e.x + rnd(-.25, .25), z: e.z + rnd(-.2, .2), v: Math.round(dmg),
-                       life: .7, big: dmg >= 200 });
+                       life: .7, big: dmg >= 120 });
   }
   if (e.hp <= 0) {
     e.dead = true; G.kills++;
@@ -1456,8 +1480,8 @@ function hurtEnemy(e, dmg, src) {
     if (has("salvage")) G.mat += spec.kill * .55;
     shatter(e.x, e.z, spec);
     // the board stops for a beat when something large dies
-    if (spec.kill >= 26) G.hitstop = Math.max(G.hitstop, spec.kill >= 70 ? .10 : .06);
-    if (spec.kill >= 12) { G.shake = Math.max(G.shake, spec.kill >= 70 ? .20 : .09); SFX.play('crunch'); }
+    if (spec.kill >= 12) G.hitstop = Math.max(G.hitstop, spec.kill >= 70 ? .13 : spec.kill >= 26 ? .09 : .05);
+    if (spec.kill >= 5) { G.shake = Math.max(G.shake, spec.kill >= 70 ? .26 : spec.kill >= 12 ? .13 : .06); SFX.play('crunch'); }
   }
 }
 // the swarm hits harder as the campaign runs, or a saturated board never loses
@@ -1474,7 +1498,7 @@ function updateEnemies(dt) {
     const e = G.enemies[i];
     if (e.dead) { G.enemies.splice(i, 1); continue; }
     const spec = E[e.type];
-    e.flash = Math.max(0, e.flash - dt * 11);
+    e.flash = Math.max(0, e.flash - dt * 8);
     e.cd -= dt;
     const c = clamp(Math.floor(e.x), 0, COLS - 1);
     const rRaw = Math.floor(e.z);
@@ -1700,7 +1724,9 @@ function updateWar(dt) {
   if (G.mark) { G.mark.life -= dt; if (G.mark.life <= 0) G.mark = null; }
   for (const k in G.ab) if (G.ab[k] > 0) G.ab[k] = Math.max(0, G.ab[k] - dt);
   if (G.phase === "lull") {
-    G.spawnAcc += LULL_RATE * dt;
+    // nothing at all during the deployment phase: dropping the player straight
+    // into a stream of enemies before they have built anything is unplayable
+    if (G.assault > 0) G.spawnAcc += LULL_RATE * dt;
     if (G.timer <= 0) {
       if (G.assault >= ASSAULTS.length) { finish(true, "10차 공세를 모두 버텨냈습니다"); return; }
       G.assault++;
@@ -1770,7 +1796,7 @@ function step(dt) {
 // ===========================================================================
 const VIEW = (() => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2.25));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -1834,8 +1860,8 @@ const VIEW = (() => {
   // Laying the camera back to fit sky in flattened the board into a smear. The
   // top of the frame is better spent on the approach corridor: you watch the
   // swarm walk in from a long way off, which is information, not decoration.
-  const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.5, 300);
-  const CAM = { pos: new THREE.Vector3(0, 21.4, 24.0), look: new THREE.Vector3(0, 0.6, -4.6) };
+  const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.5, 300);
+  const CAM = { pos: new THREE.Vector3(0, 21.0, 23.6), look: new THREE.Vector3(0, 0.5, -1.3) };
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
@@ -2312,6 +2338,20 @@ const VIEW = (() => {
   }
   // Hazard kerbs on the two zone seams and a cyan line at the command
   // perimeter: industrial paint is the cheapest colour a grey site can get.
+  // a coloured rail down both edges of each zone, matching its tab
+  { const ZC = [0x2f6fa8, 0x8a8f95, 0xb08a2c];
+    for (let z = 0; z < 3; z++) {
+      const m = new THREE.MeshStandardMaterial({ color: ZC[z], emissive: ZC[z],
+        emissiveIntensity: .35, roughness: .5 });
+      const [r0, r1] = ZONE_ROWS[z];
+      const len = r1 - r0 + 1, lift = BAND_LIFT[bandOf(r0)];
+      for (const sx of [-1, 1]) {
+        box(.10, .05, len - .12, m, sx * (COLS / 2 - .05), lift + .02, wz((r0 + r1 + 1) / 2));
+        for (let i = 0; i < len; i++)
+          box(.26, .05, .10, m, sx * (COLS / 2 - .18), lift + .02, wz(r0 + i + .5));
+      }
+    }
+  }
   { const hazTex = canvasTex(128, (g, S) => {
       g.fillStyle = "#22201d"; g.fillRect(0, 0, S, S);
       g.fillStyle = "#a8801a";
@@ -3682,12 +3722,13 @@ const VIEW = (() => {
         rtB.setSize(Math.max(2, W >> 2), Math.max(2, H >> 2));
       },
       setQuality(q) {
-        // 0 full, 1 no chroma/grain, 2 no bloom, 3 no shadows and half res
+        // Resolution goes last and never below 1.5: a blurry image is the
+        // first thing anyone notices, long before they notice missing bloom.
         comp.uniforms.chroma.value = q >= 1 ? 0 : 0.0006;
         comp.uniforms.grain.value = q >= 1 ? 0 : 0.006;
         this.bloomOff = q >= 2;
         renderer.shadowMap.enabled = q < 3;
-        renderer.setPixelRatio(q >= 3 ? 1 : Math.min(devicePixelRatio, q >= 2 ? 1.35 : 2));
+        renderer.setPixelRatio(Math.min(devicePixelRatio, q >= 3 ? 1.5 : 2.25));
         this.resize();
       },
       render(scene3, cam3, t) {
@@ -3791,8 +3832,8 @@ const VIEW = (() => {
         const free = buildable && !t.b && !t.hq;
         if (!m.material.emissive) m.material.emissive = new THREE.Color();
         if (!inZone) m.material.emissive.setHex(0x000000);
-        else if (free) m.material.emissive.setHex(t.k === "high" ? 0x123a44 : 0x1a3a2e);
-        else m.material.emissive.setHex(0x2e1014);
+        else if (free) m.material.emissive.setHex(t.k === "high" ? 0x1d5f6e : 0x2c6b4c);
+        else m.material.emissive.setHex(0x53161c);
       }
     },
     sync(dt) {
@@ -3841,7 +3882,7 @@ const VIEW = (() => {
         bm.setMatrixAt(i, dummy.matrix);
         eOre[e.type].setMatrixAt(i, dummy.matrix);
         // white-hot on the frame it is struck; instanceColor multiplies albedo
-        const k = 1 + e.flash * e.flash * 3.2;
+        const k = 1 + e.flash * e.flash * 5.0;
         const ca = bm.instanceColor.array, cb2 = eOre[e.type].instanceColor.array;
         ca[i * 3] = ca[i * 3 + 1] = ca[i * 3 + 2] = k;
         cb2[i * 3] = cb2[i * 3 + 1] = cb2[i * 3 + 2] = k;
@@ -4155,9 +4196,10 @@ function syncTop() {
     $("brief").hidden = false;
     $("brief").innerHTML = br2[1] +
       (G.assault < ASSAULTS.length ? `<div class="comp">${compHTML(G.assault)}</div>` : "");
-    $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
+    $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : PREP)) * 100 + "%";
   }
   syncAbils();
+  $("goBtn").hidden = !(mode === "play" && G.phase === "lull" && G.timer > 2);
   const br = $("breach");
   if (G.holes.length) {
     const cols = [...new Set(G.holes.map(h => h.c + 1))].sort((a, b2) => a - b2);
@@ -4242,6 +4284,13 @@ function syncAbils() {
       el.addEventListener("click", () => useAbil(k));
       bar.appendChild(el);
     }
+  }
+  const sb = $("sndBtn");
+  if (sb) {
+    const live = SFX.live();
+    sb.textContent = SFX.muted() ? "\u2715" : live ? "\u266a" : "\u266a!";
+    sb.dataset.p = (SFX.muted() || !live) ? "1" : "0";
+    sb.title = live ? "소리 끄기" : "화면을 한 번 누르면 소리가 켜집니다";
   }
   for (const el of bar.children) {
     const k = el.dataset.k, cd = G ? G.ab[k] : 0;
@@ -4367,8 +4416,8 @@ let last = performance.now(), acc = 0, uiT = 0;
 // steps back up (oscillating quality is worse than one honest downgrade).
 let qLevel = 0, slowT = 0, fastT = 0;
 function adaptQuality(dt) {
-  if (dt > 1 / 42) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
-  if (slowT > 2.5 && qLevel < 3) {
+  if (dt > 1 / 34) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
+  if (slowT > 4 && qLevel < 3) {
     qLevel++; slowT = 0;
     VIEW.setQuality(qLevel);
     floatText(["", "화질 조정", "블룸 해제", "성능 모드"][qLevel]);
@@ -4518,6 +4567,10 @@ function syncSpeed() {
   b2.textContent = G.speed === 0 ? "II" : G.speed === 1 ? "1x" : "2x";
   b2.dataset.p = G.speed === 0 ? "1" : "0";
 }
+$("goBtn").addEventListener("click", () => {
+  if (mode !== "play" || G.phase !== "lull") return;
+  G.timer = 0.05; SFX.unlock(); SFX.play("ui");
+});
 $("sndBtn").addEventListener("click", () => {
   SFX.unlock();
   const m = SFX.toggle();
@@ -4525,8 +4578,11 @@ $("sndBtn").addEventListener("click", () => {
   $("sndBtn").textContent = m ? "✕" : "♪";
   if (!m) SFX.play("ui");
 });
-addEventListener("pointerdown", () => SFX.unlock(), { once: true });
-addEventListener("touchstart", () => SFX.unlock(), { once: true });
+// Retry on every gesture rather than once: in an embedded frame the first
+// attempt is often refused, and one missed try used to mean a silent session.
+for (const ev of ["pointerdown", "touchstart", "touchend", "click", "keydown"])
+  addEventListener(ev, () => SFX.unlock(), true);
+addEventListener("visibilitychange", () => { if (!document.hidden) SFX.unlock(); });
 $("spBtn").addEventListener("click", () => {
   if (mode === "end") return;
   G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 0 : 1;
