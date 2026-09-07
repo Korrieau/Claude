@@ -3574,32 +3574,34 @@ const VIEW = (() => {
 
   const ORE = {
     spore:    { bulk: 1.0, squat: 1.05, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
-                col: 0x7a2a0a, em: 0xd85a10, ei: .48 },
+                col: 0x8a4410, em: 0xf08a1c, ei: .58, body: 0x2f2921 },
     swarm:    { bulk: 1.1, squat: 1.0, long: 1.0, spike: .85, thick: 1.10, sweep: 0, ram: false, crown: false,
-                col: 0x6c1e06, em: 0xc74a0c, ei: .42 },
+                col: 0x6c1e06, em: 0xc74a0c, ei: .42, body: 0x1d1922 },
     charger:  { bulk: 1.0, squat: .88, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
-                col: 0x7c2606, em: 0xdd5c10, ei: .52 },
+                col: 0x8a2404, em: 0xff6a12, ei: .62, body: 0x2a1210 },
     carapace: { bulk: 1.26, squat: 1.02, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
-                col: 0x531705, em: 0xb03c0a, ei: .34 },
+                col: 0x6a4a12, em: 0xc08018, ei: .30, body: 0x6d6759 },
     breaker:  { bulk: 1.32, squat: .98, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
-                col: 0x5d1c04, em: 0xc2450c, ei: .40 },
+                col: 0x5e1204, em: 0xb42808, ei: .46, body: 0x161210 },
     heavy:    { bulk: 1.38, squat: .96, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
-                col: 0x461204, em: 0xa8380a, ei: .36 },
+                col: 0x3e1a12, em: 0x9a3410, ei: .32, body: 0x1d242c },
     colossus: { bulk: 1.44, squat: .92, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
-                col: 0x431004, em: 0xcf4a0c, ei: .46 },
+                col: 0x5a0e04, em: 0xff4a10, ei: .56, body: 0x191221 },
     matriarch:{ bulk: 1.52, squat: .92, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
-                col: 0x380c03, em: 0xd8540e, ei: .56 }
+                col: 0x520a12, em: 0xe83a2c, ei: .64, body: 0x1f1025 }
   };
   const SRGB = h => new THREE.Color(h).convertSRGBToLinear();
-  const rockMat = new THREE.MeshStandardMaterial({
-    color: SRGB(0x1c1822), roughness: .93, metalness: .06, flatShading: true });
+  // Carapace colour is per type as well: eight silhouettes in one shade still
+  // read as one animal at a glance.
+  const rockMatOf = h => new THREE.MeshStandardMaterial({
+    color: SRGB(h), roughness: .93, metalness: .06, flatShading: true });
   const eBody = {}, eOre = {}, eCount = {};
   for (const t in ORE) {
     const P = ORE[t];
     const bg = creatureBody(P, t), cg = creatureCrystal(P, t);
     bg.scale(1.15, 1.15, 1.15); cg.scale(1.15, 1.15, 1.15);
     const cap = { matriarch: 4, colossus: 10, heavy: 20, breaker: 36, carapace: 96 }[t] || MAX_ENEMIES;
-    const bm = new THREE.InstancedMesh(bg, rockMat, cap);
+    const bm = new THREE.InstancedMesh(bg, rockMatOf(P.body), cap);
     // instanced shadow casting for hundreds of creatures is the most
     // expensive thing in the frame and buys almost nothing at this scale
     bm.castShadow = false; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -3749,30 +3751,47 @@ const VIEW = (() => {
       { g: new THREE.BoxGeometry(.024, .024, .014), m: T(.145, .38, -.27) }
     ]
   };
-  const infMat = new THREE.MeshStandardMaterial({
-    map: metalTex(0x5f7fa6), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
-    roughness: .42, metalness: .62 });
-  const infLitMat = new THREE.MeshStandardMaterial({
-    color: 0x64e0ff, emissive: 0x2ec6ff, emissiveIntensity: 2.1, roughness: .25 });
+  // Each role gets its own painted chassis. All still read as one army because
+  // they share the finish and the lit-core language; they differ in hue enough
+  // to be told apart in a crowd.
+  const infMatOf = (hex, rough, metal) => new THREE.MeshStandardMaterial({
+    map: metalTex(hex), roughnessMap: ROUGH, normalMap: METAL_NORMAL, normalScale: NS,
+    roughness: rough, metalness: metal });
+  const INF_MAT = {
+    rifle: infMatOf(0x5f7fa6, .42, .62),   // service blue
+    at:    infMatOf(0x4b5a52, .50, .55),   // olive gunmetal
+    eng:   infMatOf(0x8a6a34, .52, .48),   // hazard amber
+    medic: infMatOf(0xb9c3c8, .34, .52),   // near-white
+    guard: infMatOf(0x35486b, .38, .70)    // heavy navy
+  };
+  const litMatOf = (c, e) => new THREE.MeshStandardMaterial({
+    color: c, emissive: e, emissiveIntensity: 2.1, roughness: .25 });
+  const INF_LIT = {
+    rifle: litMatOf(0x64e0ff, 0x2ec6ff),
+    at:    litMatOf(0xffd06a, 0xffa018),
+    eng:   litMatOf(0x8bff9e, 0x36d95a),
+    medic: litMatOf(0xffffff, 0xd8ecff),
+    guard: litMatOf(0xff9a68, 0xff5a1e)
+  };
   // role colour on the reactor core, chassis tint near-neutral
   const ROLE = {
-    rifle: { core: [0.35, 1.55, 1.90], body: [1.00, 1.00, 1.00], sc: .80, cap: 70 },
-    at:    { core: [1.90, 1.35, 0.30], body: [1.06, 1.00, 0.88], sc: .86, cap: 24 },
-    eng:   { core: [0.60, 1.85, 0.75], body: [0.94, 1.04, 0.92], sc: .80, cap: 16 },
-    medic: { core: [1.85, 1.75, 1.85], body: [1.10, 1.10, 1.12], sc: .80, cap: 14 },
-    guard: { core: [1.95, 0.75, 0.45], body: [0.92, 0.94, 1.02], sc: 1.06, cap: 20 }
+    rifle: { sc: .80, cap: 70 },
+    at:    { sc: .86, cap: 24 },
+    eng:   { sc: .80, cap: 16 },
+    medic: { sc: .80, cap: 14 },
+    guard: { sc: 1.06, cap: 20 }
   };
   const sBody = {}, sLit = {}, sCount = {};
   for (const t in ROLE) {
     const cap = ROLE[t].cap;
     const bg = mergeGeos(SOLDIER_GEO[t]()), lg = mergeGeos(SOLDIER_LIT[t]());
     bg.scale(1.3, 1.3, 1.3); lg.scale(1.3, 1.3, 1.3);
-    const bm = new THREE.InstancedMesh(bg, infMat, cap);
+    const bm = new THREE.InstancedMesh(bg, INF_MAT[t], cap);
     bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     bm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
     bm.instanceColor.setUsage(THREE.DynamicDrawUsage);
     scene.add(bm);
-    const lm = new THREE.InstancedMesh(lg, infLitMat, cap);
+    const lm = new THREE.InstancedMesh(lg, INF_LIT[t], cap);
     lm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     lm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
     lm.instanceColor.setUsage(THREE.DynamicDrawUsage);
@@ -4248,6 +4267,7 @@ const VIEW = (() => {
       b.obj = makeBuilding(b);
       if (!b.done) b.obj.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = M.ghost; } });
     },
+    CAM,
     setQuality(q) { POST.setQuality(q); },
     projectTile(c, r) {
       const t = at(c, r);
@@ -4372,8 +4392,8 @@ const VIEW = (() => {
         lm.setMatrixAt(i, dummy.matrix);
         const k = 1 + (s.fire > 0 ? .8 : 0);
         const ba = bm.instanceColor.array, ca = lm.instanceColor.array;
-        ba[i * 3] = rl.body[0]; ba[i * 3 + 1] = rl.body[1]; ba[i * 3 + 2] = rl.body[2];
-        ca[i * 3] = rl.core[0] * k; ca[i * 3 + 1] = rl.core[1] * k; ca[i * 3 + 2] = rl.core[2] * k;
+        ba[i * 3] = ba[i * 3 + 1] = ba[i * 3 + 2] = 1;
+        ca[i * 3] = ca[i * 3 + 1] = ca[i * 3 + 2] = k;
       }
       for (const t in sCount) {
         sBody[t].count = sCount[t]; sLit[t].count = sCount[t];
