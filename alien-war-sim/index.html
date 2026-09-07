@@ -2,7 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>OUTPOST — 방어 시뮬레이터</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +28,7 @@
   canvas{display:block;position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
 
   .lab{font-family:var(--tech);font-size:9px;letter-spacing:.18em;
-    text-transform:uppercase;color:var(--muted)}
+    text-transform:uppercase;color:var(--muted);white-space:nowrap}
   .num{font-family:var(--tech);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 
   /* ---------- top readout ---------- */
@@ -130,6 +132,69 @@
   #hint{position:absolute;left:14px;top:14px;font-family:var(--tech);font-size:9px;
     letter-spacing:.12em;color:var(--dim);line-height:2;z-index:4;pointer-events:none;
     text-transform:uppercase}
+
+  /* ---------- touch + small screens ---------- */
+  canvas{touch-action:none}
+  #build{-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #build::-webkit-scrollbar{display:none}
+  #top{padding-top:env(safe-area-inset-top)}
+  #build{padding-bottom:env(safe-area-inset-bottom)}
+
+  /* hover effects only where a pointer can actually hover */
+  @media (hover:none){
+    .bcard:hover{background:transparent}
+    .sp:hover{color:var(--muted)}
+    .abtn:hover{border-color:var(--line);color:var(--text)}
+  }
+
+  @media (max-width:900px), (pointer:coarse){
+    body{font-size:13px}
+    .cell{min-width:0;padding:6px 10px 5px;flex:1}
+    .cell .v{font-size:15px}
+    .lab{font-size:8px;letter-spacing:.12em}
+    .cell.opt{display:none}
+    #speeds{padding:0 4px}
+    .sp{padding:8px 9px;font-size:10px}
+    #hint{display:none}
+
+    #wavebar{top:8px;gap:9px;padding:7px 7px 7px 12px}
+    #wlab{font-size:9px}
+    #callBtn{padding:10px 16px;font-size:11px}
+
+    /* inspector becomes a bottom sheet above the build rail */
+    #insp{right:0;left:0;top:auto;bottom:0;width:auto;padding:14px 16px 16px;
+      border-left:none;border-top:1px solid var(--line);
+      clip-path:polygon(11px 0,100% 0,100% 100%,0 100%,0 11px)}
+    #insp::after{display:none}
+    #insp .acts{margin-top:14px}
+    .abtn{padding:13px 4px;font-size:11px}
+    #insp .row{padding:7px 0}
+
+    .bcard{min-width:112px;padding:11px 13px 13px;gap:4px}
+    .bcard .n{font-size:12px}
+    #log{left:8px;right:8px;bottom:8px;top:auto;width:auto}
+    #log div{font-size:10px;padding:5px 9px}
+    #log div:nth-child(n+4){display:none}
+  }
+
+  /* the rail scrolls; fade its right edge so that is obvious */
+  @media (pointer:coarse){
+    #wrap::after{content:'';position:fixed;right:0;bottom:0;width:38px;
+      height:76px;pointer-events:none;z-index:6;
+      background:linear-gradient(90deg,rgba(16,19,24,0),rgba(16,19,24,.95))}
+  }
+
+  /* portrait phones: two-line readout, chunkier targets */
+  @media (max-width:560px){
+    .cell{padding:5px 8px 4px}
+    .cell .v{font-size:14px}
+    #wavebar{left:8px;right:8px;transform:none;justify-content:space-between}
+    .bcard{min-width:100px;padding:10px 11px 12px}
+    .bcard .k{display:none}
+    .cell{padding:5px 7px 4px}
+    .cell .v{font-size:13px}
+    #over h1{font-size:20px;letter-spacing:.2em}
+  }
 </style>
 </head>
 <body>
@@ -138,9 +203,9 @@
     <div class="cell"><div class="lab">Supply</div><div class="v signal" id="uSup">0</div></div>
     <div class="cell"><div class="lab">Crystal</div><div class="v infect" id="uCry">0</div></div>
     <div class="cell"><div class="lab">Wave</div><div class="v" id="uWave">0</div></div>
-    <div class="cell"><div class="lab">Kills</div><div class="v" id="uKill">0</div></div>
+    <div class="cell opt"><div class="lab">Kills</div><div class="v" id="uKill">0</div></div>
     <div class="cell"><div class="lab">Control Hub</div><div class="v" id="uHub">100%</div></div>
-    <div class="cell"><div class="lab">Blight</div><div class="v" id="uBlight">0%</div></div>
+    <div class="cell opt"><div class="lab">Blight</div><div class="v" id="uBlight">0%</div></div>
     <div class="grow"></div>
     <div id="speeds">
       <button class="sp" data-sp="0">HOLD</button>
@@ -216,7 +281,7 @@ const C = {
   bone: '#C9D3DD', steel: '#8FA3B5', steelDim: '#3B4652',
   danger: '#FF5A46',
   crew: '#FFE6BE',
-  foeFill: '#3A444E', foeEdge: '#7E90A0', foeCore: '#35E0D0',
+  foeFill: '#33372C', foeEdge: '#8A9070', foeCore: '#35E0D0',
   line: '#2A323C', lineHi: '#3E4956', signal: '#FFD429', signalDim: '#7A6415',
   info: '#4DA9DA', ok: '#2ED675', steelDim: '#3B4652',
 };
@@ -250,43 +315,95 @@ function buildTerrainLayer() {
   // Three materials read across the plain: shadowed packed earth, warm dry
   // dirt, and pale gravel on the high ground. Light comes from the top left.
   const HWD = WW >> 1, HHT = WH >> 1;
-  const hf = new Float32Array(HWD * HHT);
-  for (let y = 0; y < HHT; y++) for (let x = 0; x < HWD; x++)
-    hf[y * HWD + x] = fbm(x / 48, y / 48);
+  const hf = new Float32Array(HWD * HHT);   // relief
+  const vf = new Float32Array(HWD * HHT);   // moisture, drives vegetation
+  for (let y = 0; y < HHT; y++) for (let x = 0; x < HWD; x++) {
+    const i = y * HWD + x;
+    hf[i] = fbm(x / 30, y / 30);
+    vf[i] = fbm(x / 21 + 91.7, y / 21 + 41.3);
+  }
 
+  // Daylight surface. Sun from the top left is warm, the fill light from
+  // the sky is cool, and materials band by relief with scrub laid over
+  // wherever the moisture field is high.
   const im = t.createImageData(WW, WH), dd = im.data;
-  const S = [13, 15, 19];      // shadowed hollow, cool
-  const M = [27, 27, 24];      // dry earth, warm
-  const G = [53, 51, 45];      // exposed gravel
+  const HOLLOW = [92, 99, 104];   // damp shaded hollow, sky-lit
+  const EARTH  = [131, 117, 93];  // dry packed earth
+  const GRAVEL = [176, 168, 148]; // sun-bleached gravel
+  const SCRUB  = [94, 103, 68];   // low vegetation
   for (let y = 0; y < WH; y++) {
     const hy = y >> 1;
     for (let x = 0; x < WW; x++) {
       const hx = x >> 1, hi = hy * HWD + hx;
       const n = hf[hi];
-      // one light direction: slope toward the top left reads as lit
       const gx = (hx < HWD - 2 ? hf[hi + 2] : n) - n;
       const gy = (hy < HHT - 2 ? hf[hi + HWD + HWD] : n) - n;
-      const k = 0.74 + clamp(0.5 - (gx + gy) * 7.0, 0, 1) * 0.46;
+      const lit = clamp(0.5 - (gx + gy) * 7.0, 0, 1);
+
       let r, g2, b2;
-      if (n < 0.46) { const u = n / 0.46;
-        r = S[0] + (M[0] - S[0]) * u; g2 = S[1] + (M[1] - S[1]) * u; b2 = S[2] + (M[2] - S[2]) * u;
-      } else { const u = (n - 0.46) / 0.54;
-        r = M[0] + (G[0] - M[0]) * u; g2 = M[1] + (G[1] - M[1]) * u; b2 = M[2] + (G[2] - M[2]) * u;
+      if (n < 0.44) { const u = n / 0.44;
+        r = HOLLOW[0] + (EARTH[0] - HOLLOW[0]) * u;
+        g2 = HOLLOW[1] + (EARTH[1] - HOLLOW[1]) * u;
+        b2 = HOLLOW[2] + (EARTH[2] - HOLLOW[2]) * u;
+      } else { const u = (n - 0.44) / 0.56;
+        r = EARTH[0] + (GRAVEL[0] - EARTH[0]) * u;
+        g2 = EARTH[1] + (GRAVEL[1] - EARTH[1]) * u;
+        b2 = EARTH[2] + (GRAVEL[2] - EARTH[2]) * u;
       }
-      const j = ((x * 7 + y * 13) % 11) - 5;
+      // scrub takes hold on damp mid ground, thinning out on bare gravel
+      const veg = clamp((vf[hi] - 0.50) * 4.4, 0, 1) * clamp((0.80 - n) * 3.4, 0, 1);
+      if (veg > 0) {
+        r += (SCRUB[0] - r) * veg; g2 += (SCRUB[1] - g2) * veg; b2 += (SCRUB[2] - b2) * veg;
+      }
+
+      // warm where the sun lands, cool in the sky-filled shade
+      const k = 0.80 + lit * 0.40;
+      const wr = 0.94 + lit * 0.13, wb = 1.09 - lit * 0.19;
+      const j = ((x * 7 + y * 13) % 19) - 9;
       const i = (y * WW + x) * 4;
-      dd[i] = r * k + j; dd[i + 1] = g2 * k + j; dd[i + 2] = b2 * k * 0.97 + j;
+      dd[i] = r * k * wr + j;
+      dd[i + 1] = g2 * k + j;
+      dd[i + 2] = b2 * k * wb + j;
       dd[i + 3] = 255;
     }
   }
   t.putImageData(im, 0, 0);
+
+  // ---- fine surface detail so the ground has grain, not just gradients ----
+  const HW2 = WW >> 1;
+  for (let i = 0; i < 9000; i++) {
+    const x = Math.random() * WW, y = Math.random() * WH;
+    const hi = Math.min(hf.length - 1, ((y >> 1) * HW2 + (x >> 1)) | 0);
+    const n = hf[hi];
+    if (n > 0.62) {
+      t.fillStyle = Math.random() < 0.5 ? 'rgba(226,216,190,0.30)' : 'rgba(74,68,54,0.22)';
+      t.fillRect(x, y, rnd(1, 2.6), rnd(1, 2.2));
+    } else if (n < 0.40) {
+      t.fillStyle = 'rgba(58,70,74,0.20)';
+      t.fillRect(x, y, rnd(1, 2.2), rnd(1, 1.8));
+    }
+  }
+  for (let i = 0; i < 2600; i++) {
+    const x = Math.random() * WW, y = Math.random() * WH;
+    const hi = Math.min(vf.length - 1, ((y >> 1) * HW2 + (x >> 1)) | 0);
+    if (vf[hi] < 0.56 || hf[hi] > 0.76) continue;
+    t.strokeStyle = Math.random() < 0.5 ? 'rgba(58,68,40,0.42)' : 'rgba(126,134,88,0.34)';
+    t.lineWidth = 1;
+    const n = 3 + ((Math.random() * 3) | 0);
+    t.beginPath();
+    for (let k = 0; k < n; k++) {
+      const a = -1.5708 + rnd(-0.7, 0.7), L = rnd(2.5, 5.5);
+      t.moveTo(x, y); t.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L);
+    }
+    t.stroke();
+  }
 
   // ---- worn haul routes: the site has been used ----
   const hubPx = [(hub ? hub.x : WW * 0.8), (hub ? hub.y : WH / 2)];
   t.save();
   t.lineCap = 'round'; t.lineJoin = 'round';
   for (const g of GATES) {
-    for (const [wdt, col] of [[34, 'rgba(92,90,80,0.075)'], [19, 'rgba(116,114,102,0.07)']]) {
+    for (const [wdt, col] of [[36, 'rgba(196,184,156,0.20)'], [20, 'rgba(214,203,175,0.22)']]) {
       t.strokeStyle = col; t.lineWidth = wdt;
       t.beginPath(); t.moveTo(g.x * TILE, g.y * TILE);
       t.quadraticCurveTo((g.x * TILE + hubPx[0]) / 2, g.y * TILE + rnd(-40, 40), hubPx[0], hubPx[1]);
@@ -295,7 +412,7 @@ function buildTerrainLayer() {
   }
   for (let i = 0; i < SPAWNS.length; i++) {
     const s = SPAWNS[i], g = GATES[i] || GATES[0];
-    t.strokeStyle = 'rgba(100,98,88,0.055)'; t.lineWidth = 26;
+    t.strokeStyle = 'rgba(196,184,156,0.15)'; t.lineWidth = 26;
     t.beginPath(); t.moveTo(s.x * TILE, s.y * TILE);
     t.quadraticCurveTo((s.x + g.x) * TILE / 2, (s.y * TILE + g.y * TILE) / 2 + rnd(-70, 70),
       g.x * TILE, g.y * TILE);
@@ -319,23 +436,48 @@ function buildTerrainLayer() {
   };
   // ambient occlusion pooled around the base
   t.save();
-  t.shadowColor = 'rgba(0,0,0,0.95)'; t.shadowBlur = 30; t.shadowOffsetX = 4; t.shadowOffsetY = 7;
+  t.shadowColor = 'rgba(38,36,30,0.62)'; t.shadowBlur = 26; t.shadowOffsetX = 5; t.shadowOffsetY = 8;
   t.fillStyle = '#000'; shape(TILE * 0.62, 0, 0); t.fill();
   t.restore();
   // sunlit crest, then the body pulled down-right off it
-  t.fillStyle = '#464339'; shape(TILE * 0.628, 0, 0); t.fill();
-  t.fillStyle = '#1C1E20'; shape(TILE * 0.624, 1.0, 1.3); t.fill();
-  t.fillStyle = '#0F1114'; shape(TILE * 0.62, 1.7, 2.2); t.fill();
+  t.fillStyle = '#CFC2A0'; shape(TILE * 0.632, 0, 0); t.fill();      // sunlit crest
+  t.fillStyle = '#7A7364'; shape(TILE * 0.626, 2.0, 2.6); t.fill();  // body
+  t.fillStyle = '#5E594E'; shape(TILE * 0.616, 3.4, 4.4); t.fill();  // shaded flank
 
-  // strata: bedding planes inside the mass only
+  // ---- rock surface: broad weathering, bedding planes, loose scree ----
   t.save();
-  shape(TILE * 0.62, 1.7, 2.2); t.clip();
-  for (let i = 0; i < 150; i++) {
-    const y = Math.random() * WH, x = Math.random() * WW, w = rnd(40, 260);
-    t.strokeStyle = Math.random() < 0.5 ? 'rgba(0,0,0,0.45)' : 'rgba(150,146,124,0.07)';
-    t.lineWidth = rnd(1, 3);
+  shape(TILE * 0.626, 2.0, 2.6); t.clip();
+
+  for (let i = 0; i < 130; i++) {   // broad weathering patches
+    const x = Math.random() * WW, y = Math.random() * WH, r = rnd(24, 130);
+    const g = t.createRadialGradient(x, y, 0, x, y, r);
+    const dark = Math.random() < 0.55;
+    g.addColorStop(0, dark ? 'rgba(44,40,32,0.34)' : 'rgba(214,203,176,0.26)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    t.fillStyle = g; t.beginPath(); t.arc(x, y, r, 0, 6.2832); t.fill();
+  }
+
+  for (let i = 0; i < 1400; i++) {  // bedding planes, near horizontal
+    const x = Math.random() * WW, y = Math.random() * WH, w = rnd(18, 150);
+    t.strokeStyle = Math.random() < 0.5 ? 'rgba(40,36,29,0.34)' : 'rgba(230,220,194,0.22)';
+    t.lineWidth = rnd(0.7, 2.4);
     t.beginPath(); t.moveTo(x, y);
-    t.quadraticCurveTo(x + w * 0.5, y + rnd(-9, 9), x + w, y + rnd(-5, 5));
+    t.quadraticCurveTo(x + w * 0.5, y + rnd(-5, 5), x + w, y + rnd(-3, 3));
+    t.stroke();
+  }
+
+  for (let i = 0; i < 4200; i++) {  // scree and chipped faces
+    const x = Math.random() * WW, y = Math.random() * WH;
+    t.fillStyle = Math.random() < 0.5 ? 'rgba(236,226,199,0.24)' : 'rgba(38,34,27,0.26)';
+    t.fillRect(x, y, rnd(0.8, 2.6), rnd(0.8, 2.2));
+  }
+
+  // fracture seams cutting across the mass
+  for (let i = 0; i < 70; i++) {
+    let x = Math.random() * WW, y = Math.random() * WH;
+    t.strokeStyle = 'rgba(26,23,18,0.42)'; t.lineWidth = rnd(1, 2.2);
+    t.beginPath(); t.moveTo(x, y);
+    for (let k = 0; k < 7; k++) { x += rnd(-34, 34); y += rnd(-26, 26); t.lineTo(x, y); }
     t.stroke();
   }
   t.restore();
@@ -352,7 +494,7 @@ function buildProps(t) {
     const gx = (rnd(1, GW - 1)) | 0, gy = (rnd(1, GH - 1)) | 0;
     if (!open(gx, gy)) continue;
     const x = gx * TILE + rnd(0, TILE), y = gy * TILE + rnd(0, TILE);
-    t.fillStyle = Math.random() < 0.6 ? 'rgba(0,0,0,0.42)' : 'rgba(190,184,160,0.09)';
+    t.fillStyle = Math.random() < 0.55 ? 'rgba(52,48,38,0.30)' : 'rgba(238,230,208,0.22)';
     t.beginPath();
     const n = 3 + ((Math.random() * 3) | 0), rr = rnd(2, 7);
     for (let k = 0; k < n; k++) {
@@ -371,10 +513,10 @@ function buildProps(t) {
     for (let y = gy; y < gy + h; y++) for (let x = gx; x < gx + w; x++) if (!open(x, y)) clear = false;
     if (!clear) continue;
     t.save();
-    t.strokeStyle = 'rgba(255,212,41,0.10)'; t.lineWidth = 1; t.setLineDash([6, 7]);
+    t.strokeStyle = 'rgba(226,178,40,0.30)'; t.lineWidth = 1.4; t.setLineDash([6, 7]);
     t.strokeRect(gx * TILE + 4, gy * TILE + 4, w * TILE - 8, h * TILE - 8);
     t.setLineDash([]);
-    t.strokeStyle = 'rgba(255,212,41,0.20)'; t.lineWidth = 1.4;
+    t.strokeStyle = 'rgba(226,178,40,0.5)'; t.lineWidth = 1.6;
     const bx = gx * TILE + 4, by = gy * TILE + 4;
     t.beginPath(); t.moveTo(bx + 9, by); t.lineTo(bx, by); t.lineTo(bx, by + 9); t.stroke();
     t.restore();
@@ -384,7 +526,7 @@ function buildProps(t) {
   for (const g of GATES) {
     for (let k = -2; k <= 2; k++) {
       const y = (g.y + k) * TILE + TILE / 2;
-      t.strokeStyle = 'rgba(255,212,41,0.16)'; t.lineWidth = 3;
+      t.strokeStyle = 'rgba(214,166,32,0.34)'; t.lineWidth = 3.2;
       for (let i = 0; i < 3; i++) {
         const x = (g.x - 3 + i * 2) * TILE;
         t.beginPath();
@@ -398,7 +540,7 @@ function buildProps(t) {
   for (let i = 0; i < 9; i++) {
     let x = (rnd(3, GW - 4)) | 0, y = (rnd(3, GH - 4)) | 0;
     if (!open(x, y)) continue;
-    t.strokeStyle = 'rgba(180,176,158,0.07)'; t.lineWidth = 3.5;
+    t.strokeStyle = 'rgba(70,66,56,0.16)'; t.lineWidth = 3.5;
     t.beginPath(); t.moveTo(x * TILE, y * TILE);
     for (let k = 0; k < 14; k++) {
       const horiz = Math.random() < 0.5;
@@ -1253,16 +1395,16 @@ gc.width = WW; gc.height = WH;
 const gx2 = gc.getContext('2d');
 function corpse(x, y, r, col) {
   gx2.globalAlpha = 0.62;
-  gx2.fillStyle = '#3A424B';
+  gx2.fillStyle = '#4A4436';
   gx2.beginPath();
   gx2.ellipse(x, y, r * rnd(0.8, 1.25), r * rnd(0.5, 0.85), Math.random() * 3.14, 0, 6.2832);
   gx2.fill();
-  gx2.globalAlpha = 0.13; gx2.fillStyle = '#14544E';
+  gx2.globalAlpha = 0.16; gx2.fillStyle = '#1B6A62';
   gx2.beginPath(); gx2.ellipse(x + rnd(-3, 3), y + rnd(-3, 3), r * 1.35, r * 1.0, 0, 0, 6.2832); gx2.fill();
   gx2.globalAlpha = 1;
 }
 function scorch(x, y, r) {
-  gx2.globalAlpha = 0.26; gx2.fillStyle = '#07090C';
+  gx2.globalAlpha = 0.30; gx2.fillStyle = '#2A241A';
   gx2.beginPath(); gx2.arc(x, y, r * 0.72, 0, 6.2832); gx2.fill();
   gx2.globalAlpha = 1;
 }
@@ -1352,21 +1494,38 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 let cam = { x: WW * 0.55, y: WH / 2, z: 1.15 };
 let groundPat = null;
 const vis = [];
+let VW = 800, VH = 600, DPR = 1;
 function resize() {
   const st = document.getElementById('stage').getBoundingClientRect();
-  cv.width = Math.max(320, st.width | 0);
-  cv.height = Math.max(240, st.height | 0);
+  VW = Math.max(280, st.width | 0);
+  VH = Math.max(220, st.height | 0);
+  // cap the ratio so phones stay smooth
+  DPR = Math.min(window.devicePixelRatio || 1, MOBILE ? 1.5 : 2);
+  cv.width = (VW * DPR) | 0;
+  cv.height = (VH * DPR) | 0;
+  clampCam();
 }
+
+// never show past the edge of the site: zoom in far enough to cover the
+// viewport, and keep the camera inside the world
+function minZoom() { return Math.max(VW / WW, VH / WH); }
+function clampCam() {
+  cam.z = clamp(cam.z, minZoom(), 2.6);
+  const hw = VW / cam.z / 2, hh = VH / cam.z / 2;
+  cam.x = clamp(cam.x, hw, WW - hw);
+  cam.y = clamp(cam.y, hh, WH - hh);
+}
+const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 900;
 window.addEventListener('resize', resize);
 new ResizeObserver(resize).observe(document.getElementById('stage'));
 
-function w2s(wx, wy) { return [(wx - cam.x) * cam.z + cv.width / 2, (wy - cam.y) * cam.z + cv.height / 2]; }
-function s2w(sx, sy) { return [(sx - cv.width / 2) / cam.z + cam.x, (sy - cv.height / 2) / cam.z + cam.y]; }
+function w2s(wx, wy) { return [(wx - cam.x) * cam.z + VW / 2, (wy - cam.y) * cam.z + VH / 2]; }
+function s2w(sx, sy) { return [(sx - VW / 2) / cam.z + cam.x, (sy - VH / 2) / cam.z + cam.y]; }
 
 function draw() {
-  const w = cv.width, h = cv.height;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = '#141312'; ctx.fillRect(0, 0, w, h);
+  const w = VW, h = VH;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#0A0A0A'; ctx.fillRect(0, 0, w, h);
 
   const sh = shake > 0 ? shake : 0;
   ctx.save();
@@ -1388,7 +1547,7 @@ function draw() {
     const b = blight[idx(x, y)];
     if (b <= 0.04 || terrain[idx(x, y)] === T_ROCK) continue;
     const cxb = x * TILE + TILE / 2, cyb = y * TILE + TILE / 2;
-    ctx.fillStyle = `rgba(20,92,86,${b * 0.5})`;
+    ctx.fillStyle = `rgba(26,104,96,${b * 0.62})`;
     ctx.beginPath(); ctx.arc(cxb, cyb, TILE * 0.82, 0, 6.2832); ctx.fill();
   }
 
@@ -1596,7 +1755,7 @@ function draw() {
     const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.34,
       w / 2, h / 2, Math.max(w, h) * 0.76);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,0,0.70)');
+    g.addColorStop(1, 'rgba(26,22,14,0.34)');
     vig = { w, h, g };
   }
   ctx.fillStyle = vig.g; ctx.fillRect(0, 0, w, h);
@@ -1611,8 +1770,8 @@ function glow(x, y, r, col) {
   ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
 }
 function drawShadow(x, y, r) {
-  ctx.fillStyle = 'rgba(0,0,0,0.42)';
-  ctx.beginPath(); ctx.ellipse(x + 2, y + 3, r, r * 0.62, 0, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = 'rgba(44,38,26,0.40)';
+  ctx.beginPath(); ctx.ellipse(x + 3, y + 4, r * 1.05, r * 0.6, 0, 0, 6.2832); ctx.fill();
 }
 function bar(x, y, w, h, f, col) {
   ctx.fillStyle = 'rgba(10,12,16,0.8)'; ctx.fillRect(x, y, w, h);
@@ -1629,9 +1788,9 @@ function drawBuilding(b) {
   const ours = b.type === 'hub' || b.powered || !d.power;
   const edge = ours ? C.lineHi : 'rgba(255,71,86,0.6)';
 
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillStyle = 'rgba(44,38,26,0.45)';
   ctx.beginPath();
-  ctx.ellipse(cx + 3, cy + 4, W * 0.52, H * 0.42, 0, 0, 6.2832);
+  ctx.ellipse(cx + 5, cy + 6, W * 0.54, H * 0.44, 0, 0, 6.2832);
   ctx.fill();
 
   // ---------- control hub, 3x3 ----------
@@ -1773,8 +1932,10 @@ function drawBuilding(b) {
     for (const s of b.crew) {
       if (!s.alive) continue;
       const sx = cx + s.ox, sy = cy + s.oy;
+      ctx.fillStyle = '#15181C';
+      ctx.beginPath(); ctx.arc(sx, sy, 3, 0, 6.2832); ctx.fill();
       ctx.fillStyle = C.crew;
-      ctx.beginPath(); ctx.arc(sx, sy, 2.2, 0, 6.2832); ctx.fill();
+      ctx.beginPath(); ctx.arc(sx, sy, 2, 0, 6.2832); ctx.fill();
       ctx.strokeStyle = d.crewKind === 'flame' ? C.signal : '#FFF6E2';
       ctx.lineWidth = 1.1;
       ctx.beginPath(); ctx.moveTo(sx, sy);
@@ -1963,42 +2124,112 @@ function refreshInsp() {
 }
 
 // ---- input ---------------------------------------------------------------
+// ---- unified pointer input: mouse, pen and touch --------------------------
+// Mouse keeps the desktop feel (left click acts immediately, right drag pans).
+// Touch pans with one finger, pinches with two, and acts on a quick tap.
+const ptrs = new Map();
 let panning = false, panSX = 0, panSY = 0, panCX = 0, panCY = 0;
+let tapAt = null, pinchD = 0, pinchZ = 1;
+
+function localPt(e) {
+  const r = cv.getBoundingClientRect();
+  return [e.clientX - r.left, e.clientY - r.top];
+}
+function tileUnder(e) {
+  const [sx, sy] = localPt(e);
+  const [wx, wy] = s2w(sx, sy);
+  const gxp = Math.floor(wx / TILE), gyp = Math.floor(wy / TILE);
+  return inb(gxp, gyp) ? [gxp, gyp] : null;
+}
+function beginPan(e) {
+  panning = true; panSX = e.clientX; panSY = e.clientY;
+  panCX = cam.x; panCY = cam.y;
+}
+function primaryAction(e) {
+  const t = tileUnder(e);
+  if (!t) return;
+  const [gxp, gyp] = t;
+  hoverIdx = idx(gxp, gyp);
+  if (ghost) {
+    // a multi-tile asset is sited from its centre, which is what the
+    // finger is actually pointing at
+    const d = DEFS[ghost];
+    const ax = gxp - (((d.w || 1) - 1) >> 1), ay = gyp - (((d.h || 1) - 1) >> 1);
+    tryPlace(ghost, ax, ay);
+  } else {
+    const bi = buildAt[idx(gxp, gyp)];
+    selected = bi >= 0 ? buildings[bi] : null;
+    refreshInsp();
+  }
+}
+
 cv.addEventListener('contextmenu', e => e.preventDefault());
-cv.addEventListener('mousedown', e => {
-  if (e.button === 2 || e.button === 1) {
-    panning = true; panSX = e.clientX; panSY = e.clientY; panCX = cam.x; panCY = cam.y;
-    cv.style.cursor = 'grabbing';
-  } else if (e.button === 0) {
-    const r = cv.getBoundingClientRect();
-    const [wx, wy] = s2w(e.clientX - r.left, e.clientY - r.top);
-    const gxp = (wx / TILE) | 0, gyp = (wy / TILE) | 0;
-    if (!inb(gxp, gyp)) return;
-    if (ghost) {
-      if (tryPlace(ghost, gxp, gyp) && !e.shiftKey) { /* keep ghost for chaining */ }
-    } else {
-      const bi = buildAt[idx(gxp, gyp)];
-      selected = bi >= 0 ? buildings[bi] : null;
-      refreshInsp();
-    }
+
+cv.addEventListener('pointerdown', e => {
+  cv.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (e.pointerType === 'mouse') {
+    if (e.button === 2 || e.button === 1) { beginPan(e); cv.style.cursor = 'grabbing'; }
+    else if (e.button === 0) primaryAction(e);
+    return;
+  }
+  if (ptrs.size === 1) {
+    tapAt = { t: performance.now(), x: e.clientX, y: e.clientY };
+    beginPan(e);
+    const t = tileUnder(e);
+    if (t) hoverIdx = idx(t[0], t[1]);
+  } else if (ptrs.size === 2) {
+    tapAt = null; panning = false;
+    const [a, b] = [...ptrs.values()];
+    pinchD = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+    pinchZ = cam.z;
   }
 });
-window.addEventListener('mouseup', () => { panning = false; cv.style.cursor = 'crosshair'; });
-window.addEventListener('mousemove', e => {
+
+cv.addEventListener('pointermove', e => {
+  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+    cam.z = clamp(pinchZ * (d / pinchD), minZoom(), 2.6);
+    clampCam();
+    return;
+  }
   if (panning) {
     cam.x = panCX - (e.clientX - panSX) / cam.z;
     cam.y = panCY - (e.clientY - panSY) / cam.z;
-    cam.x = clamp(cam.x, 0, WW); cam.y = clamp(cam.y, 0, WH);
+    clampCam();
+    if (tapAt && Math.hypot(e.clientX - tapAt.x, e.clientY - tapAt.y) > 14) tapAt = null;
   }
-  const r = cv.getBoundingClientRect();
-  const [wx, wy] = s2w(e.clientX - r.left, e.clientY - r.top);
-  const gxp = (wx / TILE) | 0, gyp = (wy / TILE) | 0;
-  hoverIdx = inb(gxp, gyp) ? idx(gxp, gyp) : -1;
+  if (e.pointerType !== 'touch') {
+    const t = tileUnder(e);
+    hoverIdx = t ? idx(t[0], t[1]) : -1;
+  }
 });
+
+function endPointer(e) {
+  if (e.pointerType === 'touch' && tapAt && ptrs.size === 1) {
+    const quick = performance.now() - tapAt.t < 320;
+    const still = Math.hypot(e.clientX - tapAt.x, e.clientY - tapAt.y) < 14;
+    if (quick && still) primaryAction(e);
+  }
+  ptrs.delete(e.pointerId);
+  tapAt = null;
+  if (ptrs.size === 0) { panning = false; cv.style.cursor = 'crosshair'; }
+  else if (ptrs.size === 1) {
+    // second finger lifted: resume panning from the remaining one
+    const [only] = [...ptrs.values()];
+    panning = true; panSX = only.x; panSY = only.y; panCX = cam.x; panCY = cam.y;
+  }
+}
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', endPointer);
+
 cv.addEventListener('wheel', e => {
   e.preventDefault();
-  const f = e.deltaY > 0 ? 0.88 : 1.14;
-  cam.z = clamp(cam.z * f, 0.42, 2.6);
+  cam.z = clamp(cam.z * (e.deltaY > 0 ? 0.88 : 1.14), minZoom(), 2.6);
+  clampCam();
 }, { passive: false });
 
 window.addEventListener('keydown', e => {
@@ -2032,6 +2263,8 @@ function init() {
   const { hx, hy } = buildMap();
   buildTerrainLayer();
   cam.x = hx * TILE; cam.y = hy * TILE;
+  if (MOBILE) cam.z = 0.62;
+  clampCam();
   computeFlow();
   buildBar();
   prepMax = prepLeft = 70;

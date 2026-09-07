@@ -19,6 +19,22 @@ Database, and the official Endfield site. Screenshot-level research was
 not possible; the structural rules below come from diagnosing what made
 our own renderer look dated, not from copying frames.
 
+## The world is daylight; only the HUD is dark
+
+The single biggest mistake in this project was applying the interface
+palette to the world. The Endfield tokens are a dark UI theme. The world
+they sit over is an open, sun-lit frontier planet, not a cave.
+
+- The ground is a bright arid landscape: dry earth, scrub, bleached
+  gravel, worn haul roads.
+- The sun comes from the top left and is warm. Shade is filled by cool
+  sky light. Every cast shadow points down-right.
+- Rock is a sunlit crest over a warm body over a cool shaded flank, with
+  bedding planes, fracture seams and loose scree on its surface.
+- Our machines are dark steel, so they read as hard silhouettes against
+  the lit ground. Creatures are dark chitin with an infection core.
+- The vignette is a gentle warm falloff, not a tunnel mouth.
+
 ## The three rules that matter
 
 1. **Near-black base, one signal colour.** The screen is almost entirely
@@ -118,6 +134,20 @@ squares. The specific offenders and their fixes:
 Terrain is rendered once into its own layer as merged rounded masses, so
 the map never shows tile seams. Rock is near-black with a single hairline
 rim and a soft cast shadow.
+
+## Mobile
+
+- One finger drags the camera, two fingers pinch to zoom, a quick tap
+  places or selects. A tap is under 320ms and under 14px of travel.
+- Zoom is clamped so the world always covers the viewport, and the camera
+  cannot leave the site, so a portrait phone never shows dead bars.
+- Multi-tile assets are sited from their centre, because that is where
+  the finger is pointing.
+- Device pixel ratio is capped at 1.5 on phones. Past that the terrain
+  layer is only being upscaled, which costs fill rate and buys blur.
+- Hover styling is gated behind `@media (hover:hover)`; the inspector
+  becomes a bottom sheet; the two least critical readouts drop out; the
+  build rail scrolls with a fade on its right edge.
 
 ## Motion
 
