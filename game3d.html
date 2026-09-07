@@ -146,7 +146,7 @@
     clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
   }
   #speed button { border-color: var(--accent); background: rgba(255,122,42,.14); font-size: 12px; }
-  #speed #sndBtn { width: 40px; }
+  #speed #sndBtn, #speed #menuBtn { width: 40px; }
   #speed button[data-p="1"] { color: #93a7b8; border-color: rgba(122,150,175,.3); background: rgba(9,13,18,.6); }
 
   /* floating combo counter */
@@ -327,6 +327,8 @@
   }
   .act:active { transform: translateY(1px); }
   .act[disabled] { opacity: .28; }
+  .act.lk { pointer-events: none; opacity: .34; border-style: dashed; }
+  .act.lk .c { color: var(--gold); }
   .act[data-sel="1"] {
     border-color: var(--accent); background: rgba(255,122,42,.10);
     box-shadow: 0 0 20px rgba(255,122,42,.18), inset 0 0 24px rgba(255,122,42,.08);
@@ -353,6 +355,16 @@
   .ab[data-arm="1"] { border-color: var(--accent); background: rgba(255,122,42,.16); color: #ffd7bb; }
   .ab:active { transform: translateY(1px); }
 
+  #records { display: flex; gap: 7px; margin-top: 14px; font-family: ui-monospace, monospace; }
+  #records div {
+    flex: 1; background: rgba(9,13,18,.55); border: 1px solid rgba(122,150,175,.22);
+    padding: 8px 9px 9px; text-align: center;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  }
+  #records s { display: block; text-decoration: none; font-size: 6px; letter-spacing: .22em; color: #4f6273; }
+  #records b { display: block; font-size: 17px; font-weight: 700; margin-top: 3px; }
+  #mapPick button[data-lock="1"] { opacity: .42; border-style: dashed; }
+  #mapPick button[data-lock="1"] span { color: var(--gold); }
   #mapPick { display: flex; flex-direction: column; gap: 7px; }
   #mapPick button {
     display: flex; align-items: center; gap: 11px; width: 100%; cursor: pointer;
@@ -435,6 +447,23 @@
     font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; letter-spacing: .16em;
     clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
   }
+  .btn.gh {
+    background: rgba(122,150,175,.10); color: #b6c6d4; border-color: rgba(122,150,175,.34);
+    margin-top: 9px;
+  }
+  #endGrade {
+    align-self: center; width: 88px; height: 88px; margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace; font-size: 44px; font-weight: 700;
+    border: 2px solid currentColor; color: var(--gold);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  #endGrade[data-g="S"] { color: #ffc93d; }
+  #endGrade[data-g="A"] { color: #4fe3f0; }
+  #endGrade[data-g="B"] { color: #9fd6a0; }
+  #endGrade[data-g="C"] { color: #c9b98a; }
+  #endGrade[data-g="D"] { color: #b06a6a; }
+  #endStats u { text-decoration: none; color: var(--gold); border: 1px solid rgba(255,201,61,.4); padding: 1px 6px; }
   #loading {
     position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
     background: #0b0e13; color: var(--dim); font-family: ui-monospace, monospace;
@@ -493,7 +522,7 @@
     <div class="aName">COMMAND<br>사령부</div>
   </div>
 
-  <div id="speed"><button id="spBtn">1x</button><button id="sndBtn">♪</button></div>
+  <div id="speed"><button id="spBtn">1x</button><button id="sndBtn">♪</button><button id="menuBtn">≡</button></div>
   <div id="combo" hidden></div>
   <button id="goBtn" hidden>공세 개시 &#10217;</button>
   <div id="breach" hidden></div>
@@ -517,6 +546,7 @@
 <div class="overlay" id="titleScreen" hidden>
   <h1 class="title">HOLD<br>THE LINE</h1>
   <p class="sub">버려진 공장 부지에 방어선을 세우고 10차 공세를 버텨내세요.</p>
+  <div id="records"></div>
   <div class="lbl">전장 선택</div>
   <div id="mapPick"></div>
   <button class="btn" id="startBtn">전투 시작</button>
@@ -546,6 +576,15 @@
   </div>
 </div>
 
+<div class="overlay" id="pauseScreen" style="justify-content:center" hidden>
+  <div class="lbl" style="text-align:center;margin-top:0">PAUSED</div>
+  <div class="title" style="font-size:22px">일시 정지</div>
+  <div class="help mono" id="pauseStats" style="font-size:12px;line-height:2;margin-top:16px"></div>
+  <button class="btn" id="resumeBtn">계속</button>
+  <button class="btn gh" id="restartBtn">이 전장 재시작</button>
+  <button class="btn gh" id="quitBtn">전장 선택으로</button>
+</div>
+
 <div id="aim" hidden><i></i><b></b></div>
 <div id="insp" hidden></div>
 
@@ -561,11 +600,13 @@
 </div>
 
 <div class="overlay" id="endScreen" style="justify-content:center" hidden>
+  <div id="endGrade">-</div>
   <div class="title" id="endTitle"></div>
   <p class="sub" id="endSub"></p>
   <div class="lbl">전투 기록</div>
   <div class="help mono" id="endStats" style="font-size:12px;line-height:2"></div>
-  <button class="btn" id="againBtn">다시 하기</button>
+  <button class="btn" id="retryBtn">같은 전장 재도전</button>
+  <button class="btn gh" id="againBtn">전장 선택</button>
 </div>
 
 <script src="three.min.js"></script>
@@ -768,6 +809,22 @@ const BRIEF = [
   ["모체", "마지막입니다. 지휘 능력을 아끼지 마세요"]
 ];
 
+// Eighteen buildings and five units on the first screen is not a roster, it is
+// a wall. Everything arrives on the wave that first makes it necessary, which
+// also means the briefing line and the new card always agree.
+const UNLOCK = {
+  bunker: 2, mortar: 2, eng: 2,
+  dragon: 3, flame: 3, medic: 3,
+  siege: 4, mine: 4, at: 4,
+  wall: 5, tesla: 5,
+  sniper: 6, guard: 6,
+  arty: 7,
+  mech: 8,
+  rail: 9
+};
+const unlockedAt = k => UNLOCK[k] || 0;
+const isUnlocked = k => G.assault >= unlockedAt(k);
+
 const LULL = 17, LULL_RATE = 0.7;
 const PREP = 45;
 // Five things you can produce. Four hold a post; the assault team does not
@@ -915,6 +972,31 @@ const SFX = (() => {
     }
   };
 })();
+
+// Persistent record, guarded: private windows and blocked site data both
+// throw on access, and the game has to open normally when they do.
+const SAVE_KEY = "htl.v1";
+let SAVE = { best: [0, 0, 0], cleared: [0, 0, 0], kills: 0, runs: 0 };
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const o = JSON.parse(raw);
+      if (o && Array.isArray(o.best)) SAVE = Object.assign(SAVE, o);
+    }
+  } catch (e) {}
+}
+function storeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
+// the second and third maps open once you have shown you can hold the first
+const mapLocked = i => i === 1 ? SAVE.best[0] < 4 : i === 2 ? SAVE.cleared[0] + SAVE.cleared[1] === 0 : false;
+const mapLockText = i => i === 1 ? "적하장 4차 공세 도달 시 해금" : "적하장 또는 정련로 클리어 시 해금";
+function gradeOf(assault, hqFrac, won) {
+  if (won && hqFrac >= .85) return "S";
+  if (won) return "A";
+  if (assault >= 9) return "B";
+  if (assault >= 6) return "C";
+  return "D";
+}
 
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -1138,6 +1220,7 @@ function rebuildFlow() {
 // a dry run so a drag can refuse a tile before anything is spent
 function placeCheck(key, c, r) {
   const spec = B[key], t = at(c, r);
+  if (!isUnlocked(key)) return unlockedAt(key) + "차 공세 이후 해금";
   if (!t) return "지도 밖입니다";
   if (t.k === "block") return "잔해가 막고 있습니다";
   if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
@@ -1149,6 +1232,7 @@ function placeCheck(key, c, r) {
 }
 function place(key, c, r, face) {
   const spec = B[key], t = at(c, r);
+  if (!isUnlocked(key)) return unlockedAt(key) + "차 공세 이후 해금";
   if (!t) return "지도 밖입니다";
   if (t.k === "block") return "잔해가 막고 있습니다";
   if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
@@ -1197,6 +1281,7 @@ function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 // ---------------------------------------------------------------- soldiers
 function spawnSoldier(t) {
   t = t || "rifle";
+  if (!isUnlocked(t)) return false;
   const u = UNITS[t], cost = solCost(t);
   if (G.mat < cost || G.man < u.man) return false;
   G.mat -= cost; G.man -= u.man;
@@ -1782,6 +1867,10 @@ function updateWar(dt) {
       }
       G.bigCd = a.dur / (G.bigQ.length + 1);
       G.waveT = 0; G.berserk = false;
+      { const got = [];
+        for (const k in UNLOCK) if (UNLOCK[k] === G.assault - 1)
+          got.push((B[k] || UNITS[k]).name);
+        if (got.length) floatText("해금  " + got.join(" · ")); }
       SFX.play('wave');
       floatText(G.assault + "차 공세  ·  " + BRIEF[Math.min(G.assault - 1, BRIEF.length - 1)][0]);
       G.shake = .22;
@@ -4303,6 +4392,7 @@ function mkAct(title, cost, on, opts) {
 }
 let armed = null;   // an ability waiting for a map tap
 let dragFromCard = false;
+let aim = null;     // a placement waiting for its facing
 
 // --- inspector: tap a placed building to see what it has become -------------
 function closeInsp() {
@@ -4455,6 +4545,14 @@ function syncSheet() {
     for (const b of G.buildings) if (b.done && B[b.key].garrison) free += garrisonOf(b.key) - b.crew.length;
     for (const t of ["rifle", "at", "eng", "medic", "guard"]) {
       const u = UNITS[t], c1 = solCost(t);
+      if (!isUnlocked(t)) {
+        const lk = document.createElement("div");
+        lk.className = "act lk";
+        lk.innerHTML = `<div class="art">${svgGlyph(u.g)}</div><div class="t">${u.name}</div>` +
+                       `<div class="c">${unlockedAt(t)}차 공세 이후 해금</div>`;
+        body.appendChild(lk);
+        continue;
+      }
       const tag = u.free ? "<em>참호 불필요</em> · " : `<em>인력 ${u.man}</em> · `;
       body.appendChild(mkAct(u.name, `${tag}${u.desc}`, () => { spawnSoldier(t); syncSheet(); },
         { off: G.mat < c1 || G.man < u.man, cost: c1, glyph: u.g }));
@@ -4476,6 +4574,14 @@ function syncSheet() {
     : pick ? `${B[pick].name} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
+    if (!isUnlocked(key)) {
+      const lk = document.createElement("div");
+      lk.className = "act lk";
+      lk.innerHTML = `<div class="art">${svgGlyph(key)}</div><div class="t">${spec.name}</div>` +
+                     `<div class="c">${unlockedAt(key)}차 공세 이후 해금</div>`;
+      body.appendChild(lk);
+      continue;
+    }
     const cost = bCost(key);
     const extra = spec.garrison ? `<em>병사 ${garrisonOf(key)}</em> · `
                 : spec.upkeep   ? `<em>유지 ${spec.upkeep}</em> · `
@@ -4536,18 +4642,35 @@ function frame(now) {
 function finish(won, why) {
   if (mode === "end") return;
   mode = "end";
+  $("pauseScreen").hidden = true;
+  const mi = G.map, hqF = G.hq.hp / G.hq.max;
+  const grade = gradeOf(G.assault, hqF, won);
+  const prevBest = SAVE.best[mi] || 0;
+  const newBest = G.assault > prevBest;
+  const firstClear = won && !SAVE.cleared[mi];
+  const wasLocked = [mapLocked(0), mapLocked(1), mapLocked(2)];
+  SAVE.best[mi] = Math.max(prevBest, G.assault);
+  if (won) SAVE.cleared[mi] = 1;
+  SAVE.kills += G.kills; SAVE.runs++;
+  storeSave();
+  const opened = [0, 1, 2].filter(i => wasLocked[i] && !mapLocked(i)).map(i => MAPS[i].name);
   SFX.play(won ? 'win' : 'lose');
   $("endTitle").textContent = won ? "전선 사수" : "전선 붕괴";
   $("endTitle").style.color = won ? "#4fe3f0" : "#e8384f";
   $("endSub").textContent = why;
   const m = Math.floor(G.t / 60), s2 = Math.floor(G.t % 60);
+  $("endGrade").textContent = grade;
+  $("endGrade").dataset.g = grade;
   $("endStats").innerHTML =
+    `전장 &nbsp;<b>${MAPS[mi].name}</b>${newBest ? " <u>최고 기록</u>" : ""}<br>` +
+    `도달 공세 &nbsp;<b>${G.assault} / ${ASSAULTS.length}</b>` +
+    (prevBest ? ` <span style="color:#4f6273">이전 ${prevBest}</span>` : "") + "<br>" +
     `버틴 시간 &nbsp;<b>${m}분 ${String(s2).padStart(2, "0")}초</b><br>` +
-    `도달 공세 &nbsp;<b>${G.assault} / ${ASSAULTS.length}</b><br>` +
-    `적 격파 &nbsp;<b>${G.kills}</b><br>` +
-    `아군 전사 &nbsp;<b>${G.kia}</b><br>` +
-    `남은 사령부 &nbsp;<b>${Math.ceil(G.hq.hp / G.hq.max * 100)}%</b><br>` +
-    `교리 &nbsp;<b>${G.doct.length ? G.doct.map(k => DOCTRINE.find(x => x.k === k).n).join(", ") : "없음"}</b>`;
+    `적 격파 &nbsp;<b>${G.kills}</b> &nbsp; 전사 &nbsp;<b>${G.kia}</b><br>` +
+    `남은 사령부 &nbsp;<b>${Math.ceil(hqF * 100)}%</b><br>` +
+    `교리 &nbsp;<b>${G.doct.length ? G.doct.map(k => DOCTRINE.find(x => x.k === k).n).join(", ") : "없음"}</b>` +
+    (firstClear ? `<br><br><u>${MAPS[mi].name} 최초 클리어</u>` : "") +
+    (opened.length ? `<br><u>새 전장 해금 · ${opened.join(" · ")}</u>` : "");
   $("endScreen").hidden = false;
 }
 function start() {
@@ -4588,29 +4711,51 @@ function drawMapThumb(cv, M) {
   g.fillStyle = "rgba(255,201,61,.75)";
   for (const r of [8, 12]) g.fillRect(0, (r + 3) * S - 1, cv.width, 1.6);
 }
+function syncRecords() {
+  const cleared = SAVE.cleared.reduce((a, b2) => a + b2, 0);
+  $("records").innerHTML =
+    `<div><s>CLEARED</s><b>${cleared} / 3</b></div>` +
+    `<div><s>BEST WAVE</s><b>${Math.max.apply(null, SAVE.best)} / 10</b></div>` +
+    `<div><s>TOTAL KILLS</s><b>${SAVE.kills > 9999 ? (SAVE.kills / 1000).toFixed(1) + "k" : SAVE.kills}</b></div>`;
+}
 function syncMapPick() {
   const host = $("mapPick");
   host.innerHTML = "";
   MAPS.forEach((M, i) => {
+    const locked = mapLocked(i);
+    if (locked && mapIdx === i) mapIdx = 0;
     const b = document.createElement("button");
     b.dataset.on = i === mapIdx ? "1" : "0";
-    b.innerHTML = `<canvas></canvas><div class="mi"><b>${M.name}<u>${M.tag}</u></b>` +
-                  `<s>${M.sub}</s><span>${M.desc}</span></div>`;
+    b.dataset.lock = locked ? "1" : "0";
+    const rec = SAVE.cleared[i] ? "<u>클리어</u>"
+              : SAVE.best[i] ? `<u>최고 ${SAVE.best[i]}차</u>` : "";
+    b.innerHTML = `<canvas></canvas><div class="mi"><b>${M.name}<u>${M.tag}</u>${rec}</b>` +
+                  `<s>${M.sub}</s><span>${locked ? mapLockText(i) : M.desc}</span></div>`;
     drawMapThumb(b.querySelector("canvas"), M);
-    b.addEventListener("click", () => { mapIdx = i; syncMapPick(); });
+    b.addEventListener("click", () => {
+      SFX.play("ui");
+      if (locked) return;
+      mapIdx = i; syncMapPick();
+    });
     host.appendChild(b);
   });
 }
+loadSave();
+syncRecords();
 syncMapPick();
 $("startBtn").addEventListener("click", () => { SFX.unlock(); SFX.play("ui"); start(); });
-$("againBtn").addEventListener("click", () => { $("endScreen").hidden = true; $("titleScreen").hidden = false; mode = "title"; syncMapPick(); });
+$("retryBtn").addEventListener("click", () => { SFX.play("ui"); start(); });
+$("againBtn").addEventListener("click", () => {
+  SFX.play("ui");
+  $("endScreen").hidden = true; $("titleScreen").hidden = false;
+  mode = "title"; syncMapPick(); syncRecords();
+});
 document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => { tab = +t.dataset.zone; syncSheet(); }));
 
 // Deployment, Arknights style: drag a card onto a tile, release, then drag out
 // from that tile to choose the facing and release again. The facing is real -
 // a weapon favours targets inside its arc by 2.4x and drifts back to it idle.
-let aim = null;
 function beginAim(key, c, r) {
   const p = VIEW.projectTile(c, r);
   aim = { key, c, r, sx: p.x, sy: p.y, face: Math.PI };
@@ -4715,9 +4860,33 @@ cv.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 
 function syncSpeed() {
   const b2 = $("spBtn");
-  b2.textContent = G.speed === 0 ? "II" : G.speed === 1 ? "1x" : "2x";
-  b2.dataset.p = G.speed === 0 ? "1" : "0";
+  b2.textContent = G.speed === 2 ? "2x" : "1x";
+  b2.dataset.p = G.speed === 2 ? "0" : "1";
 }
+function openPause() {
+  if (mode !== "play") return;
+  mode = "pause";
+  const M = MAPS[G.map];
+  $("pauseStats").innerHTML =
+    `전장 &nbsp;<b>${M.name}</b><br>` +
+    `공세 &nbsp;<b>${Math.max(1, G.assault)} / ${ASSAULTS.length}</b><br>` +
+    `사령부 &nbsp;<b>${Math.ceil(G.hq.hp / G.hq.max * 100)}%</b><br>` +
+    `격파 &nbsp;<b>${G.kills}</b> &nbsp; 전사 &nbsp;<b>${G.kia}</b><br>` +
+    `교리 &nbsp;<b>${G.doct.length ? G.doct.map(k => DOCTRINE.find(x => x.k === k).n).join(", ") : "없음"}</b>`;
+  $("pauseScreen").hidden = false;
+}
+function closePause() {
+  $("pauseScreen").hidden = true;
+  if (mode === "pause") { mode = "play"; last = performance.now(); acc = 0; }
+}
+$("resumeBtn").addEventListener("click", () => { SFX.play("ui"); closePause(); });
+$("restartBtn").addEventListener("click", () => { SFX.play("ui"); $("pauseScreen").hidden = true; start(); });
+$("quitBtn").addEventListener("click", () => {
+  SFX.play("ui");
+  $("pauseScreen").hidden = true; $("endScreen").hidden = true;
+  mode = "title"; syncMapPick(); syncRecords();
+  $("titleScreen").hidden = false;
+});
 $("goBtn").addEventListener("click", () => {
   if (mode !== "play" || G.phase !== "lull") return;
   G.timer = 0.05; SFX.unlock(); SFX.play("ui");
@@ -4735,10 +4904,11 @@ for (const ev of ["pointerdown", "touchstart", "touchend", "click", "keydown"])
   addEventListener(ev, () => SFX.unlock(), true);
 addEventListener("visibilitychange", () => { if (!document.hidden) SFX.unlock(); });
 $("spBtn").addEventListener("click", () => {
-  if (mode === "end") return;
-  G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 0 : 1;
+  if (mode !== "play") return;
+  G.speed = G.speed === 1 ? 2 : 1;
   syncSpeed();
 });
+$("menuBtn").addEventListener("click", () => { SFX.play("ui"); openPause(); });
 
 newGame();
 VIEW.applyMap();
