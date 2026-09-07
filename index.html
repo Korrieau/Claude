@@ -22,108 +22,184 @@
   canvas { display: block; position: fixed; inset: 0; }
   .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
 
-  /* ---- readout ---------------------------------------------------- */
-  #top {
-    position: fixed; z-index: 5; left: 0; right: 0; top: 0;
-    padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px 12px;
-    background: linear-gradient(to bottom, rgba(8,11,15,.96) 58%, rgba(8,11,15,0));
-    pointer-events: none;
-  }
-  #res {
-    display: flex; align-items: stretch;
-    border: 1px solid var(--line);
-    background: rgba(13,17,23,.86);
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  }
-  .stat { flex: 1; padding: 6px 9px 7px; position: relative; }
-  .stat + .stat { border-left: 1px solid var(--line); }
-  .stat .k {
-    font-family: ui-monospace, monospace; font-size: 7px; letter-spacing: .22em;
-    color: #5c6875; text-transform: uppercase;
-  }
-  .stat .n { font-size: 8.5px; color: var(--dim); letter-spacing: .04em; margin-top: 1px; }
-  .stat .v {
-    font-family: ui-monospace, monospace; font-size: 17px; font-weight: 700;
-    line-height: 1.05; margin-top: 2px; letter-spacing: -.01em;
-  }
-  .stat .v small { font-size: 9px; color: #5c6875; font-weight: 400; }
-  .stat::after {
-    content: ""; position: absolute; left: 9px; bottom: 4px; width: 12px; height: 2px;
-    background: var(--line);
-  }
-  .stat.hot::after { background: var(--accent); }
-  .stat.crit .v { color: var(--danger); }
-  .stat.crit::after { background: var(--danger); }
-
-  #line2 {
-    display: flex; align-items: center; gap: 9px; margin-top: 7px; padding: 0 2px;
-    font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .16em; color: #5c6875;
-  }
-  #line2 b { color: var(--accent); font-size: 11px; letter-spacing: .04em; }
-  #line2 .st { color: var(--ink); letter-spacing: .1em; }
-  #line2 .r { margin-left: auto; letter-spacing: .1em; }
-  #line2 .r i { font-style: normal; color: var(--ink); }
-  #threatBar {
-    height: 4px; margin-top: 6px; position: relative;
-    background: repeating-linear-gradient(to right, #161c25 0, #161c25 0);
-    background-color: #161c25;
-  }
-  #threatFill { height: 100%; width: 0; background: var(--danger); transition: width .12s linear; }
-  #threatTicks {
-    position: absolute; inset: 0;
-    background-image: repeating-linear-gradient(to right, transparent 0 calc(10% - 1px), rgba(8,11,15,.9) calc(10% - 1px) 10%);
+  /* ---- HUD: thin strokes, notched frames, plenty of air --------------- */
+  #hud { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+  .notch {
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
   }
 
-  /* ---- console ------------------------------------------------------ */
+  #obj {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top,0px) + 6px);
+    text-align: center; width: 186px;
+  }
+  #obj .br { color: #4d6070; font-size: 11px; vertical-align: 2px; }
+  .oTitle {
+    font-size: 13px; font-weight: 700; letter-spacing: .18em; color: #eaf2f8;
+    margin: 0 6px; text-shadow: 0 0 12px rgba(120,190,230,.35);
+  }
+  .oSub {
+    font-family: ui-monospace, monospace; font-size: 7.5px; letter-spacing: .26em;
+    color: #5d7182; margin-top: 3px;
+  }
+  .oRule { height: 1px; background: rgba(120,150,175,.22); margin-top: 6px; position: relative; }
+  .oRule i {
+    position: absolute; left: 0; top: -1px; height: 3px; width: 0;
+    background: var(--accent); box-shadow: 0 0 10px rgba(255,122,42,.7); display: block;
+  }
+
+  #pills {
+    position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 60px);
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 12px 5px 7px; min-width: 132px;
+    background: rgba(9,13,18,.52);
+    border: 1px solid rgba(122,150,175,.24);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  }
+  .ico { width: 13px; height: 13px; fill: none; stroke: var(--accent); stroke-width: 1.6; flex: 0 0 auto; }
+  .ico.cy { stroke: var(--cyan); }
+  .ico.wh { stroke: #c6d4e0; }
+  .pv { line-height: 1; }
+  .pv b { font-family: ui-monospace, monospace; font-size: 16px; font-weight: 700; }
+  .pv s {
+    display: block; text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 6px; letter-spacing: .24em; color: #4f6273; margin-top: 2px;
+  }
+  .pr {
+    margin-left: auto; font-family: ui-monospace, monospace; font-size: 7px; letter-spacing: .06em;
+  }
+  .pr i { font-style: normal; color: var(--cyan); }
+  .pr u { text-decoration: none; color: #b06a4e; }
+  .pbar { margin-left: auto; width: 34px; height: 3px; background: rgba(120,150,175,.18); }
+  .pbar i { display: block; height: 100%; background: var(--cyan); }
+
+  #asl {
+    position: absolute; right: 10px; top: calc(env(safe-area-inset-top,0px) + 60px);
+    text-align: right;
+  }
+  .aLab {
+    font-family: ui-monospace, monospace; font-size: 6px; letter-spacing: .3em; color: #4f6273;
+  }
+  .ticks { display: flex; gap: 2px; justify-content: flex-end; margin-top: 5px; }
+  .ticks i {
+    width: 6px; height: 14px; display: block;
+    background: rgba(120,150,175,.16); transform: skewX(-18deg);
+  }
+  .ticks i.on { background: rgba(255,122,42,.85); }
+  .ticks i.now { background: var(--danger); box-shadow: 0 0 9px rgba(232,56,79,.8); animation: pulse .85s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
+  .aState {
+    font-family: ui-monospace, monospace; font-size: 8.5px; letter-spacing: .2em;
+    margin-top: 6px; color: #eaf2f8;
+  }
+  .aKill {
+    font-family: ui-monospace, monospace; font-size: 7px; letter-spacing: .16em;
+    color: #4f6273; margin-top: 4px;
+  }
+  .aKill i { font-style: normal; color: #c6d4e0; }
+
+  #cmdPanel {
+    position: absolute; left: 12px;
+    bottom: calc(env(safe-area-inset-bottom,0px) + 156px);
+    width: 68px; height: 68px;
+  }
+  .arc { width: 68px; height: 68px; transform: rotate(-90deg); }
+  .arc circle { fill: none; stroke-width: 3; }
+  .arc .track { stroke: rgba(120,150,175,.18); }
+  .arc .fill {
+    stroke: var(--cyan); stroke-linecap: round;
+    stroke-dasharray: 175.9; stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 5px rgba(79,227,240,.6));
+    transition: stroke-dashoffset .2s linear;
+  }
+  #cmdPanel.crit .fill { stroke: var(--danger); filter: drop-shadow(0 0 7px rgba(232,56,79,.8)); }
+  #cmdPanel.crit { animation: pulse 1.05s infinite; }
+  .aCtr {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace;
+  }
+  .aCtr b { font-size: 17px; font-weight: 700; }
+  .aCtr s { text-decoration: none; font-size: 8px; color: #4f6273; margin-left: 1px; }
+  .aName {
+    position: absolute; left: 76px; top: 16px; white-space: nowrap;
+    font-family: ui-monospace, monospace; font-size: 6.5px; letter-spacing: .26em;
+    color: #4f6273; line-height: 1.7;
+  }
+
+  #scan {
+    position: absolute; inset: 0; opacity: .04;
+    background: repeating-linear-gradient(to bottom, rgba(190,220,255,.5) 0 1px, transparent 1px 3px);
+  }
+
+  /* ---- deployment rail: portrait cards ------------------------------- */
   #sheet {
     position: fixed; z-index: 6; left: 0; right: 0; bottom: 0;
-    padding: 9px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
-    background: rgba(8,11,15,.94);
-    border-top: 1px solid var(--line);
-    backdrop-filter: blur(8px);
-  }
-  #sheet::before {
-    content: ""; position: absolute; left: 0; top: -1px; width: 76px; height: 2px;
-    background: var(--accent);
+    padding: 8px 10px calc(env(safe-area-inset-bottom, 0px) + 9px);
+    background: linear-gradient(to top, rgba(5,8,12,.96) 68%, rgba(5,8,12,0));
   }
   #tabs { display: flex; gap: 5px; margin-bottom: 8px; }
   .tab {
-    flex: 1; cursor: pointer; position: relative;
-    background: transparent; color: #5c6875;
-    border: 1px solid var(--line); padding: 8px 2px 8px 12px; text-align: left;
-    font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .12em;
-    clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+    flex: 1; cursor: pointer; position: relative; text-align: left;
+    background: rgba(9,13,18,.5); color: #8b98a6;
+    border: 1px solid rgba(122,150,175,.22); padding: 6px 4px 6px 15px;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
   .tab i {
     position: absolute; left: 4px; top: 3px; font-style: normal;
-    font-size: 6.5px; color: #3d4956; letter-spacing: 0;
+    font-family: ui-monospace, monospace; font-size: 6px; color: #3f5162;
+  }
+  .tab b { display: block; font-size: 11.5px; font-weight: 700; }
+  .tab s {
+    display: block; text-decoration: none; font-family: ui-monospace, monospace;
+    font-size: 6px; letter-spacing: .22em; color: #45586a; margin-top: 1px;
   }
   .tab[data-on="1"] {
-    color: #080b0f; background: var(--accent); border-color: var(--accent);
+    background: rgba(255,122,42,.14); border-color: var(--accent); color: #ffd7bb;
+    box-shadow: inset 0 0 18px rgba(255,122,42,.14);
   }
-  .tab[data-on="1"] i { color: rgba(8,11,15,.55); }
+  .tab[data-on="1"] s, .tab[data-on="1"] i { color: rgba(255,190,150,.7); }
 
-  #body { display: flex; gap: 5px; flex-wrap: wrap; min-height: 58px; }
+  #body { display: flex; gap: 6px; align-items: stretch; min-height: 84px; }
   .act {
-    flex: 1 1 0; min-width: 84px; cursor: pointer; text-align: left; position: relative;
-    background: rgba(20,26,34,.9); color: var(--ink);
-    border: 1px solid var(--line); border-left: 2px solid #2f3a47;
-    padding: 8px 9px 8px 10px;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%);
+    flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; text-align: left;
+    background: rgba(9,13,18,.55);
+    border: 1px solid rgba(122,150,175,.22); padding: 0 0 7px;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    transition: transform .1s, border-color .1s, background .1s;
+    display: flex; flex-direction: column;
   }
-  .act:active { background: rgba(32,41,52,.95); }
-  .act[disabled] { opacity: .32; }
-  .act[data-sel="1"] { border-left-color: var(--accent); background: rgba(40,28,18,.9); }
-  .act .t { font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
-  .act .c { font-family: ui-monospace, monospace; font-size: 8.5px; color: var(--dim); margin-top: 3px; line-height: 1.5; }
+  .act .art {
+    height: 34px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, rgba(122,150,175,.10), rgba(122,150,175,0));
+    border-bottom: 1px solid rgba(122,150,175,.16);
+  }
+  .act .art svg { width: 22px; height: 22px; fill: none; stroke: #93a7b8; stroke-width: 1.5; }
+  .act .t { font-size: 12px; font-weight: 700; margin: 6px 8px 0; }
+  .act .c {
+    font-family: ui-monospace, monospace; font-size: 7.5px; color: #5d7182;
+    margin: 3px 8px 0; line-height: 1.6;
+  }
   .act .c em { font-style: normal; color: var(--cyan); }
   .act .cost {
-    position: absolute; right: 7px; top: 6px;
+    position: absolute; right: 0; top: 0; padding: 2px 6px 3px 9px;
     font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700; color: var(--gold);
+    background: rgba(255,201,61,.10);
+    clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%);
   }
+  .act:active { transform: translateY(1px); }
+  .act[disabled] { opacity: .28; }
+  .act[data-sel="1"] {
+    border-color: var(--accent); background: rgba(255,122,42,.10);
+    box-shadow: 0 0 20px rgba(255,122,42,.18), inset 0 0 24px rgba(255,122,42,.08);
+  }
+  .act[data-sel="1"] .art svg { stroke: var(--accent); }
+  .act[data-sel="1"] .art { background: linear-gradient(180deg, rgba(255,122,42,.18), rgba(255,122,42,0)); }
   #hint {
-    font-size: 9px; color: #4d5866; margin-top: 8px; text-align: center;
-    font-family: ui-monospace, monospace; letter-spacing: .14em;
+    font-size: 8px; color: #3d4d5c; margin-top: 8px; text-align: center;
+    font-family: ui-monospace, monospace; letter-spacing: .2em;
   }
 
   .overlay {
@@ -156,27 +232,63 @@
 <body>
 <div id="loading">부지 구축 중…</div>
 
-<div id="top">
-  <div id="res">
-    <div class="stat hot"><div class="k">MATERIAL</div><div class="n">자원</div><div class="v" id="sMat">0</div></div>
-    <div class="stat"><div class="k">MANPOWER</div><div class="n">인력</div><div class="v" id="sMan">0</div></div>
-    <div class="stat"><div class="k">INFANTRY</div><div class="n">병력</div><div class="v" id="sSol">0</div></div>
-    <div class="stat" id="hqStat"><div class="k">COMMAND</div><div class="n">사령부</div><div class="v" id="sHq">100<small>%</small></div></div>
+<div id="hud">
+  <!-- objective banner, centred under the notch -->
+  <div id="obj">
+    <span class="br">&#10216;</span>
+    <span class="oTitle" id="objTitle">배치 단계</span>
+    <span class="br">&#10217;</span>
+    <div class="oSub" id="objSub">방어선을 세우세요</div>
+    <div class="oRule"><i id="objBar"></i></div>
   </div>
-  <div id="line2">
-    <span>ASSAULT <b id="wNum">0</b>/10</span>
-    <span class="st" id="wState">대기</span>
-    <span class="r">KIA <i id="sKia">0</i> · KILL <i id="sKill">0</i></span>
+
+  <!-- resource pills -->
+  <div id="pills">
+    <div class="pill">
+      <svg viewBox="0 0 24 24" class="ico"><polygon points="12,2 22,12 12,22 2,12" /></svg>
+      <div class="pv"><b id="sMat">0</b><s>MATERIAL</s></div>
+      <div class="pr"><i id="sInc">+0</i> <u id="sUpk">-0</u></div>
+    </div>
+    <div class="pill">
+      <svg viewBox="0 0 24 24" class="ico cy"><polygon points="12,3 21,8 21,18 12,23 3,18 3,8" /></svg>
+      <div class="pv"><b id="sMan">0</b><s>MANPOWER</s></div>
+      <div class="pbar"><i id="manBar"></i></div>
+    </div>
+    <div class="pill">
+      <svg viewBox="0 0 24 24" class="ico wh"><polygon points="12,3 20,20 12,16 4,20" /></svg>
+      <div class="pv"><b id="sSol">0</b><s>INFANTRY</s></div>
+    </div>
   </div>
-  <div id="threatBar"><div id="threatFill"></div><div id="threatTicks"></div></div>
+
+  <!-- assault ticks -->
+  <div id="asl">
+    <div class="aLab">ASSAULT SEQUENCE</div>
+    <div class="ticks" id="pips"></div>
+    <div class="aState" id="wState">STANDBY</div>
+    <div class="aKill">KIA <i id="sKia">0</i> &nbsp; KILL <i id="sKill">0</i></div>
+  </div>
+
+  <!-- command integrity, as an arc -->
+  <div id="cmdPanel">
+    <svg viewBox="0 0 68 68" class="arc">
+      <circle cx="34" cy="34" r="28" class="track" />
+      <circle cx="34" cy="34" r="28" class="fill" id="hqArc" />
+    </svg>
+    <div class="aCtr">
+      <b id="sHq">100</b><s>%</s>
+    </div>
+    <div class="aName">COMMAND<br>사령부</div>
+  </div>
+
+  <div id="scan"></div>
 </div>
 
 <div id="sheet">
   <div id="tabs">
-    <button class="tab" data-zone="0" data-on="1"><i>01</i>전방 · 참호</button>
-    <button class="tab" data-zone="1"><i>02</i>중앙 · 화력</button>
-    <button class="tab" data-zone="2"><i>03</i>후방 · 중장비</button>
-    <button class="tab" data-zone="3"><i>04</i>병력</button>
+    <button class="tab" data-zone="0" data-on="1"><i>01</i><b>전방</b><s>TRENCH</s></button>
+    <button class="tab" data-zone="1"><i>02</i><b>중앙</b><s>FIRE</s></button>
+    <button class="tab" data-zone="2"><i>03</i><b>후방</b><s>HEAVY</s></button>
+    <button class="tab" data-zone="3"><i>04</i><b>병력</b><s>INF</s></button>
   </div>
   <div id="body"></div>
   <div id="hint">건물을 고른 뒤 지도를 누르세요</div>
@@ -697,15 +809,15 @@ const VIEW = (() => {
   document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x2b3a4e, 42, 110);
+  scene.fog = new THREE.Fog(0xa8bcc0, 62, 150);
 
   { const c = document.createElement("canvas");
     c.width = 4; c.height = 256;
     const g = c.getContext("2d");
     const grd = g.createLinearGradient(0, 0, 0, 256);
-    grd.addColorStop(0, "#0c1420"); grd.addColorStop(0.42, "#25384f");
-    grd.addColorStop(0.62, "#4d5f6e"); grd.addColorStop(0.78, "#8a7a63");
-    grd.addColorStop(1, "#2a2b2c");
+    grd.addColorStop(0, "#6d94b8"); grd.addColorStop(0.34, "#9db8c8");
+    grd.addColorStop(0.58, "#c2d0cd"); grd.addColorStop(0.74, "#cfd6c6");
+    grd.addColorStop(0.86, "#a8b598"); grd.addColorStop(1, "#5d6a4c");
     g.fillStyle = grd; g.fillRect(0, 0, 4, 256);
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
     scene.background = t; }
@@ -715,8 +827,9 @@ const VIEW = (() => {
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
-  const key = new THREE.DirectionalLight(0xffd39a, 2.6);
-  key.position.set(-22, 13, 15);
+  // moonlight: cold, low, and still the only thing casting real shadows
+  const key = new THREE.DirectionalLight(0xfff4dc, 2.35);
+  key.position.set(-16, 26, 13);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
   key.shadow.camera.left = -16; key.shadow.camera.right = 16;
@@ -724,9 +837,10 @@ const VIEW = (() => {
   key.shadow.camera.near = 1; key.shadow.camera.far = 90;
   key.shadow.bias = -0.0006; key.shadow.normalBias = 0.022;
   scene.add(key);
-  scene.add(new THREE.HemisphereLight(0x6f97cf, 0x2b241b, 0.55));
-  const rim = new THREE.DirectionalLight(0x5c8ee0, 0.55);
-  rim.position.set(10, 7, -14);
+  scene.add(new THREE.HemisphereLight(0xa6c8e6, 0x51603a, 0.80));
+  // the far end burns: everything past the wire is lit by fire, not by sky
+  const rim = new THREE.DirectionalLight(0xbcd8e8, 0.45);
+  rim.position.set(8, 6, -20);
   scene.add(rim);
 
   // ---- procedural surfaces ----
@@ -1021,6 +1135,7 @@ const VIEW = (() => {
     const b = box(w, h, d, shedMat, x, y, z); b.rotation.y = ry || 0;
     const roof = box(w * 1.06, .14, d * 1.06, M.dark, x, y + h, z); roof.rotation.y = b.rotation.y;
   }
+  const lampCones = [];
   function floodMast(x, y, z, ax, az) {
     const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g);
     cyl(.07, .09, 4.6, 8, M.steel, 0, 0, 0, g);
@@ -1034,8 +1149,9 @@ const VIEW = (() => {
       const hood = new THREE.Mesh(new THREE.BoxGeometry(.42, .32, .16), M.dark);
       hood.position.set(dx, 0, -.02); hood.castShadow = true; head.add(hood);
     }
-    const pl = new THREE.PointLight(0xffd9a0, 1.1, 11, 2);
+    const pl = new THREE.PointLight(0xffd2a0, 1.2, 12, 1.9);
     pl.position.set(x, y + 4.4, z); scene.add(pl);
+    lampCones.push({ x, y: y + 4.4, z });
   }
   function pipeRun(x, y, z, len, ry) {
     const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry || 0; scene.add(g);
@@ -1091,6 +1207,17 @@ const VIEW = (() => {
   floodMast(-BX - 2.6, -TILE_H + .02, -1.5, 0, -2);
   floodMast(BX + 2.8, -TILE_H + .02, 3.5, 0, 3);
   floodMast(-BX - 2.4, -TILE_H + .02, BZ + 1.0, 0, BZ);
+  floodMast(BX + 2.6, -TILE_H + .02, BZ + 4.0, 0, BZ);
+  // the light itself, hanging in the haze
+  { const coneMat = new THREE.MeshBasicMaterial({
+      color: 0xffcf9a, transparent: true, opacity: .006, depthWrite: false,
+      blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+    for (const L of lampCones) {
+      const h = L.y + TILE_H;
+      const c = new THREE.Mesh(new THREE.ConeGeometry(3.6, h, 16, 1, true), coneMat);
+      c.position.set(L.x, L.y - h / 2, L.z);
+      scene.add(c);
+    } }
   { const far = new THREE.MeshStandardMaterial({ color: 0x3d4f66, roughness: 1 });
     for (let i = 0; i < 24; i++) {
       const w = 2 + Math.random() * 7, h = 3 + Math.random() * 11, d = 2 + Math.random() * 6;
@@ -1102,6 +1229,38 @@ const VIEW = (() => {
       const t = new THREE.Mesh(new THREE.CylinderGeometry(.9, 1.3, 16 + Math.random() * 10, 10), far);
       t.position.set((Math.random() - .5) * 70, -TILE_H + 9, -BZ - 24 - Math.random() * 40);
       scene.add(t);
+    } }
+
+  // ---- fires beyond the wire ----
+  const fireMat = new THREE.MeshBasicMaterial({
+    map: canvasTex(64, (g, S) => {
+      const gr = g.createRadialGradient(S / 2, S * .62, 2, S / 2, S * .62, S * .5);
+      gr.addColorStop(0, "rgba(255,240,190,1)");
+      gr.addColorStop(.35, "rgba(255,150,40,.9)");
+      gr.addColorStop(1, "rgba(180,40,0,0)");
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    }), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const fires = [];
+  function fire(x, y, z, sc) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(sc, sc * 1.5), fireMat);
+    m.position.set(x, y + sc * .7, z);
+    scene.add(m);
+    fires.push({ m, sc, ph: Math.random() * 6.28 });
+    const l = new THREE.PointLight(0xff6a1e, sc * 1.5, sc * 6, 2);
+    l.position.set(x, y + sc * .6, z);
+    scene.add(l);
+    fires[fires.length - 1].l = l;
+  }
+  // no fires: the site is overgrown, not burning
+  // wrecks smouldering in no man's land
+  { const wreck = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: .95 });
+    for (const [wx2, wz2, ry] of [[-2.6, -BZ + 1.2, .4], [3.6, -BZ + .4, -.7]]) {
+      const g = new THREE.Group(); g.position.set(wx2, -TILE_H + .02, wz2); g.rotation.y = ry;
+      scene.add(g);
+      box(1.9, .5, .9, wreck, 0, 0, 0, g);
+      box(1.0, .45, .8, wreck, -.3, .5, 0, g);
+      for (const dx of [-.75, .75]) for (const dz of [-.34, .34])
+        cyl(.18, .18, .16, 8, wreck, dx, -.06, dz, g).rotation.z = Math.PI / 2;
     } }
 
   // ---- what has grown back ----
@@ -1121,7 +1280,7 @@ const VIEW = (() => {
     b.rotateY(Math.PI / 2);
     return mergeGeos([{ g: a, m: new THREE.Matrix4() }, { g: b, m: new THREE.Matrix4() }], true);
   })();
-  { const N = 1500, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
+  { const N = 4200, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
     scene.add(grass);
     const d = new THREE.Object3D(); let k = 0;
     const put = (x, y, z, sc) => {
@@ -1135,17 +1294,17 @@ const VIEW = (() => {
       d.updateMatrix(); grass.setMatrixAt(k++, d.matrix);
     };
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-      if (Math.random() < .45) continue;
+      if (Math.random() < .12) continue;
       const y = BAND_LIFT[bandOf(r)];
       const edge = Math.random() < .5;
       put(wx(c + .5) + (edge ? (Math.random() < .5 ? -.44 : .44) : (Math.random() - .5) * .84),
           y, wz(r + .5) + (edge ? (Math.random() - .5) * .84 : (Math.random() < .5 ? -.44 : .44)),
           .45 + Math.random() * .35);
     }
-    for (let i = 0; i < 600; i++) {
-      const x = (Math.random() - .5) * (COLS + 12), z = (Math.random() - .5) * (ROWS + 12);
+    for (let i = 0; i < 2600; i++) {
+      const x = (Math.random() - .5) * (COLS + 16), z = (Math.random() - .5) * (ROWS + 16);
       if (Math.abs(x) < COLS / 2 && Math.abs(z) < ROWS / 2) continue;
-      put(x, -TILE_H + .02, z, .7 + Math.random() * .8);
+      put(x, -TILE_H + .02, z, .8 + Math.random() * 1.0);
     }
     grass.count = k; grass.instanceMatrix.needsUpdate = true; }
 
@@ -1178,12 +1337,12 @@ const VIEW = (() => {
     m.rotation.x = -Math.PI / 2; m.rotation.z = rot || 0;
     m.position.set(x, y + .012, z); scene.add(m); return m;
   }
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < 52; i++) {
     const c = Math.floor(Math.random() * COLS), r = Math.floor(Math.random() * ROWS);
     decal(TEX_MOSS, wx(c + .5) + (Math.random() - .5) * .7, BAND_LIFT[bandOf(r)],
           wz(r + .5) + (Math.random() - .5) * .7, .9 + Math.random(), .9 + Math.random(), Math.random() * 3, .85);
   }
-  for (let i = 0; i < 20; i++)
+  for (let i = 0; i < 46; i++)
     decal(TEX_MOSS, (Math.random() - .5) * (COLS + 11), -TILE_H + .016,
           (Math.random() - .5) * (ROWS + 11), 1.4 + Math.random() * 2, 1.4 + Math.random() * 2, Math.random() * 3, .8);
   for (let i = 0; i < 14; i++) {
@@ -1232,6 +1391,48 @@ const VIEW = (() => {
   vines(-BX - 5.5, -TILE_H + .02, 0, 19, 1.7, Math.PI / 2, 22);
   vines(BX + 5.7, -TILE_H + .02, 0, 19, 1.7, -Math.PI / 2, 22);
   vines(-1.0, -TILE_H + .02, -BZ - 7.4, 12, 2.6, 0, 18);
+  for (const sx of [-1, 1]) {
+    vines(sx * (BX + 2.3), -TILE_H + .02, -BZ + 3.0, 3.0, 1.2, sx > 0 ? -Math.PI / 2 : Math.PI / 2, 10);
+    vines(sx * (BX + 2.3), -TILE_H + .02, BZ - 3.0, 3.0, 1.2, sx > 0 ? -Math.PI / 2 : Math.PI / 2, 10);
+  }
+
+  // shrubs and saplings reclaiming the yard
+  { const leafGreen = new THREE.MeshStandardMaterial({ color: 0x5f7442, roughness: .95, flatShading: true });
+    const darkGreen = new THREE.MeshStandardMaterial({ color: 0x47582f, roughness: .95, flatShading: true });
+    const bark = new THREE.MeshStandardMaterial({ color: 0x4a4034, roughness: 1 });
+    const bushGeo = new THREE.IcosahedronGeometry(.42, 0);
+    for (let i = 0; i < 46; i++) {
+      const x = (Math.random() - .5) * (COLS + 15), z = (Math.random() - .5) * (ROWS + 15);
+      if (Math.abs(x) < COLS / 2 + .4 && Math.abs(z) < ROWS / 2 + .4) continue;
+      const g = new THREE.Group();
+      g.position.set(x, -TILE_H + .02, z);
+      scene.add(g);
+      const lobes = 2 + Math.floor(Math.random() * 3);
+      for (let k = 0; k < lobes; k++) {
+        const m = new THREE.Mesh(bushGeo, k % 2 ? leafGreen : darkGreen);
+        m.position.set(rnd(-.3, .3), .28 + rnd(0, .22), rnd(-.3, .3));
+        m.scale.set(rnd(.7, 1.2), rnd(.6, .95), rnd(.7, 1.2));
+        m.castShadow = true; m.receiveShadow = true;
+        g.add(m);
+      }
+    }
+    for (let i = 0; i < 14; i++) {
+      const x = (Math.random() - .5) * (COLS + 19), z = (Math.random() - .5) * (ROWS + 19);
+      if (Math.abs(x) < COLS / 2 + 2.5 && Math.abs(z) < ROWS / 2 + 2.5) continue;
+      const g = new THREE.Group();
+      g.position.set(x, -TILE_H + .02, z);
+      g.rotation.y = Math.random() * 6.28;
+      scene.add(g);
+      const h = rnd(2.2, 3.8);
+      cyl(.08, .13, h, 6, bark, 0, 0, 0, g);
+      for (let k = 0; k < 3; k++) {
+        const m = new THREE.Mesh(bushGeo, k % 2 ? leafGreen : darkGreen);
+        m.position.set(rnd(-.4, .4), h * rnd(.7, 1.0), rnd(-.4, .4));
+        m.scale.setScalar(rnd(1.5, 2.4));
+        m.castShadow = true;
+        g.add(m);
+      }
+    } }
 
   // scattered junk
   { const barrel = new THREE.CylinderGeometry(.13, .13, .34, 12);
@@ -1250,6 +1451,54 @@ const VIEW = (() => {
     scatter(7, barrel, M.rust, 8.5, 15.5);
     scatter(8, crate, M.olive, 8.5, 15.5);
     scatter(22, rubble, M.conc, .5, 7.5); }
+
+  // ---- air ----
+  const smokeMat = new THREE.MeshBasicMaterial({
+    map: canvasTex(128, (g, S) => {
+      const gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+      gr.addColorStop(0, "rgba(96,98,104,.30)");
+      gr.addColorStop(.5, "rgba(72,74,80,.12)");
+      gr.addColorStop(1, "rgba(70,70,76,0)");
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+    }), transparent: true, depthWrite: false });
+  const smokes = [];
+  for (let i = 0; i < 11; i++) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), smokeMat);
+    const sc = 3 + Math.random() * 6;
+    m.scale.set(sc, sc, 1);
+    m.position.set(rnd(-16, 16), rnd(.6, 5), rnd(-BZ - 12, BZ + 4));
+    scene.add(m);
+    smokes.push({ m, vx: rnd(.08, .3), sc });
+  }
+  const emberGeo = new THREE.BufferGeometry();
+  const EMB = 260;
+  const embPos = new Float32Array(EMB * 3), embV = [];
+  for (let i = 0; i < EMB; i++) {
+    embPos[i * 3] = rnd(-14, 14);
+    embPos[i * 3 + 1] = rnd(0, 9);
+    embPos[i * 3 + 2] = rnd(-BZ - 10, BZ);
+    embV.push(rnd(.05, 0.26));
+  }
+  emberGeo.setAttribute("position", new THREE.BufferAttribute(embPos, 3));
+  const embers = new THREE.Points(emberGeo, new THREE.PointsMaterial({
+    color: 0xeaf3d8, size: .045, transparent: true, opacity: .42, depthWrite: false }));
+  scene.add(embers);
+
+  // muzzle and impact light, pooled
+  const flashPool = [];
+  for (let i = 0; i < 5; i++) {
+    const l = new THREE.PointLight(0xffd08a, 0, 9, 2);
+    l.visible = false; scene.add(l); flashPool.push({ l, life: 0 });
+  }
+  let flashIdx = 0;
+  function popLight(x, y, z, color, power, life) {
+    const f = flashPool[flashIdx = (flashIdx + 1) % flashPool.length];
+    f.l.position.set(x, y, z);
+    f.l.color.setHex(color);
+    f.l.distance = power * .55;
+    f.power = power; f.life = life; f.max = life;
+    f.l.visible = true;
+  }
 
   // ---- the objective ----
   { const y = BAND_LIFT[3];
@@ -1279,6 +1528,7 @@ const VIEW = (() => {
     return mergeGeos(parts);
   }
   const enemyGeo = creatureGeo();
+  enemyGeo.scale(1.35, 1.35, 1.35);
   const enemyMesh = new THREE.InstancedMesh(enemyGeo, M.enemy, MAX_ENEMIES);
   enemyMesh.castShadow = true; enemyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(enemyMesh);
@@ -1291,6 +1541,7 @@ const VIEW = (() => {
     { g: new THREE.SphereGeometry(.085, 10, 8, 0, 6.2832, 0, Math.PI / 2), m: T(0, .30, 0) },
     { g: new THREE.BoxGeometry(.05, .05, .3), m: T(.06, .2, -.14) }
   ]);
+  soldierGeo.scale(1.25, 1.25, 1.25);
   const soldierMesh = new THREE.InstancedMesh(soldierGeo, M.white, 90);
   soldierMesh.castShadow = true; soldierMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(soldierMesh);
@@ -1416,7 +1667,7 @@ const VIEW = (() => {
     const VERT = "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }";
 
     const bright = new THREE.ShaderMaterial({
-      uniforms: { tDiffuse: { value: null }, cutoff: { value: 0.62 } },
+      uniforms: { tDiffuse: { value: null }, cutoff: { value: 0.95 } },
       vertexShader: VERT,
       fragmentShader: `
         varying vec2 vUv; uniform sampler2D tDiffuse; uniform float cutoff;
@@ -1445,12 +1696,12 @@ const VIEW = (() => {
     const comp = new THREE.ShaderMaterial({
       uniforms: {
         tDiffuse: { value: null }, tBloom: { value: null },
-        exposure: { value: 1.85 }, bloom: { value: 0.55 },
-        time: { value: 0 }, grain: { value: 0.022 },
-        vig: { value: 0.48 }, chroma: { value: 0.0014 },
-        lift: { value: new THREE.Vector3(0.012, 0.016, 0.028) },
-        gain: { value: new THREE.Vector3(1.06, 1.00, 0.95) },
-        sat: { value: 1.08 }
+        exposure: { value: 0.92 }, bloom: { value: 0.30 },
+        time: { value: 0 }, grain: { value: 0.014 },
+        vig: { value: 0.34 }, chroma: { value: 0.0010 },
+        lift: { value: new THREE.Vector3(0.008, 0.014, 0.016) },
+        gain: { value: new THREE.Vector3(0.98, 1.02, 0.97) },
+        sat: { value: 1.10 }
       },
       vertexShader: VERT,
       fragmentShader: `
@@ -1557,6 +1808,36 @@ const VIEW = (() => {
       }
     },
     sync(dt) {
+      const now = performance.now() * .001;
+      // fire flicker
+      for (const f of fires) {
+        const k = .8 + Math.sin(now * 7 + f.ph) * .12 + Math.sin(now * 13.3 + f.ph) * .08;
+        f.m.scale.set(f.sc * k, f.sc * 1.5 * k, 1);
+        f.m.lookAt(camera.position);
+        f.l.intensity = f.sc * 1.5 * k;
+      }
+      // smoke drifts across and wraps
+      for (const s of smokes) {
+        s.m.position.x += s.vx * dt;
+        if (s.m.position.x > 17) s.m.position.x = -17;
+        s.m.lookAt(camera.position);
+      }
+      // embers rise
+      { const pa = emberGeo.attributes.position.array;
+        for (let i = 0; i < EMB; i++) {
+          pa[i * 3 + 1] += embV[i] * dt;
+          pa[i * 3] += Math.sin(now * .7 + i) * .12 * dt;
+          if (pa[i * 3 + 1] > 7) { pa[i * 3 + 1] = 0; pa[i * 3] = rnd(-14, 14); pa[i * 3 + 2] = rnd(-BZ - 10, BZ); }
+        }
+        emberGeo.attributes.position.needsUpdate = true; }
+      // pooled flashes decay
+      for (const f of flashPool) {
+        if (f.life <= 0) { if (f.l.visible) { f.l.visible = false; f.l.intensity = 0; } continue; }
+        f.life -= dt;
+        const k = Math.max(0, f.life / f.max);
+        f.l.intensity = f.power * k * k;
+        if (f.life <= 0) { f.l.visible = false; f.l.intensity = 0; }
+      }
       // enemies
       let n = 0, en = 0;
       for (const e of G.enemies) {
@@ -1612,6 +1893,14 @@ const VIEW = (() => {
       sparkGeo.attributes.position.needsUpdate = true;
       sparkGeo.attributes.color.needsUpdate = true;
 
+      // firing lights up the emplacement
+      for (const b of G.buildings) {
+        if (b.done && b.flash > .92 && B[b.key].dmg) {
+          popLight(wx(b.c + .5), BAND_LIFT[bandOf(b.r)] + .5, wz(b.r + .5),
+                   b.key === "mech" ? 0x7fe0ff : 0xffc070,
+                   b.key === "siege" ? 14 : b.key === "mech" ? 12 : 5, .12);
+        }
+      }
       // tracers
       const tp = trGeo.attributes.position.array;
       let tn = 0;
@@ -1625,6 +1914,13 @@ const VIEW = (() => {
       trGeo.setDrawRange(0, tn * 2);
       trGeo.attributes.position.needsUpdate = true;
 
+      // impacts throw light
+      for (const s of G.shells) {
+        if (!s.__lit && s.t >= s.dur * .98) {
+          s.__lit = true;
+          popLight(wx(s.x1), liftAt(s.z1) + .5, wz(s.z1), 0xffb060, s.big ? 30 : 16, .3);
+        }
+      }
       // shells in flight
       while (shellPool.length < G.shells.length) {
         const m = new THREE.Mesh(shellGeo, shellMat); scene.add(m); shellPool.push(m);
@@ -1677,28 +1973,69 @@ function fmt(t) {
   const s = String(Math.floor(Math.max(0, t) % 60)).padStart(2, "0");
   return `${m}:${s}`;
 }
+const GLYPH = {
+  trench: '<polygon points="2,14 22,14 22,18 2,18"/><polyline points="4,14 4,9 8,9 8,14"/><polyline points="12,14 12,7 16,7 16,14"/>',
+  wire:   '<line x1="3" y1="18" x2="3" y2="7"/><line x1="12" y1="18" x2="12" y2="7"/><line x1="21" y1="18" x2="21" y2="7"/><polyline points="2,10 22,10"/><polyline points="2,14 22,14"/>',
+  bunker: '<polygon points="3,17 3,10 12,5 21,10 21,17"/><rect x="9" y="12" width="6" height="3"/>',
+  mg:     '<circle cx="10" cy="14" r="4"/><line x1="13" y1="12" x2="22" y2="8"/><line x1="6" y1="18" x2="14" y2="18"/>',
+  mortar: '<line x1="8" y1="19" x2="17" y2="6"/><polyline points="5,19 12,19"/><circle cx="17" cy="5" r="1.6"/>',
+  siege:  '<rect x="3" y="12" width="13" height="6"/><line x1="15" y1="11" x2="22" y2="6"/><circle cx="6" cy="19" r="1.5"/><circle cx="13" cy="19" r="1.5"/>',
+  mech:   '<rect x="8" y="4" width="9" height="8"/><line x1="9" y1="12" x2="9" y2="20"/><line x1="16" y1="12" x2="16" y2="20"/><line x1="10" y1="8" x2="15" y2="8"/>',
+  depot:  '<rect x="4" y="9" width="8" height="8"/><rect x="13" y="12" width="7" height="5"/><line x1="4" y1="12" x2="12" y2="12"/>',
+  camp:   '<polygon points="7,18 12,6 17,18"/><line x1="4" y1="18" x2="20" y2="18"/>',
+  inf:    '<circle cx="12" cy="7" r="3"/><polyline points="7,20 9,12 15,12 17,20"/>'
+};
+function svgGlyph(key) {
+  return `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${GLYPH[key] || ""}</svg>`;
+}
 function syncTop() {
   $("sMat").textContent = Math.floor(G.mat);
-  $("sMan").innerHTML = `${Math.floor(G.man)}<small>/${G.manCap}</small>`;
+  $("sInc").textContent = "+" + income().toFixed(0);
+  $("sUpk").textContent = "-" + upkeepDrain().toFixed(1);
+  $("sMan").textContent = Math.floor(G.man);
+  $("manBar").style.width = (G.man / G.manCap * 100) + "%";
   $("sSol").textContent = G.soldiers.length;
+
   const fr = G.hq.hp / G.hq.max;
-  $("sHq").innerHTML = `${Math.ceil(fr * 100)}<small>%</small>`;
-  $("hqStat").className = "stat" + (fr < .35 ? " crit" : "");
-  $("wNum").textContent = G.assault;
-  $("wState").textContent = G.phase === "assault" ? (G.berserk ? "적 돌격 중" : "교전 중") : (G.assault ? "소강" : "대기");
-  $("wState").style.letterSpacing = ".1em";
-  $("wState").style.color = G.phase === "assault" ? "#e8384f" : "#7a8593";
+  $("hqArc").style.strokeDashoffset = (175.9 * (1 - fr)).toFixed(1);
+  $("sHq").textContent = Math.ceil(fr * 100);
+  $("cmdPanel").className = fr < .35 ? "crit" : "";
+
+  const pips = $("pips");
+  if (pips.childElementCount !== ASSAULTS.length) {
+    pips.innerHTML = "";
+    for (let i = 0; i < ASSAULTS.length; i++) pips.appendChild(document.createElement("i"));
+  }
+  [...pips.children].forEach((el, i) => {
+    const n = i + 1;
+    el.className = n < G.assault ? "on" : n === G.assault ? (G.phase === "assault" ? "now" : "on") : "";
+  });
+  $("wState").textContent = G.phase === "assault"
+    ? (G.berserk ? "적 돌격 중" : "교전 중")
+    : (G.assault ? "소강 " + Math.ceil(Math.max(0, G.timer)) + "s" : "대기");
+  $("wState").style.color = G.phase === "assault" ? "#e8384f" : "#eaf2f8";
   $("sKia").textContent = G.kia;
   $("sKill").textContent = G.kills;
-  const a = G.phase === "assault" ? ASSAULTS[G.assault - 1] : null;
-  $("threatFill").style.width = (a ? (1 - Math.max(0, G.timer) / a.dur) * 100 : (1 - G.timer / LULL) * 100) + "%";
-  $("threatFill").style.background = G.phase === "assault" ? "#e8384f" : "#3d4650";
+
+  // objective banner
+  if (G.phase === "assault") {
+    $("objTitle").textContent = G.assault + "차 공세 요격";
+    $("objSub").textContent = "HOLD THE LINE";
+    const a = ASSAULTS[G.assault - 1];
+    $("objBar").style.width = (1 - Math.max(0, G.timer) / a.dur) * 100 + "%";
+  } else {
+    $("objTitle").textContent = G.assault ? "재정비" : "배치 단계";
+    $("objSub").textContent = G.assault ? "NEXT ASSAULT IN " + Math.ceil(Math.max(0, G.timer)) + "S"
+                                        : "PREPARE DEFENCES";
+    $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
+  }
 }
 function mkAct(title, cost, on, opts) {
   const b = document.createElement("button");
-  b.className = "act" + (opts && opts.warn ? " warn" : "");
+  b.className = "act";
   const badge = opts && opts.cost !== undefined ? `<div class="cost">${opts.cost}</div>` : "";
-  b.innerHTML = `${badge}<div class="t">${title}</div><div class="c">${cost}</div>`;
+  const art = opts && opts.glyph ? `<div class="art">${svgGlyph(opts.glyph)}</div>` : "";
+  b.innerHTML = `${badge}${art}<div class="t">${title}</div><div class="c">${cost}</div>`;
   if (opts && opts.sel) b.dataset.sel = "1";
   if (opts && opts.off) b.disabled = true; else b.addEventListener("click", on);
   return b;
@@ -1712,14 +2049,15 @@ function syncSheet() {
     let free = 0;
     for (const b of G.buildings) if (b.done && B[b.key].garrison) free += B[b.key].garrison - b.crew.length;
     body.appendChild(mkAct("병사 1명", `인력 ${SOLDIER.man} 소모`, () => { spawnSoldier(); syncSheet(); },
-      { off: G.mat < SOLDIER.mat || G.man < SOLDIER.man, cost: SOLDIER.mat }));
+      { off: G.mat < SOLDIER.mat || G.man < SOLDIER.man, cost: SOLDIER.mat, glyph: "inf" }));
     body.appendChild(mkAct("병사 5명", `인력 ${SOLDIER.man * 5} 소모`, () => {
       for (let i = 0; i < 5; i++) if (!spawnSoldier()) break; syncSheet();
-    }, { off: G.mat < SOLDIER.mat * 5 || G.man < SOLDIER.man * 5, cost: SOLDIER.mat * 5 }));
+    }, { off: G.mat < SOLDIER.mat * 5 || G.man < SOLDIER.man * 5, cost: SOLDIER.mat * 5, glyph: "inf" }));
     const info = document.createElement("div");
-    info.className = "act"; info.style.cssText = "pointer-events:none;flex-basis:100%";
-    info.innerHTML = `<div class="t" style="font-size:11px">배치 가능한 자리 ${free}칸</div>
-      <div class="c">자원 +${income().toFixed(0)}/초 · 유지비 -${upkeepDrain().toFixed(1)}/초 · 인력 +${manRate().toFixed(2)}/초</div>`;
+    info.className = "act"; info.style.cssText = "pointer-events:none";
+    info.innerHTML = `<div class="art">${svgGlyph("trench")}</div>
+      <div class="t" style="font-size:11px">빈 자리 ${free}칸</div>
+      <div class="c">배치 가능한 참호·벙커 슬롯</div>`;
     body.appendChild(info);
     VIEW.highlight(null);
     return;
@@ -1727,11 +2065,11 @@ function syncSheet() {
   $("hint").textContent = pick ? `${B[pick].name} — 밝게 표시된 칸을 누르세요` : "건물을 고른 뒤 지도를 누르세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
-    const extra = spec.garrison ? ` · <em>병사 ${spec.garrison}</em>` : (spec.upkeep ? ` · <em>유지 ${spec.upkeep}</em>` : "");
-    body.appendChild(mkAct(spec.name, `${spec.desc}${extra}`, () => {
+    const extra = spec.garrison ? `<em>병사 ${spec.garrison}</em> · ` : (spec.upkeep ? `<em>유지 ${spec.upkeep}</em> · ` : "");
+    body.appendChild(mkAct(spec.name, `${extra}${spec.desc}`, () => {
       pick = (pick === key) ? null : key;
       syncSheet();
-    }, { off: G.mat < spec.mat && pick !== key, sel: pick === key, cost: spec.mat }));
+    }, { off: G.mat < spec.mat && pick !== key, sel: pick === key, cost: spec.mat, glyph: key }));
   }
   VIEW.highlight(pick ? B[pick].z : null);
 }
