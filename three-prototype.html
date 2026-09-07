@@ -10,7 +10,6 @@
 </style>
 </head>
 <body>
-<!-- 이 시제품은 three.min.js 가 같은 폴더에 있어야 돕니다. 최종본에는 파일 안에 직접 넣을 예정입니다. -->
 <script src="three.min.js"></script>
 <script>
 "use strict";
@@ -67,14 +66,126 @@ const rim = new THREE.DirectionalLight(0x74acff, 0.35);
 rim.position.set(7, 6, -10);
 scene.add(rim);
 
+// ---------------------------------------------------------------------------
+// Procedural surfaces
+// Bare primitives in flat colour read as a modelling exercise. Grain, panel
+// lines, wear along edges and grime in the corners are what make a surface
+// look like a place instead of a diagram.
+// ---------------------------------------------------------------------------
+function canvasTex(size, draw, repeat) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const g = c.getContext("2d");
+  draw(g, size);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  if (repeat) t.repeat.set(repeat, repeat);
+  t.anisotropy = 4;
+  return t;
+}
+function noiseBlobs(g, n, size, min, max, colFn) {
+  for (let i = 0; i < n; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const r = min + Math.random() * (max - min);
+    g.fillStyle = colFn();
+    g.beginPath();
+    g.ellipse(x, y, r, r * (0.5 + Math.random() * 0.6), Math.random() * 3, 0, 6.2832);
+    g.fill();
+  }
+}
+
+function concreteTex(hex) {
+  const base = "#" + hex.toString(16).padStart(6, "0");
+  return canvasTex(256, (g, S) => {
+    g.fillStyle = base; g.fillRect(0, 0, S, S);
+    // aggregate grain
+    noiseBlobs(g, 900, S, 0.6, 2.4, () => Math.random() < .5
+      ? `rgba(0,0,0,${.03 + Math.random() * .08})`
+      : `rgba(255,252,242,${.02 + Math.random() * .06})`);
+    // blotchy staining
+    noiseBlobs(g, 26, S, 12, 46, () => `rgba(60,52,40,${.04 + Math.random() * .07})`);
+    // hairline cracks
+    g.strokeStyle = "rgba(0,0,0,.20)";
+    for (let i = 0; i < 5; i++) {
+      g.lineWidth = 0.6 + Math.random();
+      g.beginPath();
+      let x = Math.random() * S, y = Math.random() * S;
+      g.moveTo(x, y);
+      for (let k = 0; k < 7; k++) {
+        x += (Math.random() - .5) * 40; y += (Math.random() - .5) * 40;
+        g.lineTo(x, y);
+      }
+      g.stroke();
+    }
+    // grime creeping in from the edges
+    const vg = g.createRadialGradient(S / 2, S / 2, S * .25, S / 2, S / 2, S * .72);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(24,20,14,.30)");
+    g.fillStyle = vg; g.fillRect(0, 0, S, S);
+  });
+}
+function concreteRough() {
+  return canvasTex(256, (g, S) => {
+    g.fillStyle = "#c8c8c8"; g.fillRect(0, 0, S, S);
+    noiseBlobs(g, 700, S, 1, 4, () => Math.random() < .5
+      ? `rgba(255,255,255,${.05 + Math.random() * .2})`
+      : `rgba(0,0,0,${.05 + Math.random() * .2})`);
+  });
+}
+function metalTex(hex) {
+  const base = "#" + hex.toString(16).padStart(6, "0");
+  return canvasTex(256, (g, S) => {
+    g.fillStyle = base; g.fillRect(0, 0, S, S);
+    // brushed pass
+    for (let i = 0; i < 500; i++) {
+      const y = Math.random() * S;
+      g.strokeStyle = Math.random() < .5
+        ? `rgba(255,255,255,${.02 + Math.random() * .05})`
+        : `rgba(0,0,0,${.02 + Math.random() * .06})`;
+      g.lineWidth = .5 + Math.random();
+      g.beginPath(); g.moveTo(0, y); g.lineTo(S, y + (Math.random() - .5) * 6); g.stroke();
+    }
+    // panel seams
+    g.strokeStyle = "rgba(0,0,0,.42)"; g.lineWidth = 2;
+    for (const v of [0.34, 0.68]) {
+      g.beginPath(); g.moveTo(v * S, 0); g.lineTo(v * S, S); g.stroke();
+      g.beginPath(); g.moveTo(0, v * S); g.lineTo(S, v * S); g.stroke();
+    }
+    // rivets
+    for (let i = 0; i < 40; i++) {
+      const x = 12 + Math.random() * (S - 24), y = 12 + Math.random() * (S - 24);
+      g.fillStyle = "rgba(255,255,255,.14)";
+      g.beginPath(); g.arc(x, y, 2.1, 0, 6.2832); g.fill();
+      g.fillStyle = "rgba(0,0,0,.30)";
+      g.beginPath(); g.arc(x, y + 1.1, 2.1, 0, 6.2832); g.fill();
+    }
+    // rust and scuffs
+    noiseBlobs(g, 22, S, 3, 16, () => `rgba(112,66,34,${.05 + Math.random() * .16})`);
+    noiseBlobs(g, 40, S, 1, 5, () => `rgba(0,0,0,${.06 + Math.random() * .16})`);
+  });
+}
+function fabricTex(hex) {
+  const base = "#" + hex.toString(16).padStart(6, "0");
+  return canvasTex(128, (g, S) => {
+    g.fillStyle = base; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 2200; i++) {
+      g.fillStyle = Math.random() < .5 ? "rgba(0,0,0,.09)" : "rgba(255,255,255,.07)";
+      g.fillRect(Math.random() * S, Math.random() * S, 1.4, 1.4);
+    }
+    noiseBlobs(g, 14, S, 4, 16, () => `rgba(40,30,18,${.06 + Math.random() * .12})`);
+  });
+}
+
 // ---------- materials ----------
+const ROUGH = concreteRough();
 const M = {
-  steel: new THREE.MeshStandardMaterial({ color: 0x39424e, roughness: 0.55, metalness: 0.55 }),
-  dark:  new THREE.MeshStandardMaterial({ color: 0x212832, roughness: 0.62, metalness: 0.45 }),
-  conc:  new THREE.MeshStandardMaterial({ color: 0xa8a395, roughness: 0.95 }),
-  sand:  new THREE.MeshStandardMaterial({ color: 0xbba883, roughness: 1.0 }),
-  wood:  new THREE.MeshStandardMaterial({ color: 0x59452f, roughness: 0.95 }),
-  olive: new THREE.MeshStandardMaterial({ color: 0x4e5540, roughness: 0.9 }),
+  steel: new THREE.MeshStandardMaterial({ map: metalTex(0x39424e), roughness: 0.62, metalness: 0.55, roughnessMap: ROUGH }),
+  dark:  new THREE.MeshStandardMaterial({ map: metalTex(0x1e242c), roughness: 0.66, metalness: 0.45, roughnessMap: ROUGH }),
+  conc:  new THREE.MeshStandardMaterial({ map: concreteTex(0xa8a395), roughness: 0.96, roughnessMap: ROUGH }),
+  sand:  new THREE.MeshStandardMaterial({ map: fabricTex(0xb5a179), roughness: 1.0 }),
+  wood:  new THREE.MeshStandardMaterial({ map: metalTex(0x59452f), roughness: 0.96 }),
+  olive: new THREE.MeshStandardMaterial({ map: metalTex(0x4b5240), roughness: 0.92 }),
+  rust:  new THREE.MeshStandardMaterial({ map: metalTex(0x6a4a32), roughness: 0.9, metalness: 0.3 }),
   white: new THREE.MeshStandardMaterial({ color: 0xe9eef3, roughness: 0.68 }),
   orange:new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff4d00, emissiveIntensity: 1.1, roughness: 0.5 }),
   cyan:  new THREE.MeshStandardMaterial({ color: 0x4fe3f0, emissive: 0x18c8dc, emissiveIntensity: 2.0, roughness: 0.4 }),
@@ -85,9 +196,21 @@ const M = {
 // ---------- board ----------
 const tileGeo = new THREE.BoxGeometry(0.975, 1, 0.975);
 const capGeo = new THREE.BoxGeometry(0.80, 1, 0.80);
-const bandMat = BAND_COL.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.94 }));
+const bandTex = BAND_COL.map(c => concreteTex(c));
+// every tile gets its own slight tint and a rotated texture, so the grid stops
+// looking stamped out
+const bandMat = BAND_COL.map((c, i) => {
+  const out = [];
+  for (let v = 0; v < 4; v++) {
+    const col = new THREE.Color(c).multiplyScalar(0.93 + v * 0.035);
+    out.push(new THREE.MeshStandardMaterial({
+      color: col, map: bandTex[i], roughnessMap: ROUGH, roughness: 0.95
+    }));
+  }
+  return out;
+});
 const capMat = BAND_COL.map(c => new THREE.MeshStandardMaterial({
-  color: new THREE.Color(c).multiplyScalar(0.9), roughness: 0.9
+  color: new THREE.Color(c).multiplyScalar(0.86), map: concreteTex(c), roughness: 0.92
 }));
 
 for (let r = 0; r < ROWS; r++) {
@@ -95,14 +218,16 @@ for (let r = 0; r < ROWS; r++) {
   const h = TILE_H + BAND_LIFT[band];
   for (let c = 0; c < COLS; c++) {
     const x = c - (COLS - 1) / 2, z = r - (ROWS - 1) / 2;
-    const m = new THREE.Mesh(tileGeo, bandMat[band]);
+    const m = new THREE.Mesh(tileGeo, bandMat[band][(c * 3 + r * 5) % 4]);
     m.scale.y = h;
     m.position.set(x, -h / 2 + BAND_LIFT[band], z);
+    m.rotation.y = (Math.floor(Math.random() * 4)) * Math.PI / 2;
     m.castShadow = true; m.receiveShadow = true;
     scene.add(m);
     const cap = new THREE.Mesh(capGeo, capMat[band]);
     cap.scale.y = 0.035;
     cap.position.set(x, BAND_LIFT[band] + 0.002, z);
+    cap.rotation.y = m.rotation.y;
     cap.receiveShadow = true;
     scene.add(cap);
   }
@@ -252,6 +377,132 @@ function hq() {
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), M.eye);
   bulb.position.set(x + 1.2, y + 2.34, z - 0.6);
   scene.add(bulb);
+}
+
+// ---------------------------------------------------------------------------
+// Clutter and markings
+// A perfectly regular grid reads as a diagram. Junk that does not line up with
+// the tiles, and paint that has been walked on, is what says "somewhere real".
+// ---------------------------------------------------------------------------
+function decalTex(draw) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const g = c.getContext("2d");
+  draw(g, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.anisotropy = 4;
+  return t;
+}
+function decal(tex, x, y, z, w, d, rot, op) {
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(w, d),
+    new THREE.MeshStandardMaterial({
+      map: tex, transparent: true, opacity: op === undefined ? 0.85 : op,
+      roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2
+    })
+  );
+  m.rotation.x = -Math.PI / 2;
+  m.rotation.z = rot || 0;
+  m.position.set(x, y + 0.012, z);
+  m.receiveShadow = false;
+  scene.add(m);
+  return m;
+}
+const TEX_STRIPE = decalTex((g, S) => {
+  g.clearRect(0, 0, S, S);
+  g.save(); g.translate(S / 2, S / 2); g.rotate(-0.6); g.translate(-S / 2, -S / 2);
+  for (let i = -S; i < S * 2; i += 42) {
+    g.fillStyle = i / 42 % 2 ? "rgba(232,196,60,.85)" : "rgba(28,28,28,.8)";
+    g.fillRect(i, -S, 22, S * 3);
+  }
+  g.restore();
+  g.globalCompositeOperation = "destination-in";
+  g.fillStyle = "rgba(0,0,0,1)"; g.fillRect(0, S * .30, S, S * .40);
+  g.globalCompositeOperation = "source-over";
+  for (let i = 0; i < 220; i++) {
+    g.fillStyle = `rgba(0,0,0,${Math.random() * .5})`;
+    g.fillRect(Math.random() * S, S * .30 + Math.random() * S * .40, 3, 3);
+  }
+});
+function markTex(text) {
+  return decalTex((g, S) => {
+    g.clearRect(0, 0, S, S);
+    g.fillStyle = "rgba(228,222,200,.72)";
+    g.font = "bold 120px ui-monospace, monospace";
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(text, S / 2, S / 2);
+    for (let i = 0; i < 500; i++) {
+      g.clearRect(Math.random() * S, Math.random() * S, 3, 3);
+    }
+  });
+}
+const TEX_SCORCH = decalTex((g, S) => {
+  g.clearRect(0, 0, S, S);
+  const gr = g.createRadialGradient(S / 2, S / 2, 4, S / 2, S / 2, S / 2);
+  gr.addColorStop(0, "rgba(10,8,6,.85)");
+  gr.addColorStop(.55, "rgba(24,18,12,.45)");
+  gr.addColorStop(1, "rgba(24,18,12,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  for (let i = 0; i < 160; i++) {
+    const a = Math.random() * 6.2832, d = Math.random() * S * .48;
+    g.fillStyle = `rgba(8,6,4,${.2 + Math.random() * .5})`;
+    g.fillRect(S / 2 + Math.cos(a) * d, S / 2 + Math.sin(a) * d, 2 + Math.random() * 4, 2 + Math.random() * 4);
+  }
+});
+
+// painted markings and burn marks
+decal(TEX_STRIPE, 0, BAND_LIFT[2], tz(8) - 0.5, COLS, 1.0, 0, .8);
+decal(TEX_STRIPE, 0, BAND_LIFT[3], tz(12) - 0.5, COLS, 1.0, 0, .8);
+for (const [t, c, r] of [["A", 0, 9], ["B", 4, 10], ["C", 8, 9], ["07", 2, 13], ["12", 6, 13]]) {
+  decal(markTex(t), tx(c) + (Math.random() - .5) * .2, BAND_LIFT[bandOf(r)],
+        tz(r) + (Math.random() - .5) * .2, .8, .8, (Math.random() - .5) * .5, .55);
+}
+for (let i = 0; i < 16; i++) {
+  const r = Math.floor(Math.random() * 8);
+  decal(TEX_SCORCH, tx(Math.floor(Math.random() * COLS)) + (Math.random() - .5) * .8,
+        BAND_LIFT[bandOf(r)], tz(r) + (Math.random() - .5) * .8,
+        .7 + Math.random() * .9, .7 + Math.random() * .9, Math.random() * 3, .75);
+}
+
+// junk that does not respect the grid
+const barrelGeo = new THREE.CylinderGeometry(0.13, 0.13, 0.34, 12);
+const crateGeo = new THREE.BoxGeometry(0.26, 0.20, 0.20);
+const rubbleGeo = new THREE.DodecahedronGeometry(0.10, 0);
+const coilGeo = new THREE.TorusGeometry(0.13, 0.045, 6, 12);
+function scatter(n, geo, mat, rowLo, rowHi, lie) {
+  for (let i = 0; i < n; i++) {
+    const c = Math.random() * COLS - 0.5;
+    const r = rowLo + Math.random() * (rowHi - rowLo);
+    const rr = Math.max(0, Math.min(ROWS - 1, Math.round(r)));
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(tx(0) + c, surfaceY(rr) + (lie ? 0.05 : 0.17), tz(0) + r);
+    m.rotation.set(lie ? Math.PI / 2 : (Math.random() - .5) * .3,
+                   Math.random() * 6.28, (Math.random() - .5) * .4);
+    m.scale.setScalar(0.8 + Math.random() * 0.6);
+    m.castShadow = true; m.receiveShadow = true;
+    scene.add(m);
+  }
+}
+scatter(9, barrelGeo, M.rust, 8.5, 15.5);
+scatter(11, crateGeo, M.olive, 8.5, 15.5);
+scatter(7, coilGeo, M.dark, 9.5, 15.5, true);
+scatter(26, rubbleGeo, M.conc, 0.5, 7.5);
+scatter(12, rubbleGeo, M.dark, 2.5, 8.5);
+
+// airborne dust catching the key light
+{
+  const n = 420, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    pos[i * 3] = (Math.random() - .5) * (COLS + 2);
+    pos[i * 3 + 1] = Math.random() * 3.4 + 0.1;
+    pos[i * 3 + 2] = (Math.random() - .5) * (ROWS + 2);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  const dust = new THREE.Points(geo, new THREE.PointsMaterial({
+    color: 0xffe8c8, size: 0.035, transparent: true, opacity: 0.5, depthWrite: false
+  }));
+  scene.add(dust);
 }
 
 // ---------- lay out a defended line ----------
