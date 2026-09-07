@@ -655,6 +655,13 @@ const dist    = new Float32Array(GW * GH);
 const nextIdx = new Int32Array(GW * GH);
 
 let buildings = [], foes = [], projs = [], parts = [];
+// airborne dust drifting on a slowly turning wind
+const motes = [];
+for (let i = 0; i < 260; i++) motes.push({
+  x: Math.random() * WW, y: Math.random() * WH,
+  z: 0.35 + Math.random() * 0.9, s: 0.7 + Math.random() * 2.1,
+});
+let windA = 0.3, windS = 26;
 let hub = null, waveTotal = 1;
 
 let supply = 1150, crystal = 40, wave = 0, kills = 0, blightPct = 0;
@@ -808,6 +815,7 @@ function mkBuilding(type, gx, gy) {
   for (let oy = 0; oy < fh; oy++) for (let ox = 0; ox < fw; ox++)
     if (inb(gx + ox, gy + oy)) buildAt[idx(gx + ox, gy + oy)] = ix;
   flowDirty = true;
+  stampPad(b);
   return b;
 }
 function refillCrew(b) {
@@ -1397,6 +1405,48 @@ function updateParts(dt) {
 const gc = document.createElement('canvas');
 gc.width = WW; gc.height = WH;
 const gx2 = gc.getContext('2d');
+// Every asset is founded on a poured apron. Without it a structure reads
+// as an icon pasted over the terrain instead of something built on it.
+function stampPad(b) {
+  const fw = b.w || 1, fh = b.h || 1;
+  const px = b.gx * TILE, py = b.gy * TILE;
+  const W = fw * TILE, H = fh * TILE;
+  const m = b.type === 'hub' ? 7 : 4;
+  const g = gx2;
+  g.save();
+  g.globalAlpha = 0.62;
+  g.fillStyle = '#9B927C';
+  padPath(g, px - m, py - m, W + m * 2, H + m * 2, 7);
+  g.fill();
+  g.globalAlpha = 0.5;
+  g.strokeStyle = '#6E6653'; g.lineWidth = 1.4;
+  padPath(g, px - m, py - m, W + m * 2, H + m * 2, 7);
+  g.stroke();
+  // expansion joints and scuffing
+  g.globalAlpha = 0.28; g.strokeStyle = '#5E5745'; g.lineWidth = 1;
+  g.beginPath();
+  for (let i = 1; i < fw + 1; i++) {
+    g.moveTo(px - m + i * TILE, py - m); g.lineTo(px - m + i * TILE, py + H + m);
+  }
+  for (let i = 1; i < fh + 1; i++) {
+    g.moveTo(px - m, py - m + i * TILE); g.lineTo(px + W + m, py - m + i * TILE);
+  }
+  g.stroke();
+  g.globalAlpha = 0.16; g.fillStyle = '#3A3529';
+  for (let i = 0; i < 14; i++) {
+    g.beginPath();
+    g.ellipse(px + rnd(-m, W + m), py + rnd(-m, H + m), rnd(2, 7), rnd(1.5, 4), rnd(0, 3), 0, 6.2832);
+    g.fill();
+  }
+  g.restore();
+}
+function padPath(g, x, y, w, h, c) {
+  g.beginPath();
+  g.moveTo(x + c, y); g.lineTo(x + w - c, y); g.lineTo(x + w, y + c);
+  g.lineTo(x + w, y + h - c); g.lineTo(x + w - c, y + h); g.lineTo(x + c, y + h);
+  g.lineTo(x, y + h - c); g.lineTo(x, y + c); g.closePath();
+}
+
 function corpse(x, y, r, col) {
   gx2.globalAlpha = 0.62;
   gx2.fillStyle = '#4A4436';
@@ -1479,6 +1529,13 @@ function step(dt) {
   }
 
   foes = foes.filter(f => !f.dead || Math.random() > 0.35);
+  windA += dt * 0.05;
+  const wx = Math.cos(windA) * windS, wy = Math.sin(windA * 0.7) * windS * 0.35;
+  for (const m of motes) {
+    m.x += wx * m.z * dt; m.y += wy * m.z * dt;
+    if (m.x < 0) m.x += WW; else if (m.x > WW) m.x -= WW;
+    if (m.y < 0) m.y += WH; else if (m.y > WH) m.y -= WH;
+  }
   shake = Math.max(0, shake - dt * 14);
   if (flowRefresh -= dt, flowRefresh <= 0) { flowRefresh = 0.7; flowDirty = true; }
 }
@@ -1708,6 +1765,13 @@ function draw() {
   }
 
   ctx.globalCompositeOperation = 'source-over';
+
+  // ---- drifting dust ----
+  for (const m of motes) {
+    if (m.x < vx0 || m.x > vx1 || m.y < vy0 || m.y > vy1) continue;
+    ctx.fillStyle = `rgba(232,222,196,${0.05 + m.z * 0.11})`;
+    ctx.fillRect(m.x, m.y, m.s, m.s * 0.8);
+  }
 
   // ---- placement ghost ----
   if (ghost && hoverIdx >= 0) {
