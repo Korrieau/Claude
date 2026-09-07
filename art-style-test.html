@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ko" data-style="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>아트 스타일 비교 - PULSE</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1a1d22;
+    --line: #2c3138;
+    --ink: #e6e8ea;
+    --dim: #7d858e;
+    --accent: #ff6a1f;
+    --accent2: #4fd6e0;
+  }
+  html[data-style="light"] {
+    --bg: #d9d6ce;
+    --panel: #cfccc3;
+    --line: #a8a49a;
+    --ink: #1f2225;
+    --dim: #6b675f;
+    --accent: #e8560a;
+    --accent2: #0a7f8d;
+  }
+  html[data-style="neon"] {
+    --bg: #05060a;
+    --panel: #0a0d16;
+    --line: #1b2440;
+    --ink: #d6f5ff;
+    --dim: #4a6a8a;
+    --accent: #ff2d95;
+    --accent2: #00fff0;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    transition: background .25s, color .25s;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+
+  #caption {
+    position: fixed; left: 0; right: 0; top: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 14px;
+    background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+    pointer-events: none; z-index: 3;
+  }
+  #styleName {
+    font: 700 13px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: .14em; color: var(--accent);
+  }
+  #styleDesc { margin-top: 3px; font-size: 11px; color: var(--dim); letter-spacing: .01em; }
+
+  #dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 4;
+    padding: 10px 12px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    background: linear-gradient(to top, var(--bg) 55%, transparent);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .row { display: flex; gap: 6px; }
+  button {
+    flex: 1; appearance: none; cursor: pointer;
+    background: var(--panel); color: var(--dim);
+    border: 1px solid var(--line);
+    padding: 11px 4px;
+    font: 600 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: .08em;
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  button[aria-pressed="true"] {
+    color: var(--bg); background: var(--accent); border-color: var(--accent);
+  }
+  html[data-style="neon"] button[aria-pressed="true"] {
+    color: #05060a; box-shadow: 0 0 14px var(--accent);
+  }
+  #hint {
+    text-align: center; font-size: 10.5px; color: var(--dim);
+    letter-spacing: .02em;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="caption">
+  <div id="styleName">A · ENDFIELD DARK</div>
+  <div id="styleDesc">차콜 바탕 + 오렌지 강조. 셀 셰이딩, 각진 형태, 기술 문서형 HUD.</div>
+</div>
+
+<div id="dock">
+  <div class="row">
+    <button data-style="dark" aria-pressed="true">A · 다크</button>
+    <button data-style="light" aria-pressed="false">B · 라이트</button>
+    <button data-style="neon" aria-pressed="false">C · 네온</button>
+  </div>
+  <div class="row">
+    <button id="cardBtn" aria-pressed="false" style="flex:1">레벨업 카드 UI 보기</button>
+  </div>
+  <div id="hint">화면을 손가락으로 끌면 캐릭터가 따라옵니다</div>
+</div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------------------
+// Setup
+// ---------------------------------------------------------------------------
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d", { alpha: false });
+let W = 0, H = 0, DPR = 1;
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  cv.width = Math.round(W * DPR);
+  cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+const SANS = '-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif';
+
+// ---------------------------------------------------------------------------
+// Palettes — six colors each, nothing outside the set
+// ---------------------------------------------------------------------------
+const PALETTES = {
+  dark: {
+    bg: "#14161a", grid: "#1c1f25", plate: "#191c21",
+    panel: "#1a1d22", line: "#2c3138",
+    ink: "#e6e8ea", dim: "#7d858e",
+    accent: "#ff6a1f", accent2: "#4fd6e0", danger: "#d43350",
+    playerFill: "#dfe3e6", playerShade: "#8f979e",
+    enemyFill: "#5c646e", enemyShade: "#363c44",
+    outline: "#0d0f12", shadow: "rgba(0,0,0,.45)",
+    trail: null
+  },
+  light: {
+    bg: "#d9d6ce", grid: "#cbc8bf", plate: "#d1cec5",
+    panel: "#cfccc3", line: "#a8a49a",
+    ink: "#1f2225", dim: "#6b675f",
+    accent: "#e8560a", accent2: "#0a7f8d", danger: "#a81f3f",
+    playerFill: "#f6f4ef", playerShade: "#b0aca2",
+    enemyFill: "#4a4e55", enemyShade: "#2b2e33",
+    outline: "#1f2225", shadow: "rgba(31,34,37,.22)",
+    trail: null
+  },
+  neon: {
+    bg: "#05060a", grid: "#0d1526", plate: "#080b14",
+    panel: "#0a0d16", line: "#1b2440",
+    ink: "#d6f5ff", dim: "#4a6a8a",
+    accent: "#ff2d95", accent2: "#00fff0", danger: "#ff2d55",
+    playerFill: "#00fff0", playerShade: "#00fff0",
+    enemyFill: "#ff2d95", enemyShade: "#ff2d95",
+    outline: "#ffffff", shadow: "rgba(0,0,0,0)",
+    trail: "rgba(5,6,10,.30)"
+  }
+};
+
+const STYLE_INFO = {
+  dark: ["A · ENDFIELD DARK", "차콜 바탕 + 오렌지 강조. 셀 셰이딩, 각진 형태, 기술 문서형 HUD."],
+  light: ["B · ENDFIELD LIGHT", "콘크리트 바탕 + 진한 잉크선. 낮 느낌, 눈이 덜 피로하고 형태가 또렷함."],
+  neon: ["C · NEON VECTOR", "발광 선과 잔상. 화려하지만 톤이 가볍고 오래 보면 눈이 피로함."]
+};
+
+let style = "dark";
+let P = PALETTES[style];
+
+function setStyle(s) {
+  style = s;
+  P = PALETTES[s];
+  document.documentElement.dataset.style = s;
+  document.getElementById("styleName").textContent = STYLE_INFO[s][0];
+  document.getElementById("styleDesc").textContent = STYLE_INFO[s][1];
+  document.querySelectorAll("#dock button[data-style]").forEach(b => {
+    b.setAttribute("aria-pressed", String(b.dataset.style === s));
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Path helpers
+// ---------------------------------------------------------------------------
+function polygon(x, y, r, sides, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = rot + (i / sides) * Math.PI * 2;
+    const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+// Chamfered rectangle: diagonal cut on two opposite corners. Reads as "technical panel".
+function chamfer(x, y, w, h, c) {
+  ctx.beginPath();
+  ctx.moveTo(x + c, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + h - c);
+  ctx.lineTo(x + w - c, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x, y + c);
+  ctx.closePath();
+}
+
+const isNeon = () => style === "neon";
+
+// Draw a shape the current style's way: cel = hard offset shadow + flat fill + outline.
+function paintShape(buildPath, fill, shade, outline, glowColor) {
+  if (isNeon()) {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.shadowColor = glowColor || fill;
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = glowColor || fill;
+    ctx.lineWidth = 2;
+    buildPath();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = .18;
+    ctx.fillStyle = glowColor || fill;
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+  ctx.save();
+  ctx.translate(3, 4);          // hard drop shadow, no blur — cel shading
+  ctx.fillStyle = shade;
+  buildPath();
+  ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = fill;
+  buildPath();
+  ctx.fill();
+
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = outline;
+  ctx.stroke();
+}
+
+// ---------------------------------------------------------------------------
+// Simulation state
+// ---------------------------------------------------------------------------
+const player = { x: 0, y: 0, hp: 78, maxHp: 100, r: 13, rot: 0 };
+let enemies = [], bullets = [], parts = [], gems = [], pulses = [];
+let orbAngle = 0, fireCd = 0, pulseCd = 0, shake = 0, hitStop = 0;
+let elapsed = 0, level = 5, xp = 0.42, kills = 0;
+let wanderT = 0, wanderX = 0, wanderY = 0;
+const pointer = { active: false, x: 0, y: 0 };
+
+function reset() {
+  player.x = W / 2; player.y = H * 0.52;
+  wanderX = player.x; wanderY = player.y;
+  enemies = []; bullets = []; parts = []; gems = []; pulses = [];
+}
+reset();
+window.addEventListener("resize", reset);
+
+const ENEMY_TYPES = [
+  { sides: 4, r: 12, hp: 2, spd: 46 },   // chaser
+  { sides: 3, r: 11, hp: 1, spd: 78 },   // runner
+  { sides: 6, r: 17, hp: 5, spd: 32 },   // tank
+  { sides: 5, r: 13, hp: 3, spd: 55 }    // splitter
+];
+
+function spawnEnemy() {
+  const t = ENEMY_TYPES[(Math.random() * ENEMY_TYPES.length) | 0];
+  const edge = (Math.random() * 4) | 0;
+  const m = 40;
+  let x, y;
+  if (edge === 0) { x = Math.random() * W; y = -m; }
+  else if (edge === 1) { x = W + m; y = Math.random() * H; }
+  else if (edge === 2) { x = Math.random() * W; y = H + m; }
+  else { x = -m; y = Math.random() * H; }
+  enemies.push({ x, y, r: t.r, sides: t.sides, hp: t.hp, maxHp: t.hp, spd: t.spd, rot: Math.random() * 6.28, flash: 0 });
+}
+
+function burst(x, y, color, n, power) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, s = (0.3 + Math.random()) * power;
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, col: color, size: 1.5 + Math.random() * 2.5 });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Update
+// ---------------------------------------------------------------------------
+function update(dt) {
+  elapsed += dt;
+
+  // Player follows the finger; drifts on a lazy path when untouched so the
+  // scene stays alive for someone just looking at it.
+  let tx, ty;
+  if (pointer.active) {
+    tx = pointer.x; ty = pointer.y;
+  } else {
+    wanderT += dt;
+    tx = W / 2 + Math.cos(wanderT * 0.5) * W * 0.26;
+    ty = H * 0.5 + Math.sin(wanderT * 0.73) * H * 0.16;
+  }
+  const dx = tx - player.x, dy = ty - player.y;
+  const d = Math.hypot(dx, dy) || 1;
+  const step = Math.min(d, 260 * dt);
+  player.x += (dx / d) * step;
+  player.y += (dy / d) * step;
+  player.x = Math.max(20, Math.min(W - 20, player.x));
+  player.y = Math.max(20, Math.min(H - 20, player.y));
+  if (d > 2) player.rot = Math.atan2(dy, dx);
+
+  // Keep a steady crowd on screen.
+  if (enemies.length < 26 && Math.random() < dt * 14) spawnEnemy();
+
+  // Weapon 1: bolt, auto-aimed at the nearest enemy.
+  fireCd -= dt;
+  if (fireCd <= 0 && enemies.length) {
+    let best = null, bd = 1e9;
+    for (const e of enemies) {
+      const dd = (e.x - player.x) ** 2 + (e.y - player.y) ** 2;
+      if (dd < bd) { bd = dd; best = e; }
+    }
+    if (best) {
+      const a = Math.atan2(best.y - player.y, best.x - player.x);
+      for (let i = -1; i <= 1; i++) {          // evolved: 3-way spread
+        const aa = a + i * 0.14;
+        bullets.push({ x: player.x, y: player.y, vx: Math.cos(aa) * 430, vy: Math.sin(aa) * 430, life: 1.2, a: aa });
+      }
+      fireCd = 0.34;
+    }
+  }
+
+  // Weapon 2: orbiting orbs.
+  orbAngle += dt * 2.1;
+
+  // Weapon 3: pulse ring.
+  pulseCd -= dt;
+  if (pulseCd <= 0) { pulses.push({ r: 10, life: 1 }); pulseCd = 2.4; shake = Math.max(shake, 3); }
+  for (let i = pulses.length - 1; i >= 0; i--) {
+    const p = pulses[i];
+    p.r += dt * 260; p.life -= dt * 1.4;
+    if (p.life <= 0) pulses.splice(i, 1);
+  }
+
+  // Enemies chase.
+  for (const e of enemies) {
+    const ex = player.x - e.x, ey = player.y - e.y;
+    const ed = Math.hypot(ex, ey) || 1;
+    e.x += (ex / ed) * e.spd * dt;
+    e.y += (ey / ed) * e.spd * dt;
+    e.rot += dt * 0.6;
+    e.flash = Math.max(0, e.flash - dt * 6);
+
+    if (ed < e.r + player.r) {
+      player.hp -= dt * 9;
+      shake = Math.max(shake, 2.5);
+    }
+    for (const p of pulses) {
+      if (Math.abs(ed - p.r) < 14 && !e.pulsed) { e.hp -= 1; e.flash = 1; e.pulsed = true; }
+    }
+    if (!pulses.length) e.pulsed = false;
+
+    // Orbs
+    for (let i = 0; i < 3; i++) {
+      const a = orbAngle + (i / 3) * Math.PI * 2;
+      const ox = player.x + Math.cos(a) * 64, oy = player.y + Math.sin(a) * 64;
+      if ((e.x - ox) ** 2 + (e.y - oy) ** 2 < (e.r + 9) ** 2) { e.hp -= dt * 6; e.flash = 1; }
+    }
+  }
+
+  // Bullets
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    const b = bullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    let gone = b.life <= 0;
+    for (const e of enemies) {
+      if ((e.x - b.x) ** 2 + (e.y - b.y) ** 2 < (e.r + 4) ** 2) {
+        e.hp -= 1; e.flash = 1; gone = true;
+        burst(b.x, b.y, P.accent2, 3, 60);
+        break;
+      }
+    }
+    if (gone) bullets.splice(i, 1);
+  }
+
+  // Deaths
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const e = enemies[i];
+    if (e.hp <= 0) {
+      burst(e.x, e.y, P.accent, 10, 110);
+      gems.push({ x: e.x, y: e.y, vx: 0, vy: 0 });
+      enemies.splice(i, 1);
+      kills++;
+      hitStop = Math.max(hitStop, 0.035);
+      shake = Math.max(shake, 2);
+    }
+  }
+
+  // Gems drift in once close, like a magnet pickup.
+  for (let i = gems.length - 1; i >= 0; i--) {
+    const g = gems[i];
+    const gx = player.x - g.x, gy = player.y - g.y;
+    const gd = Math.hypot(gx, gy) || 1;
+    if (gd < 150) {
+      const pull = 620 / Math.max(gd, 22);
+      g.vx += (gx / gd) * pull; g.vy += (gy / gd) * pull;
+    }
+    g.vx *= 0.92; g.vy *= 0.92;
+    g.x += g.vx * dt * 6; g.y += g.vy * dt * 6;
+    if (gd < 18) {
+      gems.splice(i, 1);
+      xp += 0.045;
+      if (xp >= 1) { xp = 0; level++; }
+    }
+  }
+
+  // Particles
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= 0.93; p.vy *= 0.93;
+    p.life -= dt * 1.7;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+
+  // Health drifts back so the demo never ends.
+  player.hp = Math.min(player.maxHp, player.hp + dt * 5.5);
+  if (player.hp < 22) player.hp = 22;
+
+  shake = Math.max(0, shake - dt * 14);
+}
+
+// ---------------------------------------------------------------------------
+// Background
+// ---------------------------------------------------------------------------
+function drawBackground() {
+  if (isNeon() && P.trail) {
+    ctx.fillStyle = P.trail;
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    ctx.fillStyle = P.bg;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  const g = 44;
+  ctx.strokeStyle = P.grid;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = 0; x < W; x += g) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+  for (let y = 0; y < H; y += g) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+  ctx.stroke();
+
+  if (isNeon()) return;
+
+  // Floor plates + corner ticks: industrial texture, no art assets needed.
+  ctx.fillStyle = P.plate;
+  ctx.fillRect(g * 1, g * 3, g * 4, g * 2);
+  ctx.fillRect(W - g * 4, g * 7, g * 3, g * 4);
+  ctx.fillRect(g * 2, H - g * 6, g * 5, g * 2);
+
+  ctx.strokeStyle = P.line;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = g * 2; x < W; x += g * 3) {
+    for (let y = g * 2; y < H; y += g * 3) {
+      ctx.moveTo(x - 4, y); ctx.lineTo(x + 4, y);
+      ctx.moveTo(x, y - 4); ctx.lineTo(x, y + 4);
+    }
+  }
+  ctx.stroke();
+
+  ctx.font = `9px ${MONO}`;
+  ctx.fillStyle = P.grid;
+  ctx.textAlign = "left";
+  ctx.fillText("SECTOR 07 / GRID-B", 14, H - 18);
+}
+
+// ---------------------------------------------------------------------------
+// Entities
+// ---------------------------------------------------------------------------
+function drawEntities() {
+  // Pulse rings
+  for (const p of pulses) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.life) * 0.7;
+    ctx.strokeStyle = P.accent2;
+    ctx.lineWidth = isNeon() ? 2.5 : 2;
+    if (isNeon()) { ctx.shadowColor = P.accent2; ctx.shadowBlur = 18; }
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, p.r, 0, 6.2832);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // XP gems
+  for (const g of gems) {
+    paintShape(() => polygon(g.x, g.y, 4.5, 4, Math.PI / 4), P.accent2, P.enemyShade, P.outline, P.accent2);
+  }
+
+  // Enemies — slate body with a danger-colored edge so threats read instantly
+  for (const e of enemies) {
+    const fill = e.flash > 0 ? (isNeon() ? "#ffffff" : P.ink) : P.enemyFill;
+    const edge = e.flash > 0 ? P.ink : P.danger;
+    paintShape(() => polygon(e.x, e.y, e.r, e.sides, e.rot), fill, P.enemyShade, edge, e.flash > 0 ? "#ffffff" : P.accent);
+    if (e.maxHp > 2 && !isNeon() && e.hp < e.maxHp) {
+      // thin damage read-out, only once the enemy has actually been hit
+      const w = e.r * 1.5;
+      ctx.fillStyle = P.enemyShade;
+      ctx.fillRect(e.x - w / 2, e.y + e.r + 3, w, 2);
+      ctx.fillStyle = P.danger;
+      ctx.fillRect(e.x - w / 2, e.y + e.r + 3, w * Math.max(0, e.hp / e.maxHp), 2);
+    }
+  }
+
+  // Bullets
+  for (const b of bullets) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(b.a);
+    if (isNeon()) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowColor = P.accent2; ctx.shadowBlur = 12;
+      ctx.strokeStyle = P.accent2; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(7, 0); ctx.stroke();
+    } else {
+      ctx.fillStyle = P.shadow;
+      ctx.fillRect(-8 + 3, -2 + 4, 15, 4);
+      ctx.fillStyle = P.accent2;
+      ctx.fillRect(-8, -2, 15, 4);
+      ctx.fillStyle = P.ink;
+      ctx.fillRect(3, -2, 4, 4);
+    }
+    ctx.restore();
+  }
+
+  // Orbs
+  for (let i = 0; i < 3; i++) {
+    const a = orbAngle + (i / 3) * Math.PI * 2;
+    const ox = player.x + Math.cos(a) * 64, oy = player.y + Math.sin(a) * 64;
+    paintShape(() => polygon(ox, oy, 7, 4, a * 2), P.accent, P.enemyShade, P.outline, P.accent);
+  }
+
+  // Player: a marker ring keeps the finger's target findable in a crowd
+  ctx.save();
+  ctx.globalAlpha = .55;
+  ctx.strokeStyle = P.accent2;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 7]);
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, 27, elapsed * 0.8, elapsed * 0.8 + 6.2832);
+  ctx.stroke();
+  ctx.restore();
+
+  // Arrow-ish hexagon so facing is readable at a glance
+  ctx.save();
+  ctx.translate(player.x, player.y);
+  ctx.rotate(player.rot);
+  const body = () => {
+    ctx.beginPath();
+    ctx.moveTo(20, 0); ctx.lineTo(5, 14); ctx.lineTo(-14, 10);
+    ctx.lineTo(-9, 0); ctx.lineTo(-14, -10); ctx.lineTo(5, -14);
+    ctx.closePath();
+  };
+  paintShape(body, P.playerFill, P.playerShade, P.outline, P.accent2);
+  if (!isNeon()) {
+    ctx.fillStyle = P.accent;
+    ctx.fillRect(-3, -4.5, 11, 9);   // accent detail: one small hot spot
+  }
+  ctx.restore();
+
+  // Particles
+  for (const p of parts) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.life);
+    if (isNeon()) { ctx.globalCompositeOperation = "lighter"; ctx.shadowColor = p.col; ctx.shadowBlur = 10; }
+    ctx.fillStyle = p.col;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HUD — half of the style lives here
+// ---------------------------------------------------------------------------
+function drawHud() {
+  const top = 62;
+  const pad = 14;
+
+  if (!isNeon()) {
+    ctx.fillStyle = P.panel;
+    chamfer(pad, top, W - pad * 2, 62, 10);
+    ctx.fill();
+    ctx.strokeStyle = P.line;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  } else {
+    ctx.save();
+    ctx.strokeStyle = P.line;
+    ctx.lineWidth = 1;
+    chamfer(pad, top, W - pad * 2, 62, 10);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Timer
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(Math.floor(elapsed % 60)).padStart(2, "0");
+  ctx.textAlign = "left";
+  ctx.fillStyle = P.dim;
+  ctx.font = `9px ${MONO}`;
+  ctx.fillText("SURVIVAL TIME", pad + 12, top + 17);
+  ctx.fillStyle = P.ink;
+  ctx.font = `700 22px ${MONO}`;
+  ctx.fillText(`${mm}:${ss}`, pad + 12, top + 40);
+
+  // Level
+  ctx.textAlign = "right";
+  ctx.fillStyle = P.dim;
+  ctx.font = `9px ${MONO}`;
+  ctx.fillText("LEVEL", W - pad - 12, top + 17);
+  ctx.fillStyle = P.accent;
+  ctx.font = `700 22px ${MONO}`;
+  ctx.fillText(String(level).padStart(2, "0"), W - pad - 12, top + 40);
+
+  // Kill counter
+  ctx.textAlign = "center";
+  ctx.fillStyle = P.dim;
+  ctx.font = `9px ${MONO}`;
+  ctx.fillText("KILLS", W / 2, top + 17);
+  ctx.fillStyle = P.ink;
+  ctx.font = `700 22px ${MONO}`;
+  ctx.fillText(String(kills).padStart(3, "0"), W / 2, top + 40);
+
+  // XP bar — thin line under the panel
+  const xw = W - pad * 2;
+  ctx.fillStyle = P.line;
+  ctx.fillRect(pad, top + 66, xw, 3);
+  ctx.fillStyle = P.accent;
+  ctx.fillRect(pad, top + 66, xw * xp, 3);
+
+  // HP bar: one continuous track with quarter ticks — reads faster than segments
+  const low = player.hp / player.maxHp < 0.35;
+  const hy = top + 75;
+  ctx.fillStyle = P.line;
+  ctx.fillRect(pad, hy, xw, 6);
+  ctx.fillStyle = low ? P.danger : P.accent2;
+  ctx.fillRect(pad, hy, xw * (player.hp / player.maxHp), 6);
+  ctx.fillStyle = P.bg;
+  for (let i = 1; i < 4; i++) ctx.fillRect(pad + (xw / 4) * i, hy, 2, 6);
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = P.dim;
+  ctx.font = `9px ${MONO}`;
+  ctx.fillText(`INTEGRITY ${Math.round(player.hp)}%`, pad, top + 96);
+
+  // Equipped weapons, bottom-left above the dock
+  const wy = H - 176;
+  const names = ["BOLT·3WAY", "ORBIT", "PULSE"];
+  for (let i = 0; i < 3; i++) {
+    const x = pad + i * 74;
+    if (!isNeon()) {
+      ctx.fillStyle = P.panel;
+      chamfer(x, wy, 68, 26, 6);
+      ctx.fill();
+      ctx.strokeStyle = i === 0 ? P.accent : P.line;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = i === 0 ? P.accent : P.line;
+      ctx.lineWidth = 1;
+      chamfer(x, wy, 68, 26, 6);
+      ctx.stroke();
+    }
+    ctx.fillStyle = i === 0 ? P.accent : P.dim;
+    ctx.font = `8px ${MONO}`;
+    ctx.textAlign = "center";
+    ctx.fillText(names[i], x + 34, wy + 17);
+  }
+
+  // Low-health vignette
+  if (low) {
+    const a = 0.20 + Math.sin(elapsed * 6) * 0.08;
+    const grd = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.28, W / 2, H / 2, Math.max(W, H) * 0.62);
+    grd.addColorStop(0, "rgba(0,0,0,0)");
+    grd.addColorStop(1, `rgba(224,67,47,${a})`);
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Level-up card overlay
+// ---------------------------------------------------------------------------
+let showCards = false;
+
+const CARDS = [
+  { tier: "COMMON", tierCol: () => P.dim,    name: "볼트",        sub: "LV.2 → LV.3", desc: "투사체가 1개 늘어난다", sides: 3 },
+  { tier: "RARE",   tierCol: () => P.accent2, name: "궤도 오브",   sub: "NEW",         desc: "주위를 도는 오브 1개 추가", sides: 4 },
+  { tier: "EVOLVE", tierCol: () => P.accent,  name: "산탄 볼트",   sub: "볼트 + 투사체 수 5", desc: "볼트가 3갈래로 갈라진다", sides: 6 }
+];
+
+function drawCards() {
+  ctx.fillStyle = style === "light" ? "rgba(217,214,206,.92)" : "rgba(5,6,10,.90)";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = P.accent;
+  ctx.font = `700 13px ${MONO}`;
+  ctx.fillText("LEVEL UP", W / 2, 104);
+  ctx.fillStyle = P.dim;
+  ctx.font = `12px ${SANS}`;
+  ctx.fillText("강화를 하나 선택하세요", W / 2, 124);
+
+  const pad = 18;
+  const cw = W - pad * 2;
+  const ch = 104;
+  const gap = 12;
+  const startY = 142;
+
+  CARDS.forEach((c, i) => {
+    const y = startY + i * (ch + gap);
+    const col = c.tierCol();
+    const isEvo = c.tier === "EVOLVE";
+
+    if (!isNeon()) {
+      ctx.fillStyle = P.shadow;
+      chamfer(pad + 4, y + 5, cw, ch, 16); ctx.fill();
+      ctx.fillStyle = P.panel;
+      chamfer(pad, y, cw, ch, 16); ctx.fill();
+      ctx.strokeStyle = isEvo ? P.accent : P.line;
+      ctx.lineWidth = isEvo ? 2 : 1;
+      ctx.stroke();
+    } else {
+      ctx.save();
+      ctx.shadowColor = isEvo ? P.accent : P.line;
+      ctx.shadowBlur = isEvo ? 16 : 6;
+      ctx.strokeStyle = isEvo ? P.accent : P.line;
+      ctx.lineWidth = isEvo ? 2 : 1;
+      chamfer(pad, y, cw, ch, 16); ctx.stroke();
+      ctx.restore();
+    }
+
+    // Tier stripe on the left edge
+    ctx.fillStyle = col;
+    ctx.fillRect(pad, y + 16, 3, ch - 32);
+
+    // Icon block
+    const ix = pad + 44, iy = y + ch / 2;
+    if (!isNeon()) {
+      ctx.fillStyle = style === "light" ? "#c2bfb6" : "#22262c";
+      chamfer(ix - 26, iy - 26, 52, 52, 8); ctx.fill();
+      ctx.strokeStyle = P.line; ctx.lineWidth = 1; ctx.stroke();
+    }
+    paintShape(() => polygon(ix, iy, 15, c.sides, elapsed * 0.6), col, P.enemyShade, P.outline, col);
+
+    // Text
+    ctx.textAlign = "left";
+    const tx = pad + 84;
+    ctx.fillStyle = col;
+    ctx.font = `700 9px ${MONO}`;
+    ctx.fillText(c.tier, tx, y + 30);
+    ctx.fillStyle = P.ink;
+    ctx.font = `700 19px ${SANS}`;
+    ctx.fillText(c.name, tx, y + 55);
+    ctx.fillStyle = P.dim;
+    ctx.font = `12px ${SANS}`;
+    ctx.fillText(c.desc, tx, y + 76);
+    ctx.font = `9px ${MONO}`;
+    ctx.fillStyle = P.line === P.dim ? P.dim : (style === "light" ? "#8b877e" : "#4c545c");
+    ctx.fillText(c.sub, tx, y + 91);
+    ctx.textAlign = "center";
+  });
+
+  ctx.fillStyle = P.dim;
+  ctx.font = `10px ${MONO}`;
+  ctx.fillText("REROLL  1 / 1", W / 2, startY + 3 * (ch + gap) + 18);
+}
+
+// ---------------------------------------------------------------------------
+// Loop
+// ---------------------------------------------------------------------------
+let last = performance.now();
+let acc = 0;
+const STEP = 1 / 60;
+
+function frame(now) {
+  let dt = (now - last) / 1000;
+  last = now;
+  if (dt > 0.25) dt = 0.25;
+
+  if (hitStop > 0) { hitStop -= dt; }
+  else if (!showCards) {
+    acc += dt;
+    while (acc >= STEP) { update(STEP); acc -= STEP; }
+  }
+
+  ctx.save();
+  if (shake > 0.1) {
+    ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+  }
+  drawBackground();
+  drawEntities();
+  ctx.restore();
+
+  if (showCards) drawCards(); else drawHud();
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ---------------------------------------------------------------------------
+// Input
+// ---------------------------------------------------------------------------
+function setPointer(ev) {
+  const t = ev.touches ? ev.touches[0] : ev;
+  if (!t) return;
+  pointer.active = true;
+  pointer.x = t.clientX;
+  pointer.y = t.clientY;
+}
+cv.addEventListener("touchstart", e => { setPointer(e); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchmove", e => { setPointer(e); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchend", () => { pointer.active = false; });
+cv.addEventListener("mousedown", setPointer);
+cv.addEventListener("mousemove", e => { if (e.buttons) setPointer(e); });
+cv.addEventListener("mouseup", () => { pointer.active = false; });
+
+document.querySelectorAll("#dock button[data-style]").forEach(b => {
+  b.addEventListener("click", () => setStyle(b.dataset.style));
+});
+const cardBtn = document.getElementById("cardBtn");
+cardBtn.addEventListener("click", () => {
+  showCards = !showCards;
+  cardBtn.setAttribute("aria-pressed", String(showCards));
+  cardBtn.textContent = showCards ? "카드 UI 닫기" : "레벨업 카드 UI 보기";
+});
+
+setStyle("dark");
+</script>
+</body>
+</html>
