@@ -31,11 +31,11 @@
   #obj {
     position: absolute; left: 50%; transform: translateX(-50%);
     top: calc(env(safe-area-inset-top,0px) + 8px);
-    text-align: center; width: 168px;
+    text-align: center; width: 208px;
   }
   #obj .br { color: #4d6070; font-size: 11px; vertical-align: 2px; }
   .oTitle {
-    font-size: 13px; font-weight: 700; letter-spacing: .18em; color: #eaf2f8;
+    font-size: 12.5px; font-weight: 700; letter-spacing: .10em; color: #eaf2f8;
     margin: 0 6px; text-shadow: 0 0 12px rgba(120,190,230,.35);
   }
   .oSub {
@@ -139,12 +139,13 @@
     display: flex; gap: 4px; pointer-events: auto;
   }
   #speed button {
-    width: 30px; height: 24px; cursor: pointer; color: #93a7b8;
+    width: 54px; height: 36px; cursor: pointer; color: #ffd7bb;
     background: rgba(9,13,18,.58); border: 1px solid rgba(122,150,175,.24);
     font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700;
     clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
   }
-  #speed button[data-on="1"] { color: #ffd7bb; border-color: var(--accent); background: rgba(255,122,42,.16); }
+  #speed button { border-color: var(--accent); background: rgba(255,122,42,.14); font-size: 12px; }
+  #speed button[data-p="1"] { color: #93a7b8; border-color: rgba(122,150,175,.3); background: rgba(9,13,18,.6); }
 
   /* floating combo counter */
   #combo {
@@ -155,6 +156,14 @@
   }
   #combo s { display: block; text-decoration: none; font-size: 6px; letter-spacing: .3em; color: #8a8262; }
 
+  #brief {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom,0px) + 252px);
+    max-width: 320px; text-align: center; padding: 7px 15px 8px;
+    background: rgba(9,13,18,.72); border: 1px solid rgba(79,227,240,.34);
+    font-size: 11.5px; line-height: 1.5; color: #bcd6e4;
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  }
   #breach {
     position: absolute; left: 50%; transform: translateX(-50%);
     top: calc(env(safe-area-inset-top,0px) + 74px);
@@ -200,7 +209,7 @@
   #insp .st i { font-style: normal; font-size: 13px; font-weight: 700; color: #eaf2f8; }
   #insp .row { display: flex; gap: 6px; }
   #insp .row button {
-    flex: 1; cursor: pointer; padding: 10px 4px; font-weight: 700; font-size: 12px;
+    flex: 1; cursor: pointer; padding: 14px 4px; min-height: 46px; font-weight: 700; font-size: 12px;
     background: rgba(79,227,240,.12); color: var(--cyan); border: 1px solid rgba(79,227,240,.4);
     clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   }
@@ -223,7 +232,7 @@
   .tab {
     flex: 1; cursor: pointer; position: relative; text-align: left;
     background: rgba(9,13,18,.5); color: #8b98a6;
-    border: 1px solid rgba(122,150,175,.22); padding: 6px 4px 6px 15px;
+    border: 1px solid rgba(122,150,175,.22); padding: 9px 4px 9px 15px; min-height: 46px;
     clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
   .tab i {
@@ -290,7 +299,7 @@
   #abils { display: flex; gap: 5px; margin-bottom: 7px; }
   .ab {
     flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; overflow: hidden;
-    text-align: left; padding: 6px 8px 7px; color: #cfe0ec;
+    text-align: left; padding: 9px 8px 10px; min-height: 48px; color: #cfe0ec;
     background: rgba(9,13,18,.62); border: 1px solid rgba(79,227,240,.30);
     clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
   }
@@ -307,6 +316,26 @@
   .ab[data-arm="1"] { border-color: var(--accent); background: rgba(255,122,42,.16); color: #ffd7bb; }
   .ab:active { transform: translateY(1px); }
 
+  #mapPick { display: flex; flex-direction: column; gap: 7px; }
+  #mapPick button {
+    display: flex; align-items: center; gap: 10px; width: 100%; cursor: pointer;
+    text-align: left; padding: 11px 13px 12px; min-height: 60px;
+    background: rgba(9,13,18,.6); border: 1px solid rgba(122,150,175,.24); color: var(--ink);
+    clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
+  #mapPick button[data-on="1"] { border-color: var(--accent); background: rgba(255,122,42,.12); }
+  #mapPick canvas { width: 34px; height: 60px; flex: 0 0 auto; image-rendering: pixelated; }
+  #mapPick .mi { min-width: 0; }
+  #mapPick b { display: block; font-size: 14px; font-weight: 700; }
+  #mapPick s {
+    text-decoration: none; font-family: ui-monospace, monospace; font-size: 6.5px;
+    letter-spacing: .22em; color: #4f6273;
+  }
+  #mapPick u {
+    text-decoration: none; font-family: ui-monospace, monospace; font-size: 7px;
+    letter-spacing: .16em; color: var(--gold); margin-left: 6px;
+  }
+  #mapPick span { display: block; font-size: 10.5px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
   #draft .card {
     display: block; width: 100%; text-align: left; cursor: pointer; margin-top: 9px;
     background: rgba(9,13,18,.6); border: 1px solid rgba(122,150,175,.24); padding: 12px 14px 13px;
@@ -320,6 +349,7 @@
   #draft .card b { display: block; font-size: 15px; font-weight: 700; color: #eaf2f8; }
   #draft .card span { display: block; font-size: 12px; color: var(--dim); margin-top: 5px; line-height: 1.6; }
   #draft .card:active { transform: translateY(1px); border-color: var(--accent); }
+  #draft .card { min-height: 74px; }
   #held { font-size: 11px; color: var(--dim); line-height: 1.9; margin-top: 4px; }
   #held em { font-style: normal; color: var(--cyan); }
   #hint {
@@ -343,7 +373,7 @@
   .help .d { color: var(--dim); }
   .btn {
     display: block; width: 100%; cursor: pointer; margin-top: 18px;
-    background: var(--accent); color: #0b0e13; border: 1px solid var(--accent); padding: 15px;
+    background: var(--accent); color: #0b0e13; border: 1px solid var(--accent); padding: 17px;
     font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; letter-spacing: .16em;
     clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
   }
@@ -405,13 +435,10 @@
     <div class="aName">COMMAND<br>사령부</div>
   </div>
 
-  <div id="speed">
-    <button data-sp="0">II</button>
-    <button data-sp="1" data-on="1">1x</button>
-    <button data-sp="2">2x</button>
-  </div>
+  <div id="speed"><button id="spBtn">1x</button></div>
   <div id="combo" hidden></div>
   <div id="breach" hidden></div>
+  <div id="brief" hidden></div>
   <div id="dmgs"></div>
   <div id="scan"></div>
 </div>
@@ -431,6 +458,11 @@
 <div class="overlay" id="titleScreen" hidden>
   <h1 class="title">HOLD<br>THE LINE</h1>
   <p class="sub">버려진 공장 부지에 방어선을 세우고<br>10차 공세를 버텨내세요.</p>
+  <p class="sub" style="font-size:11px;margin-top:6px;color:#5d7182">
+    갈색 잔해는 아무도 지나갈 수 없습니다 · 청록 고지대는 사거리 +20%<br>
+    빨간 표시가 적이 들어오는 통로입니다</p>
+  <div class="lbl">전장 선택</div>
+  <div id="mapPick"></div>
   <div class="lbl">방어선은 세 겹입니다</div>
   <div class="help">
     <b>전방</b> <span class="d">— 철조망, 참호, 벙커. 병사가 들어갑니다</span><br>
@@ -583,6 +615,94 @@ const ASSAULTS = [
   { dur: 66, rate: 48,   mix: { spore: .30, swarm: .33, charger: .25, carapace: .12 },
     big: [["breaker", 24], ["heavy", 19], ["colossus", 11], ["matriarch", 4]] }
 ];
+// ---------------------------------------------------------------- level design
+// One grid per map. Legend:
+//   .  open ground, buildable, walkable
+//   #  wreckage: neither side can enter it. This is what makes lanes.
+//   ^  raised platform: buildable, NOT walkable. Weapons on it reach further.
+//   ~  broken ground: walkable but slow, NOT buildable. Softens a lane mouth.
+//   H  command centre
+// Rows 0-1 are the approach and are never buildable; 2-7 / 8-11 / 12-15 are
+// the three build zones. Every map must leave a path from row 0 to the H block.
+const APPROACH = 7;
+const HIGH_LIFT = 0.46, HIGH_RANGE = 1.20, HIGH_DMG = 1.12, ROUGH_SPD = 0.60;
+const MAPS = [
+  { name: "적하장", sub: "LOADING YARD", tag: "표준", diff: 1.00, start: 700,
+    desc: "컨테이너 더미가 접근로를 세 갈래로 나눕니다. 방어 구역 안은 완전히 비어 있어 원하는 대로 지을 수 있습니다. 측면 고지에 화기를 올리면 세 갈래를 다 걸칩니다.",
+    lanes: [1, 4, 7],
+    g: [".........",
+        "..#...#..",
+        "..#...#..",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        "^.......^",
+        "^.......^",
+        ".........",
+        ".........",
+        ".........",
+        "...HHH...",
+        "...HHH..."] },
+  { name: "정련로", sub: "SMELTER", tag: "통로전", diff: 0.94, start: 640,
+    desc: "가운데가 통째로 막혀 있어 좌우 두 갈래로만 들어옵니다. 통로 입구는 깨진 바닥이라 느려집니다. 좁은 대신 두 곳을 동시에 지켜야 합니다.",
+    lanes: [1, 7],
+    g: [".........",
+        "...###...",
+        "...###...",
+        "..~~~~~..",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".^.....^.",
+        ".^.....^.",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        "...HHH...",
+        "...HHH..."] },
+  { name: "개활지", sub: "OPEN GROUND", tag: "고난도", diff: 1.16, start: 880,
+    desc: "가려주는 게 없습니다. 통로는 직접 벽을 세워 만들어야 합니다. 대신 후방 양옆에 넓은 고지대가 있어 중장비를 올릴 수 있습니다.",
+    lanes: [0, 4, 8],
+    g: ["#.......#",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        ".........",
+        "^^.....^^",
+        ".........",
+        "...HHH...",
+        "...HHH..."] }
+];
+let mapIdx = 0;
+
+// What the player is told, and when. Index 0 is the deployment phase; index n
+// is the lull after assault n. One idea at a time, in the order the campaign
+// actually forces you to learn it.
+const BRIEF = [
+  ["방어선을 세우세요", "전방에 벽을 세우고 그 뒤에 참호를 파세요"],
+  ["화기를 올리세요", "중앙 구역에 기관총 진지. 벽이 잡아둔 적을 쏩니다"],
+  ["참호를 채우세요", "병력 탭에서 소총병. 참호 밖 병사는 금방 죽습니다"],
+  ["공병을 뽑으세요", "앞줄 참호에 넣으면 그 구간 벽이 저절로 수리됩니다"],
+  ["대형이 섞입니다", "갑각체·파쇄체는 벽을 부숩니다. 대전차병을 준비하세요"],
+  ["후방을 세우세요", "시즈탱크·박격포는 벽 너머로 때립니다"],
+  ["예비를 두세요", "돌격대는 참호가 필요 없고 뚫린 곳으로 달려갑니다"],
+  ["중갑 거체", "벽이 오래 못 버팁니다. 수리와 강화로 버티세요"],
+  ["거신", "레일건 한 발이 거신을 뚫습니다. 대물 저격진지도 같이"],
+  ["모체", "마지막입니다. 지휘 능력을 아끼지 마세요"]
+];
+
 const LULL = 17, LULL_RATE = 0.7;
 // Five things you can produce. Four hold a post; the assault team does not
 // need one, which is what makes it the answer to a breach.
@@ -641,23 +761,34 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 let G = null, mode = "boot", pick = null, tab = 0;
 
 function newGame() {
+  const M = MAPS[mapIdx];
   const tiles = [];
-  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) tiles.push({ c, r, b: null, hq: false });
-  for (let r = 14; r <= 15; r++) for (let c = 3; c <= 5; c++) tiles[r * COLS + c].hq = true;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const ch = M.g[r][c];
+    tiles.push({ c, r, b: null, hq: ch === "H",
+                 k: ch === "#" ? "block" : ch === "^" ? "high" : ch === "~" ? "rough" : "open" });
+  }
   G = {
     tiles, buildings: [], soldiers: [], enemies: [], shells: [], tracers: [],
     parts: [], floats: [], beams: [],
-    mat: 700, man: 44, manCap: 120,
+    mat: M.start, man: 44, manCap: 120,
     hq: { hp: HQ_HP, max: HQ_HP },
     assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowS: new Int16Array(COLS * ROWS),
     flowDirty: true, dens: new Int16Array(COLS * ROWS), holes: [], rallyPost: null,
+    map: mapIdx, lanes: M.lanes.slice(),
     kia: 0, kills: 0, t: 0, shake: 0, breach: 0,
     doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null,
     dmgs: [], rings: [], hitstop: 0, combo: 0, comboT: 0, speed: 1, sel: null
   };
 }
 const at = (c, r) => (c < 0 || r < 0 || c >= COLS || r >= ROWS) ? null : G.tiles[r * COLS + c];
+// wreckage and raised decks are solid: nothing on foot may stand there
+function walkable(x, z) {
+  if (z < 0) return true;
+  const t = at(Math.floor(x), Math.floor(z));
+  return !t || (t.k !== "block" && t.k !== "high");
+}
 
 // Every stat the doctrines touch goes through one of these, so a new card is
 // a line here and a line in the table rather than a hunt through the sim.
@@ -707,7 +838,8 @@ function abCd(k) { return ABIL[k].cd * (has("cmd") ? .65 : 1); }
 const RANK_XP = [0, 40, 130, 340, 800];
 const RANK_N = ["", "I", "II", "III", "IV"];
 function rankOf(xp) { let r = 0; for (let i = 1; i < RANK_XP.length; i++) if (xp >= RANK_XP[i]) r = i; return r; }
-function wDmgB(b) { return wDmg(b.key) * (1 + .16 * b.up) * (1 + .10 * rankOf(b.xp)); }
+function wDmgB(b) { return wDmg(b.key) * (1 + .16 * b.up) * (1 + .10 * rankOf(b.xp)) * (b.high ? HIGH_DMG : 1); }
+function wRangeB(b) { return wRange(b.key) * (b.high ? HIGH_RANGE : 1); }
 function wCdB(b) { return wCd(b.key) * (1 - .055 * rankOf(b.xp)); }
 function upCost(b) { return Math.round(bCost(b.key) * .55 * (b.up + 1)); }
 function upgradeB(b) {
@@ -715,6 +847,7 @@ function upgradeB(b) {
   const c = upCost(b);
   if (G.mat < c) return "자원이 부족합니다";
   G.mat -= c; b.up++;
+  VIEW.refreshBuilding(b);
   const nm = Math.round(bMaxHp(b.key) * (1 + .22 * b.up));
   b.hp += nm - b.maxHp; b.maxHp = nm;
   b.flash = 1; G.rings.push({ x: b.c + .5, z: b.r + .5, life: .5, max: .5, r: 1.1, col: 0x4fe3f0 });
@@ -809,9 +942,7 @@ function bfs(f, walled) {
   f.fill(30000);
   flowQ.length = 0;
   let head = 0;
-  for (let r = 14; r <= 15; r++) for (let c = 3; c <= 5; c++) {
-    const i = r * COLS + c; f[i] = 0; flowQ.push(i);
-  }
+  for (let i = 0; i < G.tiles.length; i++) if (G.tiles[i].hq) { f[i] = 0; flowQ.push(i); }
   while (head < flowQ.length) {
     const i = flowQ[head++];
     const c = i % COLS, r = (i / COLS) | 0, d = f[i];
@@ -819,9 +950,11 @@ function bfs(f, walled) {
     for (const [nc, nr] of nb) {
       if (nc < 0 || nr < 0 || nc >= COLS || nr >= ROWS) continue;
       const ni = nr * COLS + nc, t = G.tiles[ni];
+      if (t.k === "block" || t.k === "high") continue;   // nothing walks these
       const sp = (t.b && t.b.done) ? B[t.b.key] : null;
-      const step = !walled ? 1
-        : !sp ? 1 : sp.walk ? 1 : sp.wall ? 11 : sp.garrison ? 7 : 5;
+      const base = t.k === "rough" ? 2 : 1;
+      const step = !walled ? base
+        : !sp ? base : sp.walk ? base : sp.wall ? 11 : sp.garrison ? 7 : 5;
       if (d + step < f[ni]) { f[ni] = d + step; flowQ.push(ni); }
     }
   }
@@ -836,6 +969,8 @@ function rebuildFlow() {
 function place(key, c, r) {
   const spec = B[key], t = at(c, r);
   if (!t) return "지도 밖입니다";
+  if (t.k === "block") return "잔해가 막고 있습니다";
+  if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
   if (zoneOf(r) !== spec.z) return "이 구역에는 지을 수 없습니다";
   if (t.hq) return "사령부 자리입니다";
   if (t.b) return "이미 건물이 있습니다";
@@ -844,6 +979,7 @@ function place(key, c, r) {
   G.mat -= cost;
   const mhp = bMaxHp(key);
   const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0, up: 0, xp: 0, rank: 0,
+              high: t.k === "high",
               cd: rnd(0, .4), aim: -Math.PI / 2, flash: 0, crew: [], dead: false, obj: null };
   t.b = b; G.buildings.push(b);
   G.flowDirty = true;
@@ -1042,7 +1178,7 @@ function updateBuildings(dt) {
     if (!spec.dmg) continue;
     b.cd -= dt;
     if (b.cd > 0) continue;
-    const maxR = wRange(b.key), minR = spec.minRange || 0;
+    const maxR = wRangeB(b), minR = spec.minRange || 0;
     const dmg = wDmgB(b);
 
     // aura: everything inside the ring, no target needed
@@ -1140,13 +1276,14 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = 1 + G.assault * 0.27;
+  const scale = (1 + G.assault * 0.27) * MAPS[G.map].diff;
+  const lane = G.lanes[(Math.random() * G.lanes.length) | 0];
   G.enemies.push({
-    type, x: rnd(.25, COLS - .25), z: rnd(-1.6, -.2),
+    type, x: clamp(lane + .5 + rnd(-1.1, 1.1), .25, COLS - .25), z: rnd(-APPROACH + .4, -.4),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
     r: spec.r, cd: rnd(0, 1), flash: 0, dead: false, dir: 0,
     off: rnd(-.30, .30), wob: rnd(0, 6.28), sc: spec.sc * rnd(.9, 1.1),
-    lane: clamp(Math.round(rnd(-.6, COLS - .4)), 0, COLS - 1)
+    lane: clamp(lane + Math.round(rnd(-1.4, 1.4)), 0, COLS - 1)
   });
 }
 function hurtEnemy(e, dmg, src) {
@@ -1201,9 +1338,25 @@ function updateEnemies(dt) {
     e.cd -= dt;
     const c = clamp(Math.floor(e.x), 0, COLS - 1);
     const rRaw = Math.floor(e.z);
-    if (rRaw < 0) { e.z += spec.spd * dt; e.dir = 0; continue; }
+    // off the board they march straight down the approach, a little quicker
+    if (rRaw < 0) { e.z += spec.spd * 1.5 * dt; e.dir = 0; continue; }
     const r = Math.min(rRaw, ROWS - 1);
     const here = at(c, r);
+    // a wreck block is a dead zone in the flow field: anything that ends up
+    // inside one would sit there for ever, so walk it to the nearest way out
+    if (here && (here.k === "block" || here.k === "high")) {
+      let ex = null, ev = 1e9;
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+        const t2 = at(c + dc, r + dr);
+        if (!t2 || t2.k === "block" || t2.k === "high") continue;
+        const v = f[(r + dr) * COLS + (c + dc)] + Math.abs(dc) + Math.abs(dr);
+        if (v < ev) { ev = v; ex = t2; }
+      }
+      const tx3 = ex ? ex.c + .5 : 4.5, tz3 = ex ? ex.r + .5 : r + 1.5;
+      e.dir = Math.atan2(tx3 - e.x, tz3 - e.z);
+      stepTo(e, tx3, tz3, spec.spd * 1.4 * dt / dt * 1, dt);
+      continue;
+    }
 
     let prey = null, pd = .62;
     for (const s of G.soldiers) {
@@ -1228,8 +1381,11 @@ function updateEnemies(dt) {
       }
       continue;
     }
-    const ff = spec.smash ? G.flowS : f;
     const i0 = r * COLS + c;
+    // If the base has been walled off completely there is no route at all, and
+    // small enemies would stand still for ever. Seal yourself in and they chew
+    // through instead: fall back to the field that ignores structures.
+    const ff = (spec.smash || f[i0] >= 30000) ? G.flowS : f;
     // crowding costs a lot, so a mass of them fans across the width instead of
     // queueing single file into whichever cell happens to be cheapest
     // the lane term must be charged to the cell it is standing on too,
@@ -1257,6 +1413,7 @@ function updateEnemies(dt) {
     for (const h of G.holes) if (h.life > 1.4 && Math.abs(h.c - e.x) < 3.2 && Math.abs(h.r - e.z) < 3.6) { surge = 1.5; break; }
     let spd = spec.spd * (G.berserk ? 1.6 : 1) * surge;
     if (here && here.b && here.b.done && B[here.b.key].slow) spd *= B[here.b.key].slow;
+    if (here && here.k === "rough") spd *= ROUGH_SPD;
     e.wob += dt * spd * 3.2;
     const tx2 = tc + .5 + e.off + Math.sin(e.wob) * .07;
     const tz2 = tr + .5;
@@ -1270,7 +1427,7 @@ function updateEnemies(dt) {
 // Enemies used to occupy the same point: pathing charged for crowding but
 // nothing physically pushed them apart, so a wave read as one mashed blob.
 // Uniform grid at half a cell, one relaxation pass per frame.
-const SEP_W = 2, SEP_C = COLS * SEP_W, SEP_R = (ROWS + 4) * SEP_W;
+const SEP_W = 2, SEP_C = COLS * SEP_W, SEP_R = (ROWS + APPROACH + 3) * SEP_W;
 const sepHead = new Int32Array(SEP_C * SEP_R);
 const sepNext = new Int32Array(MAX_ENEMIES + 8);
 function separate() {
@@ -1280,7 +1437,7 @@ function separate() {
   for (let i = 0; i < n; i++) {
     const e = list[i];
     const cx = clamp((e.x * SEP_W) | 0, 0, SEP_C - 1);
-    const cy = clamp(((e.z + 2) * SEP_W) | 0, 0, SEP_R - 1);
+    const cy = clamp(((e.z + APPROACH + 1) * SEP_W) | 0, 0, SEP_R - 1);
     const k = cy * SEP_C + cx;
     sepNext[i] = sepHead[k]; sepHead[k] = i;
   }
@@ -1288,7 +1445,7 @@ function separate() {
     const a = list[i];
     const ar = a.r * 1.25, am = a.sc;
     const cx = clamp((a.x * SEP_W) | 0, 0, SEP_C - 1);
-    const cy = clamp(((a.z + 2) * SEP_W) | 0, 0, SEP_R - 1);
+    const cy = clamp(((a.z + APPROACH + 1) * SEP_W) | 0, 0, SEP_R - 1);
     for (let dy = -1; dy <= 1; dy++) {
       const ry = cy + dy;
       if (ry < 0 || ry >= SEP_R) continue;
@@ -1306,10 +1463,13 @@ function separate() {
               const d = Math.sqrt(d2), push = (mind - d) * .34 / d;
               const bm = b.sc, tot = am + bm;
               const wa = bm / tot, wb = am / tot;
-              a.x -= ox * push * wa; a.z -= oz * push * wa;
-              b.x += ox * push * wb; b.z += oz * push * wb;
+              const ax = a.x - ox * push * wa, az = a.z - oz * push * wa;
+              const bx2 = b.x + ox * push * wb, bz2 = b.z + oz * push * wb;
+              if (walkable(ax, az)) { a.x = ax; a.z = az; }
+              if (walkable(bx2, bz2)) { b.x = bx2; b.z = bz2; }
             } else if (d2 <= 1e-6) {
-              a.x -= .04; b.x += .04;
+              if (walkable(a.x - .04, a.z)) a.x -= .04;
+              if (walkable(b.x + .04, b.z)) b.x += .04;
             }
           }
           j = sepNext[j];
@@ -1412,7 +1572,7 @@ function updateWar(dt) {
       }
       G.bigCd = a.dur / (G.bigQ.length + 1);
       G.waveT = 0; G.berserk = false;
-      floatText(G.assault + "차 공세");
+      floatText(G.assault + "차 공세  ·  " + BRIEF[Math.min(G.assault - 1, BRIEF.length - 1)][0]);
       G.shake = .22;
     }
   } else {
@@ -1421,13 +1581,19 @@ function updateWar(dt) {
     if (!G.berserk && !G.queueEmptyGuard && G.waveT > 75 && G.enemies.length && G.timer <= 0) {
       G.berserk = true; floatText("적 돌격"); G.shake = .18;
     }
-    G.spawnAcc += a.rate * dt;
+    G.spawnAcc += a.rate * MAPS[G.map].diff * dt;
     if (G.bigQ && G.bigQ.length) {
       G.bigCd -= dt;
       if (G.bigCd <= 0) {
         spawnEnemy(G.bigQ.pop());
         G.bigCd = a.dur / ((a.big || []).reduce((s2, b2) => s2 + b2[1], 0) + 1);
       }
+    }
+    // A wave must always end. If one overruns badly, sweep anything still
+    // loitering off the board rather than letting the run sit there.
+    if (G.timer < -45 && G.enemies.length) {
+      for (let i = G.enemies.length - 1; i >= 0; i--) if (G.enemies[i].z < 1.5) G.enemies.splice(i, 1);
+      if (G.timer < -75) G.enemies.length = 0;
     }
     if (G.timer <= 0 && !G.enemies.length) {
       G.phase = "lull"; G.timer = LULL; G.mat += 90;
@@ -1765,17 +1931,151 @@ const VIEW = (() => {
     }));
     return out;
   });
+  const wreckMat = new THREE.MeshStandardMaterial({ map: metalTex(0x4a4038), roughnessMap: ROUGH,
+    normalMap: METAL_NORMAL, normalScale: NS, roughness: .88, metalness: .35 });
+  const deckMat = new THREE.MeshStandardMaterial({ map: metalTex(0x6c7278), roughnessMap: ROUGH,
+    normalMap: METAL_NORMAL, normalScale: NS, roughness: .70, metalness: .5 });
+  const deckRail = new THREE.MeshStandardMaterial({ color: 0x596672, roughness: .55, metalness: .55 });
+  const deckEdge = new THREE.MeshStandardMaterial({ color: 0x2c6f7a, emissive: 0x1a8f9e,
+                                                    emissiveIntensity: .7, roughness: .5 });
+  const roughMat = new THREE.MeshStandardMaterial({ map: concreteTex(0x6a6259), roughnessMap: ROUGH,
+    normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(2.1, 2.1), roughness: 1 });
   const tileMeshes = [];
-  for (let r = 0; r < ROWS; r++) {
-    const band = bandOf(r), h = TILE_H + BAND_LIFT[band];
-    for (let c = 0; c < COLS; c++) {
-      const m = new THREE.Mesh(tileGeo, bandMat[band][(c * 3 + r * 5) % 4]);
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const m = new THREE.Mesh(tileGeo, bandMat[bandOf(r)][(c * 3 + r * 5) % 4]);
+    m.rotation.y = Math.floor(Math.random() * 4) * Math.PI / 2;
+    m.castShadow = true; m.receiveShadow = true;
+    m.userData = { c, r };
+    scene.add(m); tileMeshes.push(m);
+  }
+  // The swarm used to appear out of bare grass. The approach is now paved in
+  // the same grid, corroded rather than clean, with the map's lanes marked as
+  // worn tracks so you can see the route before anything is on it.
+  function laneTex(mark) {
+    return canvasTex(256, (g, S) => {
+      g.fillStyle = mark ? "#4a3a34" : "#332c33"; g.fillRect(0, 0, S, S);
+      blobs(g, 36, S, 8, 40, () => `rgba(26,20,24,${.18 + Math.random() * .30})`);
+      blobs(g, 120, S, 2, 10, () => Math.random() < .38
+        ? `rgba(198,76,14,${.14 + Math.random() * .32})` : `rgba(14,10,14,${.2 + Math.random() * .3})`);
+      if (mark) {
+        // a worn centre track plus a chevron pointing at the base
+        const tg = g.createLinearGradient(0, 0, S, 0);
+        tg.addColorStop(0, "rgba(150,110,80,0)"); tg.addColorStop(.5, "rgba(150,110,80,.24)");
+        tg.addColorStop(1, "rgba(150,110,80,0)");
+        g.fillStyle = tg; g.fillRect(0, 0, S, S);
+        g.strokeStyle = "rgba(224,120,40,.34)"; g.lineWidth = 10; g.lineCap = "round";
+        for (const off of [-46, 20]) {
+          g.beginPath();
+          g.moveTo(S * .26, S * .40 + off); g.lineTo(S * .5, S * .64 + off); g.lineTo(S * .74, S * .40 + off);
+          g.stroke();
+        }
+      }
+      g.lineCap = "round";
+      for (let i = 0; i < 18; i++) {
+        g.strokeStyle = `rgba(216,88,18,${.08 + Math.random() * .26})`;
+        g.lineWidth = .6 + Math.random() * 1.6;
+        let x = Math.random() * S, y = Math.random() * S;
+        g.beginPath(); g.moveTo(x, y);
+        for (let k = 0; k < 4; k++) { x += rnd(-30, 30); y += rnd(-30, 30); g.lineTo(x, y); }
+        g.stroke();
+      }
+      const vg = g.createRadialGradient(S / 2, S / 2, S * .2, S / 2, S / 2, S * .8);
+      vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(8,4,8,.44)");
+      g.fillStyle = vg; g.fillRect(0, 0, S, S);
+    });
+  }
+  const apMat = [
+    new THREE.MeshStandardMaterial({ map: laneTex(false), roughnessMap: ROUGH,
+      normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(1.7, 1.7), roughness: .98 }),
+    new THREE.MeshStandardMaterial({ map: laneTex(true), roughnessMap: ROUGH,
+      normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(1.5, 1.5), roughness: .95 })
+  ];
+  const apMeshes = [];
+  for (let k = 1; k <= APPROACH; k++) for (let c = 0; c < COLS; c++) {
+    const drop = k * .06;
+    const h = TILE_H + drop;
+    const m = new THREE.Mesh(tileGeo, apMat[0]);
+    m.scale.y = h;
+    m.position.set(wx(c + .5), -h / 2 - drop, wz(-k + .5));
+    m.receiveShadow = true;
+    m.userData = { c, k };
+    scene.add(m); apMeshes.push(m);
+  }
+
+  // props that belong to the map rather than to the site
+  const terrain = new THREE.Group();
+  scene.add(terrain);
+  function clearTerrain() {
+    while (terrain.children.length) {
+      const o = terrain.children.pop();
+      if (o.geometry) o.geometry.dispose();
+      terrain.remove(o);
+    }
+  }
+  function applyMap() {
+    clearTerrain();
+    for (const m of apMeshes) {
+      const near = G.lanes.some(l => Math.abs(l - m.userData.c) <= (m.userData.k > 4 ? 1 : 0));
+      m.material = apMat[near ? 1 : 0];
+    }
+    for (const m of tileMeshes) {
+      const { c, r } = m.userData;
+      const t = G.tiles[r * COLS + c], band = bandOf(r);
+      const lift = BAND_LIFT[band] + (t.k === "high" ? HIGH_LIFT : 0);
+      const h = TILE_H + lift - (t.k === "rough" ? .06 : 0);
       m.scale.y = h;
-      m.position.set(wx(c + .5), -h / 2 + BAND_LIFT[band], wz(r + .5));
-      m.rotation.y = Math.floor(Math.random() * 4) * Math.PI / 2;
-      m.castShadow = true; m.receiveShadow = true;
-      m.userData = { c, r };
-      scene.add(m); tileMeshes.push(m);
+      m.position.set(wx(c + .5), -h / 2 + lift - (t.k === "rough" ? .06 : 0), wz(r + .5));
+      const src = t.k === "block" ? wreckMat
+                : t.k === "high"  ? deckMat
+                : t.k === "rough" ? roughMat
+                : bandMat[band][(c * 3 + r * 5) % 4];
+      if (m.material && m.material.userData.owned) m.material.dispose();
+      m.material = src.clone();
+      m.material.userData.owned = true;
+      m.material.emissive = new THREE.Color();
+      m.visible = true;
+      const X = wx(c + .5), Z = wz(r + .5);
+      if (t.k === "block") {
+        // a collapsed container stack: the thing the lane is shaped around
+        const g = new THREE.Group(); g.position.set(X, lift, Z); terrain.add(g);
+        const hue = [0x8c4a3a, 0x3f5f74, 0x7a6a3e, 0x4a5b48][(c * 7 + r * 3) % 4];
+        const cm = new THREE.MeshStandardMaterial({ map: metalTex(hue), roughnessMap: ROUGH,
+          normalMap: METAL_NORMAL, normalScale: NS, roughness: .84, metalness: .34 });
+        const n = 2 + ((c + r) % 2);
+        for (let i = 0; i < n; i++) {
+          const b2 = box(.80 - i * .07, .30, .74 - i * .06, i ? cm : wreckMat,
+                         rnd(-.06, .06), i * .30, rnd(-.06, .06), g);
+          b2.rotation.y = rnd(-.10, .10);
+        }
+        for (let i = 0; i < 3; i++) {
+          const d = box(rnd(.10, .22), rnd(.05, .13), rnd(.10, .20), wreckMat,
+                        rnd(-.34, .34), 0, rnd(-.34, .34), g);
+          d.rotation.y = rnd(0, 3.1);
+        }
+      } else if (t.k === "high") {
+        // raised deck: railings on whichever edges face open ground
+        const g = new THREE.Group(); g.position.set(X, lift, Z); terrain.add(g);
+        const rail = deckRail, edgeMat = deckEdge;
+        const nb = [[0, -1, 0, -.47, 0], [0, 1, 0, .47, 0], [-1, 0, -.47, 0, 1], [1, 0, .47, 0, 1]];
+        for (const [dc, dr, ox, oz, rot] of nb) {
+          const o = at(c + dc, r + dr);
+          if (o && o.k === "high") continue;
+          const p2 = box(rot ? .06 : .94, .05, rot ? .94 : .06, rail, ox, .30, oz, g);
+          box(rot ? .07 : .96, .05, rot ? .96 : .07, edgeMat, ox, -.06, oz, g);
+          for (const t2 of [-.32, 0, .32]) box(.055, .34, .055, rail, ox + (rot ? 0 : t2), 0, oz + (rot ? t2 : 0), g);
+        }
+        // a short stair on the side facing the base
+        box(.34, .10, .16, deckMat, 0, -.12, .54, g);
+        box(.34, .10, .16, deckMat, 0, -.24, .70, g);
+      } else if (t.k === "rough") {
+        const g = new THREE.Group(); g.position.set(X, lift - .06, Z); terrain.add(g);
+        for (let i = 0; i < 7; i++) {
+          const sl = new THREE.Mesh(new THREE.CylinderGeometry(rnd(.07, .17), rnd(.07, .17), rnd(.03, .07), 5), roughMat);
+          sl.position.set(rnd(-.38, .38), rnd(0, .05), rnd(-.38, .38));
+          sl.rotation.set(rnd(-.3, .3), rnd(0, 3.1), rnd(-.3, .3));
+          sl.castShadow = sl.receiveShadow = true; g.add(sl);
+        }
+      }
     }
   }
   // Hazard kerbs on the two zone seams and a cyan line at the command
@@ -1921,14 +2221,82 @@ const VIEW = (() => {
     container(x, -TILE_H + .02, z, sx * .02, ci++);
     if (k % 2 === 0) container(x + sx * .1, -TILE_H + 1.19, z + .06, sx * -.03, ci++);
   }
-  shed(-6.4, -TILE_H + .02, -BZ - 4.8, 6.5, 2.6, 4.4, .06);
-  shed(5.2, -TILE_H + .02, -BZ - 6.4, 8.0, 3.2, 5.2, -.04);
-  shed(-1.0, -TILE_H + .02, -BZ - 12.5, 13.0, 3.6, 4.0, 0);
+  // Nothing tall sits in front of the board any more. You have to be able to
+  // see the swarm forming up before it arrives or there is nothing to react to.
+  shed(-13.5, -TILE_H + .02, -BZ - 9.0, 7.0, 2.4, 4.4, .06);
+  shed(13.0, -TILE_H + .02, -BZ - 10.5, 7.5, 2.6, 5.0, -.04);
   shed(-6.8, -TILE_H + .02, BZ + 4.6, 5.4, 2.6, 4.0, -.05);
   shed(6.6, -TILE_H + .02, BZ + 5.2, 6.0, 3.0, 4.4, .04);
+  // Both flanks are closed by spoil banks - earth, concrete spill and
+  // containers that were tipped into them - so the only way in is the top.
+  const bermTops = [];
+  { const earthMat = new THREE.MeshStandardMaterial({
+      map: canvasTex(256, (g, S) => {
+        g.fillStyle = "#5d5442"; g.fillRect(0, 0, S, S);
+        blobs(g, 90, S, 6, 34, () => Math.random() < .5
+          ? `rgba(108,98,72,${.10 + Math.random() * .26})` : `rgba(48,44,32,${.10 + Math.random() * .28})`);
+        blobs(g, 320, S, 1, 5, () => Math.random() < .5 ? "rgba(140,132,102,.22)" : "rgba(34,30,22,.26)");
+        blobs(g, 44, S, 2, 10, () => `rgba(96,112,68,${.08 + Math.random() * .20})`);
+      }), roughness: 1, flatShading: true });
+    const rubbleMat = new THREE.MeshStandardMaterial({
+      map: concreteTex(0x8d8578), roughnessMap: ROUGH, roughness: 1, flatShading: true });
+    for (const sx of [-1, 1]) {
+      for (let r = -APPROACH - 1; r <= ROWS + 2; r++) {
+        const lift = BAND_LIFT[bandOf(clamp(r, 0, ROWS - 1))];
+        const z = wz(r + .5);
+        const h = 1.95 + lift + rnd(-.22, .34);
+        const rad = 1.35 + rnd(-.18, .26);
+        const m = new THREE.Mesh(new THREE.ConeGeometry(rad, h, 5), earthMat);
+        m.position.set(sx * (BX + .92) + rnd(-.14, .14), -TILE_H + h / 2 - .12, z + rnd(-.22, .22));
+        m.rotation.y = rnd(0, 6.283);
+        m.castShadow = true; m.receiveShadow = true; scene.add(m);
+        bermTops.push([m.position.x, -TILE_H + h - .30, m.position.z, rad * .5]);
+        // an inner shoulder so the bank has a slope instead of a cliff
+        const h2 = h * .52 + rnd(-.1, .1), r2 = rad * .62;
+        const m2 = new THREE.Mesh(new THREE.ConeGeometry(r2, h2, 5), earthMat);
+        m2.position.set(sx * (BX + .18) + rnd(-.10, .10), -TILE_H + h2 / 2 - .14, z + rnd(-.25, .25));
+        m2.rotation.y = rnd(0, 6.283);
+        m2.castShadow = true; m2.receiveShadow = true; scene.add(m2);
+        bermTops.push([m2.position.x, -TILE_H + h2 - .22, m2.position.z, r2 * .55]);
+        if (r % 3 === 0) for (let i = 0; i < 3; i++) {
+          const c2 = new THREE.Mesh(new THREE.DodecahedronGeometry(rnd(.13, .30), 0), rubbleMat);
+          c2.position.set(sx * (BX + .28) + rnd(-.20, .20), -TILE_H + rnd(.02, .24), z + rnd(-.5, .5));
+          c2.rotation.set(rnd(0, 3), rnd(0, 3), rnd(0, 3));
+          c2.castShadow = true; c2.receiveShadow = true; scene.add(c2);
+        }
+      }
+      for (const r of [0, 5, 10, 14]) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.15, 1.05),
+                                 contMats[(r + (sx > 0 ? 3 : 0)) % contMats.length]);
+        m.position.set(sx * (BX + 1.02), -TILE_H + .92 + BAND_LIFT[bandOf(clamp(r, 0, ROWS - 1))] * .6,
+                       wz(r + .5) + rnd(-.3, .3));
+        m.rotation.set(rnd(-.10, .10), Math.PI / 2 + rnd(-.16, .16), sx * rnd(.20, .40));
+        m.castShadow = true; m.receiveShadow = true; scene.add(m);
+      }
+    }
+  }
+  { // low wreckage framing the approach: it funnels the eye without hiding it
+    const fm = new THREE.MeshStandardMaterial({ color: 0x4a5260, roughness: .95, flatShading: true });
+    for (let i = 0; i < 16; i++) {
+      const sx = i % 2 ? 1 : -1;
+      const d = 5.6 + Math.random() * 9;
+      const w = 1.6 + Math.random() * 3.4, h = .8 + Math.random() * 1.5;
+      const b2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.2 + Math.random() * 2.4), fm);
+      b2.position.set(sx * (BX + d), -TILE_H + h / 2, -BZ - 1 - Math.random() * 13);
+      b2.rotation.y = Math.random() * .8;
+      b2.castShadow = true; b2.receiveShadow = true; scene.add(b2);
+    }
+    for (let i = 0; i < 8; i++) {
+      const h = 1.1 + Math.random() * 1.3;
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(.45, .7, h, 7), fm);
+      const sx2 = i % 2 ? 1 : -1;
+      t.position.set(sx2 * (BX + 6 + Math.random() * 10), -TILE_H + h / 2, -BZ - 6 - Math.random() * 14);
+      t.castShadow = true; scene.add(t);
+    }
+  }
   pipeRun(-BX - 4.4, -TILE_H + .02, 2.0, 16, Math.PI / 2);
   pipeRun(BX + 4.6, -TILE_H + .02, -1.0, 14, Math.PI / 2);
-  gantry(0, -TILE_H + .02, -BZ - 2.2, 7.5);
+  gantry(0, -TILE_H + .02, BZ + 2.4, 7.5);
   fence(0, -TILE_H + .02, BZ + 7.0, 16, 0);
   fence(-BX - 5.6, -TILE_H + .02, 0, 20, Math.PI / 2);
   fence(BX + 5.8, -TILE_H + .02, 0, 20, Math.PI / 2);
@@ -1950,7 +2318,7 @@ const VIEW = (() => {
     for (let i = 0; i < 24; i++) {
       const w = 2 + Math.random() * 7, h = 3 + Math.random() * 11, d = 2 + Math.random() * 6;
       const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), far);
-      b.position.set((Math.random() - .5) * 90, -TILE_H + h / 2, -BZ - 16 - Math.random() * 46);
+      b.position.set((Math.random() - .5) * 110, -TILE_H + h / 2, -BZ - 34 - Math.random() * 52);
       b.rotation.y = Math.random() * .4; scene.add(b);
     }
     for (let i = 0; i < 5; i++) {
@@ -2028,6 +2396,10 @@ const VIEW = (() => {
       put(wx(c + .5) + (edge ? (Math.random() < .5 ? -.44 : .44) : (Math.random() - .5) * .84),
           y, wz(r + .5) + (edge ? (Math.random() - .5) * .84 : (Math.random() < .5 ? -.44 : .44)),
           .45 + Math.random() * .35);
+    }
+    for (const [bx2, by2, bz2, br] of bermTops) {
+      for (let i = 0; i < 9; i++)
+        put(bx2 + rnd(-br, br), by2 - Math.random() * .30, bz2 + rnd(-br, br), .5 + Math.random() * .5);
     }
     for (let i = 0; i < 2600; i++) {
       const x = (Math.random() - .5) * (APRON - 1.5), z = (Math.random() - .5) * (APRON + 4.5);
@@ -2539,11 +2911,13 @@ const VIEW = (() => {
   // ---- deployable structures ----
   function makeBuilding(b) {
     const g = new THREE.Group();
-    const x = wx(b.c + .5), z = wz(b.r + .5), y = BAND_LIFT[bandOf(b.r)];
+    const x = wx(b.c + .5), z = wz(b.r + .5), y = BAND_LIFT[bandOf(b.r)] + (b.high ? HIGH_LIFT : 0);
     g.position.set(x, y, z);
     // one cell is one world unit; props read as props only when they sit
     // clearly inside it rather than filling it edge to edge
-    g.scale.setScalar(.76);
+    // a wall should span its cell so a row of them reads as one barrier;
+    // everything else is a prop standing inside the cell
+    g.scale.setScalar(B[b.key].wall ? .99 : .76);
     scene.add(g);
     const K = b.key;
     if (K === "wire") {
@@ -2565,30 +2939,62 @@ const VIEW = (() => {
       box(.16, .05, .05, M.orange, .3, .4, 0, g);
       for (let i = 0; i < 4; i++) box(.2, .13, .16, M.sand, -.33 + i * .22, 0, .36, g);
     } else if (K === "barricade") {
-      const p1 = box(.94, .42, .07, M.steel, 0, 0, -.02, g);
-      p1.rotation.x = -.20;
-      for (const dx of [-.36, .36]) {
-        const l = box(.07, .34, .30, M.dark, dx, 0, .14, g);
-        l.rotation.x = .55;
+      const L = b.up;
+      box(.98, .10, .30, M.dark, 0, 0, 0, g);
+      const p1 = box(.96, .56 + L * .10, .09, M.steel, 0, .08, -.04, g);
+      p1.rotation.x = -.16;
+      for (const dx of [-.40, 0, .40]) {
+        const l2 = box(.08, .40, .34, M.dark, dx, .04, .16, g);
+        l2.rotation.x = .48;
       }
-      box(.94, .05, .11, M.dark, 0, .40, -.08, g);
-      box(.12, .03, .03, M.cyan, .34, .40, -.04, g);
+      box(.98, .07, .13, M.dark, 0, .60 + L * .10, -.09, g);
+      if (L >= 1) for (const dx of [-.30, 0, .30]) box(.12, .16, .07, M.steel, dx, .67 + L * .10, -.08, g);
+      if (L >= 2) { box(.98, .09, .16, M.steel, 0, 0, -.16, g);
+                    for (const dx of [-.42, .42]) box(.10, .70, .16, M.steel, dx, .08, -.04, g); }
+      if (L >= 3) box(.70, .04, .04, M.cyan, 0, .70 + L * .10, -.11, g);
+      box(.12, .03, .03, M.cyan, .38, .58 + L * .10, -.06, g);
     } else if (K === "wall") {
-      box(.98, .14, .48, M.conc, 0, 0, 0, g);
-      box(.86, .50, .30, M.conc, 0, .14, 0, g);
-      box(.96, .10, .40, M.conc, 0, .64, 0, g);
-      for (const dx of [-.30, 0, .30]) box(.09, .05, .42, M.dark, dx, .74, 0, g);
-      box(.16, .04, .04, M.cyan, -.34, .74, -.21, g);
-    } else if (K === "dragon") {
-      for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
-        const t = new THREE.Mesh(new THREE.ConeGeometry(.17, .40, 4), M.conc);
-        t.position.set(-.30 + i * .30 + (j ? .15 : 0), .20, -.16 + j * .30);
-        t.rotation.y = Math.PI / 4;
-        t.castShadow = true; t.receiveShadow = true; g.add(t);
+      // a real barrier: footing, slab, coping, buttresses on the friendly side
+      const L = b.up, H = .74 + L * .16;
+      box(.99, .14, .58, M.conc, 0, 0, 0, g);
+      box(.95, H, .36, M.conc, 0, .14, -.02, g);
+      box(.99, .10, .46, M.conc, 0, .14 + H, -.02, g);
+      for (const dx of [-.34, 0, .34]) {
+        const bt = box(.15, H * .62, .26, M.conc, dx, .14, .26, g);
+        bt.rotation.x = -.10;
       }
-      box(.96, .04, .04, M.rust, 0, .32, .24, g);
-      box(.96, .04, .04, M.rust, 0, .26, -.28, g);
-    } else if (K === "mine") {
+      for (const dx of [-.32, .32]) box(.09, .05, .40, M.dark, dx, .24 + H, -.02, g);
+      if (L >= 1) {
+        box(.95, .20, .22, M.conc, 0, .24 + H, -.06, g);
+        for (const dx of [-.40, .40]) box(.10, .30, .30, M.steel, dx, .14, -.04, g);
+      }
+      if (L >= 2) {
+        for (const dx of [-.44, .44]) box(.11, H + .22, .44, M.conc, dx, .14, .10, g);
+        box(.95, .07, .14, M.steel, 0, .14, -.22, g);
+      }
+      if (L >= 3) {
+        box(.95, .09, .30, M.steel, 0, .44 + H, -.06, g);
+        box(.76, .04, .04, M.cyan, 0, .53 + H, -.19, g);
+      }
+      box(.16, .04, .04, M.cyan, -.36, .16 + H, -.21, g);
+    } else if (K === "dragon") {
+      const L = b.up;
+      box(.99, .10, .72, M.conc, 0, 0, 0, g);
+      const rows = L >= 2 ? 3 : 2;
+      const th = .74 + L * .13;
+      for (let j = 0; j < rows; j++) {
+        const n = j % 2 ? 2 : 3;
+        for (let i = 0; i < n; i++) {
+          const t = new THREE.Mesh(new THREE.ConeGeometry(.27 + L * .025, th, 4), M.conc);
+          t.position.set((n === 3 ? -.32 + i * .32 : -.17 + i * .34), .10 + th / 2, -.24 + j * .26);
+          t.rotation.y = Math.PI / 4;
+          t.castShadow = true; t.receiveShadow = true; g.add(t);
+        }
+      }
+      for (const dz of [-.32, .30]) box(.99, .06, .06, M.rust, 0, .46 + L * .08, dz, g);
+      if (L >= 1) for (const dx of [-.44, .44]) box(.10, .62 + L * .08, .74, M.conc, dx, .10, 0, g);
+      if (L >= 3) box(.82, .05, .05, M.cyan, 0, .58 + L * .08, -.36, g);
+        } else if (K === "mine") {
       cyl(.21, .25, .07, 8, M.dark, 0, 0, 0, g);
       cyl(.10, .13, .05, 8, M.steel, 0, .07, 0, g);
       box(.05, .025, .05, M.cyan, 0, .12, 0, g);
@@ -2861,6 +3267,7 @@ const VIEW = (() => {
 
   return {
     scene, camera, renderer,
+    applyMap,
     addBuilding(b) {
       b.obj = makeBuilding(b);
       b.obj.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = M.ghost; } });
@@ -2870,6 +3277,11 @@ const VIEW = (() => {
       b.obj.traverse(o => { if (o.isMesh && o.userData.mat) o.material = o.userData.mat; });
     },
     removeBuilding(b) { if (b.obj) { scene.remove(b.obj); b.obj = null; } },
+    refreshBuilding(b) {
+      if (b.obj) { scene.remove(b.obj); b.obj = null; }
+      b.obj = makeBuilding(b);
+      if (!b.done) b.obj.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = M.ghost; } });
+    },
     pickTile(cx, cy) {
       ndc.x = (cx / innerWidth) * 2 - 1;
       ndc.y = -(cy / innerHeight) * 2 + 1;
@@ -2879,12 +3291,14 @@ const VIEW = (() => {
     },
     highlight(zone) {
       for (const m of tileMeshes) {
-        const inZone = zone !== null && zoneOf(m.userData.r) === zone;
         const t = G.tiles[m.userData.r * COLS + m.userData.c];
-        const free = !t.b && !t.hq;
-        m.material.emissive = m.material.emissive || new THREE.Color();
-        if (inZone) m.material.emissive.setHex(free ? 0x1a3a2e : 0x3a1218);
-        else m.material.emissive.setHex(0x000000);
+        const inZone = zone !== null && zoneOf(m.userData.r) === zone;
+        const buildable = t.k === "open" || t.k === "high";
+        const free = buildable && !t.b && !t.hq;
+        if (!m.material.emissive) m.material.emissive = new THREE.Color();
+        if (!inZone) m.material.emissive.setHex(0x000000);
+        else if (free) m.material.emissive.setHex(t.k === "high" ? 0x123a44 : 0x1a3a2e);
+        else m.material.emissive.setHex(0x2e1014);
       }
     },
     sync(dt) {
@@ -3064,7 +3478,7 @@ const VIEW = (() => {
       // the inspected building gets a ring so you know what the panel is about
       if (G.sel && !G.sel.dead) {
         markMesh.visible = true;
-        markMesh.position.set(wx(G.sel.c + .5), BAND_LIFT[bandOf(G.sel.r)] + .05, wz(G.sel.r + .5));
+        markMesh.position.set(wx(G.sel.c + .5), BAND_LIFT[bandOf(G.sel.r)] + (G.sel.high ? HIGH_LIFT : 0) + .05, wz(G.sel.r + .5));
         markMesh.scale.setScalar(.30);
         markMat.color.setHex(0x4fe3f0);
         markMat.opacity = .55 + Math.sin(now * 4) * .18;
@@ -3087,7 +3501,7 @@ const VIEW = (() => {
       for (const b of G.buildings) {
         if (bi >= 70) break;
         if (!b.done || b.hp >= b.maxHp) continue;
-        drawBar(wx(b.c + .5), BAND_LIFT[bandOf(b.r)] + .78, wz(b.r + .5), b.hp / b.maxHp, .58);
+        drawBar(wx(b.c + .5), BAND_LIFT[bandOf(b.r)] + (b.high ? HIGH_LIFT : 0) + .74, wz(b.r + .5), b.hp / b.maxHp, .58);
       }
       for (const e of G.enemies) {
         if (bi >= 96) break;
@@ -3130,7 +3544,7 @@ const VIEW = (() => {
         const reach = B[b.key].beam ? .42 : B[b.key].arc ? .34 : .30;
         m.visible = true;
         m.position.set(wx(b.c + .5) + Math.sin(b.aim) * reach,
-                       BAND_LIFT[bandOf(b.r)] + .42,
+                       BAND_LIFT[bandOf(b.r)] + (b.high ? HIGH_LIFT : 0) + .42,
                        wz(b.r + .5) + Math.cos(b.aim) * reach);
         m.quaternion.copy(camera.quaternion);
         const sc2 = (B[b.key].beam ? .52 : B[b.key].arc ? .46 : .30) * (.55 + b.flash * .7);
@@ -3231,15 +3645,18 @@ function syncTop() {
   $("sKill").textContent = G.kills;
 
   // objective banner
+  if (G.phase === "assault") $("brief").hidden = true;
   if (G.phase === "assault") {
     $("objTitle").textContent = G.assault + "차 공세 요격";
     $("objSub").textContent = "HOLD THE LINE";
     const a = ASSAULTS[G.assault - 1];
     $("objBar").style.width = (1 - Math.max(0, G.timer) / a.dur) * 100 + "%";
   } else {
-    $("objTitle").textContent = G.assault ? "재정비" : "배치 단계";
-    $("objSub").textContent = G.assault ? "NEXT ASSAULT IN " + Math.ceil(Math.max(0, G.timer)) + "S"
-                                        : "PREPARE DEFENCES";
+    const br2 = BRIEF[Math.min(G.assault, BRIEF.length - 1)];
+    $("objTitle").textContent = br2[0];
+    $("objSub").textContent = Math.ceil(Math.max(0, G.timer)) + "S · " + (G.assault + 1) + "차 공세 준비";
+    $("brief").hidden = false;
+    $("brief").textContent = br2[1];
     $("objBar").style.width = (1 - Math.max(0, G.timer) / (G.assault ? LULL : 26)) * 100 + "%";
   }
   syncAbils();
@@ -3461,15 +3878,43 @@ function finish(won, why) {
 function start() {
   for (const b of (G ? G.buildings : [])) VIEW.removeBuilding(b);
   newGame();
+  VIEW.applyMap();
   mode = "play"; pick = null; tab = 0; armed = null;
   $("draft").hidden = true; $("insp").hidden = true;
-  document.querySelectorAll("#speed button").forEach(x => x.dataset.on = (+x.dataset.sp === 1) ? "1" : "0");
+  syncSpeed();
   last = performance.now(); acc = 0;
   $("titleScreen").hidden = true; $("endScreen").hidden = true;
   syncTop(); syncSheet();
 }
-$("startBtn").addEventListener("click", start);
-$("againBtn").addEventListener("click", start);
+// thumbnail of the grid, so the shape of a map is visible before committing
+function drawMapThumb(cv, M) {
+  const g = cv.getContext("2d"), S = 4;
+  cv.width = COLS * S; cv.height = ROWS * S;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const ch = M.g[r][c];
+    g.fillStyle = ch === "#" ? "#5c4a3c" : ch === "^" ? "#4f8fa0"
+                : ch === "~" ? "#6b6355" : ch === "H" ? "#ffc93d"
+                : r <= 1 ? "#3a2a30" : "#9aa0a4";
+    g.fillRect(c * S, r * S, S - .6, S - .6);
+  }
+  for (const c of M.lanes) { g.fillStyle = "#e8384f"; g.fillRect(c * S + .8, 0, S - 2.2, 2); }
+}
+function syncMapPick() {
+  const host = $("mapPick");
+  host.innerHTML = "";
+  MAPS.forEach((M, i) => {
+    const b = document.createElement("button");
+    b.dataset.on = i === mapIdx ? "1" : "0";
+    b.innerHTML = `<canvas></canvas><div class="mi"><b>${M.name}<u>${M.tag}</u></b>` +
+                  `<s>${M.sub}</s><span>${M.desc}</span></div>`;
+    drawMapThumb(b.querySelector("canvas"), M);
+    b.addEventListener("click", () => { mapIdx = i; syncMapPick(); });
+    host.appendChild(b);
+  });
+}
+syncMapPick();
+$("startBtn").addEventListener("click", () => start());
+$("againBtn").addEventListener("click", () => { $("endScreen").hidden = true; $("titleScreen").hidden = false; mode = "title"; syncMapPick(); });
 document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => { tab = +t.dataset.zone; syncSheet(); }));
 
@@ -3516,14 +3961,19 @@ addEventListener("pointercancel", () => { down = false; lastCell = -1; });
 cv.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
 cv.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 
-document.querySelectorAll("#speed button").forEach(btn => btn.addEventListener("click", () => {
-  const v = +btn.dataset.sp;
+function syncSpeed() {
+  const b2 = $("spBtn");
+  b2.textContent = G.speed === 0 ? "II" : G.speed === 1 ? "1x" : "2x";
+  b2.dataset.p = G.speed === 0 ? "1" : "0";
+}
+$("spBtn").addEventListener("click", () => {
   if (mode === "end") return;
-  G.speed = v;
-  document.querySelectorAll("#speed button").forEach(x => x.dataset.on = (+x.dataset.sp === v) ? "1" : "0");
-}));
+  G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 0 : 1;
+  syncSpeed();
+});
 
 newGame();
+VIEW.applyMap();
 mode = "title";
 $("loading").hidden = true;
 $("titleScreen").hidden = false;
