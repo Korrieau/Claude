@@ -50,7 +50,7 @@
 
   #pills {
     position: absolute; left: 10px; top: calc(env(safe-area-inset-top,0px) + 60px);
-    display: flex; flex-direction: column; gap: 5px;
+    display: flex; flex-direction: column; overflow: hidden; gap: 5px;
   }
   .pill {
     display: flex; align-items: center; gap: 7px;
@@ -162,9 +162,16 @@
   }
   .tab[data-on="1"] s, .tab[data-on="1"] i { color: rgba(255,190,150,.7); }
 
-  #body { display: flex; gap: 6px; align-items: stretch; min-height: 84px; }
+  #body {
+    display: flex; gap: 6px; align-items: stretch; min-height: 92px;
+    overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+            mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
+  #body::-webkit-scrollbar { display: none; }
   .act {
-    flex: 1 1 0; min-width: 0; cursor: pointer; position: relative; text-align: left;
+    flex: 0 0 112px; min-width: 0; cursor: pointer; position: relative; text-align: left;
     background: rgba(9,13,18,.55);
     border: 1px solid rgba(122,150,175,.22); padding: 0 0 7px;
     clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
@@ -177,10 +184,14 @@
     border-bottom: 1px solid rgba(122,150,175,.16);
   }
   .act .art svg { width: 22px; height: 22px; fill: none; stroke: #93a7b8; stroke-width: 1.5; }
-  .act .t { font-size: 12px; font-weight: 700; margin: 6px 8px 0; }
+  .act .t {
+    font-size: 12px; font-weight: 700; margin: 6px 8px 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   .act .c {
     font-family: ui-monospace, monospace; font-size: 7.5px; color: #5d7182;
-    margin: 3px 8px 0; line-height: 1.6;
+    margin: 3px 8px 0; line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
   .act .c em { font-style: normal; color: var(--cyan); }
   .act .cost {
@@ -319,7 +330,7 @@
   <button class="btn" id="againBtn">다시 하기</button>
 </div>
 
-<!-- three.js r149 (MIT) is embedded so the game runs from one file, offline -->
+<!-- three.js r149 (MIT) — inlined so this file runs with no network -->
 <script>/**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -346,46 +357,97 @@ const liftAt = r => BAND_LIFT[bandOf(Math.max(0, Math.min(ROWS - 1, Math.floor(r
 const wx = x => x - COLS / 2;
 const wz = z => z - ROWS / 2;
 
+// Three tiers of thing you can put on the ground.
+//   wall   - no gun. Costs the swarm either time (slow) or teeth (hp).
+//            High pathing cost, so the flow field routes around it: walls
+//            funnel, they do not simply block.
+//   walk   - the swarm steps over it and never targets it (mines).
+//   weapon - dmg/cd/range, plus one of arc / beam / cone / aura / volley.
 const B = {
-  wire:   { z: 0, name: "철조망", mat: 15,  hp: 320,  desc: "지나가는 적을 크게 늦춘다", slow: 0.34 },
-  trench: { z: 0, name: "참호",   mat: 40,  hp: 620,  desc: "병사 3명, 피해 65% 감소", garrison: 3, cover: 0.35 },
-  bunker: { z: 0, name: "벙커",   mat: 110, hp: 1500, desc: "병사 2명, 피해 88% 감소, 사격 속도 +40%",
-            garrison: 2, cover: 0.12, rof: 0.7 },
-  mg:     { z: 1, name: "기관총 진지", mat: 70, hp: 460, desc: "빠른 연사, 사거리 4칸",
+  // --- zone 0: the line itself ------------------------------------------
+  wire:      { z: 0, name: "철조망",       mat: 15,  hp: 320,  slow: 0.34,
+               desc: "지나가는 적을 크게 늦춘다" },
+  barricade: { z: 0, name: "강판 바리케이드", mat: 30,  hp: 900,  wall: true, slow: 0.62,
+               desc: "값싼 벽. 적이 부수거나 돌아간다" },
+  dragon:    { z: 0, name: "대전차 방책",   mat: 55,  hp: 1500, wall: true, slow: 0.30,
+               desc: "대형을 확실히 묶어 둔다" },
+  wall:      { z: 0, name: "콘크리트 방벽", mat: 95,  hp: 3600, wall: true,
+               desc: "가장 단단한 벽. 적의 진로를 바꾼다" },
+  mine:      { z: 0, name: "압력 지뢰",     mat: 35,  hp: 90,   walk: true,
+               mineDmg: 340, mineR: 1.45, trigger: 0.55,
+               desc: "밟으면 터진다. 한 번 쓰고 사라진다" },
+  trench:    { z: 0, name: "참호",          mat: 40,  hp: 620,  garrison: 3, cover: 0.35,
+               desc: "병사 3명, 피해 65% 감소" },
+  bunker:    { z: 0, name: "벙커",          mat: 110, hp: 1500, garrison: 2, cover: 0.12, rof: 0.7,
+               desc: "병사 2명, 피해 88% 감소, 사격 속도 +40%" },
+
+  // --- zone 1: direct fire ----------------------------------------------
+  mg:     { z: 1, name: "기관총 진지", mat: 70,  hp: 460, desc: "빠른 연사, 사거리 4칸",
             dmg: 5, cd: 0.11, range: 4.0, upkeep: 2 },
-  mortar: { z: 1, name: "박격포",  mat: 120, hp: 380, desc: "포물선 탄. 3칸 밖만 때린다",
+  flame:  { z: 1, name: "화염 방사기", mat: 95,  hp: 440, desc: "부채꼴 전체를 태운다. 잡졸 청소용",
+            dmg: 15, cd: 0.30, range: 2.7, cone: 0.85, upkeep: 3 },
+  tesla:  { z: 1, name: "자기 방벽",   mat: 135, hp: 520, desc: "주위 전체에 방전. 조준이 필요 없다",
+            dmg: 19, cd: 0.70, range: 2.9, aura: true, upkeep: 4 },
+  sniper: { z: 1, name: "대물 저격진지", mat: 160, hp: 300, desc: "가장 단단한 적만 노린다",
+            dmg: 240, cd: 2.3, range: 8.5, preferBig: true, upkeep: 4 },
+  mortar: { z: 1, name: "박격포",     mat: 120, hp: 380, desc: "포물선 탄. 3칸 밖만 때린다",
             dmg: 52, cd: 2.6, range: 9.5, minRange: 2.6, splash: 1.20, arc: true, upkeep: 3 },
+
+  // --- zone 2: heavy ----------------------------------------------------
   siege:  { z: 2, name: "시즈탱크", mat: 210, hp: 1100, desc: "화면 끝까지. 착탄이 크다",
             dmg: 150, cd: 3.4, range: 15, minRange: 4.5, splash: 1.65, arc: true, upkeep: 6 },
+  arty:   { z: 2, name: "자주포",   mat: 270, hp: 900,  desc: "한 번에 4발. 넓게 도배한다",
+            dmg: 62, cd: 4.4, range: 16, minRange: 5.0, splash: 1.30, arc: true, volley: 4, upkeep: 7 },
+  rail:   { z: 2, name: "레일건",   mat: 350, hp: 800,  desc: "일직선 관통. 거체를 뚫는 용도",
+            dmg: 900, cd: 5.0, range: 16, beam: true, wide: true, upkeep: 9 },
   mech:   { z: 2, name: "거대로봇", mat: 300, hp: 2600, desc: "관통 광선. 일직선을 쓸어버린다",
             dmg: 55, cd: 1.2, range: 11, beam: true, upkeep: 8 },
   depot:  { z: 2, name: "보급소",  mat: 80,  hp: 420,  desc: "자원 생산 +5/초", income: 5 },
   camp:   { z: 2, name: "병영",    mat: 95,  hp: 500,  desc: "인력 회복 +0.5/초", manpower: 0.5 }
 };
-const ZONE_BUILDS = [["trench", "wire", "bunker"], ["mg", "mortar"], ["siege", "mech", "depot", "camp"]];
+const ZONE_BUILDS = [
+  ["trench", "bunker", "wire", "barricade", "dragon", "wall", "mine"],
+  ["mg", "flame", "tesla", "sniper", "mortar"],
+  ["siege", "arty", "rail", "mech", "depot", "camp"]
+];
 
+// A ladder of size. The small ones arrive in dozens; the large ones are meant
+// to be seen over the line before they arrive.
 const E = {
-  swarm:   { name: "소형",  hp: 14,  spd: 1.55, dmg: 4,  cd: 0.55, r: 0.15, kill: 1, sc: 0.85 },
-  charger: { name: "돌격",  hp: 26,  spd: 2.45, dmg: 9,  cd: 0.7,  r: 0.16, kill: 2, sc: 0.95 },
-  brute:   { name: "중형",  hp: 105, spd: 0.85, dmg: 20, cd: 1.0,  r: 0.24, kill: 5, sc: 1.5 },
-  titan:   { name: "대형",  hp: 900, spd: 0.5,  dmg: 70, cd: 1.4,  r: 0.42, kill: 40, sc: 2.6 }
+  spore:    { name: "포자체",   hp: 7,    spd: 1.75, dmg: 3,  cd: 0.5,  r: 0.10, kill: 1,  sc: 0.52 },
+  swarm:    { name: "군체",     hp: 16,   spd: 1.50, dmg: 4,  cd: 0.55, r: 0.15, kill: 1,  sc: 0.80 },
+  charger:  { name: "돌진체",   hp: 30,   spd: 2.55, dmg: 9,  cd: 0.65, r: 0.16, kill: 2,  sc: 0.86 },
+  carapace: { name: "갑각체",   hp: 120,  spd: 0.95, dmg: 18, cd: 1.0,  r: 0.24, kill: 5,  sc: 1.12 },
+  breaker:  { name: "파쇄체",   hp: 300,  spd: 0.78, dmg: 42, cd: 1.1,  r: 0.32, kill: 12, sc: 1.42 },
+  heavy:    { name: "중갑 거체", hp: 760,  spd: 0.58, dmg: 60, cd: 1.3,  r: 0.42, kill: 26, sc: 1.78 },
+  colossus: { name: "거신",     hp: 2600, spd: 0.44, dmg: 110, cd: 1.5, r: 0.60, kill: 70, sc: 2.25 },
+  matriarch:{ name: "모체",     hp: 7000, spd: 0.34, dmg: 160, cd: 1.7, r: 0.82, kill: 200, sc: 2.95 }
 };
+// `big` entries are rolled in on their own timers so a wave is a tide with
+// landmarks in it rather than a uniform stream.
 const ASSAULTS = [
-  { dur: 34, rate: 2.0,  mix: { swarm: 1 } },
-  { dur: 36, rate: 3.0,  mix: { swarm: 1 } },
-  { dur: 38, rate: 4.0,  mix: { swarm: 0.82, charger: 0.18 } },
-  { dur: 40, rate: 5.2,  mix: { swarm: 0.72, charger: 0.2, brute: 0.08 } },
-  { dur: 42, rate: 6.5,  mix: { swarm: 0.68, charger: 0.22, brute: 0.10 } },
-  { dur: 44, rate: 8.0,  mix: { swarm: 0.62, charger: 0.24, brute: 0.14 } },
-  { dur: 46, rate: 9.5,  mix: { swarm: 0.60, charger: 0.24, brute: 0.16 }, titans: 1 },
-  { dur: 48, rate: 10.5, mix: { swarm: 0.58, charger: 0.24, brute: 0.18 }, titans: 1 },
-  { dur: 50, rate: 12.0, mix: { swarm: 0.55, charger: 0.25, brute: 0.20 }, titans: 2 },
-  { dur: 58, rate: 14.5, mix: { swarm: 0.52, charger: 0.26, brute: 0.22 }, titans: 4 }
+  { dur: 34, rate: 4.5,  mix: { spore: .55, swarm: .45 } },
+  { dur: 36, rate: 6.5,  mix: { spore: .48, swarm: .52 } },
+  { dur: 38, rate: 8.5,  mix: { spore: .42, swarm: .42, charger: .16 } },
+  { dur: 40, rate: 11,   mix: { spore: .38, swarm: .40, charger: .18, carapace: .04 },
+    big: [["carapace", 3]] },
+  { dur: 42, rate: 14,   mix: { spore: .36, swarm: .38, charger: .20, carapace: .06 },
+    big: [["carapace", 5], ["breaker", 1]] },
+  { dur: 44, rate: 19,   mix: { spore: .34, swarm: .36, charger: .22, carapace: .08 },
+    big: [["carapace", 6], ["breaker", 3]] },
+  { dur: 46, rate: 23,   mix: { spore: .32, swarm: .35, charger: .23, carapace: .10 },
+    big: [["breaker", 5], ["heavy", 2]] },
+  { dur: 48, rate: 27,   mix: { spore: .32, swarm: .34, charger: .24, carapace: .10 },
+    big: [["breaker", 6], ["heavy", 3], ["colossus", 1]] },
+  { dur: 50, rate: 32,   mix: { spore: .30, swarm: .34, charger: .24, carapace: .12 },
+    big: [["breaker", 8], ["heavy", 5], ["colossus", 2]] },
+  { dur: 64, rate: 40,   mix: { spore: .30, swarm: .33, charger: .25, carapace: .12 },
+    big: [["breaker", 10], ["heavy", 7], ["colossus", 4], ["matriarch", 1]] }
 ];
 const LULL = 17, LULL_RATE = 0.7;
 const SOLDIER = { mat: 15, man: 4, hp: 46, dmg: 6, cd: 0.62, range: 3.4, spd: 1.9 };
 const HQ_HP = 7000;
-const MAX_ENEMIES = 420;
+const MAX_ENEMIES = 700;
 
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -404,7 +466,7 @@ function newGame() {
     parts: [], floats: [], beams: [],
     mat: 700, man: 44, manCap: 120,
     hq: { hp: HQ_HP, max: HQ_HP },
-    assault: 0, phase: "lull", timer: 26, spawnAcc: 0, titansLeft: 0, waveT: 0, berserk: false,
+    assault: 0, phase: "lull", timer: 26, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowDirty: true, dens: new Int16Array(COLS * ROWS),
     kia: 0, kills: 0, t: 0, shake: 0, breach: 0
   };
@@ -433,7 +495,9 @@ function rebuildFlow() {
     for (const [nc, nr] of nb) {
       if (nc < 0 || nr < 0 || nc >= COLS || nr >= ROWS) continue;
       const ni = nr * COLS + nc, t = G.tiles[ni];
-      const step = (t.b && t.b.done) ? (B[t.b.key].garrison ? 9 : 6) : 1;
+      const sp = (t.b && t.b.done) ? B[t.b.key] : null;
+      // walls are expensive to walk through, so the tide bends around them
+      const step = !sp ? 1 : sp.walk ? 1 : sp.wall ? 20 : sp.garrison ? 9 : 6;
       if (d + step < f[ni]) { f[ni] = d + step; flowQ.push(ni); }
     }
   }
@@ -540,48 +604,105 @@ function updateSoldiers(dt) {
 // ---------------------------------------------------------------- weapons
 function updateBuildings(dt) {
   for (const b of G.buildings) {
+    if (b.dead) continue;
     const spec = B[b.key];
     if (!b.done) {
-      const manned = true;
       b.prog += dt / 2.2;
       if (b.prog >= 1) { b.prog = 1; b.done = true; G.flowDirty = true; VIEW.finishBuilding(b); }
       continue;
     }
     b.flash = Math.max(0, b.flash - dt * 9);
+    const bx = b.c + .5, bz = b.r + .5;
+
+    // pressure mine: no cooldown, no aim, one use
+    if (spec.mineDmg) {
+      let hit = false;
+      for (const e of G.enemies) {
+        if (Math.hypot(e.x - bx, e.z - bz) < spec.trigger + e.r) { hit = true; break; }
+      }
+      if (!hit) continue;
+      for (const e of G.enemies) {
+        const d = Math.hypot(e.x - bx, e.z - bz);
+        if (d < spec.mineR) hurtEnemy(e, spec.mineDmg * (1 - d / spec.mineR * .4));
+      }
+      boom(bx, bz, spec.mineR, 22);
+      G.shake = Math.max(G.shake, .14);
+      b.hp = 0; killBuilding(b);
+      continue;
+    }
     if (!spec.dmg) continue;
     b.cd -= dt;
     if (b.cd > 0) continue;
-    const bx = b.c + .5, bz = b.r + .5;
     const maxR = spec.range, minR = spec.minRange || 0;
+
+    // aura: everything inside the ring, no target needed
+    if (spec.aura) {
+      let n = 0;
+      for (const e of G.enemies) {
+        if (Math.hypot(e.x - bx, e.z - bz) > maxR) continue;
+        hurtEnemy(e, spec.dmg);
+        if (n < 6) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .09, hot: false });
+        n++;
+      }
+      b.cd = n ? spec.cd : .15;
+      if (n) b.flash = 1;
+      continue;
+    }
+
     let tgt = null, score = -1e9, seen = 0;
     for (const e of G.enemies) {
       const d = Math.hypot(e.x - bx, e.z - bz);
       if (d > maxR || d < minR) continue;
       if (spec.arc) { if (-e.z > score) { score = -e.z; tgt = e; } }
+      else if (spec.preferBig) { if (e.maxHp > score) { score = e.maxHp; tgt = e; } }
+      else if (spec.beam) { if (-e.z > score) { score = -e.z; tgt = e; } }
       else { seen++; if (Math.random() * seen < 1) tgt = e; }
     }
     if (!tgt) { b.cd = .12; continue; }
     b.aim = Math.atan2(tgt.x - bx, tgt.z - bz);
     b.cd = spec.cd;
     b.flash = 1;
+
     if (spec.arc) {
       const dist = Math.hypot(tgt.x - bx, tgt.z - bz);
-      G.shells.push({
-        x0: bx, z0: bz, x1: tgt.x + rnd(-.3, .3), z1: tgt.z + rnd(-.3, .3),
-        t: 0, dur: clamp(dist / 9, .5, 1.5), dmg: spec.dmg, splash: spec.splash, big: b.key === "siege"
-      });
+      const shots = spec.volley || 1;
+      const base = clamp(dist / 9, .5, 1.5);
+      for (let i = 0; i < shots; i++) {
+        const sp = shots > 1 ? .95 : .3;
+        G.shells.push({
+          x0: bx, z0: bz, x1: tgt.x + rnd(-sp, sp), z1: tgt.z + rnd(-sp, sp),
+          t: 0, dur: base + i * .26, dmg: spec.dmg, splash: spec.splash, big: b.key === "siege"
+        });
+      }
       G.shake = Math.max(G.shake, b.key === "siege" ? .07 : .035);
     } else if (spec.beam) {
       const a = b.aim;
       const ex = bx + Math.sin(a) * maxR, ez = bz + Math.cos(a) * maxR;
-      G.beams.push({ x1: bx, z1: bz, x2: ex, z2: ez, life: .18 });
+      const w = spec.wide ? 2.6 : 1;
+      G.beams.push({ x1: bx, z1: bz, x2: ex, z2: ez, life: spec.wide ? .3 : .18, w });
       for (const e of G.enemies) {
         const vx = ex - bx, vz = ez - bz;
         const t = clamp(((e.x - bx) * vx + (e.z - bz) * vz) / (vx * vx + vz * vz), 0, 1);
         const d = Math.hypot(e.x - (bx + vx * t), e.z - (bz + vz * t));
-        if (d < .42) hurtEnemy(e, spec.dmg);
+        if (d < (spec.wide ? .72 : .42)) hurtEnemy(e, spec.dmg);
       }
-      G.shake = Math.max(G.shake, .05);
+      G.shake = Math.max(G.shake, spec.wide ? .16 : .05);
+    } else if (spec.cone) {
+      // everything inside the fan takes the hit
+      let n = 0;
+      for (const e of G.enemies) {
+        const dx = e.x - bx, dz = e.z - bz;
+        const d = Math.hypot(dx, dz);
+        if (d > maxR) continue;
+        let da = Math.atan2(dx, dz) - b.aim;
+        while (da > Math.PI) da -= 6.2832;
+        while (da < -Math.PI) da += 6.2832;
+        if (Math.abs(da) > spec.cone) continue;
+        hurtEnemy(e, spec.dmg);
+        if (n < 5) G.tracers.push({ x1: bx, z1: bz, x2: e.x, z2: e.z, life: .07, hot: true });
+        n++;
+      }
+      if (!n) b.cd = .15;
     } else {
       hurtEnemy(tgt, spec.dmg);
       G.tracers.push({ x1: bx, z1: bz, x2: tgt.x, z2: tgt.z, life: .055, hot: true });
@@ -608,7 +729,7 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = 1 + G.assault * 0.13;
+  const scale = 1 + G.assault * 0.155;
   G.enemies.push({
     type, x: rnd(.25, COLS - .25), z: rnd(-1.6, -.2),
     hp: spec.hp * scale, maxHp: spec.hp * scale,
@@ -679,7 +800,7 @@ function updateEnemies(dt) {
     }
     const tc = bestI % COLS, tr = (bestI / COLS) | 0;
     const nt = G.tiles[bestI];
-    if (nt.b && nt.b.done) {
+    if (nt.b && nt.b.done && !B[nt.b.key].walk) {
       if (e.cd <= 0) { e.cd = spec.cd; hurtBuilding(nt.b, spec.dmg); }
       e.dir = Math.atan2(tc + .5 - e.x, tr + .5 - e.z);
       continue;
@@ -757,7 +878,14 @@ function updateWar(dt) {
       G.assault++;
       G.phase = "assault";
       const a = ASSAULTS[G.assault - 1];
-      G.timer = a.dur; G.titansLeft = a.titans || 0;
+      G.timer = a.dur;
+      G.bigQ = [];
+      for (const [t, n] of (a.big || [])) for (let i = 0; i < n; i++) G.bigQ.push(t);
+      for (let i = G.bigQ.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [G.bigQ[i], G.bigQ[j]] = [G.bigQ[j], G.bigQ[i]];
+      }
+      G.bigCd = a.dur / (G.bigQ.length + 1);
       G.waveT = 0; G.berserk = false;
       floatText(G.assault + "차 공세");
       G.shake = .22;
@@ -769,7 +897,13 @@ function updateWar(dt) {
       G.berserk = true; floatText("적 돌격"); G.shake = .18;
     }
     G.spawnAcc += a.rate * dt;
-    if (G.titansLeft > 0 && G.timer < a.dur * .55) { G.titansLeft--; spawnEnemy("titan"); }
+    if (G.bigQ && G.bigQ.length) {
+      G.bigCd -= dt;
+      if (G.bigCd <= 0) {
+        spawnEnemy(G.bigQ.pop());
+        G.bigCd = a.dur / ((a.big || []).reduce((s2, b2) => s2 + b2[1], 0) + 1);
+      }
+    }
     if (G.timer <= 0 && !G.enemies.length) {
       G.phase = "lull"; G.timer = LULL; G.mat += 90;
       floatText("공세 격퇴  자원 +90");
@@ -823,7 +957,7 @@ const VIEW = (() => {
     scene.background = t; }
 
   const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.5, 240);
-  const CAM = { pos: new THREE.Vector3(0, 23.5, 26.0), look: new THREE.Vector3(0, 0.5, -2.6) };
+  const CAM = { pos: new THREE.Vector3(0, 22.6, 24.6), look: new THREE.Vector3(0, 0.5, -3.4) };
   camera.position.copy(CAM.pos);
   camera.lookAt(CAM.look);
 
@@ -1544,12 +1678,12 @@ const VIEW = (() => {
                  m: T(0, .02, -.20 * P.long, -.2, 1.1, 0, 1.0, .60 * P.squat, 1.0) });
     parts.push({ g: new THREE.OctahedronGeometry(.10 * P.bulk, 0),
                  m: T(0, .05, .20 * P.long, .4, .3, 0, 1.0, .7 * P.squat, 1.1) });
-    const strut = new THREE.BoxGeometry(.026 * P.bulk, .026 * P.bulk, .24);
+    const strut = new THREE.BoxGeometry(.030 * P.bulk, .030 * P.bulk, .24 * (.6 + P.bulk * .5));
     for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) {
       const z = (-.15 + i * .16) * P.long;
       parts.push({ g: strut, m: T(sx * .17 * P.bulk, -.04, z, .55, sx * (.9 + i * .1), 0) });
-      parts.push({ g: new THREE.BoxGeometry(.02, .02, .17),
-                   m: T(sx * .28 * P.bulk, -.15, z + .04, 1.1, sx * .4, 0) });
+      parts.push({ g: new THREE.BoxGeometry(.024 * P.bulk, .024 * P.bulk, .17 * (.6 + P.bulk * .5)),
+                   m: T(sx * .30 * P.bulk, -.15 * P.bulk, z + .04, 1.1, sx * .4, 0) });
     }
     return mergeGeos(parts);
   }
@@ -1584,29 +1718,38 @@ const VIEW = (() => {
   }
   // molten, not pink: dark rock with heat running through the seams
   const ORE = {
-    swarm:   { bulk: 1.0, squat: 1.0, long: 1.0, spike: 1.0, thick: 1.0, sweep: 0,    ram: false, crown: false,
-               col: 0x7a2408, em: 0xff6a14, ei: 1.05 },
-    charger: { bulk: .95, squat: .85, long: 1.25, spike: .9, thick: .95, sweep: -.35, ram: true,  crown: false,
-               col: 0x8a3006, em: 0xff8c1e, ei: 1.35 },
-    brute:   { bulk: 1.35, squat: 1.1, long: 1.05, spike: .85, thick: 1.5, sweep: .1,  ram: false, crown: false,
-               col: 0x5e1c06, em: 0xd4520c, ei: .85 },
-    titan:   { bulk: 1.5, squat: 1.15, long: 1.15, spike: 1.35, thick: 1.35, sweep: 0, ram: false, crown: true,
-               col: 0x4a1404, em: 0xff9a2a, ei: 1.55 }
+    spore:    { bulk: 1.0, squat: 1.1, long: .85, spike: .75, thick: 1.15, sweep: .15, ram: false, crown: false,
+                col: 0x7a2a0a, em: 0xd85a10, ei: .55 },
+    swarm:    { bulk: 1.1, squat: 1.0, long: 1.0, spike: .85, thick: 1.10, sweep: 0, ram: false, crown: false,
+                col: 0x6c1e06, em: 0xc74a0c, ei: .48 },
+    charger:  { bulk: 1.0, squat: .85, long: 1.35, spike: .80, thick: 1.00, sweep: -.4, ram: true, crown: false,
+                col: 0x7c2606, em: 0xdd5c10, ei: .60 },
+    carapace: { bulk: 1.26, squat: 1.2, long: 1.0, spike: .95, thick: 1.55, sweep: .15, ram: false, crown: false,
+                col: 0x531705, em: 0xb03c0a, ei: .40 },
+    breaker:  { bulk: 1.32, squat: 1.05, long: 1.15, spike: 1.05, thick: 1.45, sweep: -.2, ram: true, crown: false,
+                col: 0x5d1c04, em: 0xc2450c, ei: .46 },
+    heavy:    { bulk: 1.38, squat: 1.30, long: 1.05, spike: 1.00, thick: 1.70, sweep: .1, ram: false, crown: true,
+                col: 0x461204, em: 0xa8380a, ei: .42 },
+    colossus: { bulk: 1.44, squat: 1.25, long: 1.2, spike: 1.20, thick: 1.55, sweep: 0, ram: false, crown: true,
+                col: 0x431004, em: 0xcf4a0c, ei: .55 },
+    matriarch:{ bulk: 1.52, squat: 1.35, long: 1.25, spike: 1.35, thick: 1.65, sweep: -.1, ram: true, crown: true,
+                col: 0x380c03, em: 0xd8540e, ei: .68 }
   };
+  const SRGB = h => new THREE.Color(h).convertSRGBToLinear();
   const rockMat = new THREE.MeshStandardMaterial({
-    color: 0x2b2630, roughness: .8, metalness: .12, flatShading: true });
+    color: SRGB(0x1c1822), roughness: .93, metalness: .06, flatShading: true });
   const eBody = {}, eOre = {}, eCount = {};
   for (const t in ORE) {
     const P = ORE[t];
     const bg = creatureBody(P), cg = creatureCrystal(P);
     bg.scale(1.15, 1.15, 1.15); cg.scale(1.15, 1.15, 1.15);
-    const cap = t === "titan" ? 24 : t === "brute" ? 90 : MAX_ENEMIES;
+    const cap = { matriarch: 4, colossus: 12, heavy: 24, breaker: 44, carapace: 120 }[t] || MAX_ENEMIES;
     const bm = new THREE.InstancedMesh(bg, rockMat, cap);
     bm.castShadow = true; bm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     scene.add(bm);
     const om = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({
-      color: P.col, emissive: P.em, emissiveIntensity: P.ei,
-      roughness: .30, metalness: .1, flatShading: true }), cap);
+      color: SRGB(P.col), emissive: P.em, emissiveIntensity: P.ei,
+      roughness: .46, metalness: .08, flatShading: true }), cap);
     om.castShadow = true; om.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     scene.add(om);
     eBody[t] = bm; eOre[t] = om; eCount[t] = 0;
@@ -1711,6 +1854,90 @@ const VIEW = (() => {
       box(.9, .06, .66, M.conc, 0, .34, 0, g);
       box(.16, .05, .05, M.orange, .3, .4, 0, g);
       for (let i = 0; i < 4; i++) box(.2, .13, .16, M.sand, -.33 + i * .22, 0, .36, g);
+    } else if (K === "barricade") {
+      const p1 = box(.94, .42, .07, M.steel, 0, 0, -.02, g);
+      p1.rotation.x = -.20;
+      for (const dx of [-.36, .36]) {
+        const l = box(.07, .34, .30, M.dark, dx, 0, .14, g);
+        l.rotation.x = .55;
+      }
+      box(.94, .05, .11, M.dark, 0, .40, -.08, g);
+      box(.12, .03, .03, M.cyan, .34, .40, -.04, g);
+    } else if (K === "wall") {
+      box(.98, .14, .48, M.conc, 0, 0, 0, g);
+      box(.86, .50, .30, M.conc, 0, .14, 0, g);
+      box(.96, .10, .40, M.conc, 0, .64, 0, g);
+      for (const dx of [-.30, 0, .30]) box(.09, .05, .42, M.dark, dx, .74, 0, g);
+      box(.16, .04, .04, M.cyan, -.34, .74, -.21, g);
+    } else if (K === "dragon") {
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
+        const t = new THREE.Mesh(new THREE.ConeGeometry(.17, .40, 4), M.conc);
+        t.position.set(-.30 + i * .30 + (j ? .15 : 0), .20, -.16 + j * .30);
+        t.rotation.y = Math.PI / 4;
+        t.castShadow = true; t.receiveShadow = true; g.add(t);
+      }
+      box(.96, .04, .04, M.rust, 0, .32, .24, g);
+      box(.96, .04, .04, M.rust, 0, .26, -.28, g);
+    } else if (K === "mine") {
+      cyl(.21, .25, .07, 8, M.dark, 0, 0, 0, g);
+      cyl(.10, .13, .05, 8, M.steel, 0, .07, 0, g);
+      box(.05, .025, .05, M.cyan, 0, .12, 0, g);
+      for (const a of [0, 1.57, 3.14, 4.71]) box(.03, .015, .16, M.rust, Math.sin(a) * .22, .02, Math.cos(a) * .22, g);
+    } else if (K === "flame") {
+      cyl(.30, .33, .10, 12, M.steel, 0, 0, 0, g);
+      for (const dx of [-.13, .13]) cyl(.09, .09, .36, 10, M.olive, dx, .10, .20, g);
+      const t = new THREE.Group(); t.position.set(0, .14, 0); g.add(t);
+      box(.24, .16, .24, M.steel, 0, -.08, 0, t);
+      const noz = cyl(.05, .075, .42, 8, M.dark, 0, 0, 0, t);
+      noz.rotation.x = Math.PI / 2; noz.position.set(0, .06, -.23);
+      box(.055, .04, .04, M.orange, 0, .04, -.45, t);
+      g.userData.turret = t;
+    } else if (K === "tesla") {
+      cyl(.27, .31, .13, 6, M.steel, 0, 0, 0, g);
+      cyl(.07, .095, .50, 8, M.dark, 0, .13, 0, g);
+      const r1 = new THREE.Mesh(new THREE.TorusGeometry(.23, .035, 6, 16), M.cyan);
+      r1.position.set(0, .58, 0); r1.rotation.x = Math.PI / 2; r1.castShadow = true; g.add(r1);
+      const r2 = new THREE.Mesh(new THREE.TorusGeometry(.13, .028, 6, 12), M.steel);
+      r2.position.set(0, .70, 0); r2.rotation.x = Math.PI / 2; r2.castShadow = true; g.add(r2);
+      box(.05, .09, .05, M.cyan, 0, .70, 0, g);
+      g.userData.spin = r1;
+    } else if (K === "sniper") {
+      box(.70, .18, .54, M.conc, 0, 0, 0, g);
+      box(.20, .32, .20, M.steel, -.27, .18, .14, g);
+      for (let i = 0; i < 3; i++) box(.20, .12, .15, M.sand, -.26 + i * .26, .18, -.28, g);
+      const t = new THREE.Group(); t.position.set(0, .26, -.04); g.add(t);
+      box(.16, .13, .36, M.dark, 0, -.06, 0, t);
+      const bar = cyl(.028, .036, .94, 8, M.steel, 0, 0, 0, t);
+      bar.rotation.x = Math.PI / 2; bar.position.set(0, .01, -.52);
+      box(.05, .05, .13, M.cyan, 0, .08, .04, t);
+      g.userData.turret = t;
+    } else if (K === "arty") {
+      box(.20, .19, .84, M.dark, -.31, 0, 0, g);
+      box(.20, .19, .84, M.dark, .31, 0, 0, g);
+      box(.68, .26, .72, M.steel, 0, .07, .03, g);
+      box(.30, .07, .30, M.dark, 0, .33, .24, g);
+      const t = new THREE.Group(); t.position.set(0, .40, .00); g.add(t);
+      box(.46, .25, .50, M.steel, 0, -.12, 0, t);
+      for (const dx of [-.10, .10]) {
+        const bar = cyl(.045, .052, .88, 10, M.dark, 0, 0, 0, t);
+        bar.rotation.x = Math.PI / 2; bar.position.set(dx, .01, -.48);
+      }
+      box(.10, .04, .04, M.cyan, .19, .04, .19, t);
+      g.userData.turret = t;
+    } else if (K === "rail") {
+      box(.88, .18, .88, M.conc, 0, 0, 0, g);
+      for (const dx of [-.35, .35]) box(.13, .42, .13, M.steel, dx, .18, .31, g);
+      for (const dx of [-.35, .35]) box(.10, .06, .10, M.cyan, dx, .60, .31, g);
+      const t = new THREE.Group(); t.position.set(0, .34, 0); g.add(t);
+      box(.44, .28, .44, M.steel, 0, -.14, 0, t);
+      for (const dx of [-.10, .10]) {
+        const rl = box(.06, .07, 1.30, M.dark, 0, 0, 0, t);
+        rl.position.set(dx, .04, -.65);
+      }
+      const coil = box(.32, .11, .12, M.cyan, 0, 0, 0, t);
+      coil.position.set(0, .04, -.20);
+      box(.28, .07, .26, M.cyan, 0, .12, .18, t);
+      g.userData.turret = t;
     } else if (K === "mg") {
       for (let i = 0; i < 10; i++) {
         const a = i / 10 * 6.2832;
@@ -1993,8 +2220,10 @@ const VIEW = (() => {
 
       // turrets
       for (const b of G.buildings) {
-        if (!b.obj || !b.obj.userData.turret) continue;
-        b.obj.userData.turret.rotation.y = b.aim + Math.PI;
+        if (!b.obj) continue;
+        if (b.obj.userData.turret) b.obj.userData.turret.rotation.y = b.aim + Math.PI;
+        const sp = b.obj.userData.spin;
+        if (sp) { sp.rotation.z += dt * 2.4; sp.position.y = .58 + Math.sin(now * 2) * .03; }
       }
 
       // sparks
@@ -2014,9 +2243,11 @@ const VIEW = (() => {
       // firing lights up the emplacement
       for (const b of G.buildings) {
         if (b.done && b.flash > .92 && B[b.key].dmg) {
+          const cool = b.key === "mech" || b.key === "rail" || b.key === "tesla";
           popLight(wx(b.c + .5), BAND_LIFT[bandOf(b.r)] + .5, wz(b.r + .5),
-                   b.key === "mech" ? 0x7fe0ff : 0xffc070,
-                   b.key === "siege" ? 14 : b.key === "mech" ? 12 : 5, .12);
+                   cool ? 0x7fe0ff : 0xffc070,
+                   b.key === "rail" ? 20 : b.key === "siege" || b.key === "arty" ? 14
+                     : b.key === "mech" ? 12 : b.key === "tesla" ? 8 : 5, .12);
         }
       }
       // tracers
@@ -2065,7 +2296,7 @@ const VIEW = (() => {
         const x1 = wx(b.x1), z1 = wz(b.z1), x2 = wx(b.x2), z2 = wz(b.z2);
         const len = Math.hypot(x2 - x1, z2 - z1);
         m.position.set((x1 + x2) / 2, liftAt(b.z1) + .9, (z1 + z2) / 2);
-        m.scale.set(1, len, 1);
+        m.scale.set(b.w || 1, len, b.w || 1);
         m.rotation.set(Math.PI / 2, 0, -Math.atan2(x2 - x1, z2 - z1));
         m.material.opacity = clamp(b.life / .18, 0, 1) * .85;
       });
@@ -2101,7 +2332,16 @@ const GLYPH = {
   mech:   '<rect x="8" y="4" width="9" height="8"/><line x1="9" y1="12" x2="9" y2="20"/><line x1="16" y1="12" x2="16" y2="20"/><line x1="10" y1="8" x2="15" y2="8"/>',
   depot:  '<rect x="4" y="9" width="8" height="8"/><rect x="13" y="12" width="7" height="5"/><line x1="4" y1="12" x2="12" y2="12"/>',
   camp:   '<polygon points="7,18 12,6 17,18"/><line x1="4" y1="18" x2="20" y2="18"/>',
-  inf:    '<circle cx="12" cy="7" r="3"/><polyline points="7,20 9,12 15,12 17,20"/>'
+  inf:    '<circle cx="12" cy="7" r="3"/><polyline points="7,20 9,12 15,12 17,20"/>',
+  barricade: '<line x1="2" y1="19" x2="22" y2="19"/><polyline points="5,19 8,7 20,7"/><line x1="7" y1="13" x2="20" y2="13"/>',
+  wall:   '<rect x="3" y="14" width="18" height="5"/><rect x="5" y="9" width="14" height="5"/><rect x="8" y="4" width="8" height="5"/>',
+  dragon: '<polygon points="3,18 6,10 9,18"/><polygon points="11,18 14,8 17,18"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="4" y1="14" x2="20" y2="12"/>',
+  mine:   '<circle cx="12" cy="15" r="4.5"/><line x1="12" y1="10" x2="12" y2="5"/><line x1="6" y1="8" x2="8.5" y2="11.5"/><line x1="18" y1="8" x2="15.5" y2="11.5"/>',
+  flame:  '<rect x="3" y="9" width="7" height="8" rx="2"/><line x1="10" y1="13" x2="14" y2="13"/><polyline points="14,9 21,13 14,17"/>',
+  tesla:  '<ellipse cx="12" cy="7" rx="7" ry="2.5"/><line x1="12" y1="9" x2="12" y2="19"/><line x1="6" y1="20" x2="18" y2="20"/><polyline points="9,12 13,12 10,16 14,16"/>',
+  sniper: '<line x1="3" y1="17" x2="21" y2="8"/><circle cx="11" cy="12" r="2.6"/><polyline points="5,20 8,16"/>',
+  arty:   '<rect x="3" y="13" width="12" height="6"/><line x1="13" y1="12" x2="22" y2="5"/><line x1="15" y1="15" x2="23" y2="8"/><circle cx="6" cy="20" r="1.4"/><circle cx="12" cy="20" r="1.4"/>',
+  rail:   '<line x1="3" y1="10" x2="20" y2="6"/><line x1="3" y1="15" x2="20" y2="11"/><line x1="3" y1="10" x2="3" y2="15"/><polyline points="11,10.5 8.5,13.5 12.5,12.5 10,15.5"/>'
 };
 function svgGlyph(key) {
   return `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${GLYPH[key] || ""}</svg>`;
@@ -2183,7 +2423,9 @@ function syncSheet() {
   $("hint").textContent = pick ? `${B[pick].name} — 밝게 표시된 칸을 누르세요` : "건물을 고른 뒤 지도를 누르세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
-    const extra = spec.garrison ? `<em>병사 ${spec.garrison}</em> · ` : (spec.upkeep ? `<em>유지 ${spec.upkeep}</em> · ` : "");
+    const extra = spec.garrison ? `<em>병사 ${spec.garrison}</em> · `
+                : spec.upkeep   ? `<em>유지 ${spec.upkeep}</em> · `
+                : spec.wall     ? `<em>내구 ${spec.hp}</em> · ` : "";
     body.appendChild(mkAct(spec.name, `${extra}${spec.desc}`, () => {
       pick = (pick === key) ? null : key;
       syncSheet();
