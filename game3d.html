@@ -2471,156 +2471,233 @@ const VIEW = (() => {
     } }
   // ---------------------------------------------------------------------
   // The backdrop.
-  // The camera never moves, so this is a stage flat rather than a world: a
-  // composed plant profile laid out by hand in three depth layers, not boxes
-  // thrown at random. halfW(z) is the frustum half-width at that depth, so
-  // nothing is built where it cannot be seen.
+  // What is actually on screen past the corridor is a narrow wedge: about
+  // +-8 world units wide at z = -22 opening to +-13 at z = -50, and nothing
+  // beyond that at all. So this is designed as a view *down* the corridor -
+  // structures flanking it and receding, a focal mass closing the far end -
+  // rather than a field of scenery, and everything is detailed at the scale
+  // it will actually be seen: window bands, roof plant, ladders, catwalks,
+  // hazard paint, warning lights.
   // ---------------------------------------------------------------------
   const smokeStacks = [];
-  { const M1 = new THREE.MeshStandardMaterial({ color: 0x1a1f26, roughness: .95, flatShading: true });
-    const M1b = new THREE.MeshStandardMaterial({ color: 0x241e18, roughness: 1, flatShading: true });
-    const M2 = new THREE.MeshBasicMaterial({ color: 0x39434f, fog: true });
-    const M2b = new THREE.MeshBasicMaterial({ color: 0x47525e, fog: true });
-    const M2c = new THREE.MeshBasicMaterial({ color: 0x2e3742, fog: true });
-    const M3 = new THREE.MeshBasicMaterial({ color: 0x4a5561, fog: true });
-    const M4 = new THREE.MeshBasicMaterial({ color: 0x5c6773, fog: true });
-    const add = (m, x, y, z, ry) => { m.position.set(x, y, z); if (ry) m.rotation.y = ry;
-                                      scene.add(m); return m; };
-    const G0 = -TILE_H;
-    const bx = (w, h, d, mat, x, z, ry) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat), x, G0 + h / 2, z, ry);
+  { const G0 = -TILE_H;
+    const wall  = new THREE.MeshStandardMaterial({ map: metalTex(0x4b525a), roughnessMap: ROUGH,
+      normalMap: METAL_NORMAL, normalScale: NS, roughness: .9, metalness: .22 });
+    const wall2 = new THREE.MeshStandardMaterial({ map: concreteTex(0x6b6558), roughnessMap: ROUGH,
+      normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(1.2, 1.2), roughness: .97 });
+    const trim  = new THREE.MeshStandardMaterial({ color: 0x3a4249, roughness: .68, metalness: .5 });
+    const dark  = new THREE.MeshStandardMaterial({ color: 0x14181d, roughness: .8 });
+    const glass = new THREE.MeshStandardMaterial({ color: 0x2b3a44, roughness: .28, metalness: .3 });
+    const rust2 = new THREE.MeshStandardMaterial({ map: metalTex(0x6a4a32), roughnessMap: ROUGH,
+      normalMap: METAL_NORMAL, normalScale: NS, roughness: .92, metalness: .28 });
+    const haz   = new THREE.MeshStandardMaterial({ color: 0x9a7a1c, roughness: .8 });
+    const lamp  = new THREE.MeshStandardMaterial({ color: 0xff5a4a, emissive: 0xff3b28,
+                                                   emissiveIntensity: 2.2, roughness: .4 });
+    const far   = new THREE.MeshBasicMaterial({ color: 0x424c58, fog: true });
+    const far2  = new THREE.MeshBasicMaterial({ color: 0x515c69, fog: true });
 
-    // --- a hall with a saw-tooth roof: the signature factory profile -------
-    function hall(x, z, w, d, h, bays, mat, matb) {
-      bx(w, h, d, mat, x, z);
-      const bw = w / bays;
-      for (let i = 0; i < bays; i++) {
-        const px = x - w / 2 + bw * (i + .5);
-        const tri = new THREE.Mesh(new THREE.CylinderGeometry(bw * .52, bw * .52, d, 3, 1, false), matb);
-        tri.rotation.set(0, 0, Math.PI / 2);
-        add(tri, px, G0 + h + bw * .12, z);
+    const bx = (w, h, d, m, x, y, z, ry) => {
+      const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+      o.position.set(x, y + h / 2, z); if (ry) o.rotation.y = ry;
+      o.castShadow = true; o.receiveShadow = true; scene.add(o); return o;
+    };
+    const cy2 = (rt, rb, h, seg, m, x, y, z) => {
+      const o = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), m);
+      o.position.set(x, y + h / 2, z);
+      o.castShadow = true; o.receiveShadow = true; scene.add(o); return o;
+    };
+
+    // a run of windows along a wall face
+    function windows(x, y, z, len, h, rows, along, mat) {
+      const n = Math.max(2, Math.round(len / 2.4));
+      for (let r = 0; r < rows; r++) for (let i = 0; i < n; i++) {
+        const t = -len / 2 + len * (i + .5) / n;
+        const yy = y + h * (.30 + r * .42);
+        if (along) bx(len / n * .70, h * .22, .16, mat, x + t, yy, z);
+        else bx(.16, h * .22, len / n * .70, mat, x, yy, z + t);
       }
-      for (let i = 0; i <= bays; i += 2) bx(.22, h * .16, d * 1.02, matb, x - w / 2 + bw * i, z);
     }
-    // --- a banded chimney -------------------------------------------------
-    function stack(x, z, h, r, mat, band) {
-      add(new THREE.Mesh(new THREE.CylinderGeometry(r * .62, r, h, 14), mat), x, G0 + h / 2, z);
-      for (let i = 1; i <= 3; i++) {
-        const rr = r * (1 - .38 * (i / 4));
-        const b2 = new THREE.Mesh(new THREE.CylinderGeometry(rr * 1.10, rr * 1.10, h * .055, 14), band);
-        add(b2, x, G0 + h * (i / 4), z);
+    // roof plant: vents, ducts, a stair head
+    function roofKit(x, y, z, w, d, n) {
+      for (let i = 0; i < n; i++) {
+        const px = x + rnd(-w * .38, w * .38), pz = z + rnd(-d * .34, d * .34);
+        if (Math.random() < .5) cy2(.28, .30, .55, 10, trim, px, y, pz);
+        else bx(rnd(.7, 1.5), rnd(.35, .8), rnd(.6, 1.2), trim, px, y, pz, rnd(0, 1));
       }
+      bx(1.0, .9, 1.0, wall, x + w * .30, y, z - d * .28);
+    }
+    // an external stair cage on a wall
+    function ladder(x, y, z, h, ry) {
+      const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry || 0; scene.add(g);
+      for (const dx of [-.16, .16]) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(.05, h, .05), trim);
+        m.position.set(dx, h / 2, 0); g.add(m);
+      }
+      for (let i = 0; i < h / .38; i++) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(.36, .04, .04), trim);
+        m.position.set(0, .2 + i * .38, 0); g.add(m);
+      }
+      for (let i = 0; i < h / .38; i++) {
+        const m = new THREE.Mesh(new THREE.TorusGeometry(.24, .022, 4, 8, Math.PI), trim);
+        m.rotation.set(Math.PI / 2, 0, 0); m.position.set(0, .2 + i * .38, .1); g.add(m);
+      }
+    }
+    // a saw-tooth roofed hall, glazed on the north pitch
+    function hall(x, z, w, d, h, bays, along, mat) {
+      bx(w, h, d, mat, x, G0, z);
+      bx(w + .3, .25, d + .3, trim, x, G0 + h, z);
+      const span = along ? w : d, bw = span / bays;
+      for (let i = 0; i < bays; i++) {
+        const t = -span / 2 + bw * (i + .5);
+        const px = along ? x + t : x, pz = along ? z : z + t;
+        const tri = new THREE.Mesh(new THREE.CylinderGeometry(bw * .54, bw * .54, along ? d : w, 3, 1, false), trim);
+        tri.rotation.set(0, along ? 0 : Math.PI / 2, Math.PI / 2);
+        tri.position.set(px, G0 + h + bw * .14, pz);
+        tri.castShadow = true; scene.add(tri);
+        const gl = new THREE.Mesh(new THREE.BoxGeometry(along ? bw * .5 : d * .96, bw * .34, along ? d * .96 : bw * .5), glass);
+        gl.position.set(px + (along ? bw * .16 : 0), G0 + h + bw * .18, pz + (along ? 0 : bw * .16));
+        gl.rotation.x = along ? -.5 : 0; gl.rotation.z = along ? 0 : .5;
+        scene.add(gl);
+      }
+      windows(x, G0, z + (along ? d / 2 : 0), along ? w : d, h, 2, along, glass);
+      roofKit(x, G0 + h + .25, z, w, d, 4);
+      ladder(x + (along ? w * .42 : w / 2 + .1), G0, z + (along ? d / 2 + .1 : d * .38), h, along ? 0 : Math.PI / 2);
+      bx(w * .34, h * .42, .9, dark, x - w * .22, G0, z + (along ? d / 2 + .4 : 0));
+      for (let i = 0; i < 3; i++) bx(.35, .10, .35, haz, x - w * .22 + (i - 1) * .8, G0, z + (along ? d / 2 + .8 : 0));
+    }
+    // silo bank with headhouse and a conveyor gallery
+    function silos(x, z, n, r, h, ang) {
+      for (let i = 0; i < n; i++) {
+        const px = x + Math.cos(ang) * i * r * 2.04, pz = z + Math.sin(ang) * i * r * 2.04;
+        cy2(r, r, h, 16, wall2, px, G0, pz);
+        for (const yy of [h * .35, h * .68])
+          cy2(r * 1.04, r * 1.04, .16, 16, trim, px, G0 + yy, pz);
+      }
+      const cx2 = x + Math.cos(ang) * (n - 1) * r, cz = z + Math.sin(ang) * (n - 1) * r;
+      bx(n * r * 2.1, h * .26, r * 2.5, wall, cx2, G0 + h, cz, ang);
+      bx(n * r * 2.2, .2, r * 2.6, trim, cx2, G0 + h * 1.26, cz, ang);
+      ladder(x - r * 1.05, G0, z, h, 0);
+      // conveyor gallery sloping away
+      const gl = bx(r * 1.1, r * .9, 9, wall, cx2, G0 + h * .62, cz - 5.2, ang);
+      gl.rotation.x = -.20;
+      smokeStacks.push(null);  // placeholder keeps indices honest
+      smokeStacks.pop();
+    }
+    // a banded chimney with warning lights
+    function stack(x, z, h, r) {
+      cy2(r * .62, r, h, 14, wall2, x, G0, z);
+      for (let i = 1; i <= 4; i++) {
+        const t = i / 5, rr = r * (1 - .38 * t) * 1.06;
+        const b2 = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, h * .045, 14), rust2);
+        b2.position.set(x, G0 + h * t, z); scene.add(b2);
+      }
+      for (const t of [.55, .82]) {
+        const l = new THREE.Mesh(new THREE.SphereGeometry(r * .16, 6, 5), lamp);
+        l.position.set(x + r * .7, G0 + h * t, z); scene.add(l);
+      }
+      ladder(x + r * .9, G0, z, h * .9, 0);
       smokeStacks.push([x, G0 + h, z, r]);
     }
-    // --- a cooling tower: a real hyperboloid, lathed ------------------------
-    function tower(x, z, h, rb, mat) {
+    // cooling tower, lathed from a real hyperboloid
+    function tower(x, z, h, rb) {
       const pts = [];
-      for (let i = 0; i <= 10; i++) {
-        const t = i / 10;
-        const rr = rb * (1 - 1.15 * t + .72 * t * t);      // waist about two thirds up
-        pts.push(new THREE.Vector2(Math.max(rb * .30, rr) * .9 + rb * .32, t * h));
+      for (let i = 0; i <= 12; i++) {
+        const t = i / 12, rr = rb * (1 - 1.10 * t + .70 * t * t);
+        pts.push(new THREE.Vector2(Math.max(rb * .42, rr) * .92 + rb * .30, t * h));
       }
-      const m = new THREE.Mesh(new THREE.LatheGeometry(pts, 22), mat);
-      m.material = mat.clone(); m.material.side = THREE.DoubleSide;
-      add(m, x, G0, z);
-      smokeStacks.push([x, G0 + h, z, rb * .55]);
+      const m = new THREE.Mesh(new THREE.LatheGeometry(pts, 26), wall2);
+      m.material = wall2.clone(); m.material.side = THREE.DoubleSide;
+      m.position.set(x, G0, z); m.castShadow = true; m.receiveShadow = true; scene.add(m);
+      for (let i = 0; i < 6; i++) {
+        const a2 = i / 6 * 6.283;
+        bx(.46, rb * .55, .46, trim, x + Math.cos(a2) * rb * .95, G0, z + Math.sin(a2) * rb * .95);
+      }
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(rb * .72, .18, 6, 20), trim);
+      rim.rotation.x = Math.PI / 2; rim.position.set(x, G0 + h, z); scene.add(rim);
+      smokeStacks.push([x, G0 + h, z, rb * .5]);
     }
-    // --- a row of storage tanks -------------------------------------------
-    function tanks(x, z, n, r, h, mat, matb) {
-      for (let i = 0; i < n; i++) {
-        const px = x + i * r * 2.5;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), mat), px, G0 + h / 2, z);
-        add(new THREE.Mesh(new THREE.SphereGeometry(r, 16, 7, 0, 6.283, 0, 1.05), matb), px, G0 + h, z);
-        bx(r * .18, h, r * .18, matb, px + r * .95, z - r * .5);
+    // a pipe rack on trestles
+    function rack(x, z1, z2, y) {
+      const len = Math.abs(z2 - z1);
+      for (const [dx, r] of [[-.30, .26], [.30, .26]]) {
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), rust2);
+        t.rotation.x = Math.PI / 2;
+        t.position.set(x + dx, G0 + y + r, (z1 + z2) / 2); t.castShadow = true; scene.add(t);
       }
-    }
-    // --- a silo bank with a headhouse --------------------------------------
-    function silos(x, z, n, r, h, mat, matb) {
-      for (let i = 0; i < n; i++)
-        add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 14), mat), x + i * r * 2.02, G0 + h / 2, z);
-      bx(n * r * 2.1, h * .28, r * 2.4, matb, x + (n - 1) * r, z);
-      const head = bx(n * r * 2.1, h * .28, r * 2.4, matb, x + (n - 1) * r, z);
-      head.position.y = G0 + h + h * .14;
-    }
-    // --- a pipe bridge on trestles -----------------------------------------
-    function pipeBridge(x1, x2, z, y, mat) {
-      const len = Math.abs(x2 - x1);
-      for (const dy of [0, .55, 1.05]) {
-        const t = new THREE.Mesh(new THREE.CylinderGeometry(.28, .28, len, 8), mat);
-        t.rotation.z = Math.PI / 2;
-        add(t, (x1 + x2) / 2, G0 + y + dy, z);
+      for (let i = 0; i <= 6; i++) {
+        const pz = z1 + (z2 - z1) * (i / 6);
+        bx(.24, y, .24, trim, x - .5, G0, pz); bx(.24, y, .24, trim, x + .5, G0, pz);
+        bx(1.4, .18, .3, trim, x, G0 + y, pz);
       }
-      for (let i = 0; i <= 5; i++) {
-        const px = x1 + (x2 - x1) * (i / 5);
-        bx(.5, y, .5, mat, px, z);
-        bx(2.2, .35, .6, mat, px, z).position.y = G0 + y;
-      }
-    }
-    // --- a lattice pylon ----------------------------------------------------
-    function pylon(x, z, h, mat) {
-      for (const sx of [-1, 1]) {
-        const l = bx(.30, h, .30, mat, x + sx * h * .10, z);
-        l.rotation.z = sx * .055;
-      }
-      for (let i = 1; i <= 5; i++) {
-        const y = h * (i / 6);
-        bx(h * .20 * (1 - i / 8), .22, .3, mat, x, z).position.y = G0 + y;
-      }
-      for (const dy of [.78, .90]) bx(h * .48, .20, .3, mat, x, z).position.y = G0 + h * dy;
-      bx(.24, h * .12, .24, mat, x, z).position.y = G0 + h;
     }
 
-    // ============ layer 1: the yard, just behind the approach =============
-    hall(-11, -26, 9, 6, 3.2, 4, M1, M1b);
-    hall(10, -27, 8, 6, 2.8, 3, M1, M1b);
-    tanks(-4.5, -25, 3, 1.15, 2.2, M1, M1b);
-    bx(5.0, 2.2, 4.0, M1, 4.5, -25.5, .2);
-    bx(3.2, 1.6, 3.0, M1b, -1.0, -24, -.15);
+    // ===================== the vista =====================================
+    // Packed tight behind the corridor mouth so it closes the view like the
+    // end of a street. Anything further than about -40 is a lone slab on a
+    // lawn from here, which is what it looked like before.
 
-    // ============ layer 2: the plant proper ===============================
-    hall(-17, -33, 20, 12, 8, 7, M2, M2b);
-    hall(13, -36, 22, 13, 9, 8, M2, M2b);
-    hall(-2, -44, 26, 14, 7, 9, M2c, M2);
-    silos(-28, -31, 5, 1.8, 12, M2b, M2);
-    silos(23, -35, 4, 2.0, 13, M2b, M2);
-    tanks(-36, -34, 4, 2.6, 5, M2, M2b);
-    tanks(27, -30, 3, 2.4, 5, M2, M2b);
-    tower(-25, -47, 15, 6.5, M2b);
-    tower(-8, -50, 13, 5.6, M2c);
-    tower(21, -48, 16, 6.8, M2b);
-    stack(-34, -45, 18, 1.3, M2b, M2c);
-    stack(3, -43, 20, 1.5, M2b, M2c);
-    stack(33, -46, 17, 1.2, M2b, M2c);
-    stack(-7, -38, 15, 1.0, M2, M2c);
-    pipeBridge(-38, -13, -28, 5.0, M2);
-    pipeBridge(6, 31, -29, 4.6, M2);
-    for (let i = 0; i < 5; i++) bx(6 + i, 3 + i * .5, 6, M2c, -42 + i * 2, -50 - i * 2);
+    // paved yard carrying on under it all, so nothing sits on grass
+    { const yard = new THREE.Mesh(new THREE.BoxGeometry(46, .5, 26),
+        new THREE.MeshStandardMaterial({ map: concreteTex(0x5d5950), roughnessMap: ROUGH,
+          normalMap: CONC_NORMAL, normalScale: new THREE.Vector2(1.1, 1.1), roughness: .98 }));
+      yard.material.map.repeat.set(9, 5);
+      yard.position.set(0, G0 - .25, -34); yard.receiveShadow = true; scene.add(yard); }
 
-    // The corridor now fills the top of the frame, so only a sliver past its
-    // far end is ever on screen. Layer 3 is a thin band right behind it
-    // rather than a whole city that nothing would ever see.
-    const SKY = [
-      [-26, -40, 11, 15], [-13, -44, 14, 12], [2, -41, 10, 17], [15, -45, 15, 13], [28, -42, 11, 16]
-    ];
-    for (const [x, z, w, h] of SKY) {
-      bx(w, h, w * .8, M3, x, z, (x % 7) * .04);
-      bx(w * .5, h * .12, w * .5, M4, x, z).position.y = G0 + h;
+    // left flank
+    hall(-8.5, -25.5, 6.0, 8, 4.0, 4, false, wall);
+    rack(-4.6, -27, -34, 2.8);
+    hall(-9.5, -33.5, 7.0, 9, 5.4, 4, false, wall2);
+    stack(-6.6, -37, 13, .85);
+    // right flank
+    silos(7.6, -24.5, 4, 1.25, 8.0, Math.PI / 2);
+    hall(9.3, -33, 6.6, 9, 5.0, 4, false, wall);
+    rack(5.2, -29, -36, 2.6);
+    // far end, closing the view
+    hall(0, -38.5, 12, 7, 7.0, 6, true, wall);
+    bx(4.2, 10, 4.6, wall2, -2.6, G0, -41.5);
+    windows(-2.6, G0, -39.2, 4.2, 10, 3, true, glass);
+    roofKit(-2.6, G0 + 10, -41.5, 4.2, 4.6, 3);
+    tower(4.8, -42.5, 11.5, 4.0);
+    stack(.8, -41, 16, 1.0);
+    bx(9, 4.5, 4, wall, -7.5, G0, -41, .1);
+    bx(7, 3.6, 4, wall2, 8.0, G0, -40, -.08);
+    // clutter tying it into the corridor mouth
+    for (let i = 0; i < 12; i++) {
+      const x = rnd(-9.5, 9.5), z = rnd(-24, -40);
+      if (Math.abs(x) < 4.2) continue;
+      bx(rnd(1.4, 2.8), rnd(.7, 1.6), rnd(1.2, 2.2), i % 3 ? wall : rust2, x, G0, z, rnd(0, 1));
     }
-    pylon(-20, -38, 15, M3); pylon(19, -39, 14, M3);
+    for (let i = 0; i < 8; i++) bx(2.4, 1.15, 1.05, rust2, rnd(-10, 10), G0, rnd(-25, -41), rnd(0, 1));
+    // a fence line across the back of the yard
+    for (let i = -10; i <= 10; i += 2.5) {
+      bx(.14, 2.0, .14, trim, i, G0, -23);
+      bx(2.3, .09, .09, trim, i + 1.1, G0 + 1.9, -23);
+    }
+
+    // a low band closing the gap above the far end
+    for (const [x, z, w, h] of [[-14, -52, 8, 11], [-5, -55, 7, 9], [4, -53, 9, 12],
+                                [13, -55, 8, 10], [-22, -54, 9, 8], [22, -52, 8, 10]]) {
+      const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, w * .8), far);
+      o.position.set(x, G0 + h / 2, z); scene.add(o);
+      const c = new THREE.Mesh(new THREE.BoxGeometry(w * .5, h * .1, w * .5), far2);
+      c.position.set(x, G0 + h, z); scene.add(c);
+    }
 
     // --- smoke over the stacks and towers ---------------------------------
     const smokeMat = new THREE.MeshBasicMaterial({
       map: canvasTex(64, (g, S) => {
         const gr = g.createRadialGradient(S / 2, S / 2, 1, S / 2, S / 2, S * .5);
-        gr.addColorStop(0, "rgba(214,220,222,.55)");
-        gr.addColorStop(1, "rgba(214,220,222,0)");
+        gr.addColorStop(0, "rgba(206,212,214,.55)");
+        gr.addColorStop(1, "rgba(206,212,214,0)");
         g.fillStyle = gr; g.fillRect(0, 0, S, S);
-      }), transparent: true, depthWrite: false, opacity: .40 });
-    for (const [x, y, z, r] of smokeStacks) {
+      }), transparent: true, depthWrite: false, opacity: .34 });
+    for (const st of smokeStacks) {
+      if (!st) continue;
+      const [x, y, z, r] = st;
       for (let k = 0; k < 7; k++) {
-        const sc2 = r * (2.4 + k * 1.5);
+        const sc2 = r * (2.6 + k * 1.7);
         const q = new THREE.Mesh(new THREE.PlaneGeometry(sc2, sc2), smokeMat);
-        q.position.set(x + k * r * .9 + (Math.random() - .5) * r, y + r + k * r * 1.5,
-                       z + (Math.random() - .5) * r * 2);
+        q.position.set(x + k * r * 1.0 + rnd(-r, r), y + r + k * r * 1.7, z + rnd(-r, r) * 2);
         smokePlumes.push(q); scene.add(q);
       }
     } }
