@@ -165,7 +165,7 @@
     font-size: 13.5px; color: #fff0cc; text-shadow: 0 0 8px rgba(0,0,0,.9), 0 2px 4px rgba(0,0,0,.9);
     transform: translate(-50%, -50%);
   }
-  #dmgs b.big { font-size: 19px; color: var(--gold); text-shadow: 0 0 12px rgba(255,201,61,.5), 0 2px 4px rgba(0,0,0,.9); }
+  #dmgs b.big { font-size: 22px; color: var(--gold); text-shadow: 0 0 14px rgba(255,201,61,.55), 0 2px 4px rgba(0,0,0,.9); }
 
   /* inspector for a placed building */
   /* deploy: drop on a tile, then drag out to face it */
@@ -793,19 +793,24 @@ const B = {
   // --- zone 0: the line itself ------------------------------------------
   wire:      { z: 0, name: "철조망",       mat: 15,  hp: 320,  slow: 0.34,
                desc: "지나가는 적을 크게 늦춘다" },
-  barricade: { z: 0, name: "강판 바리케이드", mat: 30,  hp: 2000, wall: true, slow: 0.62,
-               desc: "값싼 벽. 적이 부수거나 돌아간다" },
-  dragon:    { z: 0, name: "대전차 방책",   mat: 55,  hp: 3400, wall: true, slow: 0.30,
-               desc: "대형을 확실히 묶어 둔다" },
-  wall:      { z: 0, name: "콘크리트 방벽", mat: 95,  hp: 8000, wall: true,
-               desc: "가장 단단한 벽. 적의 진로를 바꾼다" },
+  wall:      { z: 0, name: "방벽",          mat: 30,  hp: 1500, wall: true, slow: 0.62,
+               // upgraded on the spot, never torn down: the tiers are what
+               // used to be three separate cards
+               tiers: [1500, 3600, 7400, 11500],
+               tierN: ["강판 방벽", "보강 방벽", "대전차 방벽", "콘크리트 방벽"],
+               tierS: [0.62, 0.44, 0.30, 0.22],
+               desc: "제자리에서 강화한다. 철거할 일이 없다" },
   mine:      { z: 0, name: "압력 지뢰",     mat: 35,  hp: 90,   walk: true,
                mineDmg: 340, mineR: 1.45, trigger: 0.55,
                desc: "밟으면 터진다. 한 번 쓰고 사라진다" },
-  trench:    { z: 0, name: "참호",          mat: 40,  hp: 900,  garrison: 3, cover: 0.35,
-               desc: "병사 3명, 피해 65% 감소" },
-  bunker:    { z: 0, name: "벙커",          mat: 110, hp: 2200, garrison: 2, cover: 0.12, rof: 0.7,
-               desc: "병사 2명, 피해 88% 감소, 사격 속도 +40%" },
+  trench:    { z: 0, name: "참호",          mat: 40,  hp: 900,  garrison: 5, cover: 0.35,
+               tiers: [900, 2000, 3600, 5600], tierG: [5, 6, 7, 8],
+               tierN: ["참호", "보강 참호", "교통호", "요새 참호"],
+               desc: "보병 5명이 들어간다. 피해 65% 감소" },
+  bunker:    { z: 0, name: "벙커",          mat: 110, hp: 2600, garrison: 4, cover: 0.12, rof: 0.7,
+               tiers: [2600, 5600, 9600, 15000], tierG: [4, 5, 6, 8],
+               tierN: ["벙커", "보강 벙커", "요새 벙커", "지하 벙커"],
+               desc: "보병 4명. 피해 88% 감소, 사격 속도 +40%" },
 
   // --- zone 1: direct fire ----------------------------------------------
   mg:     { z: 1, name: "기관총 진지", mat: 70,  hp: 460, desc: "빠른 연사, 사거리 4칸",
@@ -817,13 +822,13 @@ const B = {
   sniper: { z: 1, name: "대물 저격진지", mat: 160, hp: 300, desc: "가장 단단한 적만 노린다",
             dmg: 240, cd: 2.3, range: 8.5, preferBig: true, upkeep: 4 },
   mortar: { z: 1, name: "박격포",     mat: 120, hp: 380, desc: "포물선 탄. 3칸 밖만 때린다",
-            dmg: 52, cd: 2.6, range: 9.5, minRange: 2.6, splash: 1.20, arc: true, upkeep: 3 },
+            dmg: 52, cd: 2.6, range: 9.5, minRange: 2.6, splash: 1.90, arc: true, upkeep: 3 },
 
   // --- zone 2: heavy ----------------------------------------------------
   siege:  { z: 2, name: "시즈탱크", mat: 210, hp: 1100, desc: "화면 끝까지. 착탄이 크다",
-            dmg: 150, cd: 3.4, range: 15, minRange: 4.5, splash: 1.65, arc: true, upkeep: 6 },
+            dmg: 150, cd: 3.4, range: 15, minRange: 4.5, splash: 2.45, arc: true, upkeep: 6 },
   arty:   { z: 2, name: "자주포",   mat: 270, hp: 900,  desc: "한 번에 4발. 넓게 도배한다",
-            dmg: 62, cd: 4.4, range: 16, minRange: 5.0, splash: 1.30, arc: true, volley: 4, upkeep: 7 },
+            dmg: 62, cd: 4.4, range: 16, minRange: 5.0, splash: 2.00, arc: true, volley: 4, upkeep: 7 },
   rail:   { z: 2, name: "레일건",   mat: 350, hp: 800,  desc: "일직선 관통. 거체를 뚫는 용도",
             dmg: 900, cd: 5.0, range: 16, beam: true, wide: true, upkeep: 9 },
   mech:   { z: 2, name: "거대로봇", mat: 300, hp: 2600, desc: "관통 광선. 일직선을 쓸어버린다",
@@ -832,7 +837,7 @@ const B = {
   camp:   { z: 2, name: "병영",    mat: 95,  hp: 500,  desc: "인력 회복 +0.5/초", manpower: 0.5 }
 };
 const ZONE_BUILDS = [
-  ["trench", "bunker", "wire", "barricade", "dragon", "wall", "mine"],
+  ["trench", "bunker", "wall", "wire", "mine"],
   ["mg", "flame", "tesla", "sniper", "mortar"],
   ["siege", "arty", "rail", "mech", "depot", "camp"]
 ];
@@ -953,8 +958,9 @@ const BRIEF = [
 const TECH = [
   { k: "t_bunker", n: "진지 보강",  c: 120, req: [],                    gives: ["bunker"],
     d: "벙커. 병사 2명, 피해 88% 감소" },
-  { k: "t_wall",   n: "축성",      c: 220, req: ["t_bunker"],          gives: ["dragon", "wall"],
-    d: "대전차 방책 · 콘크리트 방벽" },
+  { k: "t_wall",   n: "축성",      c: 220, req: ["t_bunker"],          gives: [],
+    caps: { wall: 3, trench: 3, bunker: 3 },
+    d: "방벽 · 참호 · 벙커를 3단계까지 강화" },
   { k: "t_mine",   n: "매설 자재",  c: 150, req: ["t_bunker"],          gives: ["mine"],
     d: "압력 지뢰" },
   { k: "t_mortar", n: "곡사 화력",  c: 140, req: [],                    gives: ["mortar"],
@@ -977,10 +983,8 @@ const TECH = [
     d: "공병. 스스로 다니며 수리한다" },
   { k: "t_medic",  n: "위생 소대",  c: 160, req: ["t_eng"],             gives: ["medic"],
     d: "위생병" },
-  { k: "t_at",     n: "대전차 훈련", c: 230, req: ["t_eng"],            gives: ["at"],
-    d: "대전차병" },
-  { k: "t_guard",  n: "돌격 편성",  c: 340, req: ["t_at"],              gives: ["guard"],
-    d: "돌격대" }
+  { k: "t_nade",   n: "유탄 훈련",  c: 230, req: ["t_eng"],            gives: ["nade"],
+    d: "유탄병. 뭉친 적을 한 번에" }
 ];
 const TECH_OF = {};
 for (const t of TECH) for (const g of t.gives) TECH_OF[g] = t;
@@ -1000,26 +1004,25 @@ function buyTech(t) {
 
 const LULL = 17, LULL_RATE = 0.7;
 const PREP = 45;
-// Five things you can produce, in two kinds.
-//   placed   - you drag them onto a tile and they hold it, facing the way you
-//              set. Standing on a trench or bunker is what gives them cover;
-//              the building no longer owns a seat.
-//   crew     - support that walks itself. You buy it, it turns up at the base
-//              and goes to whatever needs it most. Telling a repairman where
-//              to stand is not a decision, it is chores.
+// Four things you can produce. None of them are placed by hand - you buy
+// them and they take up position themselves, which is the whole point of a
+// line: you decide what the line is made of, not where each man stands.
+//   line   - walks to the deepest cover behind the front wall and shoots
+//            from there. Falls back as the wall in front of it dies.
+//   crew   - support. Goes to whatever needs it most, anywhere on the board.
 const UNITS = {
-  rifle: { name: "소총병",   mat: 15, man: 4, hp: 46,  dmg: 6,  cd: .62, range: 3.4, spd: 1.9,
-           g: "inf", desc: "기본 보병. 참호 위에 서면 단단해진다" },
-  at:    { name: "대전차병", mat: 55, man: 7, hp: 54,  dmg: 44, cd: 1.5, range: 4.4, spd: 1.7,
-           g: "at",  heavy: 2.4, desc: "대형에게 피해 2.4배. 거체 전담" },
-  eng:   { name: "공병",     mat: 45, man: 6, hp: 62,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.0,
+  rifle: { name: "보병",   mat: 15, man: 4, hp: 52,  dmg: 13, cd: .55, range: 3.6, spd: 1.9,
+           g: "inf", line: true,
+           desc: "벽 뒤에 자리를 잡고 쏜다. 참호 위면 단단해진다" },
+  nade:  { name: "유탄병", mat: 60, man: 7, hp: 58,  dmg: 46, cd: 1.9, range: 4.6, spd: 1.7,
+           g: "at",  line: true, lob: true, splash: 0.95, heavy: 1.8,
+           desc: "포물선 유탄. 뭉친 적을 한 번에, 대형에겐 1.8배" },
+  eng:   { name: "공병",   mat: 45, man: 6, hp: 62,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.0,
            g: "eng", fix: 30, crew: true, ghost: true,
-           desc: "배치 없음. 가장 상한 건물로 스스로 가서 수리한다" },
-  medic: { name: "위생병",   mat: 40, man: 5, hp: 56,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.1,
+           desc: "가장 상한 건물로 스스로 가서 수리한다" },
+  medic: { name: "메딕",   mat: 40, man: 5, hp: 56,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.1,
            g: "med", heal: 11, crew: true,
-           desc: "배치 없음. 가장 다친 병사에게 스스로 간다" },
-  guard: { name: "돌격대",   mat: 75, man: 8, hp: 190, dmg: 17, cd: .50, range: 2.6, spd: 2.35,
-           g: "gd",  free: true, desc: "배치한 자리를 지키다 돌파가 나면 달려간다" }
+           desc: "가장 다친 병사에게 스스로 간다" }
 };
 const SOLDIER = UNITS.rifle;
 const SUPPORT_R = 3.0;
@@ -1217,6 +1220,17 @@ function walkable(x, z) {
   const t = at(Math.floor(x), Math.floor(z));
   return !t || (t.k !== "block" && t.k !== "high");
 }
+// Separation must not shove anything through the line. Pathing prices walls,
+// but the physical push ignored them completely, so a crowd pressing on a
+// wall squeezed through it. A body already inside a wall may still move -
+// otherwise anything that got in there would be stuck for good.
+function pushable(fx, fz, x, z) {
+  if (!walkable(x, z)) return false;
+  const t = at(Math.floor(x), Math.floor(z));
+  if (!t || !t.b || t.b.dead || !B[t.b.key].wall) return true;
+  const f = at(Math.floor(fx), Math.floor(fz));
+  return !!(f && f.b && !f.b.dead && B[f.b.key].wall);
+}
 
 // Every stat the doctrines touch goes through one of these, so a new card is
 // a line here and a line in the table rather than a hunt through the sim.
@@ -1238,29 +1252,88 @@ function wRange(key) {
   return sp.range * m;
 }
 function wBeamW(key) { return (B[key].wide ? .72 : .42) * (has("beamup") ? 1.5 : 1); }
-function bMaxHp(key) {
+function bMaxHp(key, up) {
   const sp = B[key];
-  return Math.round(sp.hp * (has("rebar") && (sp.wall || sp.garrison) ? 1.70 : 1));
+  const base = sp.tiers ? sp.tiers[Math.min(up || 0, sp.tiers.length - 1)]
+                        : sp.hp * (1 + .22 * (up || 0));
+  return Math.round(base * (has("rebar") && (sp.wall || sp.garrison) ? 1.70 : 1));
+}
+// how far this thing can be upgraded. A wall stops at tier 1 until you have
+// researched 축성 - that is what the research buys, not a new card.
+function upCap(key) {
+  for (const t of TECH) if (t.caps && t.caps[key] !== undefined)
+    return G.tech.has(t.k) ? t.caps[key] : 1;
+  return 3;
+}
+function upName(b) { return bName(b); }
+function bName(b) {
+  const sp = B[b.key];
+  return sp.tierN ? sp.tierN[Math.min(b.up, sp.tierN.length - 1)] : sp.name;
+}
+function slowOf(b) {
+  const sp = B[b.key];
+  return sp.tierS ? sp.tierS[Math.min(b.up, sp.tierS.length - 1)] : sp.slow;
 }
 function bCost(key) {
   let m = has("fast") ? .85 : 1;
   if (has("minefld") && key === "mine") m *= .5;
   return Math.round(B[key].mat * m);
 }
-function garrisonOf(key) { return B[key].garrison ? B[key].garrison + (has("deep") && key === "trench" ? 1 : 0) : 0; }
-// how many soldiers may stand on one tile: bare ground holds one, a trench or
-// a bunker holds its whole crew. That is the reason to dig one.
+function garrisonOf(key, up) {
+  const sp = B[key];
+  if (!sp.garrison) return 0;
+  const base = sp.tierG ? sp.tierG[Math.min(up || 0, sp.tierG.length - 1)] : sp.garrison;
+  return base + (has("deep") && key === "trench" ? 1 : 0);
+}
+// How many line units a tile holds. Bare ground takes a couple standing
+// shoulder to shoulder; a trench or a bunker takes its whole crew, which is
+// the reason to dig one. Support crew never occupies a slot - they are
+// walking about doing their job.
 function tileCap(c, r) {
   const t = at(c, r);
-  if (!t || t.k === "block" || t.hq) return 0;
-  if (t.b) { const g = garrisonOf(t.b.key); return t.b.done && g ? g : 0; }
-  return 1;
+  if (!t || t.k === "block" || t.hq || t.k === "rough") return 0;
+  if (t.b) {
+    const sp = B[t.b.key];
+    if (!t.b.done) return 0;
+    return sp.garrison ? garrisonOf(t.b.key, t.b.up) : 0;   // a wall or a gun is not a firing step
+  }
+  return 2;
 }
-function tileCrowd(c, r) {
+function tileCrowd(c, r, except) {
   let n = 0;
-  for (const s of G.soldiers) if (!s.dead && !UNITS[s.t || "rifle"].crew &&
-      s.hc === c && s.hr === r) n++;
+  for (const s of G.soldiers)
+    if (s !== except && !s.dead && UNITS[s.t || "rifle"].line && s.hc === c && s.hr === r) n++;
   return n;
+}
+// the front-most live wall in a column: everything useful happens behind it
+function frontWallRow(c) {
+  for (let r = 0; r < ROWS; r++) {
+    const t = at(c, r);
+    if (t && t.b && !t.b.dead && B[t.b.key].wall) return r;
+  }
+  return -1;
+}
+// Where a line unit should stand. Cover first - a bunker beats a trench beats
+// bare ground - then as far forward as it can while still being behind the
+// wall, then whatever is closest to where it already is.
+function pickSlot(s) {
+  const u = UNITS[s.t || "rifle"];
+  let best = null, bestV = -1e9;
+  for (let c = 0; c < COLS; c++) {
+    const fw = frontWallRow(c);
+    for (let r = 1; r < ROWS; r++) {
+      if (zoneOf(r) < 0) continue;
+      const cap = tileCap(c, r);
+      if (!cap || tileCrowd(c, r, s) >= cap) continue;
+      if (fw >= 0 && r <= fw) continue;              // never in front of the wall
+      const t = at(c, r);
+      const cov = t.b && t.b.done ? (t.b.key === "bunker" ? 3 : t.b.key === "trench" ? 2 : 0) : 0;
+      const depth = fw >= 0 ? r - fw : r;            // how far back from the line
+      const v = cov * 120 - depth * 26 - Math.hypot(c + .5 - s.x, r + .5 - s.z) * 1.2;
+      if (v > bestV) { bestV = v; best = [c, r]; }
+    }
+  }
+  return best;
 }
 // the building a soldier is standing in, if any - that is where cover is from
 function coverKeyAt(s) {
@@ -1290,16 +1363,18 @@ function wRangeB(b) { return wRange(b.key) * (b.high ? HIGH_RANGE : 1); }
 function wCdB(b) { return wCd(b.key) * (1 - .055 * rankOf(b.xp)); }
 function upCost(b) { return Math.round(bCost(b.key) * .55 * (b.up + 1)); }
 function upgradeB(b) {
-  if (b.up >= 3) return "이미 최대 강화입니다";
+  const cap = upCap(b.key);
+  if (b.up >= cap) return cap < 3 ? "「축성」 연구가 필요합니다" : "이미 최대 강화입니다";
   const c = upCost(b);
   if (G.mat < c) return "자원이 부족합니다";
   G.mat -= c; b.up++;
   VIEW.refreshBuilding(b);
   SFX.play('upgrade');
-  const nm = Math.round(bMaxHp(b.key) * (1 + .22 * b.up));
+  // it keeps the damage it had taken: upgrading is reinforcing, not rebuilding
+  const nm = bMaxHp(b.key, b.up);
   b.hp += nm - b.maxHp; b.maxHp = nm;
   b.flash = 1; G.rings.push({ x: b.c + .5, z: b.r + .5, life: .5, max: .5, r: 1.1, col: 0x4fe3f0 });
-  floatText(B[b.key].name + " 강화 " + (b.up) + "단계");
+  floatText(bName(b) + " · 강화 " + b.up + "단계");
   return null;
 }
 function repairCost(b) {
@@ -1388,7 +1463,7 @@ function takeDoctrine(k) {
   G.doct.push(k);
   // some cards change things that already exist on the board
   if (k === "rebar") for (const b of G.buildings) {
-    const nm = bMaxHp(b.key);
+    const nm = bMaxHp(b.key, b.up);
     if (nm > b.maxHp) { b.hp += nm - b.maxHp; b.maxHp = nm; }
   }
   if (k === "vet") for (const s2 of G.soldiers) {
@@ -1477,7 +1552,7 @@ function place(key, c, r, face) {
   const cost = bCost(key);
   if (G.mat < cost) return "자원이 부족합니다";
   G.mat -= cost;
-  const mhp = bMaxHp(key);
+  const mhp = bMaxHp(key, 0);
   const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0, up: 0, xp: 0, rank: 0,
               high: t.k === "high", face: 0,
               cd: rnd(0, .4), aim: face === undefined ? Math.PI : face, flash: 0,
@@ -1513,40 +1588,29 @@ function killBuilding(b) {
 function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 
 // ---------------------------------------------------------------- soldiers
-// c/r/face are the tile you dropped it on. Crew ignores them and walks in
-// from the base; a bare call with no tile drops on the base too, which is
-// what the test harnesses and the crew cards do.
-function spawnSoldier(t, c, r, face) {
+// Everything turns up at the base and walks to its own position. Nothing is
+// placed by hand any more: you choose what the line is made of, the men
+// choose where to stand in it.
+function spawnSoldier(t) {
   t = t || "rifle";
   if (!isUnlocked(t)) return false;
   const u = UNITS[t], cost = solCost(t);
   if (G.mat < cost || G.man < u.man) return false;
-  const placed = !u.crew && c !== undefined;
   G.mat -= cost; G.man -= u.man;
   const mhp = solMaxHp(t);
-  const hc = placed ? c : Math.floor(COLS / 2), hr = placed ? r : ROWS - 2;
-  G.soldiers.push({
-    t, x: placed ? c + .5 + rnd(-.18, .18) : COLS / 2 + rnd(-.8, .8),
-    z: placed ? r + .5 + rnd(-.18, .18) : ROWS - .6,
-    hc, hr, face: face === undefined ? Math.PI : face,
+  const s = {
+    t, x: COLS / 2 + rnd(-1.2, 1.2), z: ROWS - .6,
+    hc: Math.floor(COLS / 2), hr: ROWS - 2, slotT: 0, job: null,
     hp: mhp, maxHp: mhp, cd: rnd(0, .5), dead: false,
-    aim: face === undefined ? -Math.PI / 2 : face, fire: 0, sup: 0
-  });
+    aim: Math.PI, fire: 0, sup: 0
+  };
+  G.soldiers.push(s);
+  if (u.line) { const sl = pickSlot(s); if (sl) { s.hc = sl[0]; s.hr = sl[1]; s.slotT = 1.4; } }
   return true;
 }
-// a unit card refuses a tile for its own reasons, the way a building does
-function unitCheck(t, c, r) {
+function unitCheck(t) {
   const u = UNITS[t];
   if (!isUnlocked(t)) return "아직 연구되지 않았습니다";
-  if (u.crew) return null;
-  const tl = at(c, r);
-  if (!tl) return "지도 밖입니다";
-  if (tl.k === "block") return "잔해가 막고 있습니다";
-  if (tl.hq) return "사령부 자리입니다";
-  if (zoneOf(r) < 0) return "적 접근로입니다";
-  const cap = tileCap(c, r);
-  if (!cap) return "설 수 없는 자리입니다";
-  if (tileCrowd(c, r) >= cap) return cap > 1 ? "자리가 찼습니다" : "이미 병사가 있습니다";
   if (G.mat < solCost(t)) return "자원이 부족합니다";
   if (G.man < u.man) return "인력이 부족합니다";
   return null;
@@ -1564,20 +1628,38 @@ function stepTo(o, tx2, tz2, spd, dt) {
 // on the whole board, not just what happens to be next to it.
 function crewJob(s, u) {
   let best = null, worst = .995;
+  // Two engineers must not pile onto the same wall - spread them over the
+  // damage instead. A job someone else has already claimed is scored as if it
+  // were most of the way healthy.
+  const taken = k => {
+    for (const o of G.soldiers)
+      if (o !== s && !o.dead && o.job === k) return true;
+    return false;
+  };
+  let bestKey = null;
   if (u.fix) {
     for (const b of G.buildings) {
       if (!b.done || b.hp >= b.maxHp * .995) continue;
-      const f = b.hp / b.maxHp + Math.hypot(b.c + .5 - s.x, b.r + .5 - s.z) * .012;
-      if (f < worst) { worst = f; best = [b.c + .5, b.r + .5]; }
+      const k = "b" + b.c + "," + b.r;
+      // stand on the friendly side of a wall, never on top of it or past it
+      const wr = frontWallRow(b.c);
+      const stand = (wr >= 0 && b.r <= wr) ? b.r + 1 : b.r;
+      if (zoneOf(stand) < 0) continue;
+      let f = b.hp / b.maxHp + Math.hypot(b.c + .5 - s.x, stand + .5 - s.z) * .010;
+      if (taken(k)) f += .55;
+      if (f < worst) { worst = f; best = [b.c + .5, stand + .5]; bestKey = k; }
     }
   }
   if (u.heal) {
     for (const o of G.soldiers) {
       if (o === s || o.dead || o.hp >= o.maxHp * .995) continue;
-      const f = o.hp / o.maxHp + Math.hypot(o.x - s.x, o.z - s.z) * .012;
-      if (f < worst) { worst = f; best = [o.x, o.z]; }
+      const k = "s" + G.soldiers.indexOf(o);
+      let f = o.hp / o.maxHp + Math.hypot(o.x - s.x, o.z - s.z) * .010;
+      if (taken(k)) f += .55;
+      if (f < worst) { worst = f; best = [o.x, o.z]; bestKey = k; }
     }
   }
+  s.job = bestKey;
   return best;
 }
 function reactPoint() {
@@ -1595,18 +1677,26 @@ function updateSoldiers(dt) {
     s.sup = Math.max(0, s.sup - dt);
 
     if (u.crew) {
-      // support walks itself. It goes to the worst case in range of the whole
-      // board, not to a tile you had to pick for it.
+      // support walks itself to the worst case on the board. It never stands
+      // in front of the wall: it works from the friendly side.
       const job = crewJob(s, u);
       if (job) stepTo(s, clamp(job[0], .3, COLS - .3), clamp(job[1], .6, ROWS - .4), u.spd, dt);
       else stepTo(s, COLS / 2 + ((i % 5) - 2) * .6, ROWS - 1.4, u.spd, dt);
-    } else if (u.free) {
-      // assault teams hold their tile until the line fails, then run to it
-      const rp2 = reactPoint();
-      if (rp2) stepTo(s, clamp(rp2[0], .3, COLS - .3), clamp(rp2[1], 1, ROWS - .6), u.spd, dt);
-      else stepTo(s, s.hc + .5, s.hr + .5, u.spd, dt);
     } else {
-      stepTo(s, s.hc + .5, s.hr + .5, u.spd, dt);
+      // line units post themselves. The slot is re-checked on a stagger, and
+      // whenever the wall in front of them changes, so they fall back as the
+      // line is eaten and move up again when it is rebuilt.
+      s.slotT -= dt;
+      const cap = tileCap(s.hc, s.hr);
+      if (s.slotT <= 0 || !cap || tileCrowd(s.hc, s.hr, s) >= cap) {
+        const sl = pickSlot(s);
+        if (sl) { s.hc = sl[0]; s.hr = sl[1]; }
+        s.slotT = 1.1 + Math.random() * 1.3;
+      }
+      const off = ((i * 37) % 7 - 3) * .09;
+      stepTo(s, s.hc + .5 + off, s.hr + .5 + ((i * 53) % 5 - 2) * .07, u.spd, dt);
+      // face the way the enemy comes from unless it is shooting at something
+      if (s.fire <= 0) s.aim += (Math.PI - s.aim) * Math.min(1, dt * 3);
     }
 
     // support work runs on its own clock, not the firing clock
@@ -1646,24 +1736,44 @@ function updateSoldiers(dt) {
       const rof = (spec && spec.rof ? spec.rof : 1) * (G.rally > 0 ? .5 : 1);
       const R2 = u.range * u.range;
       let tgt = null, seen = 0;
-      for (const e of G.enemies) {
-        const dx = e.x - s.x, dz = e.z - s.z;
-        if (dx * dx + dz * dz > R2) continue;
-        // anti-armour ignores the small stuff while anything big is in reach
-        if (u.heavy && !E[e.type].smash && seen > 0 && tgt && E[tgt.type].smash) continue;
-        if (u.heavy && E[e.type].smash && (!tgt || !E[tgt.type].smash)) { tgt = e; seen = 1; continue; }
-        seen++;
-        if (Math.random() * seen < 1) tgt = e;
+      if (u.lob) {
+        // a grenadier throws where the enemy is thickest, not at whoever is
+        // nearest: that is the whole reason to field one
+        let bestN = 0;
+        for (const e of G.enemies) {
+          const dx = e.x - s.x, dz = e.z - s.z;
+          if (dx * dx + dz * dz > R2) continue;
+          let n = 0;
+          for (const o of G.enemies) {
+            const ox = o.x - e.x, oz = o.z - e.z;
+            if (ox * ox + oz * oz < u.splash * u.splash) n += E[o.type].smash ? 3 : 1;
+          }
+          if (n > bestN) { bestN = n; tgt = e; }
+        }
+      } else {
+        for (const e of G.enemies) {
+          const dx = e.x - s.x, dz = e.z - s.z;
+          if (dx * dx + dz * dz > R2) continue;
+          seen++;
+          if (Math.random() * seen < 1) tgt = e;
+        }
       }
       if (tgt) {
         s.cd = u.cd * rof;
         s.fire = .12;
         s.aim = Math.atan2(tgt.x - s.x, tgt.z - s.z);
-        let d = solDmg(s.t);
-        if (u.heavy && E[tgt.type].smash) d *= u.heavy;
-        hurtEnemy(tgt, d);
-        SFX.play(u.heavy ? 'at' : 'rifle');
-        G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .07, hot: !!u.heavy });
+        if (u.lob) {
+          // it lands as a shell, so it goes through the same splash path as
+          // the artillery and gets the same "x N" number on the ground
+          G.shells.push({ x0: s.x, z0: s.z, x1: tgt.x, z1: tgt.z, t: 0, dur: .42,
+                          dmg: solDmg(s.t), splash: u.splash, heavy: u.heavy,
+                          big: false, src: null });
+          SFX.play('at');
+        } else {
+          hurtEnemy(tgt, solDmg(s.t));
+          SFX.play('rifle');
+          G.tracers.push({ x1: s.x, z1: s.z, x2: tgt.x, z2: tgt.z, life: .07, hot: false });
+        }
       } else s.cd = .2;
     }
   }
@@ -1805,12 +1915,22 @@ function updateShells(dt) {
     s.t += dt;
     if (s.t < s.dur) continue;
     const r = s.splash;
+    // one number for the whole burst, so a shell that hit nine things does not
+    // read as a shell that hit one
+    let hit = 0, sum = 0;
     for (const e of G.enemies) {
       const d = Math.hypot(e.x - s.x1, e.z - s.z1);
-      if (d < r) hurtEnemy(e, s.dmg * (1 - d / r * .45), s.src);
+      if (d >= r) continue;
+      let dm = s.dmg * (1 - d / r * .45);
+      if (s.heavy && E[e.type].smash) dm *= s.heavy;
+      hurtEnemy(e, dm, s.src);
+      hit++; sum += dm;
     }
+    if (hit) G.dmgs.push({ x: s.x1, z: s.z1, v: Math.round(sum), life: .95, big: true,
+                           tag: hit > 1 ? hit + "\uBA85" : "" });
     boom(s.x1, s.z1, r, s.big ? 26 : 16);
-    G.rings.push({ x: s.x1, z: s.z1, life: .45, max: .45, r: r * 1.9, col: 0xffb35c });
+    // the ring is the real radius now: it used to be drawn 1.9x too wide
+    G.rings.push({ x: s.x1, z: s.z1, life: .45, max: .45, r: r, col: 0xffb35c });
     SFX.play(s.big ? 'bigboom' : 'boom');
     G.shake = Math.max(G.shake, s.big ? .18 : .10);
     G.shells.splice(i, 1);
@@ -1821,7 +1941,7 @@ function updateShells(dt) {
 function spawnEnemy(type) {
   if (G.enemies.length >= MAX_ENEMIES) return;
   const spec = E[type];
-  const scale = (1 + G.assault * 0.30) * MAPS[G.map].diff;
+  const scale = (1 + G.assault * 0.42) * MAPS[G.map].diff;
   const lane = G.lanes[(Math.random() * G.lanes.length) | 0];
   G.enemies.push({
     type, x: clamp(lane + .5 + rnd(-1.3, 1.3), .25, COLS - .25), z: rnd(-APPROACH + .5, -APPROACH + 3.5),
@@ -1866,7 +1986,7 @@ function hurtEnemy(e, dmg, src) {
   }
 }
 // the swarm hits harder as the campaign runs, or a saturated board never loses
-function difficultyDamage() { return 1 + G.assault * 0.12; }
+function difficultyDamage() { return 1 + G.assault * 0.17; }
 function updateEnemies(dt) {
   if (G.flowDirty) rebuildFlow();
   const f = G.flow, dens = G.dens;
@@ -1960,7 +2080,7 @@ function updateEnemies(dt) {
     let surge = 1;
     for (const h of G.holes) if (h.life > 1.4 && Math.abs(h.c - e.x) < 3.2 && Math.abs(h.r - e.z) < 3.6) { surge = 1.5; break; }
     let spd = spec.spd * (G.berserk ? 1.6 : 1) * surge;
-    if (here && here.b && here.b.done && B[here.b.key].slow) spd *= B[here.b.key].slow;
+    if (here && here.b && here.b.done && slowOf(here.b)) spd *= slowOf(here.b);
     if (here && here.k === "rough") spd *= ROUGH_SPD;
     e.wob += dt * spd * 3.2;
     const tx2 = tc + .5 + e.off + Math.sin(e.wob) * .07;
@@ -2013,18 +2133,19 @@ function separate() {
               const wa = bm / tot, wb = am / tot;
               const ax = a.x - ox * push * wa, az = a.z - oz * push * wa;
               const bx2 = b.x + ox * push * wb, bz2 = b.z + oz * push * wb;
-              if (walkable(ax, az)) { a.x = ax; a.z = az; }
-              if (walkable(bx2, bz2)) { b.x = bx2; b.z = bz2; }
+              if (pushable(a.x, a.z, ax, az)) { a.x = ax; a.z = az; }
+              if (pushable(b.x, b.z, bx2, bz2)) { b.x = bx2; b.z = bz2; }
             } else if (d2 <= 1e-6) {
-              if (walkable(a.x - .04, a.z)) a.x -= .04;
-              if (walkable(b.x + .04, b.z)) b.x += .04;
+              if (pushable(a.x, a.z, a.x - .04, a.z)) a.x -= .04;
+              if (pushable(b.x, b.z, b.x + .04, b.z)) b.x += .04;
             }
           }
           j = sepNext[j];
         }
       }
     }
-    a.x = clamp(a.x, .12, COLS - .12);
+    const cx2 = clamp(a.x, .12, COLS - .12);
+    if (cx2 !== a.x && pushable(a.x, a.z, cx2, a.z)) a.x = cx2;
   }
 }
 
@@ -3959,21 +4080,25 @@ const VIEW = (() => {
       { g: new THREE.BoxGeometry(.028, .028, .10), m: T(.105, .36, -.31) },
       { g: new THREE.BoxGeometry(.03, .06, .05), m: T(.105, .31, -.06) }
     ],
-    // anti-armour: braced low behind a shoulder tube with a counterweight
-    at: () => [
-      ...legs(1.08), ...torso(1.05, .9, .30),
-      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(-.15, .38, .01, 0, 0, .40) },
-      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(.15, .38, .01, 0, 0, -.40) },
-      { g: new THREE.BoxGeometry(.095, .08, .10), m: T(-.02, .47, -.02, .12, 0, 0) },
-      // the tube, over the right shoulder, muzzle forward and back-blast rear
-      { g: new THREE.CylinderGeometry(.052, .052, .46, 8), m: T(.115, .49, -.06, Math.PI / 2, 0, 0) },
-      { g: new THREE.CylinderGeometry(.068, .046, .09, 8), m: T(.115, .49, -.30, Math.PI / 2, 0, 0) },
-      { g: new THREE.CylinderGeometry(.040, .062, .08, 8), m: T(.115, .49, .20, Math.PI / 2, 0, 0) },
-      { g: new THREE.BoxGeometry(.05, .07, .07), m: T(.115, .42, -.02) },
-      // bipod folded on the chest
-      { g: new THREE.BoxGeometry(.018, .16, .018), m: T(-.10, .30, -.10, .5, 0, .3) },
-      { g: new THREE.BoxGeometry(.018, .16, .018), m: T(-.05, .30, -.10, .5, 0, -.3) },
-      { g: new THREE.BoxGeometry(.16, .11, .08), m: T(0, .33, .10) }
+    // grenadier: a fat launcher held across the chest, drum magazine, and a
+    // bandolier of rounds - the tube is short and thick, not a long barrel
+    nade: () => [
+      ...legs(1.05), ...torso(1.04, .92, .31),
+      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(-.15, .39, .01, 0, 0, .40) },
+      { g: new THREE.BoxGeometry(.11, .11, .14), m: T(.15, .39, .01, 0, 0, -.40) },
+      { g: new THREE.BoxGeometry(.10, .085, .11), m: T(0, .49, -.01, .10, 0, 0) },
+      // launcher: wide bore, short, angled up because it lobs
+      { g: new THREE.CylinderGeometry(.062, .062, .26, 8), m: T(.04, .40, -.16, 1.30, 0, 0) },
+      { g: new THREE.CylinderGeometry(.078, .062, .06, 8), m: T(.055, .46, -.24, 1.30, 0, 0) },
+      { g: new THREE.CylinderGeometry(.072, .072, .07, 10), m: T(.02, .35, -.05, 0, 0, Math.PI / 2) },
+      { g: new THREE.BoxGeometry(.05, .09, .05), m: T(.02, .29, -.03, .2, 0, 0) },
+      { g: new THREE.BoxGeometry(.055, .04, .12), m: T(-.10, .38, -.06, 0, .3, 0) },
+      // bandolier of rounds across the chest
+      { g: new THREE.BoxGeometry(.19, .045, .05), m: T(0, .34, .09, 0, 0, .38) },
+      { g: new THREE.CylinderGeometry(.019, .019, .05, 6), m: T(-.06, .30, .115, Math.PI / 2, 0, 0) },
+      { g: new THREE.CylinderGeometry(.019, .019, .05, 6), m: T(-.01, .33, .115, Math.PI / 2, 0, 0) },
+      { g: new THREE.CylinderGeometry(.019, .019, .05, 6), m: T(.04, .36, .115, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.15, .12, .08), m: T(0, .34, .12) }
     ],
     // engineer: short, heavy pack, boom arm with a torch head
     eng: () => [
@@ -4005,22 +4130,6 @@ const VIEW = (() => {
       { g: new THREE.BoxGeometry(.030, .030, .17), m: T(.115, .35, -.11, .18, 0, 0) },
       { g: new THREE.BoxGeometry(.045, .045, .05), m: T(-.115, .33, -.21) },
       { g: new THREE.BoxGeometry(.045, .045, .05), m: T(.115, .33, -.21) }
-    ],
-    // assault team: heavier chassis behind a shield slab
-    guard: () => [
-      ...legs(1.18), ...torso(1.22, 1.05, .34),
-      { g: new THREE.BoxGeometry(.13, .13, .16), m: T(-.17, .43, 0, 0, 0, .30) },
-      { g: new THREE.BoxGeometry(.13, .13, .16), m: T(.17, .43, 0, 0, 0, -.30) },
-      { g: new THREE.BoxGeometry(.115, .10, .12), m: T(0, .54, -.01) },
-      { g: new THREE.BoxGeometry(.19, .16, .09), m: T(0, .38, .11) },
-      // the shield: a raked slab on the left arm, ribbed
-      { g: new THREE.BoxGeometry(.30, .40, .05), m: T(-.20, .28, -.17, .10, .22, .05) },
-      { g: new THREE.BoxGeometry(.05, .40, .07), m: T(-.33, .28, -.16, .10, .22, .05) },
-      { g: new THREE.BoxGeometry(.05, .40, .07), m: T(-.07, .28, -.18, .10, .22, .05) },
-      { g: new THREE.BoxGeometry(.26, .05, .07), m: T(-.20, .46, -.17, .10, .22, .05) },
-      // stubby weapon on the right
-      { g: new THREE.BoxGeometry(.055, .06, .20), m: T(.145, .38, -.11) },
-      { g: new THREE.BoxGeometry(.034, .034, .07), m: T(.145, .38, -.23) }
     ]
   };
   const SOLDIER_LIT = {
@@ -4030,11 +4139,11 @@ const VIEW = (() => {
       { g: new THREE.BoxGeometry(.10, .012, .012), m: T(0, .285, -.068) },
       { g: new THREE.BoxGeometry(.02, .02, .012), m: T(.105, .36, -.355) }
     ],
-    at: () => [
-      { g: new THREE.CylinderGeometry(.042, .042, .026, 8), m: T(0, .32, -.10, Math.PI / 2, 0, 0) },
-      { g: new THREE.BoxGeometry(.06, .020, .014), m: T(-.02, .475, -.072) },
-      { g: new THREE.CylinderGeometry(.030, .030, .014, 8), m: T(.115, .49, -.345, Math.PI / 2, 0, 0) },
-      { g: new THREE.BoxGeometry(.012, .04, .012), m: T(.148, .44, -.02) }
+    nade: () => [
+      { g: new THREE.CylinderGeometry(.044, .044, .026, 8), m: T(0, .33, -.10, Math.PI / 2, 0, 0) },
+      { g: new THREE.BoxGeometry(.062, .020, .014), m: T(0, .49, -.068) },
+      { g: new THREE.CylinderGeometry(.036, .036, .016, 8), m: T(.055, .48, -.265, 1.30, 0, 0) },
+      { g: new THREE.BoxGeometry(.10, .014, .014), m: T(0, .335, .128, 0, 0, .38) }
     ],
     eng: () => [
       { g: new THREE.CylinderGeometry(.040, .040, .026, 8), m: T(0, .31, -.10, Math.PI / 2, 0, 0) },
@@ -4048,12 +4157,6 @@ const VIEW = (() => {
       { g: new THREE.BoxGeometry(.022, .07, .014), m: T(0, .30, -.062) },
       { g: new THREE.BoxGeometry(.03, .03, .014), m: T(-.115, .33, -.24) },
       { g: new THREE.BoxGeometry(.03, .03, .014), m: T(.115, .33, -.24) }
-    ],
-    guard: () => [
-      { g: new THREE.CylinderGeometry(.052, .052, .030, 8), m: T(0, .37, -.11, Math.PI / 2, 0, 0) },
-      { g: new THREE.BoxGeometry(.085, .024, .016), m: T(0, .545, -.065) },
-      { g: new THREE.BoxGeometry(.20, .022, .016), m: T(-.20, .36, -.20, .10, .22, .05) },
-      { g: new THREE.BoxGeometry(.024, .024, .014), m: T(.145, .38, -.27) }
     ]
   };
   // Each role gets its own painted chassis. All still read as one army because
@@ -4064,27 +4167,24 @@ const VIEW = (() => {
     roughness: rough, metalness: metal });
   const INF_MAT = {
     rifle: infMatOf(0x3a648f, .42, .62),   // service blue
-    at:    infMatOf(0x3c4a26, .50, .55),   // olive gunmetal
+    nade:  infMatOf(0x3c4a26, .50, .55),   // olive gunmetal
     eng:   infMatOf(0x7a5410, .52, .48),   // hazard amber
-    medic: infMatOf(0xa8b6bc, .34, .52),   // near-white
-    guard: infMatOf(0x2b3c5e, .38, .70)    // heavy navy
+    medic: infMatOf(0xa8b6bc, .34, .52)    // near-white
   };
   const litMatOf = (c, e) => new THREE.MeshStandardMaterial({
     color: c, emissive: e, emissiveIntensity: 2.1, roughness: .25 });
   const INF_LIT = {
     rifle: litMatOf(0x64e0ff, 0x2ec6ff),
-    at:    litMatOf(0xffd06a, 0xffa018),
+    nade:  litMatOf(0xffd06a, 0xffa018),
     eng:   litMatOf(0x8bff9e, 0x36d95a),
-    medic: litMatOf(0xffffff, 0xd8ecff),
-    guard: litMatOf(0xff9a68, 0xff5a1e)
+    medic: litMatOf(0xffffff, 0xd8ecff)
   };
   // role colour on the reactor core, chassis tint near-neutral
   const ROLE = {
-    rifle: { sc: .80, cap: 70 },
-    at:    { sc: .86, cap: 24 },
-    eng:   { sc: .80, cap: 16 },
-    medic: { sc: .80, cap: 14 },
-    guard: { sc: 1.06, cap: 20 }
+    rifle: { sc: .80, cap: 90 },
+    nade:  { sc: .86, cap: 34 },
+    eng:   { sc: .80, cap: 20 },
+    medic: { sc: .80, cap: 18 }
   };
   const sBody = {}, sLit = {}, sCount = {};
   for (const t in ROLE) {
@@ -4209,21 +4309,6 @@ const VIEW = (() => {
       box(.9, .06, .66, M.conc, 0, .34, 0, g);
       box(.16, .05, .05, M.orange, .3, .4, 0, g);
       for (let i = 0; i < 4; i++) box(.2, .13, .16, M.sand, -.33 + i * .22, 0, .36, g);
-    } else if (K === "barricade") {
-      const L = b.up;
-      box(.98, .10, .30, M.dark, 0, 0, 0, g);
-      const p1 = box(.96, .56 + L * .10, .09, M.steel, 0, .08, -.04, g);
-      p1.rotation.x = -.16;
-      for (const dx of [-.40, 0, .40]) {
-        const l2 = box(.08, .40, .34, M.dark, dx, .04, .16, g);
-        l2.rotation.x = .48;
-      }
-      box(.98, .07, .13, M.dark, 0, .60 + L * .10, -.09, g);
-      if (L >= 1) for (const dx of [-.30, 0, .30]) box(.12, .16, .07, M.steel, dx, .67 + L * .10, -.08, g);
-      if (L >= 2) { box(.98, .09, .16, M.steel, 0, 0, -.16, g);
-                    for (const dx of [-.42, .42]) box(.10, .70, .16, M.steel, dx, .08, -.04, g); }
-      if (L >= 3) box(.70, .04, .04, M.cyan, 0, .70 + L * .10, -.11, g);
-      box(.12, .03, .03, M.cyan, .38, .58 + L * .10, -.06, g);
     } else if (K === "wall") {
       // a real barrier: footing, slab, coping, buttresses on the friendly side
       const L = b.up, H = .74 + L * .16;
@@ -4248,24 +4333,7 @@ const VIEW = (() => {
         box(.76, .04, .04, M.cyan, 0, .53 + H, -.19, g);
       }
       box(.16, .04, .04, M.cyan, -.36, .16 + H, -.21, g);
-    } else if (K === "dragon") {
-      const L = b.up;
-      box(.99, .10, .72, M.conc, 0, 0, 0, g);
-      const rows = L >= 2 ? 3 : 2;
-      const th = .74 + L * .13;
-      for (let j = 0; j < rows; j++) {
-        const n = j % 2 ? 2 : 3;
-        for (let i = 0; i < n; i++) {
-          const t = new THREE.Mesh(new THREE.ConeGeometry(.27 + L * .025, th, 4), M.conc);
-          t.position.set((n === 3 ? -.32 + i * .32 : -.17 + i * .34), .10 + th / 2, -.24 + j * .26);
-          t.rotation.y = Math.PI / 4;
-          t.castShadow = true; t.receiveShadow = true; g.add(t);
-        }
-      }
-      for (const dz of [-.32, .30]) box(.99, .06, .06, M.rust, 0, .46 + L * .08, dz, g);
-      if (L >= 1) for (const dx of [-.44, .44]) box(.10, .62 + L * .08, .74, M.conc, dx, .10, 0, g);
-      if (L >= 3) box(.82, .05, .05, M.cyan, 0, .58 + L * .08, -.36, g);
-        } else if (K === "mine") {
+    } else if (K === "mine") {
       cyl(.21, .25, .07, 8, M.dark, 0, 0, 0, g);
       cyl(.10, .13, .05, 8, M.steel, 0, .07, 0, g);
       box(.05, .025, .05, M.cyan, 0, .12, 0, g);
@@ -4599,12 +4667,23 @@ const VIEW = (() => {
         el.hidden = false;
         el.textContent = d.v;
         el.className = d.big ? "big" : "";
+        if (d.tag) el.textContent = d.v + "  " + d.tag;
         el.style.left = ((v.x * .5 + .5) * innerWidth) + "px";
         el.style.top = ((-v.y * .5 + .5) * innerHeight) + "px";
         el.style.opacity = Math.min(1, d.life / .3);
       });
       for (let i = list.length; i < pool.length; i++) pool[i].hidden = true;
     } };
+  })();
+
+  // spark colours resolved once and kept: there are only a handful of them
+  const PCOL = (() => {
+    const cache = {}, c = new THREE.Color();
+    return hex => {
+      let v = cache[hex];
+      if (!v) { c.setHex(hex); v = cache[hex] = [c.r, c.g, c.b]; }
+      return v;
+    };
   })();
 
   const raycaster = new THREE.Raycaster();
@@ -4795,8 +4874,8 @@ const VIEW = (() => {
       for (const p of G.parts) {
         if (pn >= SPARK_MAX) break;
         pos[pn * 3] = wx(p.x); pos[pn * 3 + 1] = p.y; pos[pn * 3 + 2] = wz(p.z);
-        const c = new THREE.Color(p.col);
-        col[pn * 3] = c.r; col[pn * 3 + 1] = c.g; col[pn * 3 + 2] = c.b;
+        const rgb = PCOL(p.col);
+        col[pn * 3] = rgb[0]; col[pn * 3 + 1] = rgb[1]; col[pn * 3 + 2] = rgb[2];
         pn++;
       }
       sparkGeo.setDrawRange(0, pn);
@@ -5003,9 +5082,7 @@ const GLYPH = {
   eng:    '<circle cx="12" cy="6" r="2.8"/><polyline points="7,20 9,12 15,12 17,20"/><path d="M17 4 l3 3 -2.5 2.5 -3 -3z"/><line x1="14.5" y1="9.5" x2="11" y2="13"/>',
   med:    '<circle cx="12" cy="6" r="2.8"/><polyline points="7,20 9,12 15,12 17,20"/><line x1="12" y1="14" x2="12" y2="19"/><line x1="9.5" y1="16.5" x2="14.5" y2="16.5"/>',
   gd:     '<circle cx="12" cy="6" r="2.8"/><polyline points="6,20 8,12 16,12 18,20"/><polygon points="12,9 16,11 16,16 12,18 8,16 8,11"/>',
-  barricade: '<line x1="2" y1="19" x2="22" y2="19"/><polyline points="5,19 8,7 20,7"/><line x1="7" y1="13" x2="20" y2="13"/>',
   wall:   '<rect x="3" y="14" width="18" height="5"/><rect x="5" y="9" width="14" height="5"/><rect x="8" y="4" width="8" height="5"/>',
-  dragon: '<polygon points="3,18 6,10 9,18"/><polygon points="11,18 14,8 17,18"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="4" y1="14" x2="20" y2="12"/>',
   mine:   '<circle cx="12" cy="15" r="4.5"/><line x1="12" y1="10" x2="12" y2="5"/><line x1="6" y1="8" x2="8.5" y2="11.5"/><line x1="18" y1="8" x2="15.5" y2="11.5"/>',
   flame:  '<rect x="3" y="9" width="7" height="8" rx="2"/><line x1="10" y1="13" x2="14" y2="13"/><polyline points="14,9 21,13 14,17"/>',
   tesla:  '<ellipse cx="12" cy="7" rx="7" ry="2.5"/><line x1="12" y1="9" x2="12" y2="19"/><line x1="6" y1="20" x2="18" y2="20"/><polyline points="9,12 13,12 10,16 14,16"/>',
@@ -5088,21 +5165,6 @@ function mkAct(title, cost, on, opts) {
   if (opts && opts.off) b.disabled = true; else b.addEventListener("click", on);
   return b;
 }
-// `pick` holds a building key or a unit key: both go on the board the same
-// way, so the drag path asks these three instead of B[] directly.
-const isUnit = k => !!UNITS[k];
-function pickCheck(k, c, r) { return isUnit(k) ? unitCheck(k, c, r) : placeCheck(k, c, r); }
-function pickPlace(k, c, r, face) {
-  if (!isUnit(k)) return place(k, c, r, face);
-  const e = unitCheck(k, c, r);
-  if (e) return e;
-  spawnSoldier(k, c, r, face);
-  SFX.play("build");
-  return null;
-}
-const pickZone = k => isUnit(k) ? -2 : B[k].z;
-const pickName = k => (isUnit(k) ? UNITS[k] : B[k]).name;
-
 let armed = null;   // an ability waiting for a map tap
 let dragFromCard = false;
 let aim = null;     // a placement waiting for its facing
@@ -5251,8 +5313,8 @@ function syncSheet() {
   body.innerHTML = "";
   document.querySelectorAll(".tab").forEach(t => t.dataset.on = (+t.dataset.zone === tab) ? "1" : "0");
   if (tab === 3) {
-    $("hint").textContent = "카드를 원하는 칸으로 끌어다 놓으세요 · 공병·위생병은 스스로 움직입니다";
-    for (const t of ["rifle", "at", "eng", "medic", "guard"]) {
+    $("hint").textContent = "뽑기만 하면 됩니다 · 병력은 스스로 벽 뒤에 자리를 잡습니다";
+    for (const t of ["rifle", "nade", "eng", "medic"]) {
       const u = UNITS[t], c1 = solCost(t);
       if (!isUnlocked(t)) {
         const lk = document.createElement("div");
@@ -5264,28 +5326,21 @@ function syncSheet() {
       }
       const poor = G.mat < c1 || G.man < u.man;
       const tag = `<em>인력 ${u.man}</em> · `;
-      if (u.crew) {
-        // no tile to choose: buy it and it goes to work by itself
-        body.appendChild(mkAct(u.name, `${tag}${u.desc}`,
-          () => { spawnSoldier(t); syncSheet(); },
-          { off: poor, cost: c1, glyph: u.g, zone: 3 }));
-        continue;
-      }
-      const el = mkAct(u.name, `${tag}${u.desc}`, () => {
-        pick = (pick === t) ? null : t; armed = null; closeInsp(); syncSheet();
-      }, { off: poor && pick !== t, sel: pick === t, cost: c1, glyph: u.g, zone: 3 });
-      el.addEventListener("pointerdown", () => {
-        if (poor) return;
-        pick = t; armed = null; closeInsp(); dragFromCard = true;
-        $("hint").textContent = u.name + " — 칸으로 끌어다 놓으세요";
-      });
-      body.appendChild(el);
+      body.appendChild(mkAct(u.name, `${tag}${u.desc}`,
+        () => { spawnSoldier(t); syncSheet(); syncTop(); },
+        { off: poor, cost: c1, glyph: u.g, zone: 3 }));
     }
+    // ...and a squad button, because one at a time is a clicking exercise
+    const rc5 = solCost("rifle") * 5;
+    body.appendChild(mkAct("보병 ×5", "한 번에 다섯 명", () => {
+      for (let i2 = 0; i2 < 5; i2++) if (!spawnSoldier("rifle")) break;
+      syncSheet(); syncTop();
+    }, { off: G.mat < rc5 || G.man < UNITS.rifle.man * 5, cost: rc5, glyph: "inf", zone: 3 }));
     VIEW.highlight(null);
     return;
   }
   $("hint").textContent = armed ? "포격할 칸을 누르세요"
-    : pick ? `${pickName(pick)} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
+    : pick ? `${B[pick].name} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
     if (!isUnlocked(key)) {
@@ -5299,7 +5354,7 @@ function syncSheet() {
     const cost = bCost(key);
     const extra = spec.garrison ? `<em>병사 ${garrisonOf(key)}</em> · `
                 : spec.upkeep   ? `<em>유지 ${spec.upkeep}</em> · `
-                : spec.wall     ? `<em>내구 ${bMaxHp(key)}</em> · ` : "";
+                : spec.wall     ? `<em>내구 ${bMaxHp(key, 0)}</em> · ` : "";
     const el = mkAct(spec.name, `${extra}${spec.desc}`, () => {
       pick = (pick === key) ? null : key; armed = null;
       closeInsp();
@@ -5314,7 +5369,7 @@ function syncSheet() {
     });
     body.appendChild(el);
   }
-  VIEW.highlight(pick && !isUnit(pick) ? B[pick].z : null);
+  VIEW.highlight(pick ? B[pick].z : null);
 }
 
 let last = performance.now(), acc = 0, uiT = 0;
@@ -5505,7 +5560,7 @@ function commitAim() {
   if (!aim) return;
   const k = aim.key, c = aim.c, r = aim.r, f = aim.face;
   cancelAim();
-  const err = pickPlace(k, c, r, f);
+  const err = place(k, c, r, f);
   if (err) floatText(err);
   syncSheet();
 }
@@ -5531,7 +5586,7 @@ function tap(cx, cy) {
   const t2 = at(hit.c, hit.r);
   if (t2 && t2.b) { G.sel = t2.b; syncInsp(); return; }   // occupied: inspect it
   closeInsp();
-  const err = pickPlace(pick, hit.c, hit.r);
+  const err = place(pick, hit.c, hit.r);
   if (err) floatText(err);
   syncSheet();
 }
@@ -5544,7 +5599,6 @@ function drag(cx, cy) {
   const cell = hit.r * COLS + hit.c;
   if (cell === lastCell) return;
   lastCell = cell;
-  if (isUnit(pick)) return;          // units are one drop each, never a drag run
   if (G.mat < bCost(pick)) return;
   if (!place(pick, hit.c, hit.r)) syncSheet();
 }
@@ -5559,7 +5613,7 @@ addEventListener("pointermove", e => {
   if (aim) { if (down) updateAim(e.clientX, e.clientY); return; }
   if (dragFromCard) {
     const h = VIEW.pickTile(e.clientX, e.clientY);
-    if (h && pick && !pickCheck(pick, h.c, h.r) && !isUnit(pick)) VIEW.preview(pick, h.c, h.r, Math.PI);
+    if (h && pick && !placeCheck(pick, h.c, h.r)) VIEW.preview(pick, h.c, h.r, Math.PI);
     else VIEW.preview(null);
     return;
   }
@@ -5572,7 +5626,7 @@ addEventListener("pointerup", e => {
     VIEW.preview(null);
     const h = VIEW.pickTile(e.clientX, e.clientY);
     if (h && pick) {
-      const why = pickCheck(pick, h.c, h.r);
+      const why = placeCheck(pick, h.c, h.r);
       if (why) floatText(why); else beginAim(pick, h.c, h.r);
     }
     down = false; return;
@@ -5642,7 +5696,7 @@ const TECH_COLS = [
   ["전선", ["t_bunker", "t_wall", "t_mine"]],
   ["화력", ["t_mortar", "t_flame", "t_tesla", "t_sniper"]],
   ["중장비", ["t_siege", "t_arty", "t_mech", "t_rail"]],
-  ["병력", ["t_eng", "t_medic", "t_at", "t_guard"]]
+  ["병력", ["t_eng", "t_medic", "t_nade"]]
 ];
 function syncTech() {
   const g = $("techGrid");
