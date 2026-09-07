@@ -290,7 +290,10 @@
 // ground decal layer.
 // ============================================================================
 
-const TILE = 20, GW = 76, GH = 48;
+const TILE = 20, GW = 72, GH = 78;
+// The camera is tilted: world Y is compressed on screen, and anything with
+// height is drawn upward from its ground point. Simulation stays flat 2D.
+const SQ = 0.62, HZ = 1 / SQ;
 const WW = GW * TILE, WH = GH * TILE;
 const TICK = 1 / 60;
 
@@ -476,17 +479,26 @@ function buildTerrainLayer() {
   // sunlit crest, then the body pulled down-right off it
   // Terraced mesa: each inset ring is an eroded copy of the silhouette, so
   // a rock mass reads as stacked benches rather than one poured blob.
-  t.fillStyle = '#3E4038'; shape(TILE * 0.652, 2.6, 3.4); t.fill();   // contact shadow
-  t.fillStyle = '#C3C2B4'; shape(TILE * 0.632, 0, 0); t.fill();       // sunlit crest
-  t.fillStyle = '#787A70'; shape(TILE * 0.628, 1.6, 2.1); t.fill();   // lower bench
-  t.fillStyle = '#B2B2A4'; shape(TILE * 0.50, -0.4, -0.8); t.fill();  // mid crest
-  t.fillStyle = '#868778'; shape(TILE * 0.495, 1.2, 1.6); t.fill();   // mid bench
-  t.fillStyle = '#BFBEAF'; shape(TILE * 0.35, -0.6, -1.0); t.fill();  // top crest
-  t.fillStyle = '#949586'; shape(TILE * 0.345, 1.0, 1.4); t.fill();   // top bench
+  // cliff face: the silhouette swept upward, so rock stands off the ground
+  const CLIFF = 15 * HZ;
+  t.fillStyle = '#3E4038'; shape(TILE * 0.652, 3.0, 4.0); t.fill();   // contact shadow
+  for (let i = 16; i >= 0; i--) {
+    const f = i / 16;
+    const v = 58 + f * 34;
+    t.fillStyle = `rgb(${v | 0},${(v + 2) | 0},${(v - 6) | 0})`;
+    shape(TILE * 0.626, 0, -CLIFF * (1 - f));
+    t.fill();
+  }
+  t.fillStyle = '#C3C2B4'; shape(TILE * 0.632, 0, -CLIFF); t.fill();  // sunlit crest
+  t.fillStyle = '#787A70'; shape(TILE * 0.628, 1.2, -CLIFF + 1.6); t.fill();   // lower bench
+  t.fillStyle = '#B2B2A4'; shape(TILE * 0.50, -0.4, -CLIFF - 4); t.fill();  // mid crest
+  t.fillStyle = '#868778'; shape(TILE * 0.495, 1.0, -CLIFF - 2.4); t.fill();   // mid bench
+  t.fillStyle = '#BFBEAF'; shape(TILE * 0.35, -0.6, -CLIFF - 9); t.fill();  // top crest
+  t.fillStyle = '#949586'; shape(TILE * 0.345, 0.8, -CLIFF - 7); t.fill();   // top bench
 
   // ---- rock surface: parallel bedding, sparse weathering ----
   t.save();
-  shape(TILE * 0.628, 1.6, 2.1); t.clip();
+  shape(TILE * 0.628, 1.2, -CLIFF + 1.6); t.clip();
   const BED = -0.13;   // one bedding direction for the whole formation
   for (let i = 0; i < 60; i++) {
     const x = Math.random() * WW, y = Math.random() * WH, r = rnd(50, 170);
@@ -511,12 +523,12 @@ function buildTerrainLayer() {
   }
   t.restore();
 
-  buildTrees(t);
+  buildTrees();
   buildProps(t);
 }
 
 // Canopy. Trees hug the rock so they never clutter the ground units cross.
-function buildTrees(t) {
+function buildTrees() {
   const nearRock = (gx, gy) => {
     for (let oy = -2; oy <= 2; oy++) for (let ox = -2; ox <= 2; ox++) {
       const x = gx + ox, y = gy + oy;
@@ -528,20 +540,33 @@ function buildTrees(t) {
   for (let gy = 1; gy < GH - 1; gy++) for (let gx = 1; gx < GW - 1; gx++) {
     if (terrain[idx(gx, gy)] !== T_OPEN) continue;
     if (!nearRock(gx, gy)) continue;
-    if (Math.random() > 0.34) continue;
+    if (Math.random() > 0.20) continue;
     spots.push([gx * TILE + rnd(0, TILE), gy * TILE + rnd(0, TILE)]);
   }
+  trees.length = 0;
   for (const [x, y] of spots) {
-    const r = rnd(5, 11);
-    t.fillStyle = 'rgba(30,36,20,0.34)';                    // cast shadow
-    t.beginPath(); t.ellipse(x + r * 0.7, y + r * 0.9, r * 1.15, r * 0.65, 0, 0, 6.2832); t.fill();
-    t.fillStyle = '#2C3A1C';                                // shaded canopy
-    t.beginPath(); t.arc(x, y, r, 0, 6.2832); t.fill();
-    t.fillStyle = '#445A24';                                // body
-    t.beginPath(); t.arc(x - r * 0.14, y - r * 0.18, r * 0.86, 0, 6.2832); t.fill();
-    t.fillStyle = '#6A8434';                                // sunlit crown
-    t.beginPath(); t.arc(x - r * 0.3, y - r * 0.34, r * 0.5, 0, 6.2832); t.fill();
+    const big = Math.random() < 0.22;
+    trees.push({ x, y, r: big ? rnd(11, 16) : rnd(4.5, 9), h: big ? rnd(26, 40) : rnd(10, 22) });
   }
+}
+function drawTree(t) {
+  ctx.fillStyle = 'rgba(28,34,18,0.36)';
+  ctx.beginPath();
+  ctx.ellipse(t.x + t.h * 0.30, t.y + 2, t.r * 1.25, t.r * 0.85, 0, 0, 6.2832);
+  ctx.fill();
+  ctx.strokeStyle = '#4A3D28'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.moveTo(t.x, t.y);
+  ctx.lineTo(t.x, t.y - t.h * 0.7 * HZ); ctx.stroke();
+  ctx.save();
+  ctx.translate(t.x, t.y - t.h * HZ);
+  ctx.scale(1, HZ);
+  ctx.fillStyle = '#2C3A1C';
+  ctx.beginPath(); ctx.arc(0, 0, t.r, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = '#47601F';
+  ctx.beginPath(); ctx.arc(-t.r * 0.16, -t.r * 0.2, t.r * 0.84, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = '#6F8A34';
+  ctx.beginPath(); ctx.arc(-t.r * 0.32, -t.r * 0.36, t.r * 0.46, 0, 6.2832); ctx.fill();
+  ctx.restore();
 }
 
 // Ground furniture. Without this the plain reads as an empty board.
@@ -584,12 +609,12 @@ function buildProps(t) {
   // hazard chevrons at each gate mouth
   for (const g of GATES) {
     for (let k = -2; k <= 2; k++) {
-      const y = (g.y + k) * TILE + TILE / 2;
+      const x = (g.x + k) * TILE + TILE / 2;
       t.strokeStyle = 'rgba(214,166,32,0.34)'; t.lineWidth = 3.2;
       for (let i = 0; i < 3; i++) {
-        const x = (g.x - 3 + i * 2) * TILE;
+        const y = (g.y - 3 + i * 2) * TILE;
         t.beginPath();
-        t.moveTo(x, y - 6); t.lineTo(x + 7, y); t.lineTo(x, y + 6);
+        t.moveTo(x - 6, y); t.lineTo(x, y + 7); t.lineTo(x + 6, y);
         t.stroke();
       }
     }
@@ -709,7 +734,7 @@ const blight  = new Float32Array(GW * GH);
 const dist    = new Float32Array(GW * GH);
 const nextIdx = new Int32Array(GW * GH);
 
-let buildings = [], foes = [], projs = [], parts = [];
+let buildings = [], foes = [], projs = [], parts = [], trees = [];
 // airborne dust drifting on a slowly turning wind
 const motes = [];
 for (let i = 0; i < 260; i++) motes.push({
@@ -740,19 +765,19 @@ function buildMap() {
   // Open field first. The swarm must arrive as a mass, not a queue, so the
   // approach lanes are wide and the ground near the hub is a broad plain.
   terrain.fill(T_OPEN);
-  const hx = (GW * 0.76) | 0, hy = (GH / 2) | 0;
+  const hx = (GW / 2) | 0, hy = (GH * 0.80) | 0;
 
-  // two ridges split the western half into three wide lanes
-  const ridge = (yc, x0, x1) => {
-    for (let x = x0; x < x1; x++) {
-      const th = 1.9 + Math.sin(x * 0.21) * 1.2 + Math.sin(x * 0.07) * 1.0;
-      const yy = yc + Math.sin(x * 0.11) * 2.4;
-      for (let y = Math.round(yy - th); y <= Math.round(yy + th); y++)
+  // two ridges split the far ground into three lanes running toward camera
+  const ridge = (xc, y0, y1) => {
+    for (let y = y0; y < y1; y++) {
+      const th = 1.9 + Math.sin(y * 0.21) * 1.2 + Math.sin(y * 0.07) * 1.0;
+      const xx = xc + Math.sin(y * 0.11) * 2.4;
+      for (let x = Math.round(xx - th); x <= Math.round(xx + th); x++)
         if (inb(x, y)) terrain[idx(x, y)] = T_ROCK;
     }
   };
-  ridge(GH * 0.32, 6, (GW * 0.62) | 0);
-  ridge(GH * 0.68, 6, (GW * 0.62) | 0);
+  ridge(GW * 0.34, 5, (GH * 0.60) | 0);
+  ridge(GW * 0.66, 5, (GH * 0.60) | 0);
 
   // scattered cover so the plain is not featureless
   for (let i = 0; i < 30; i++) {
@@ -763,40 +788,38 @@ function buildMap() {
   // A curtain wall closes off the inner ground, pierced by exactly three
   // gates. Those gates are the defensible line the player starts from; the
   // crystal sits outside them, which is the whole tension of the map.
-  const GATE_X = (GW * 0.60) | 0;
-  for (let y = 0; y < GH; y++)
-    for (let x = GATE_X; x < GATE_X + 4; x++) terrain[idx(x, y)] = T_ROCK;
-  const laneY = [(GH * 0.13) | 0, (GH * 0.5) | 0, (GH * 0.87) | 0];
+  const GATE_Y = (GH * 0.62) | 0;
+  for (let x = 0; x < GW; x++)
+    for (let y = GATE_Y; y < GATE_Y + 4; y++) terrain[idx(x, y)] = T_ROCK;
+  const laneX = [(GW * 0.16) | 0, (GW * 0.5) | 0, (GW * 0.84) | 0];
   GATES.length = 0;
-  for (const gy of laneY) {
-    for (let y = gy - 2; y <= gy + 2; y++)
-      for (let x = GATE_X - 1; x < GATE_X + 5; x++)
+  for (const gx of laneX) {
+    for (let x = gx - 2; x <= gx + 2; x++)
+      for (let y = GATE_Y - 1; y < GATE_Y + 5; y++)
         if (inb(x, y)) terrain[idx(x, y)] = T_OPEN;
-    GATES.push({ x: GATE_X + 2, y: gy });
+    GATES.push({ x: gx, y: GATE_Y + 2 });
   }
 
-  // inner plain around the hub
-  for (let y = 2; y < GH - 2; y++)
-    for (let x = GATE_X + 5; x < GW - 2; x++) terrain[idx(x, y)] = T_OPEN;
+  // the held ground in front of the camera
+  for (let y = GATE_Y + 5; y < GH - 2; y++)
+    for (let x = 2; x < GW - 2; x++) terrain[idx(x, y)] = T_OPEN;
   carveDisc(hx, hy, 11);
 
-  SPAWNS.push({ x: 1, y: laneY[0] });
-  SPAWNS.push({ x: 1, y: laneY[1] });
-  SPAWNS.push({ x: 1, y: laneY[2] });
-  for (const s of SPAWNS) carveDisc(s.x + 2, s.y, 5);
+  for (const lx of laneX) SPAWNS.push({ x: lx, y: 1 });
+  for (const sp of SPAWNS) carveDisc(sp.x, sp.y + 2, 5);
 
   // hard border
   for (let x = 0; x < GW; x++) { terrain[idx(x, 0)] = T_ROCK; terrain[idx(x, GH - 1)] = T_ROCK; }
   for (let y = 0; y < GH; y++) { terrain[idx(GW - 1, y)] = T_ROCK; terrain[idx(0, y)] = T_ROCK; }
-  for (const s of SPAWNS) for (let d = -3; d <= 3; d++)
-    if (inb(1, s.y + d)) terrain[idx(1, s.y + d)] = T_OPEN;
+  for (const sp of SPAWNS) for (let d = -3; d <= 3; d++)
+    if (inb(sp.x + d, 1)) terrain[idx(sp.x + d, 1)] = T_OPEN;
 
-  // One safe node behind the gates. Everything else is outside them, so
+  // One safe node behind the gates. Everything else is beyond them, so
   // growing the economy means holding ground you would rather not hold.
-  placeNode(hx - 6, hy + 5);
+  placeNode(hx - 6, hy - 5);
   let placed = 0, tries = 0;
   while (placed < 7 && tries++ < 6000) {
-    const x = (rnd(4, GATE_X - 3)) | 0, y = (rnd(3, GH - 4)) | 0;
+    const x = (rnd(4, GW - 4)) | 0, y = (rnd(3, GATE_Y - 3)) | 0;
     if (terrain[idx(x, y)] !== T_OPEN) continue;
     let near = false;
     for (const n of nodes) if (Math.hypot(n.x - x, n.y - y) < 7) near = true;
@@ -810,8 +833,8 @@ function buildMap() {
   computeFlow();
   for (const s of SPAWNS) {
     let guard = 0;
-    while (!isFinite(dist[idx(s.x + 1, s.y)]) && guard++ < 40) {
-      let cx = s.x + 1, cy = s.y;
+    while (!isFinite(dist[idx(s.x, s.y + 1)]) && guard++ < 40) {
+      let cx = s.x, cy = s.y + 1;
       while (Math.hypot(cx - hx, cy - hy) > 6) {
         carveDisc(cx, cy, 3.2);
         const dx = hx - cx, dy = hy - cy, m = Math.hypot(dx, dy) || 1;
@@ -1607,7 +1630,7 @@ function die() {
 // Camera + rendering
 // ============================================================================
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let cam = { x: WW * 0.55, y: WH / 2, z: 1.15 };
+let cam = { x: WW * 0.5, y: WH * 0.62, z: 1.0 };
 let groundPat = null;
 const vis = [];
 let VW = 800, VH = 600, DPR = 1;
@@ -1624,10 +1647,10 @@ function resize() {
 
 // never show past the edge of the site: zoom in far enough to cover the
 // viewport, and keep the camera inside the world
-function minZoom() { return Math.max(VW / WW, VH / WH); }
+function minZoom() { return Math.max(VW / WW, VH / (WH * SQ)); }
 function clampCam() {
   cam.z = clamp(cam.z, minZoom(), 2.6);
-  const hw = VW / cam.z / 2, hh = VH / cam.z / 2;
+  const hw = VW / cam.z / 2, hh = VH / cam.z / SQ / 2;
   cam.x = clamp(cam.x, hw, WW - hw);
   cam.y = clamp(cam.y, hh, WH - hh);
 }
@@ -1635,8 +1658,12 @@ const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 900;
 window.addEventListener('resize', resize);
 new ResizeObserver(resize).observe(document.getElementById('stage'));
 
-function w2s(wx, wy) { return [(wx - cam.x) * cam.z + VW / 2, (wy - cam.y) * cam.z + VH / 2]; }
-function s2w(sx, sy) { return [(sx - VW / 2) / cam.z + cam.x, (sy - VH / 2) / cam.z + cam.y]; }
+function w2s(wx, wy) {
+  return [(wx - cam.x) * cam.z + VW / 2, (wy - cam.y) * cam.z * SQ + VH / 2];
+}
+function s2w(sx, sy) {
+  return [(sx - VW / 2) / cam.z + cam.x, (sy - VH / 2) / (cam.z * SQ) + cam.y];
+}
 
 function draw() {
   const w = VW, h = VH;
@@ -1647,6 +1674,7 @@ function draw() {
   ctx.save();
   ctx.translate(w / 2 + rnd(-sh, sh), h / 2 + rnd(-sh, sh));
   ctx.scale(cam.z, cam.z);
+  ctx.scale(1, SQ);            // the tilt
   ctx.translate(-cam.x, -cam.y);
 
   // visible tile window
@@ -1667,48 +1695,25 @@ function draw() {
     ctx.beginPath(); ctx.arc(cxb, cyb, TILE * 0.82, 0, 6.2832); ctx.fill();
   }
 
-  // ---- buildings ----
-  for (const b of buildings) { if (!b.dead) drawBuilding(b); }
-
-  // ---- foes: dark warm mass on cold ground ----
+  // ---- everything with height, drawn back to front ----
   vis.length = 0;
+  const order = [];
+  for (const t of trees)
+    if (t.x > vx0 - 40 && t.x < vx1 + 40 && t.y > vy0 - 60 && t.y < vy1 + 40)
+      order.push([t.y, 0, t]);
+  for (const b2 of buildings)
+    if (!b2.dead) order.push([b2.y + (b2.h || 1) * TILE * 0.5, 1, b2]);
   for (const f of foes) {
     if (f.dead) continue;
-    if (f.x < vx0 - 30 || f.x > vx1 + 30 || f.y < vy0 - 30 || f.y > vy1 + 30) continue;
-    vis.push(f);
-    const d = FOES[f.type];
-    if (d.static) {
-      drawShadow(f.x, f.y, 13);
-      ctx.save(); ctx.translate(f.x, f.y);
-      ctx.fillStyle = f.hitT > 0 ? '#ffffff' : '#0E1A1C';
-      ctx.strokeStyle = C.cyanDim; ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      for (let k = 0; k < 6; k++) {
-        const a = k * 1.0472 - 1.5708, rr = k % 2 ? 8 : 15;
-        k ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
-      }
-      ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.restore();
-      bar(f.x - 15, f.y + 17, 30, 2, f.hp / f.hpMax, C.cyan);
-      continue;
-    }
-    drawShadow(f.x, f.y, d.r * 1.0);
-    // tapered silhouette with a hairline edge: reads as a creature, not a pill
-    ctx.save();
-    ctx.translate(f.x, f.y); ctx.rotate(f.face);
-    const L = d.r * 1.7, Wd = d.r * 0.92;
-    ctx.beginPath();
-    ctx.moveTo(L, 0);
-    ctx.quadraticCurveTo(L * 0.2, -Wd, -L * 0.62, -Wd * 0.66);
-    ctx.quadraticCurveTo(-L * 1.02, 0, -L * 0.62, Wd * 0.66);
-    ctx.quadraticCurveTo(L * 0.2, Wd, L, 0);
-    ctx.closePath();
-    ctx.fillStyle = f.hitT > 0 ? '#ffffff' : C.foeFill;
-    ctx.fill();
-    ctx.strokeStyle = f.hitT > 0 ? '#ffffff' : C.foeEdge;
-    ctx.lineWidth = d.r > 4 ? 1.2 : 0.9; ctx.stroke();
-    ctx.restore();
-    if (d.big) bar(f.x - 13, f.y - d.r - 9, 26, 2, f.hp / f.hpMax, C.danger);
+    if (f.x < vx0 - 30 || f.x > vx1 + 30 || f.y < vy0 - 60 || f.y > vy1 + 30) continue;
+    vis.push(f); order.push([f.y, 2, f]);
+  }
+  order.sort((p, q) => p[0] - q[0]);
+  for (let i = 0; i < order.length; i++) {
+    const kind = order[i][1], o = order[i][2];
+    if (kind === 0) drawTree(o);
+    else if (kind === 1) drawBuilding(o);
+    else drawFoe(o);
   }
 
   // ======== additive glow pass ========
@@ -1738,16 +1743,17 @@ function draw() {
   for (let i = 0; i < vis.length; i++) {
     const f = vis[i], d = FOES[f.type];
     if (d.static) {
-      glow(f.x, f.y - 8, 22, 'rgba(0,229,255,0.5)');
+      glow(f.x, f.y - 26 * HZ, 22, 'rgba(0,229,255,0.5)');
       ctx.fillStyle = C.cyan;
-      ctx.beginPath(); ctx.moveTo(f.x, f.y - 18); ctx.lineTo(f.x + 5, f.y + 4);
-      ctx.lineTo(f.x - 5, f.y + 4); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(f.x, f.y - 34 * HZ); ctx.lineTo(f.x + 5, f.y - 16 * HZ);
+      ctx.lineTo(f.x - 5, f.y - 16 * HZ); ctx.closePath(); ctx.fill();
       continue;
     }
-    const s = d.r * 0.62;
+    const sz = d.r * 0.62;
     ctx.fillStyle = C.cyan;
     ctx.globalAlpha = 0.9;
-    ctx.fillRect(f.x + Math.cos(f.face) * d.r * 0.35 - s / 2, f.y + Math.sin(f.face) * d.r * 0.35 - s / 2, s, s);
+    ctx.fillRect(f.x + Math.cos(f.face) * d.r * 0.35 - sz / 2,
+      f.y - d.r * 0.75 * HZ + Math.sin(f.face) * d.r * 0.35 * HZ - sz * HZ / 2, sz, sz * HZ);
     ctx.globalAlpha = 1;
     if (d.big) glow(f.x, f.y, d.r * 2.2, 'rgba(0,229,255,0.3)');
   }
@@ -1916,13 +1922,52 @@ function glow(x, y, r, col) {
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
 }
+function drawFoe(f) {
+  const d = FOES[f.type];
+  if (d.static) {
+    drawShadow(f.x, f.y, 13);
+    ctx.save(); ctx.translate(f.x, f.y - 20 * HZ); ctx.scale(1, HZ);
+    ctx.fillStyle = f.hitT > 0 ? '#ffffff' : '#0E1A1C';
+    ctx.strokeStyle = C.cyanDim; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const a = k * 1.0472 - 1.5708, rr = k % 2 ? 8 : 15;
+      k ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr)
+        : ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    bar(f.x - 15, f.y - 40 * HZ, 30, 2, f.hp / f.hpMax, C.cyan);
+    return;
+  }
+  drawShadow(f.x, f.y, d.r * 1.0);
+  ctx.save();
+  ctx.translate(f.x, f.y - d.r * 0.75 * HZ);
+  ctx.scale(1, HZ);              // keep the body upright against the tilt
+  ctx.rotate(Math.atan2(Math.sin(f.face) * SQ, Math.cos(f.face)));
+  const L = d.r * 1.7, Wd = d.r * 0.92;
+  ctx.beginPath();
+  ctx.moveTo(L, 0);
+  ctx.quadraticCurveTo(L * 0.2, -Wd, -L * 0.62, -Wd * 0.66);
+  ctx.quadraticCurveTo(-L * 1.02, 0, -L * 0.62, Wd * 0.66);
+  ctx.quadraticCurveTo(L * 0.2, Wd, L, 0);
+  ctx.closePath();
+  ctx.fillStyle = f.hitT > 0 ? '#ffffff' : C.foeFill;
+  ctx.fill();
+  ctx.strokeStyle = f.hitT > 0 ? '#ffffff' : C.foeEdge;
+  ctx.lineWidth = d.r > 4 ? 1.2 : 0.9; ctx.stroke();
+  ctx.restore();
+  if (d.big) bar(f.x - 13, f.y - (d.r * 2.4) * HZ, 26, 2, f.hp / f.hpMax, C.danger);
+}
+
 function drawShadow(x, y, r) {
   ctx.fillStyle = 'rgba(44,38,26,0.40)';
   ctx.beginPath(); ctx.ellipse(x + 3, y + 4, r * 1.05, r * 0.6, 0, 0, 6.2832); ctx.fill();
 }
 function bar(x, y, w, h, f, col) {
-  ctx.fillStyle = 'rgba(10,12,16,0.8)'; ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = col; ctx.fillRect(x, y, w * clamp(f, 0, 1), h);
+  const hh = h * HZ;
+  ctx.fillStyle = 'rgba(10,12,16,0.8)'; ctx.fillRect(x, y, w, hh);
+  ctx.fillStyle = col; ctx.fillRect(x, y, w * clamp(f, 0, 1), hh);
 }
 
 function drawBuilding(b) {
@@ -1936,30 +1981,34 @@ function drawBuilding(b) {
   const edge = ours ? C.concDark : 'rgba(255,71,86,0.85)';
 
   // height, so an asset is a built object rather than a decal
-  const HT = b.type === 'hub' ? 20
+  const isTrench = !!d && !!d.crew && b.type !== 'bunker';
+  const HT = b.type === 'hub' ? 22
     : b.type === 'wall' ? 5 + b.tier * 2
-    : d.crew && b.type !== 'bunker' ? 4
+    : isTrench ? 4
     : b.type === 'bunker' ? 13
     : b.type === 'siege' ? 16 : b.type === 'gen' ? 15
     : b.type === 'extractor' ? 14 : b.type === 'mortar' ? 12 : 11;
-  const SX = HT * 0.30, SY = HT * 0.52;
+  const LIFT = HT * HZ;      // screen height, expressed in the squashed space
 
-  ctx.fillStyle = 'rgba(38,34,22,0.42)';
+  // cast shadow, thrown away from the sun
+  ctx.fillStyle = 'rgba(34,30,18,0.40)';
   ctx.beginPath();
-  ctx.ellipse(cx + SX + 4, cy + SY + 5, W * 0.56, H * 0.44, 0, 0, 6.2832);
+  ctx.ellipse(cx + HT * 0.5, cy + 3, W * 0.55 + HT * 0.3, H * 0.42, 0, 0, 6.2832);
   ctx.fill();
 
-  // the shifted body reads as the two faces the sun does not reach
-  if (b.type !== 'hub' && !(d.crew && b.type !== 'bunker')) {
-    ctx.fillStyle = '#6E7268';
-    chamfer(px + 1.5 + SX, py + 1.5 + SY, W - 3, H - 3, W > TILE ? 9 : 5);
-    ctx.fill();
-  }
+  // the wall: everything between the footprint and the raised top face
+  const wallTone = b.type === 'wall' ? '#7E8278'
+    : isTrench ? '#5E6458' : '#767C70';
+  ctx.fillStyle = wallTone;
+  ctx.fillRect(px + 1.5, py + 1.5 - LIFT, W - 3, H - 3 + LIFT);
+  ctx.fillStyle = 'rgba(0,0,0,0.16)';
+  ctx.fillRect(px + W * 0.62, py + 1.5 - LIFT, W * 0.38 - 1.5, H - 3 + LIFT);
+
+  ctx.save();
+  ctx.translate(0, -LIFT);
 
   // ---------- control hub, 3x3 ----------
   if (b.type === 'hub') {
-    ctx.fillStyle = '#79806F';
-    chamfer(px + 2 + 6, py + 2 + 10, W - 4, H - 4, 12); ctx.fill();
     plate(px + 2, py + 2, W - 4, H - 4, 12, '#C4C7BE', edge);
     ctx.fillStyle = '#6E736B';
     ctx.fillRect(px + 9, py + 9, W - 18, H - 18);
@@ -1980,6 +2029,7 @@ function drawBuilding(b) {
     diamond(cx, cy, 6);
     bar(cx - W * 0.4, py - 9, W * 0.8, 2.5, b.hp / b.hpMax,
       b.hp / b.hpMax > 0.35 ? C.signal : C.danger);
+    ctx.restore();
     return;
   }
 
@@ -2120,6 +2170,7 @@ function drawBuilding(b) {
     ctx.strokeStyle = C.signal; ctx.lineWidth = 2;
     const fr = 1 - b.deploy / b.deployMax;
     ctx.beginPath(); ctx.arc(cx, cy, W * 0.38, -1.5708, -1.5708 + fr * 6.2832); ctx.stroke();
+    ctx.restore();
     return;
   }
 
@@ -2189,6 +2240,7 @@ function drawBuilding(b) {
   if (b.hp < b.hpMax * 0.985) {
     bar(px + 2, py + H + (d.heatUp ? 5 : 1.5), W - 4, 2, b.hp / b.hpMax, C.ok);
   }
+  ctx.restore();
 }
 
 // which orthogonal neighbours are the same kind of works
@@ -2475,7 +2527,7 @@ function init() {
   const { hx, hy } = buildMap();
   buildTerrainLayer();
   cam.x = hx * TILE; cam.y = hy * TILE;
-  if (MOBILE) cam.z = 0.62;
+  if (MOBILE) cam.z = 0.70;
   clampCam();
   computeFlow();
   buildBar();
