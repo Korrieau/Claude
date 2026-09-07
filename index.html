@@ -1670,50 +1670,98 @@ const VIEW = (() => {
   // crystal are separate meshes so the ore can glow on its own.
   // Each enemy type gets its own mineral profile: the four were one model at
   // four scales, which made a wave read as a single repeated prop.
+  // Local convention: feet at y = 0, -z is forward. From this camera the
+  // silhouette is nearly everything, so the legs are splayed well outside the
+  // body on purpose - that outline is what makes it read as a creature and not
+  // a boulder with spikes on it.
+  const seg = (x1, y1, z1, x2, y2, z2, w) => {
+    const d = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
+    const len = d.length();
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), d.normalize());
+    return new THREE.Matrix4().compose(
+      new THREE.Vector3((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2), q,
+      new THREE.Vector3(len, w, w));
+  };
   function creatureBody(P) {
     const parts = [];
-    parts.push({ g: new THREE.IcosahedronGeometry(.19 * P.bulk, 0),
-                 m: T(0, .04, .02, .3, .6, 0, 1.0, .62 * P.squat, 1.05 * P.long) });
-    parts.push({ g: new THREE.IcosahedronGeometry(.13 * P.bulk, 0),
-                 m: T(0, .02, -.20 * P.long, -.2, 1.1, 0, 1.0, .60 * P.squat, 1.0) });
-    parts.push({ g: new THREE.OctahedronGeometry(.10 * P.bulk, 0),
-                 m: T(0, .05, .20 * P.long, .4, .3, 0, 1.0, .7 * P.squat, 1.1) });
-    const strut = new THREE.BoxGeometry(.030 * P.bulk, .030 * P.bulk, .24 * (.6 + P.bulk * .5));
-    for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) {
-      const z = (-.15 + i * .16) * P.long;
-      parts.push({ g: strut, m: T(sx * .17 * P.bulk, -.04, z, .55, sx * (.9 + i * .1), 0) });
-      parts.push({ g: new THREE.BoxGeometry(.024 * P.bulk, .024 * P.bulk, .17 * (.6 + P.bulk * .5)),
-                   m: T(sx * .30 * P.bulk, -.15 * P.bulk, z + .04, 1.1, sx * .4, 0) });
+    const K = P.bulk, L = P.long, Q = P.squat;
+    const add = (g, m) => parts.push({ g, m });
+
+    // abdomen: the heaviest mass, carried high at the back
+    add(new THREE.IcosahedronGeometry(.19 * K, 0),
+        T(0, .25 * K * Q, .26 * L * K, .28, .6, 0, 1.02, .84 * Q, 1.20));
+    add(new THREE.OctahedronGeometry(.11 * K, 0),
+        T(0, .19 * K * Q, .46 * L * K, .5, .3, 0, .9, .8, 1.5));
+    // waist: the pinch that separates the two masses
+    add(new THREE.BoxGeometry(.11 * K, .10 * K, .13 * K), T(0, .19 * K * Q, .08 * L * K));
+    // thorax: wide, low, and where the legs hang from
+    add(new THREE.IcosahedronGeometry(.155 * K, 0),
+        T(0, .18 * K * Q, -.09 * L * K, -.22, 0, 0, 1.42, .78 * Q, 1.05));
+    add(new THREE.BoxGeometry(.30 * K, .07 * K, .22 * K), T(0, .23 * K * Q, -.07 * L * K, -.15, 0, 0));
+    // neck and a head held out low in front
+    add(new THREE.BoxGeometry(.08 * K, .07 * K, .12 * K), T(0, .16 * K * Q, -.25 * L * K, .3, 0, 0));
+    add(new THREE.OctahedronGeometry(.095 * K, 0),
+        T(0, .15 * K * Q, -.42 * L * K, .32, .78, 0, 1.25, .82, 1.65));
+    // mandibles, hooked inward
+    for (const sx of [-1, 1]) {
+      add(new THREE.CylinderGeometry(.004, .026 * K, .21 * K, 4),
+          T(sx * .08 * K, .12 * K * Q, -.56 * L * K, 1.42, 0, sx * .55));
+      add(new THREE.CylinderGeometry(.003, .016 * K, .12 * K, 4),
+          T(sx * .14 * K, .16 * K * Q, -.46 * L * K, 1.2, 0, sx * 1.0));
+    }
+
+    // three pairs of legs: hip -> knee (up and out) -> foot (down and further out)
+    const LEGS = [[-.20, .94, -.20], [-.01, 1.10, .06], [.20, .96, .34]];
+    for (const sx of [-1, 1]) for (const [zz, out, rake] of LEGS) {
+      const hx = sx * .13 * K,        hy = .20 * K * Q, hz = zz * L * K;
+      const kx = sx * .32 * out * K,  ky = .34 * K * Q, kz = (zz + rake * .35) * L * K;
+      const fx = sx * .44 * out * K,  fy = 0,           fz = (zz + rake) * L * K;
+      add(new THREE.BoxGeometry(1, 1, 1), seg(hx, hy, hz, kx, ky, kz, .068 * K));
+      add(new THREE.OctahedronGeometry(.055 * K, 0), T(kx, ky, kz));
+      add(new THREE.BoxGeometry(1, 1, 1), seg(kx, ky, kz, fx, fy, fz, .052 * K));
+      add(new THREE.BoxGeometry(.07 * K, .022 * K, .09 * K), T(fx, .011 * K, fz, 0, sx * .3, 0));
     }
     return mergeGeos(parts);
   }
   function creatureCrystal(P) {
     const parts = [];
+    const K = P.bulk, L = P.long, Q = P.squat;
+    const S = .55 + K * .45;   // shards grow with the body, but not as fast
     const shard = (x, y, z, len, w, tilt, yaw, roll) =>
       parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
-                   m: T(x, y, z * P.long, tilt + P.sweep, yaw, roll || 0,
-                        w * P.thick, len * P.spike, w * P.thick) });
-    shard(0, .22, .02, 2.7, .78, -.30, 0);
-    shard(-.11, .18, -.06, 2.0, .66, -.50, .7, .3);
-    shard(.13, .19, -.02, 2.1, .68, -.45, -.6, -.3);
-    shard(-.06, .16, .20, 1.7, .60, -.20, .3);
-    shard(.09, .15, .22, 1.6, .58, -.15, -.4);
-    shard(-.18, .10, .04, 1.4, .54, -1.0, 1.1, .5);
-    shard(.19, .10, .06, 1.4, .54, -1.0, -1.0, -.5);
+                   m: T(x * K, y * K * Q, z * L * K, tilt + P.sweep, yaw, roll || 0,
+                        w * P.thick * S, len * P.spike * S, w * P.thick * S) });
+    // dorsal cluster, rooted in the abdomen
+    shard(0,    .40, .24, 2.5, .72, -.26, 0);
+    shard(-.13, .36, .15, 1.9, .60, -.52, .7, .3);
+    shard(.14,  .37, .17, 2.0, .62, -.46, -.6, -.3);
+    shard(-.08, .33, .38, 1.6, .56, .26, .3);
+    shard(.10,  .32, .38, 1.5, .54, .30, -.4);
+    // shoulder spurs, angled out over the legs
+    shard(-.20, .27, -.08, 1.5, .52, -1.05, 1.1, .5);
+    shard(.21,  .27, -.08, 1.5, .52, -1.05, -1.0, -.5);
     if (P.crown) {
-      shard(-.05, .28, -.02, 3.4, .60, -.16, .35, .2);
-      shard(.06, .28, -.02, 3.4, .60, -.16, -.35, -.2);
-      shard(0, .26, .18, 2.6, .55, .05, 0);
+      shard(-.06, .44, .20, 2.6, .58, -.18, .35, .2);
+      shard(.07,  .44, .20, 2.6, .58, -.18, -.35, -.2);
+      shard(0,    .42, .42, 2.3, .52, .34, 0);
+      shard(-.17, .34, .32, 1.8, .48, .40, .9, .4);
+      shard(.18,  .34, .32, 1.8, .48, .40, -.9, -.4);
     }
+    // head horn
     if (P.ram) {
-      shard(0, .08, -.30, 2.2, .62, -1.45, 0);
-      shard(-.11, .06, -.26, 1.7, .52, -1.5, .5);
-      shard(.12, .06, -.26, 1.7, .52, -1.5, -.5);
+      shard(0,    .17, -.44, 2.2, .58, -1.50, 0);
+      shard(-.10, .15, -.36, 1.6, .48, -1.46, .5);
+      shard(.11,  .15, -.36, 1.6, .48, -1.46, -.5);
     } else {
-      shard(0, .08, -.24, 1.2, .50, -1.4, 0);
-      shard(-.10, .06, -.20, 1.0, .44, -1.5, .5);
-      shard(.11, .06, -.20, 1.0, .44, -1.5, -.5);
+      shard(0,    .22, -.30, 1.1, .44, -1.36, 0);
+      shard(-.09, .20, -.26, .9, .38, -1.42, .5);
+      shard(.10,  .20, -.26, .9, .38, -1.42, -.5);
     }
+    // eyes: two lit chips on the head, the cheapest way to make it look alive
+    for (const sx of [-1, 1])
+      parts.push({ g: new THREE.OctahedronGeometry(.1, 0),
+                   m: T(sx * .065 * K, .175 * K * Q, -.47 * L * K, 0, 0, 0,
+                        .28 * K, .20 * K, .32 * K) });
     return mergeGeos(parts);
   }
   // molten, not pink: dark rock with heat running through the seams
@@ -2187,9 +2235,10 @@ const VIEW = (() => {
       for (const e of G.enemies) {
         const bm = eBody[e.type];
         if (!bm || eCount[e.type] >= bm.instanceMatrix.count) continue;
-        const y = liftAt(e.z) + .10;
-        dummy.position.set(wx(e.x), y, wz(e.z));
-        dummy.rotation.set(0, e.dir + Math.PI, 0);
+        const y = liftAt(e.z) + .015;
+        const ph = now * (9.5 - Math.min(e.sc, 3) * 2.3) + e.wob;
+        dummy.position.set(wx(e.x), y + Math.abs(Math.sin(ph)) * .028 * e.sc, wz(e.z));
+        dummy.rotation.set(0, e.dir + Math.PI, Math.sin(ph) * .11);
         dummy.scale.setScalar(e.sc);
         dummy.updateMatrix();
         const i = eCount[e.type]++;
