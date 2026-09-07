@@ -396,8 +396,17 @@
   body[data-pc="0"] .act { flex-basis: 108px; }
   body[data-pc="0"] .ab { width: 82px; height: 82px; }
   body[data-pc="0"] .tab { min-height: 48px; }
+  /* no way to profile a handset from here, so the game reports its own rate */
+  #fps {
+    position: absolute; left: 14px; top: calc(env(safe-area-inset-top,0px) + 98px);
+    font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: .12em;
+    color: #7fd6a0; padding: 4px 10px 5px;
+    background: rgba(7,10,15,.72); border: 1px solid rgba(140,170,195,.18);
+  }
+  #fps[data-w="1"] { color: var(--gold); }
+  #fps[data-w="2"] { color: #ff8a99; }
   #keyhint {
-    position: absolute; left: 14px; top: calc(env(safe-area-inset-top,0px) + 100px);
+    position: absolute; left: 14px; top: calc(env(safe-area-inset-top,0px) + 132px);
     font-family: ui-monospace, monospace; font-size: 10.5px; letter-spacing: .08em;
     color: #93a9ba; line-height: 2.1; padding: 6px 11px 7px;
     background: rgba(7,10,15,.72); border: 1px solid rgba(140,170,195,.18);
@@ -407,6 +416,32 @@
   body[data-pc="1"] #keyhint { display: block; }
   body[data-pc="1"] .pcOnly { display: inline; }
 
+
+  /* research: four columns, one per branch, arrows implied by the order */
+  #techGrid { display: flex; gap: 12px; margin-top: 14px; align-items: flex-start; }
+  .tcol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .tcol h5 {
+    margin: 0 0 2px; font-family: ui-monospace, monospace; font-size: 9px;
+    letter-spacing: .2em; color: var(--dim); font-weight: 700;
+  }
+  .tn {
+    position: relative; text-align: left; cursor: pointer; color: var(--ink);
+    padding: 9px 11px 10px; background: rgba(9,13,18,.62);
+    border: 1px solid rgba(140,170,195,.24);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .tn b { display: block; font-size: 13px; font-weight: 700; line-height: 1.5; }
+  .tn span { display: block; font-size: 10.5px; color: #93a9ba; margin-top: 3px; line-height: 1.45; }
+  .tn u {
+    position: absolute; right: 9px; top: 9px; text-decoration: none;
+    font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; color: var(--gold);
+  }
+  .tn[data-s="have"] { border-color: rgba(79,227,240,.5); background: rgba(79,227,240,.08); }
+  .tn[data-s="have"] u { color: var(--cyan); font-size: 10px; }
+  .tn[data-s="poor"] { opacity: .55; }
+  .tn[data-s="lock"] { opacity: .36; border-style: dashed; pointer-events: none; }
+  .tn[data-s="lock"] u { color: #6e8395; }
+  .tn[data-s="open"]:hover { border-color: var(--gold); }
 
   #records { display: flex; gap: 7px; margin-top: 14px; font-family: ui-monospace, monospace; }
   #records div {
@@ -582,6 +617,7 @@
   <div id="breach" hidden></div>
   <div id="brief" hidden></div>
   <div id="dmgs"></div>
+  <div id="fps">-- FPS</div>
   <div id="keyhint">
     <b>1</b>–<b>4</b> 구역 &nbsp; <b>Q W E</b> 지휘 &nbsp; <b>Space</b> 배속 &nbsp;
     <b>Esc</b> 메뉴 &nbsp; <b>우클릭</b> 취소
@@ -596,6 +632,7 @@
       <button class="tab" data-zone="1"><i>02</i><b>중앙</b><s>FIRE</s></button>
       <button class="tab" data-zone="2"><i>03</i><b>후방</b><s>HEAVY</s></button>
       <button class="tab" data-zone="3"><i>04</i><b>병력</b><s>INF</s></button>
+      <button class="tab" id="techBtn" data-zone="9"><i>05</i><b>연구</b><s>TECH</s></button>
       <span id="hint">카드를 지도로 끌어다 놓으세요</span>
     </div>
     <div id="body"></div>
@@ -655,6 +692,15 @@
     <span class="d pcOnly"><br><b>1</b>–<b>4</b> 구역 전환 · <b>Q W E</b> 지휘 · <b>Space</b> 배속 ·
     <b>Esc</b> 메뉴 · <b>우클릭</b> 취소.</span>
   </div>
+</div>
+
+<div class="overlay" id="techScreen" hidden>
+  <div class="lbl" style="margin-top:0">RESEARCH &nbsp;/&nbsp; 연구</div>
+  <div class="title" style="font-size:24px;text-align:left">연구 트리</div>
+  <p class="sub" style="text-align:left;margin-top:6px">건물과 병력은 여기서 열립니다. 비용은 <b style="color:var(--gold)">자원</b>
+  이라, 연구를 하나 하면 이번 공세에 벽을 하나 덜 세웁니다.</p>
+  <div id="techGrid"></div>
+  <button class="btn" id="techClose">닫기</button>
 </div>
 
 <div class="overlay" id="pauseScreen" style="justify-content:center" hidden>
@@ -901,41 +947,85 @@ const BRIEF = [
 ];
 
 // Eighteen buildings and five units on the first screen is not a roster, it is
-// a wall. Everything arrives on the wave that first makes it necessary, which
-// also means the briefing line and the new card always agree.
-const UNLOCK = {
-  bunker: 2, mortar: 2, eng: 2,
-  dragon: 3, flame: 3, medic: 3,
-  siege: 4, mine: 4, at: 4,
-  wall: 5, tesla: 5,
-  sniper: 6, guard: 6,
-  arty: 7,
-  mech: 8,
-  rail: 9
-};
-const unlockedAt = k => UNLOCK[k] || 0;
-const isUnlocked = k => G.assault >= unlockedAt(k);
+// a wall. They arrive through research instead of on a timer: you spend the
+// same material you build with, so opening a branch costs you a wall this
+// wave. That is a decision. Waiting for wave 7 was not.
+const TECH = [
+  { k: "t_bunker", n: "진지 보강",  c: 120, req: [],                    gives: ["bunker"],
+    d: "벙커. 병사 2명, 피해 88% 감소" },
+  { k: "t_wall",   n: "축성",      c: 220, req: ["t_bunker"],          gives: ["dragon", "wall"],
+    d: "대전차 방책 · 콘크리트 방벽" },
+  { k: "t_mine",   n: "매설 자재",  c: 150, req: ["t_bunker"],          gives: ["mine"],
+    d: "압력 지뢰" },
+  { k: "t_mortar", n: "곡사 화력",  c: 140, req: [],                    gives: ["mortar"],
+    d: "박격포. 3칸 밖을 때린다" },
+  { k: "t_flame",  n: "소이 무장",  c: 180, req: ["t_mortar"],          gives: ["flame"],
+    d: "화염 방사기" },
+  { k: "t_tesla",  n: "자기 코일",  c: 280, req: ["t_flame"],           gives: ["tesla"],
+    d: "자기 방벽" },
+  { k: "t_sniper", n: "정밀 사격",  c: 250, req: ["t_mortar"],          gives: ["sniper"],
+    d: "대물 저격진지" },
+  { k: "t_siege",  n: "중장비 반입", c: 320, req: ["t_mortar"],         gives: ["siege"],
+    d: "시즈탱크" },
+  { k: "t_arty",   n: "포병 통제",  c: 400, req: ["t_siege"],           gives: ["arty"],
+    d: "자주포" },
+  { k: "t_mech",   n: "보행 병기",  c: 460, req: ["t_siege"],           gives: ["mech"],
+    d: "거대로봇" },
+  { k: "t_rail",   n: "전자 가속",  c: 580, req: ["t_arty", "t_mech"],  gives: ["rail"],
+    d: "레일건. 거체를 뚫는 용도" },
+  { k: "t_eng",    n: "야전 공병",  c: 110, req: [],                    gives: ["eng"],
+    d: "공병. 스스로 다니며 수리한다" },
+  { k: "t_medic",  n: "위생 소대",  c: 160, req: ["t_eng"],             gives: ["medic"],
+    d: "위생병" },
+  { k: "t_at",     n: "대전차 훈련", c: 230, req: ["t_eng"],            gives: ["at"],
+    d: "대전차병" },
+  { k: "t_guard",  n: "돌격 편성",  c: 340, req: ["t_at"],              gives: ["guard"],
+    d: "돌격대" }
+];
+const TECH_OF = {};
+for (const t of TECH) for (const g of t.gives) TECH_OF[g] = t;
+const techFor = k => TECH_OF[k] || null;
+const isUnlocked = k => { const t = TECH_OF[k]; return !t || G.tech.has(t.k); };
+const techReady = t => !G.tech.has(t.k) && t.req.every(r => G.tech.has(r));
+function buyTech(t) {
+  if (G.tech.has(t.k)) return "이미 연구했습니다";
+  if (!t.req.every(r => G.tech.has(r))) return "선행 연구가 필요합니다";
+  if (G.mat < t.c) return "자원이 부족합니다";
+  G.mat -= t.c; G.tech.add(t.k);
+  SFX.play("build");
+  floatText("연구 완료 · " + t.n);
+  return null;
+}
+
 
 const LULL = 17, LULL_RATE = 0.7;
 const PREP = 45;
-// Five things you can produce. Four hold a post; the assault team does not
-// need one, which is what makes it the answer to a breach.
+// Five things you can produce, in two kinds.
+//   placed   - you drag them onto a tile and they hold it, facing the way you
+//              set. Standing on a trench or bunker is what gives them cover;
+//              the building no longer owns a seat.
+//   crew     - support that walks itself. You buy it, it turns up at the base
+//              and goes to whatever needs it most. Telling a repairman where
+//              to stand is not a decision, it is chores.
 const UNITS = {
   rifle: { name: "소총병",   mat: 15, man: 4, hp: 46,  dmg: 6,  cd: .62, range: 3.4, spd: 1.9,
-           g: "inf", desc: "기본 보병. 참호에 들어간다" },
+           g: "inf", desc: "기본 보병. 참호 위에 서면 단단해진다" },
   at:    { name: "대전차병", mat: 55, man: 7, hp: 54,  dmg: 44, cd: 1.5, range: 4.4, spd: 1.7,
            g: "at",  heavy: 2.4, desc: "대형에게 피해 2.4배. 거체 전담" },
-  eng:   { name: "공병",     mat: 45, man: 6, hp: 62,  dmg: 3,  cd: 1.2, range: 2.2, spd: 1.9,
-           g: "eng", fix: 30, desc: "주변 3칸 건물을 초당 30 수리" },
-  medic: { name: "위생병",   mat: 40, man: 5, hp: 56,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.0,
-           g: "med", heal: 11, desc: "주변 3칸 아군을 초당 11 회복" },
+  eng:   { name: "공병",     mat: 45, man: 6, hp: 62,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.0,
+           g: "eng", fix: 30, crew: true, ghost: true,
+           desc: "배치 없음. 가장 상한 건물로 스스로 가서 수리한다" },
+  medic: { name: "위생병",   mat: 40, man: 5, hp: 56,  dmg: 3,  cd: 1.2, range: 2.2, spd: 2.1,
+           g: "med", heal: 11, crew: true,
+           desc: "배치 없음. 가장 다친 병사에게 스스로 간다" },
   guard: { name: "돌격대",   mat: 75, man: 8, hp: 190, dmg: 17, cd: .50, range: 2.6, spd: 2.35,
-           g: "gd",  free: true, desc: "참호 없이 싸운다. 돌파 지점으로 달려간다" }
+           g: "gd",  free: true, desc: "배치한 자리를 지키다 돌파가 나면 달려간다" }
 };
 const SOLDIER = UNITS.rifle;
 const SUPPORT_R = 3.0;
 const HQ_HP = 7000;
-const MAX_ENEMIES = 440;
+// 440 bodies is a slideshow on a handset long before it is a design problem
+const MAX_ENEMIES = 260;
 
 // Doctrines are the run's identity: one pick from three after every assault,
 // each taken at most once, so no two runs hold the line the same way.
@@ -1113,6 +1203,7 @@ function newGame() {
     assault: 0, phase: "lull", timer: PREP, spawnAcc: 0, bigQ: [], bigCd: 0, waveT: 0, berserk: false,
     flow: new Int16Array(COLS * ROWS), flowS: new Int16Array(COLS * ROWS),
     flowDirty: true, dens: new Int16Array(COLS * ROWS), holes: [], rallyPost: null,
+    tech: new Set(),
     map: mapIdx, lanes: M.lanes.slice(),
     kia: 0, kills: 0, t: 0, shake: 0, breach: 0,
     doct: [], draft: null, rally: 0, ab: { strike: 0, rally: 0, patch: 0 }, mark: null,
@@ -1157,6 +1248,25 @@ function bCost(key) {
   return Math.round(B[key].mat * m);
 }
 function garrisonOf(key) { return B[key].garrison ? B[key].garrison + (has("deep") && key === "trench" ? 1 : 0) : 0; }
+// how many soldiers may stand on one tile: bare ground holds one, a trench or
+// a bunker holds its whole crew. That is the reason to dig one.
+function tileCap(c, r) {
+  const t = at(c, r);
+  if (!t || t.k === "block" || t.hq) return 0;
+  if (t.b) { const g = garrisonOf(t.b.key); return t.b.done && g ? g : 0; }
+  return 1;
+}
+function tileCrowd(c, r) {
+  let n = 0;
+  for (const s of G.soldiers) if (!s.dead && !UNITS[s.t || "rifle"].crew &&
+      s.hc === c && s.hr === r) n++;
+  return n;
+}
+// the building a soldier is standing in, if any - that is where cover is from
+function coverKeyAt(s) {
+  const t = at(Math.floor(s.x), Math.floor(s.z));
+  return t && t.b && t.b.done && B[t.b.key].garrison ? t.b.key : null;
+}
 // key may be null: a soldier out in the open has no cover at all
 function coverOf(key) {
   const sp = key ? B[key] : null;
@@ -1205,9 +1315,29 @@ function repairB(b) {
   G.rings.push({ x: b.c + .5, z: b.r + .5, life: .4, max: .4, r: .9, col: 0x4fe3f0 });
   return null;
 }
+// Soldiers hold tiles, so they need to stop stacking on one another. An
+// engineer is exempt: it has to get through a packed trench to reach the wall
+// behind it. Two engineers still push apart, or they queue up as one body.
+function separateSoldiers() {
+  const n = G.soldiers.length;
+  for (let i = 0; i < n; i++) {
+    const a = G.soldiers[i]; if (a.dead) continue;
+    const ag = UNITS[a.t || "rifle"].ghost;
+    for (let j = i + 1; j < n; j++) {
+      const b2 = G.soldiers[j]; if (b2.dead) continue;
+      const bg = UNITS[b2.t || "rifle"].ghost;
+      if (ag !== bg) continue;          // one of them is an engineer: pass through
+      const dx = b2.x - a.x, dz = b2.z - a.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 > .0784 || d2 < 1e-6) continue;   // 0.28 apart is touching
+      const d = Math.sqrt(d2), push = (.28 - d) * .5;
+      const ux = dx / d * push, uz = dz / d * push;
+      a.x -= ux; a.z -= uz; b2.x += ux; b2.z += uz;
+    }
+  }
+}
 function setRally(b) {
-  G.rallyPost = (G.rallyPost === b) ? null : b;
-  floatText(G.rallyPost ? (b.c + 1) + "열 집결" : "집결 해제");
+  G.rallyPost = null;
 }
 function sellB(b) {
   let paid = bCost(b.key);
@@ -1269,6 +1399,20 @@ function takeDoctrine(k) {
 
 function income() { let m = 5; for (const b of G.buildings) if (b.done && B[b.key].income) m += B[b.key].income;
   return m * (has("logi") ? 1.4 : 1); }
+// "where does material come from" answered as a list rather than a number
+function ledger() {
+  const mult = has("logi") ? 1.4 : 1;
+  let dep = 0, nd = 0, nUp = 0;
+  for (const b of G.buildings) {
+    if (!b.done) continue;
+    const sp = B[b.key];
+    if (sp.income) { dep += sp.income; nd++; }
+    if (sp.upkeep) nUp++;
+  }
+  return { base: 5 * mult, dep: dep * mult, nd, mult,
+           up: upkeepDrain(), nUp, net: income() - upkeepDrain(),
+           salvage: has("salvage") };
+}
 function manRate() { let m = 0.28; for (const b of G.buildings) if (b.done && B[b.key].manpower) m += B[b.key].manpower;
   return m * (has("draft") ? 1.8 : 1); }
 function upkeep() { let u = 0; for (const b of G.buildings) if (b.done && B[b.key].upkeep) u += B[b.key].upkeep; return u; }
@@ -1311,7 +1455,7 @@ function rebuildFlow() {
 // a dry run so a drag can refuse a tile before anything is spent
 function placeCheck(key, c, r) {
   const spec = B[key], t = at(c, r);
-  if (!isUnlocked(key)) return unlockedAt(key) + "차 공세 이후 해금";
+  if (!isUnlocked(key)) return "「" + techFor(key).n + "」 연구가 필요합니다";
   if (!t) return "지도 밖입니다";
   if (t.k === "block") return "잔해가 막고 있습니다";
   if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
@@ -1323,7 +1467,7 @@ function placeCheck(key, c, r) {
 }
 function place(key, c, r, face) {
   const spec = B[key], t = at(c, r);
-  if (!isUnlocked(key)) return unlockedAt(key) + "차 공세 이후 해금";
+  if (!isUnlocked(key)) return "「" + techFor(key).n + "」 연구가 필요합니다";
   if (!t) return "지도 밖입니다";
   if (t.k === "block") return "잔해가 막고 있습니다";
   if (t.k === "rough") return "깨진 바닥에는 지을 수 없습니다";
@@ -1337,7 +1481,7 @@ function place(key, c, r, face) {
   const b = { key, c, r, hp: mhp, maxHp: mhp, done: false, prog: 0, up: 0, xp: 0, rank: 0,
               high: t.k === "high", face: 0,
               cd: rnd(0, .4), aim: face === undefined ? Math.PI : face, flash: 0,
-              crew: [], dead: false, obj: null };
+              dead: false, obj: null };
   b.face = b.aim;
   t.b = b; G.buildings.push(b);
   G.flowDirty = true;
@@ -1352,7 +1496,6 @@ function killBuilding(b) {
   if (t) t.b = null;
   b.dead = true;
   G.buildings = G.buildings.filter(x => x !== b);
-  for (const s of b.crew) { s.post = null; s.state = "seek"; }
   boom(b.c + .5, b.r + .5, 0.8, 16);
   G.shake = Math.max(G.shake, 0.16);
   G.flowDirty = true;
@@ -1370,30 +1513,43 @@ function killBuilding(b) {
 function hurtBuilding(b, dmg) { b.hp -= dmg; if (b.hp <= 0) killBuilding(b); }
 
 // ---------------------------------------------------------------- soldiers
-function spawnSoldier(t) {
+// c/r/face are the tile you dropped it on. Crew ignores them and walks in
+// from the base; a bare call with no tile drops on the base too, which is
+// what the test harnesses and the crew cards do.
+function spawnSoldier(t, c, r, face) {
   t = t || "rifle";
   if (!isUnlocked(t)) return false;
   const u = UNITS[t], cost = solCost(t);
   if (G.mat < cost || G.man < u.man) return false;
+  const placed = !u.crew && c !== undefined;
   G.mat -= cost; G.man -= u.man;
   const mhp = solMaxHp(t);
+  const hc = placed ? c : Math.floor(COLS / 2), hr = placed ? r : ROWS - 2;
   G.soldiers.push({
-    t, x: 4.5 + rnd(-.8, .8), z: 15.4, hp: mhp, maxHp: mhp,
-    post: null, state: u.free ? "roam" : "seek", cd: rnd(0, .5), dead: false,
-    aim: -Math.PI / 2, fire: 0, sup: 0
+    t, x: placed ? c + .5 + rnd(-.18, .18) : COLS / 2 + rnd(-.8, .8),
+    z: placed ? r + .5 + rnd(-.18, .18) : ROWS - .6,
+    hc, hr, face: face === undefined ? Math.PI : face,
+    hp: mhp, maxHp: mhp, cd: rnd(0, .5), dead: false,
+    aim: face === undefined ? -Math.PI / 2 : face, fire: 0, sup: 0
   });
   return true;
 }
-function findPost() {
-  const rp = G.rallyPost;
-  if (rp && !rp.dead && rp.done && rp.crew.length < garrisonOf(rp.key)) return rp;
-  let best = null, bestR = 99;
-  for (const b of G.buildings) {
-    if (!b.done || !B[b.key].garrison) continue;
-    if (b.crew.length >= garrisonOf(b.key)) continue;
-    if (b.r < bestR) { bestR = b.r; best = b; }
-  }
-  return best;
+// a unit card refuses a tile for its own reasons, the way a building does
+function unitCheck(t, c, r) {
+  const u = UNITS[t];
+  if (!isUnlocked(t)) return "아직 연구되지 않았습니다";
+  if (u.crew) return null;
+  const tl = at(c, r);
+  if (!tl) return "지도 밖입니다";
+  if (tl.k === "block") return "잔해가 막고 있습니다";
+  if (tl.hq) return "사령부 자리입니다";
+  if (zoneOf(r) < 0) return "적 접근로입니다";
+  const cap = tileCap(c, r);
+  if (!cap) return "설 수 없는 자리입니다";
+  if (tileCrowd(c, r) >= cap) return cap > 1 ? "자리가 찼습니다" : "이미 병사가 있습니다";
+  if (G.mat < solCost(t)) return "자원이 부족합니다";
+  if (G.man < u.man) return "인력이 부족합니다";
+  return null;
 }
 function stepTo(o, tx2, tz2, spd, dt) {
   const dx = tx2 - o.x, dz = tz2 - o.z, d = Math.hypot(dx, dz);
@@ -1404,6 +1560,26 @@ function stepTo(o, tx2, tz2, spd, dt) {
 }
 // where an assault team runs: the newest breach, else the enemy that has got
 // deepest into the site
+// Where a repairman or a medic should be standing right now: the worst case
+// on the whole board, not just what happens to be next to it.
+function crewJob(s, u) {
+  let best = null, worst = .995;
+  if (u.fix) {
+    for (const b of G.buildings) {
+      if (!b.done || b.hp >= b.maxHp * .995) continue;
+      const f = b.hp / b.maxHp + Math.hypot(b.c + .5 - s.x, b.r + .5 - s.z) * .012;
+      if (f < worst) { worst = f; best = [b.c + .5, b.r + .5]; }
+    }
+  }
+  if (u.heal) {
+    for (const o of G.soldiers) {
+      if (o === s || o.dead || o.hp >= o.maxHp * .995) continue;
+      const f = o.hp / o.maxHp + Math.hypot(o.x - s.x, o.z - s.z) * .012;
+      if (f < worst) { worst = f; best = [o.x, o.z]; }
+    }
+  }
+  return best;
+}
 function reactPoint() {
   if (G.holes.length) { const h = G.holes[G.holes.length - 1]; return [h.c + .5, h.r + 1.1]; }
   let best = null, bz = 1.5;
@@ -1417,32 +1593,20 @@ function updateSoldiers(dt) {
     const u = UNITS[s.t || "rifle"];
     s.fire = Math.max(0, s.fire - dt);
     s.sup = Math.max(0, s.sup - dt);
-    if (s.post && (s.post.dead || !s.post.done)) { s.post = null; s.state = "seek"; }
 
-    if (u.free) {
-      // assault teams hold nothing; they go where the line just failed
+    if (u.crew) {
+      // support walks itself. It goes to the worst case in range of the whole
+      // board, not to a tile you had to pick for it.
+      const job = crewJob(s, u);
+      if (job) stepTo(s, clamp(job[0], .3, COLS - .3), clamp(job[1], .6, ROWS - .4), u.spd, dt);
+      else stepTo(s, COLS / 2 + ((i % 5) - 2) * .6, ROWS - 1.4, u.spd, dt);
+    } else if (u.free) {
+      // assault teams hold their tile until the line fails, then run to it
       const rp2 = reactPoint();
       if (rp2) stepTo(s, clamp(rp2[0], .3, COLS - .3), clamp(rp2[1], 1, ROWS - .6), u.spd, dt);
-      else stepTo(s, 5.5 + ((i % 5) - 2) * .7, 9.4, u.spd, dt);
+      else stepTo(s, s.hc + .5, s.hr + .5, u.spd, dt);
     } else {
-      const rp = G.rallyPost;
-      if (rp && !rp.dead && rp.done && s.post && s.post !== rp && rp.crew.length < garrisonOf(rp.key)) {
-        const ix = s.post.crew.indexOf(s);
-        if (ix >= 0) s.post.crew.splice(ix, 1);
-        s.post = null; s.state = "seek";
-      }
-      if (s.state === "seek") {
-        const p = findPost();
-        if (p) { p.crew.push(s); s.post = p; s.state = "move"; }
-        else stepTo(s, 5.5 + ((i % 5) - 2) * .5, 9.6, u.spd, dt);
-      } else if (s.state === "move") {
-        if (!s.post) s.state = "seek";
-        else {
-          const idx = s.post.crew.indexOf(s);
-          const off = (idx - (garrisonOf(s.post.key) - 1) / 2) * .26;
-          if (stepTo(s, s.post.c + .5 + off, s.post.r + .5, u.spd, dt)) s.state = "hold";
-        }
-      }
+      stepTo(s, s.hc + .5, s.hr + .5, u.spd, dt);
     }
 
     // support work runs on its own clock, not the firing clock
@@ -1478,7 +1642,7 @@ function updateSoldiers(dt) {
 
     s.cd -= dt;
     if (s.cd <= 0) {
-      const spec = s.post ? B[s.post.key] : null;
+      const ck = coverKeyAt(s), spec = ck ? B[ck] : null;
       const rof = (spec && spec.rof ? spec.rof : 1) * (G.rally > 0 ? .5 : 1);
       const R2 = u.range * u.range;
       let tgt = null, seen = 0;
@@ -1749,7 +1913,7 @@ function updateEnemies(dt) {
     if (prey) {
       if (e.cd <= 0) {
         e.cd = spec.cd;
-        const cover = coverOf(prey.post ? prey.post.key : null);
+        const cover = coverOf(coverKeyAt(prey));
         prey.hp -= spec.dmg * cover * difficultyDamage();
         if (prey.hp <= 0) prey.dead = true;
       }
@@ -1958,10 +2122,6 @@ function updateWar(dt) {
       }
       G.bigCd = a.dur / (G.bigQ.length + 1);
       G.waveT = 0; G.berserk = false;
-      { const got = [];
-        for (const k in UNLOCK) if (UNLOCK[k] === G.assault - 1)
-          got.push((B[k] || UNITS[k]).name);
-        if (got.length) floatText("해금  " + got.join(" · ")); }
       SFX.play('wave');
       floatText(G.assault + "차 공세  ·  " + BRIEF[Math.min(G.assault - 1, BRIEF.length - 1)][0]);
       G.shake = .22;
@@ -2004,6 +2164,7 @@ function step(dt) {
   updateWar(dt);
   if (mode !== "play") return;
   updateSoldiers(dt);
+  separateSoldiers();
   updateBuildings(dt);
   updateShells(dt);
   updateEnemies(dt);
@@ -2017,7 +2178,7 @@ function step(dt) {
 // ===========================================================================
 const VIEW = (() => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, IS_PC ? 2 : 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, IS_PC ? 2 : 1.75));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -2091,6 +2252,7 @@ const VIEW = (() => {
   key.position.set(-16, 26, 13);
   key.castShadow = true;
   key.shadow.mapSize.set(IS_PC ? 2048 : 1024, IS_PC ? 2048 : 1024);
+  key.shadow.autoUpdate = true;
   key.shadow.camera.left = -16; key.shadow.camera.right = 16;
   key.shadow.camera.top = 22; key.shadow.camera.bottom = -22;
   key.shadow.camera.near = 1; key.shadow.camera.far = 90;
@@ -2283,10 +2445,24 @@ const VIEW = (() => {
     white: new THREE.MeshStandardMaterial({ color: 0xe9eef3, roughness: .68 }),
     orange:new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff4d00, emissiveIntensity: 1.1, roughness: .5 }),
     cyan:  new THREE.MeshStandardMaterial({ color: 0x4fe3f0, emissive: 0x18c8dc, emissiveIntensity: 2.0, roughness: .4 }),
+    // the heavy tier: light enough to read against dark ground, blue enough
+    // to belong to the same side as the infantry
+    hull:  new THREE.MeshStandardMaterial({ map: metalTex(0x5b6b7c), roughnessMap: ROUGH,
+             normalMap: METAL_NORMAL, normalScale: NS, roughness: .58, metalness: .52 }),
+    armor: new THREE.MeshStandardMaterial({ map: metalTex(0x3d4a58), roughnessMap: ROUGH,
+             normalMap: METAL_NORMAL, normalScale: NS, roughness: .62, metalness: .48 }),
+    tread: new THREE.MeshStandardMaterial({ map: metalTex(0x24292f), roughnessMap: ROUGH,
+             normalMap: METAL_NORMAL, normalScale: NS, roughness: .82, metalness: .30 }),
     enemy: new THREE.MeshStandardMaterial({ color: 0x2b2630, roughness: .78, metalness: .15, flatShading: true }),
     eye:   new THREE.MeshStandardMaterial({ color: 0x5a0a16, emissive: 0x8c0f22, emissiveIntensity: 0.55,
              roughness: .28, metalness: .18, flatShading: true }),
-    ghost: new THREE.MeshStandardMaterial({ color: 0xff7a2a, transparent: true, opacity: .35, roughness: .6 })
+    // under construction: visibly unfinished, but still a solid shape
+    ghost: new THREE.MeshStandardMaterial({ color: 0x4c3220, emissive: 0xff7a2a,
+      emissiveIntensity: .30, transparent: true, opacity: .80, roughness: .6 }),
+    // what you are holding on a drag. This one has to shout: 35% orange on
+    // bright concrete was invisible, which is the whole complaint.
+    pv: new THREE.MeshStandardMaterial({ color: 0x7d4a1c, emissive: 0xff9440,
+      emissiveIntensity: .95, roughness: .45 })
   };
 
   function box(w, h, d, mat, x, y, z, g) {
@@ -3141,7 +3317,7 @@ const VIEW = (() => {
     b.rotateY(Math.PI / 2);
     return mergeGeos([{ g: a, m: new THREE.Matrix4() }, { g: b, m: new THREE.Matrix4() }], true);
   })();
-  { const N = IS_PC ? 4200 : 2100, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
+  { const N = IS_PC ? 2600 : 1200, grass = new THREE.InstancedMesh(bladeGeo, grassMat, N);
     scene.add(grass);
     const d = new THREE.Object3D(); let k = 0;
     const put = (x, y, z, sc) => {
@@ -4123,31 +4299,54 @@ const VIEW = (() => {
       box(.05, .05, .13, M.cyan, 0, .08, .04, t);
       g.userData.turret = t;
     } else if (K === "arty") {
-      box(.20, .19, .84, M.dark, -.31, 0, 0, g);
-      box(.20, .19, .84, M.dark, .31, 0, 0, g);
-      box(.68, .26, .72, M.steel, 0, .07, .03, g);
-      box(.30, .07, .30, M.dark, 0, .33, .24, g);
-      const t = new THREE.Group(); t.position.set(0, .40, .00); g.add(t);
-      box(.46, .25, .50, M.steel, 0, -.12, 0, t);
-      for (const dx of [-.10, .10]) {
-        const bar = cyl(.045, .052, .88, 10, M.dark, 0, 0, 0, t);
-        bar.rotation.x = Math.PI / 2; bar.position.set(dx, .01, -.48);
+      // a box launcher on a truck bed: six tubes in two rows, not two sticks
+      for (const sx of [-1, 1]) {
+        box(.24, .26, .92, M.tread, sx * .34, 0, 0, g);
+        for (let i = 0; i < 3; i++)
+          cyl(.11, .11, .28, 10, M.hull, sx * .34, .09, -.30 + i * .30, g).rotation.z = Math.PI / 2;
       }
-      box(.10, .04, .04, M.cyan, .19, .04, .19, t);
+      box(.66, .18, .94, M.hull, 0, .14, 0, g);                // chassis
+      box(.54, .28, .34, M.hull, 0, .30, .32, g);              // cab
+      box(.46, .12, .04, M.cyan, 0, .40, .16, g);               // windscreen
+      for (const sx of [-1, 1]) {                                // spades
+        const sp = box(.14, .06, .28, M.armor, sx * .30, .06, -.52, g);
+        sp.rotation.x = .5;
+      }
+      const t = new THREE.Group(); t.position.set(0, .34, -.12); g.add(t);
+      box(.56, .16, .46, M.armor, 0, .06, 0, t);                 // cradle
+      const pack = new THREE.Group(); pack.position.set(0, .22, 0); t.add(pack);
+      pack.rotation.x = -.22;
+      for (let row = 0; row < 2; row++) for (let i = 0; i < 3; i++) {
+        const tube = cyl(.075, .075, .84, 10, M.armor, 0, 0, 0, pack);
+        tube.rotation.x = Math.PI / 2;
+        tube.position.set(-.17 + i * .17, row * .17, -.36);
+      }
+      box(.58, .05, .05, M.orange, 0, .30, -.02, pack);
+      box(.12, .05, .05, M.cyan, .26, .12, .16, t);
       g.userData.turret = t;
     } else if (K === "rail") {
-      box(.88, .18, .88, M.conc, 0, 0, 0, g);
-      for (const dx of [-.35, .35]) box(.13, .42, .13, M.steel, dx, .18, .31, g);
-      for (const dx of [-.35, .35]) box(.10, .06, .10, M.cyan, dx, .60, .31, g);
-      const t = new THREE.Group(); t.position.set(0, .34, 0); g.add(t);
-      box(.44, .28, .44, M.steel, 0, -.14, 0, t);
-      for (const dx of [-.10, .10]) {
-        const rl = box(.06, .07, 1.30, M.dark, 0, 0, 0, t);
-        rl.position.set(dx, .04, -.65);
+      // an emplacement, not a vehicle: capacitor bank, gantry, rail pair
+      box(.94, .16, .94, M.conc, 0, 0, 0, g);
+      for (const sx of [-1, 1]) for (const sz of [-1, 1])
+        box(.12, .10, .12, M.armor, sx * .40, .16, sz * .40, g);
+      for (const sx of [-1, 1]) {                                // capacitor cans
+        cyl(.13, .13, .44, 12, M.hull, sx * .36, .38, .34, g);
+        cyl(.15, .15, .05, 12, M.cyan, sx * .36, .61, .34, g);
+        box(.05, .30, .05, M.armor, sx * .36, .40, .18, g);
       }
-      const coil = box(.32, .11, .12, M.cyan, 0, 0, 0, t);
-      coil.position.set(0, .04, -.20);
-      box(.28, .07, .26, M.cyan, 0, .12, .18, t);
+      box(.72, .07, .22, M.armor, 0, .60, .34, g);               // busbar
+      const t = new THREE.Group(); t.position.set(0, .34, -.04); g.add(t);
+      box(.52, .30, .54, M.hull, 0, .06, .08, t);              // breech housing
+      box(.56, .07, .58, M.armor, 0, .23, .08, t);
+      for (const dx of [-.11, .11]) {                            // the rails
+        const rl = box(.07, .09, 1.36, M.hull, 0, 0, 0, t);
+        rl.position.set(dx, .10, -.72);
+        for (let i = 0; i < 4; i++)
+          box(.09, .03, .05, M.cyan, dx, .16, -.32 - i * .30, t);
+      }
+      for (let i = 0; i < 3; i++) box(.34, .04, .06, M.armor, 0, .10, -.34 - i * .34, t);
+      box(.30, .09, .10, M.cyan, 0, .10, -.20, t);              // arc gap
+      box(.22, .06, .22, M.cyan, 0, .28, .26, t);
       g.userData.turret = t;
     } else if (K === "mg") {
       for (let i = 0; i < 10; i++) {
@@ -4156,35 +4355,76 @@ const VIEW = (() => {
         s.rotation.y = -a;
       }
       const t = new THREE.Group(); t.position.set(0, .16, 0); g.add(t);
-      box(.26, .16, .26, M.steel, 0, 0, 0, t);
-      cyl(.035, .035, .44, 10, M.dark, 0, .1, -.22, t).rotation.x = Math.PI / 2;
+      box(.26, .16, .26, M.hull, 0, 0, 0, t);
+      cyl(.035, .035, .44, 10, M.armor, 0, .1, -.22, t).rotation.x = Math.PI / 2;
       g.userData.turret = t;
     } else if (K === "mortar") {
       cyl(.34, .36, .1, 20, M.sand, 0, 0, 0, g);
       const t = new THREE.Group(); t.position.set(0, .1, 0); g.add(t);
-      const tube = cyl(.05, .06, .46, 12, M.steel, 0, 0, 0, t);
+      const tube = cyl(.05, .06, .46, 12, M.hull, 0, 0, 0, t);
       tube.rotation.x = -.85;
       box(.3, .14, .2, M.olive, -.3, 0, .28, g);
       g.userData.turret = t;
     } else if (K === "siege") {
-      box(.18, .2, .86, M.dark, -.31, 0, 0, g);
-      box(.18, .2, .86, M.dark, .31, 0, 0, g);
-      box(.62, .22, .78, M.steel, 0, .06, 0, g);
-      const t = new THREE.Group(); t.position.set(0, .34, 0); g.add(t);
-      cyl(.24, .28, .2, 16, M.steel, 0, -.1, 0, t);
-      const barrel = cyl(.055, .06, 1.05, 12, M.dark, 0, 0, 0, t);
-      barrel.rotation.x = Math.PI / 2; barrel.position.set(0, 0, -.55);
+      // running gear: road wheels between the track blocks, drive sprocket at
+      // the back, so the tracks read as tracks and not as two dark bars
+      for (const sx of [-1, 1]) {
+        box(.26, .30, .96, M.tread, sx * .34, 0, 0, g);          // track
+        box(.30, .10, .98, M.tread, sx * .34, .30, 0, g);        // guard
+        for (let i = 0; i < 4; i++)
+          cyl(.10, .10, .30, 10, M.hull, sx * .34, .11, -.33 + i * .22, g).rotation.z = Math.PI / 2;
+        cyl(.13, .13, .30, 10, M.hull, sx * .34, .13, .40, g).rotation.z = Math.PI / 2;
+      }
+      box(.60, .16, .98, M.hull, 0, .16, 0, g);                // hull floor
+      box(.72, .26, .86, M.hull, 0, .30, -.02, g);             // hull
+      box(.76, .07, .58, M.hull, 0, .56, .06, g);              // glacis deck
+      box(.20, .09, .20, M.armor, -.30, .60, .34, g);            // hatch
+      box(.09, .05, .34, M.orange, .32, .60, .18, g);           // hazard stripe
+      for (const sx of [-1, 1]) box(.05, .16, .05, M.hull, sx * .40, .60, -.30, g);
+      // outriggers: this thing braces itself before it fires
+      for (const sx of [-1, 1]) {
+        const leg = box(.10, .10, .46, M.armor, sx * .46, .12, .20, g);
+        leg.rotation.set(.5, 0, sx * .35);
+        box(.20, .06, .20, M.hull, sx * .60, -.06, .38, g);
+      }
+      const t = new THREE.Group(); t.position.set(0, .62, .02); g.add(t);
+      box(.62, .30, .62, M.hull, 0, .10, .04, t);              // turret box
+      box(.50, .14, .18, M.hull, 0, .10, -.32, t);             // mantlet
+      box(.24, .20, .12, M.armor, .30, .12, .10, t);             // stowage bin
+      box(.18, .05, .05, M.cyan, -.22, .27, -.10, t);           // sight block
+      const barrel = cyl(.085, .10, 1.30, 14, M.armor, 0, 0, 0, t);
+      barrel.rotation.x = Math.PI / 2; barrel.position.set(0, .10, -.98);
+      cyl(.115, .115, .26, 14, M.hull, 0, .10, -.50, t).rotation.x = Math.PI / 2;   // fume extractor
+      const brake = cyl(.13, .13, .22, 14, M.armor, 0, .10, -1.54, t);                // muzzle brake
+      brake.rotation.x = Math.PI / 2;
+      for (const sx of [-1, 1]) box(.10, .05, .14, M.armor, sx * .13, .10, -1.54, t);
       g.userData.turret = t;
     } else if (K === "mech") {
-      box(.2, .52, .22, M.dark, -.19, 0, 0, g);
-      box(.2, .52, .22, M.dark, .19, 0, 0, g);
-      box(.7, .5, .46, M.steel, 0, .52, 0, g);
-      box(.72, .06, .48, M.orange, 0, 1.02, 0, g);
-      box(.22, .34, .2, M.steel, -.44, .62, 0, g);
-      box(.22, .34, .2, M.steel, .44, .62, 0, g);
-      const t = new THREE.Group(); t.position.set(0, 1.1, 0); g.add(t);
-      box(.34, .16, .26, M.dark, 0, 0, 0, t);
-      box(.26, .06, .03, M.cyan, 0, .06, -.13, t);
+      // a walker stands on digitigrade legs, not on two posts
+      for (const sx of [-1, 1]) {
+        box(.20, .12, .34, M.armor, sx * .21, .04, .10, g);      // foot
+        const shin = box(.15, .40, .16, M.hull, sx * .21, .28, .02, g);
+        shin.rotation.x = .28;
+        cyl(.11, .11, .19, 10, M.armor, sx * .21, .50, .10, g).rotation.z = Math.PI / 2;
+        const thigh = box(.19, .36, .20, M.hull, sx * .21, .70, .02, g);
+        thigh.rotation.x = -.22;
+        cyl(.13, .13, .22, 10, M.armor, sx * .21, .88, -.03, g).rotation.z = Math.PI / 2;
+      }
+      box(.52, .20, .34, M.armor, 0, 1.00, 0, g);                // hip block
+      box(.74, .44, .46, M.hull, 0, 1.20, 0, g);               // chest
+      box(.30, .12, .40, M.orange, 0, 1.44, .02, g);            // shoulder yoke
+      for (const sx of [-1, 1]) {
+        cyl(.15, .17, .30, 12, M.hull, sx * .40, 1.36, 0, g).rotation.z = Math.PI / 2;
+        box(.16, .34, .18, M.armor, sx * .44, 1.14, 0, g);       // upper arm
+        box(.10, .05, .26, M.cyan, sx * .44, 1.30, -.14, g);
+      }
+      box(.26, .07, .07, M.cyan, 0, 1.30, -.24, g);             // chest lamp
+      const t = new THREE.Group(); t.position.set(0, 1.48, 0); g.add(t);
+      box(.34, .22, .30, M.armor, 0, .10, 0, t);                 // head
+      box(.30, .07, .04, M.cyan, 0, .12, -.16, t);              // visor
+      cyl(.07, .09, .52, 10, M.armor, 0, .08, 0, t).rotation.x = Math.PI / 2;
+      t.children[t.children.length - 1].position.set(.12, .08, -.34);
+      box(.05, .05, .22, M.hull, -.16, .22, .02, t);           // aerial
       g.userData.turret = t;
     } else if (K === "depot") {
       box(.42, .3, .42, M.olive, -.16, 0, -.08, g);
@@ -4308,7 +4548,7 @@ const VIEW = (() => {
         comp.uniforms.grain.value = q >= 1 ? 0 : 0.006;
         this.bloomOff = q >= 2;
         renderer.shadowMap.enabled = q < 3;
-        renderer.setPixelRatio(Math.min(devicePixelRatio, q >= 3 ? 1.5 : 2));
+        renderer.setPixelRatio(Math.min(devicePixelRatio, q >= 3 ? 1.35 : (IS_PC ? 2 : 1.75)));
         this.resize();
       },
       render(scene3, cam3, t) {
@@ -4420,8 +4660,14 @@ const VIEW = (() => {
       const t = at(c, r);
       const stub = { key, c, r, up: 0, high: t && t.k === "high", aim: face || 0 };
       const g = makeBuilding(stub);
-      g.traverse(o => { if (o.isMesh) o.material = M.ghost; });
+      g.traverse(o => { if (o.isMesh) o.material = M.pv; });
       if (g.userData.turret) g.userData.turret.rotation.y = (face || 0) + Math.PI;
+      // a ring on the ground under it, so the tile it lands on is never in doubt
+      const ring = new THREE.Mesh(new THREE.RingGeometry(.40, .50, 28),
+        new THREE.MeshBasicMaterial({ color: 0xffb066, transparent: true, opacity: .95,
+          side: THREE.DoubleSide, depthTest: false }));
+      ring.rotation.x = -Math.PI / 2; ring.position.y = .04; ring.renderOrder = 8;
+      g.add(ring);
       this._pv = g;
     },
     pickTile(cx, cy) {
@@ -4771,6 +5017,7 @@ function svgGlyph(key) {
   return `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${GLYPH[key] || ""}</svg>`;
 }
 function syncTop() {
+  if (typeof syncEcon === "function") syncEcon();
   $("sMat").textContent = Math.floor(G.mat);
   $("sInc").textContent = "+" + income().toFixed(0);
   $("sUpk").textContent = "-" + upkeepDrain().toFixed(1);
@@ -4834,12 +5081,28 @@ function mkAct(title, cost, on, opts) {
   const b = document.createElement("button");
   b.className = "act";
   const badge = opts && opts.cost !== undefined ? `<div class="cost">${opts.cost}</div>` : "";
+  if (opts && opts.zone !== undefined) b.dataset.z = opts.zone;
   const art = opts && opts.glyph ? `<div class="art">${svgGlyph(opts.glyph)}</div>` : "";
   b.innerHTML = `${badge}${art}<div class="t">${title}</div><div class="c">${cost}</div>`;
   if (opts && opts.sel) b.dataset.sel = "1";
   if (opts && opts.off) b.disabled = true; else b.addEventListener("click", on);
   return b;
 }
+// `pick` holds a building key or a unit key: both go on the board the same
+// way, so the drag path asks these three instead of B[] directly.
+const isUnit = k => !!UNITS[k];
+function pickCheck(k, c, r) { return isUnit(k) ? unitCheck(k, c, r) : placeCheck(k, c, r); }
+function pickPlace(k, c, r, face) {
+  if (!isUnit(k)) return place(k, c, r, face);
+  const e = unitCheck(k, c, r);
+  if (e) return e;
+  spawnSoldier(k, c, r, face);
+  SFX.play("build");
+  return null;
+}
+const pickZone = k => isUnit(k) ? -2 : B[k].z;
+const pickName = k => (isUnit(k) ? UNITS[k] : B[k]).name;
+
 let armed = null;   // an ability waiting for a map tap
 let dragFromCard = false;
 let aim = null;     // a placement waiting for its facing
@@ -4865,12 +5128,11 @@ function syncInsp() {
     `<div class="hd"><b>${sp.name}</b>` +
     (b.up ? `<u>강화 ${b.up}</u>` : "") +
     (rk ? `<u>${RANK_N[rk]}</u>` : "") +
-    (G.rallyPost === b ? `<u style="color:var(--cyan);border-color:rgba(79,227,240,.5)">집결지</u>` : "") +
     `<em>${b.c + 1}열 ${b.r + 1}행</em></div>` +
     `<div class="hb"><i style="width:${(b.hp / b.maxHp * 100).toFixed(0)}%"></i></div>` +
     `<div class="st">` +
       `<div><s>HP</s><i>${Math.ceil(b.hp)}<span style="font-size:9px;color:#4f6273">/${b.maxHp}</span></i></div>` +
-      (gar ? `<div><s>병사</s><i>${b.crew.length}<span style="font-size:9px;color:#4f6273">/${gar}</span></i></div>`
+      (gar ? `<div><s>수용</s><i>${tileCrowd(b.c, b.r)}<span style="font-size:9px;color:#8ea4b5">/${gar}</span></i></div>`
            : `<div><s>DPS</s><i>${dps}</i></div>`) +
       `<div><s>KILLS</s><i>${b.xp}</i></div>` +
     `</div>` +
@@ -4881,7 +5143,6 @@ function syncInsp() {
         (b.up >= 3 ? "최대" : `강화 · ${cost}`) + `</button>` +
     `</div>` +
     `<div class="row" style="margin-top:6px">` +
-      (gar ? `<button class="gh" id="ibRally">${G.rallyPost === b ? "집결 해제" : "병력 집결"}</button>` : "") +
       `<button class="dn" id="ibSell">철거</button>` +
       `<button class="gh" id="ibX">닫기</button>` +
     `</div>`;
@@ -4990,45 +5251,48 @@ function syncSheet() {
   body.innerHTML = "";
   document.querySelectorAll(".tab").forEach(t => t.dataset.on = (+t.dataset.zone === tab) ? "1" : "0");
   if (tab === 3) {
-    $("hint").textContent = "가장 앞쪽 빈 참호로 들어갑니다 · 참호를 눌러 집결 지정 가능";
-    let free = 0;
-    for (const b of G.buildings) if (b.done && B[b.key].garrison) free += garrisonOf(b.key) - b.crew.length;
+    $("hint").textContent = "카드를 원하는 칸으로 끌어다 놓으세요 · 공병·위생병은 스스로 움직입니다";
     for (const t of ["rifle", "at", "eng", "medic", "guard"]) {
       const u = UNITS[t], c1 = solCost(t);
       if (!isUnlocked(t)) {
         const lk = document.createElement("div");
         lk.className = "act lk";
         lk.innerHTML = `<div class="art">${svgGlyph(u.g)}</div><div class="t">${u.name}</div>` +
-                       `<div class="c">${unlockedAt(t)}차 공세 이후 해금</div>`;
+                       `<div class="c">연구 「${techFor(t).n}」 필요</div>`;
         body.appendChild(lk);
         continue;
       }
-      const tag = u.free ? "<em>참호 불필요</em> · " : `<em>인력 ${u.man}</em> · `;
-      body.appendChild(mkAct(u.name, `${tag}${u.desc}`, () => { spawnSoldier(t); syncSheet(); },
-        { off: G.mat < c1 || G.man < u.man, cost: c1, glyph: u.g }));
+      const poor = G.mat < c1 || G.man < u.man;
+      const tag = `<em>인력 ${u.man}</em> · `;
+      if (u.crew) {
+        // no tile to choose: buy it and it goes to work by itself
+        body.appendChild(mkAct(u.name, `${tag}${u.desc}`,
+          () => { spawnSoldier(t); syncSheet(); },
+          { off: poor, cost: c1, glyph: u.g, zone: 3 }));
+        continue;
+      }
+      const el = mkAct(u.name, `${tag}${u.desc}`, () => {
+        pick = (pick === t) ? null : t; armed = null; closeInsp(); syncSheet();
+      }, { off: poor && pick !== t, sel: pick === t, cost: c1, glyph: u.g, zone: 3 });
+      el.addEventListener("pointerdown", () => {
+        if (poor) return;
+        pick = t; armed = null; closeInsp(); dragFromCard = true;
+        $("hint").textContent = u.name + " — 칸으로 끌어다 놓으세요";
+      });
+      body.appendChild(el);
     }
-    const rc = solCost("rifle");
-    body.appendChild(mkAct("소총병 ×5", `한 번에 다섯 명`, () => {
-      for (let i = 0; i < 5; i++) if (!spawnSoldier("rifle")) break; syncSheet();
-    }, { off: G.mat < rc * 5 || G.man < UNITS.rifle.man * 5, cost: rc * 5, glyph: "inf" }));
-    const info = document.createElement("div");
-    info.className = "act"; info.style.cssText = "pointer-events:none";
-    info.innerHTML = `<div class="art">${svgGlyph("trench")}</div>
-      <div class="t" style="font-size:11px">빈 자리 ${free}칸</div>
-      <div class="c">참호·벙커의 남은 슬롯. 돌격대는 이 자리를 쓰지 않습니다</div>`;
-    body.appendChild(info);
     VIEW.highlight(null);
     return;
   }
   $("hint").textContent = armed ? "포격할 칸을 누르세요"
-    : pick ? `${B[pick].name} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
+    : pick ? `${pickName(pick)} — 칸으로 끌거나 눌러서 배치` : "카드를 지도로 끌어다 놓으세요";
   for (const key of ZONE_BUILDS[tab]) {
     const spec = B[key];
     if (!isUnlocked(key)) {
       const lk = document.createElement("div");
       lk.className = "act lk";
       lk.innerHTML = `<div class="art">${svgGlyph(key)}</div><div class="t">${spec.name}</div>` +
-                     `<div class="c">${unlockedAt(key)}차 공세 이후 해금</div>`;
+                     `<div class="c">연구 「${techFor(key).n}」 필요</div>`;
       body.appendChild(lk);
       continue;
     }
@@ -5040,7 +5304,7 @@ function syncSheet() {
       pick = (pick === key) ? null : key; armed = null;
       closeInsp();
       syncSheet();
-    }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key });
+    }, { off: G.mat < cost && pick !== key, sel: pick === key, cost, glyph: key, zone: spec.z });
     // press and drag straight off the card onto the map
     el.addEventListener("pointerdown", () => {
       if (G.mat < cost) return;
@@ -5050,7 +5314,7 @@ function syncSheet() {
     });
     body.appendChild(el);
   }
-  VIEW.highlight(pick ? B[pick].z : null);
+  VIEW.highlight(pick && !isUnit(pick) ? B[pick].z : null);
 }
 
 let last = performance.now(), acc = 0, uiT = 0;
@@ -5058,7 +5322,18 @@ let last = performance.now(), acc = 0, uiT = 0;
 // a sustained drop below ~42fps steps the pipeline down a notch, and it never
 // steps back up (oscillating quality is worse than one honest downgrade).
 let qLevel = 0, slowT = 0, fastT = 0;
+let fpsAcc = 0, fpsN = 0, fpsT = 0;
+function showFps(dt) {
+  fpsAcc += dt; fpsN++; fpsT += dt;
+  if (fpsT < .5) return;
+  const f = fpsN / fpsAcc;
+  const el = $("fps");
+  el.textContent = f.toFixed(0) + " FPS";
+  el.dataset.w = f >= 50 ? "0" : f >= 30 ? "1" : "2";
+  fpsAcc = 0; fpsN = 0; fpsT = 0;
+}
 function adaptQuality(dt) {
+  showFps(dt);
   if (dt > 1 / (IS_PC ? 45 : 34)) { slowT += dt; fastT = 0; } else { fastT += dt; slowT = 0; }
   if (slowT > 4 && qLevel < 3) {
     qLevel++; slowT = 0;
@@ -5128,6 +5403,7 @@ function start() {
   newGame();
   VIEW.applyMap();
   mode = "play"; pick = null; tab = 0; armed = null; aim = null; dragFromCard = false;
+  $("econ").hidden = true; $("matPill").dataset.open = "0"; $("techScreen").hidden = true;
   $("aim").hidden = true;
   $("draft").hidden = true; $("insp").hidden = true;
   syncSpeed();
@@ -5229,7 +5505,7 @@ function commitAim() {
   if (!aim) return;
   const k = aim.key, c = aim.c, r = aim.r, f = aim.face;
   cancelAim();
-  const err = place(k, c, r, f);
+  const err = pickPlace(k, c, r, f);
   if (err) floatText(err);
   syncSheet();
 }
@@ -5255,7 +5531,7 @@ function tap(cx, cy) {
   const t2 = at(hit.c, hit.r);
   if (t2 && t2.b) { G.sel = t2.b; syncInsp(); return; }   // occupied: inspect it
   closeInsp();
-  const err = place(pick, hit.c, hit.r);
+  const err = pickPlace(pick, hit.c, hit.r);
   if (err) floatText(err);
   syncSheet();
 }
@@ -5268,6 +5544,7 @@ function drag(cx, cy) {
   const cell = hit.r * COLS + hit.c;
   if (cell === lastCell) return;
   lastCell = cell;
+  if (isUnit(pick)) return;          // units are one drop each, never a drag run
   if (G.mat < bCost(pick)) return;
   if (!place(pick, hit.c, hit.r)) syncSheet();
 }
@@ -5282,7 +5559,7 @@ addEventListener("pointermove", e => {
   if (aim) { if (down) updateAim(e.clientX, e.clientY); return; }
   if (dragFromCard) {
     const h = VIEW.pickTile(e.clientX, e.clientY);
-    if (h && pick && !placeCheck(pick, h.c, h.r)) VIEW.preview(pick, h.c, h.r, Math.PI);
+    if (h && pick && !pickCheck(pick, h.c, h.r) && !isUnit(pick)) VIEW.preview(pick, h.c, h.r, Math.PI);
     else VIEW.preview(null);
     return;
   }
@@ -5295,7 +5572,7 @@ addEventListener("pointerup", e => {
     VIEW.preview(null);
     const h = VIEW.pickTile(e.clientX, e.clientY);
     if (h && pick) {
-      const why = placeCheck(pick, h.c, h.r);
+      const why = pickCheck(pick, h.c, h.r);
       if (why) floatText(why); else beginAim(pick, h.c, h.r);
     }
     down = false; return;
@@ -5359,6 +5636,80 @@ $("spBtn").addEventListener("click", () => {
   syncSpeed();
 });
 $("menuBtn").addEventListener("click", () => { SFX.play("ui"); openPause(); });
+
+// ---- research --------------------------------------------------------------
+const TECH_COLS = [
+  ["전선", ["t_bunker", "t_wall", "t_mine"]],
+  ["화력", ["t_mortar", "t_flame", "t_tesla", "t_sniper"]],
+  ["중장비", ["t_siege", "t_arty", "t_mech", "t_rail"]],
+  ["병력", ["t_eng", "t_medic", "t_at", "t_guard"]]
+];
+function syncTech() {
+  const g = $("techGrid");
+  g.innerHTML = "";
+  for (const [title, keys] of TECH_COLS) {
+    const col = document.createElement("div");
+    col.className = "tcol";
+    col.innerHTML = `<h5>${title}</h5>`;
+    for (const k of keys) {
+      const t = TECH.find(x => x.k === k);
+      const have = G.tech.has(k);
+      const ready = t.req.every(r2 => G.tech.has(r2));
+      const state = have ? "have" : !ready ? "lock" : G.mat < t.c ? "poor" : "open";
+      const el = document.createElement("button");
+      el.className = "tn"; el.dataset.s = state;
+      const req = t.req.map(r2 => TECH.find(x => x.k === r2).n).join(" · ");
+      el.innerHTML = `<u>${have ? "완료" : t.c}</u><b>${t.n}</b><span>${t.d}` +
+                     (!have && !ready ? `<br>선행 · ${req}` : "") + `</span>`;
+      el.addEventListener("click", () => {
+        const e2 = buyTech(t);
+        if (e2) floatText(e2);
+        syncTech(); syncSheet(); syncTop();
+      });
+      col.appendChild(el);
+    }
+    g.appendChild(col);
+  }
+}
+function openTech() {
+  if (mode !== "play" && mode !== "pause") return;
+  techBack = mode; mode = "pause";
+  syncTech();
+  $("techScreen").hidden = false;
+}
+function closeTech() {
+  $("techScreen").hidden = true;
+  if (mode === "pause") { mode = techBack === "pause" ? "pause" : "play"; last = performance.now(); acc = 0; }
+  if (mode === "pause" && techBack !== "pause") mode = "play";
+}
+let techBack = "play";
+$("techBtn").addEventListener("click", () => { SFX.play("ui"); openTech(); });
+$("techClose").addEventListener("click", () => { SFX.play("ui"); closeTech(); });
+
+// ---- where the material comes from ----------------------------------------
+function syncEcon() {
+  const el = $("econ");
+  if (el.hidden) return;
+  const L = ledger();
+  const row = (a, b2, cls) => `<div${cls ? ' class="' + cls + '"' : ""}><span>${a}</span><b>${b2}</b></div>`;
+  el.innerHTML = `<h4>자원 수입</h4>` +
+    row("사령부 기본", "+" + L.base.toFixed(1)) +
+    row(`보급소 ×${L.nd}`, "+" + L.dep.toFixed(1)) +
+    (L.mult > 1 ? row("병참 개선 +40%", "적용됨") : "") +
+    row(`중장비 유지 ×${L.nUp}`, "-" + L.up.toFixed(1), "up") +
+    (L.salvage ? row("잔해 회수", "적 처치 시") : "") +
+    row("합계", (L.net >= 0 ? "+" : "") + L.net.toFixed(1) + " /초", "tot") +
+    row("공세 격퇴", "+90", "") +
+    `<div style="margin-top:8px;color:#6e8395;font-size:10px;line-height:1.6">` +
+    `보급소는 후방 구역에 짓습니다. 중장비는 매 초 자원을 먹으니 화력만 늘리면 벽을 못 세웁니다.</div>`;
+}
+$("matPill").addEventListener("click", () => {
+  const el = $("econ");
+  el.hidden = !el.hidden;
+  $("matPill").dataset.open = el.hidden ? "0" : "1";
+  SFX.play("ui");
+  syncEcon();
+});
 
 // ---- desktop input ---------------------------------------------------------
 // The keys the hint strip advertises. Bound on every platform - a tablet with a
