@@ -172,6 +172,31 @@ quantise it:
   becomes a bottom sheet; the two least critical readouts drop out; the
   build rail scrolls with a fade on its right edge.
 
+## The HUD hugs the edges
+
+In the reference the world holds the centre and the interface is a set of
+small floating pieces at the margins. Solid full-width chrome bands are
+the wrong shape entirely.
+
+- The canvas fills the viewport. Everything else floats over it inside a
+  `pointer-events:none` layer, with input restored only on the controls.
+- Top left: the objective line (wave, remaining, call button) above a row
+  of compact resource chips.
+- Top right: the speed group, four small buttons in one glass tray.
+- Bottom centre: the build tray, sized to its contents and scrolling
+  horizontally rather than stretching edge to edge.
+- Log sits bottom left and the key hints bottom right, both lifted clear
+  of the tray.
+- On phones the tray spans the width and the inspector becomes a sheet
+  above it, because thumbs need the reach.
+
+Two things that bit us building this: appending new layout rules after
+the media queries meant a later edit that rewrote the responsive block
+deleted them silently, and a canvas without `position:absolute` inside a
+sized parent feeds its own height back into layout and grows a few
+hundred pixels per frame. Playwright reports the second as "element is
+not stable", which is worth recognising.
+
 ## Motion
 
 - Nothing bounces or eases elastically. Transitions are 90-140ms linear or

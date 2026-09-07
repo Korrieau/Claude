@@ -25,33 +25,10 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;background:var(--base);color:var(--text);
     font-family:var(--ui);font-size:12px;-webkit-font-smoothing:antialiased;user-select:none}
-  #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
-  #stage{flex:1 1 0;min-height:0;position:relative}
-  canvas{display:block;position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
 
   .lab{font-family:var(--tech);font-size:9px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--muted);white-space:nowrap}
   .num{font-family:var(--tech);font-variant-numeric:tabular-nums;letter-spacing:.02em}
-
-  /* ---------- top readout ---------- */
-  #top{display:flex;align-items:stretch;background:var(--s0);
-    border-bottom:1px solid var(--line);flex:none;position:relative}
-  #top::after{content:'';position:absolute;left:0;bottom:-1px;width:96px;height:1px;
-    background:var(--signal)}
-  .cell{padding:9px 16px 8px;display:flex;flex-direction:column;gap:3px;min-width:96px;
-    border-right:1px solid var(--line);position:relative}
-  .cell .v{font-family:var(--tech);font-size:19px;font-weight:500;color:var(--text);
-    font-variant-numeric:tabular-nums;line-height:1}
-  .v.signal{color:var(--signal)}
-  .v.infect{color:var(--infect)}
-  .v.danger{color:var(--danger)}
-  #top .grow{flex:1;border:none}
-  #speeds{display:flex;align-items:center;gap:0;padding:0 10px;border-left:1px solid var(--line)}
-  .sp{background:transparent;border:1px solid transparent;color:var(--muted);
-    font-family:var(--tech);font-size:10px;letter-spacing:.1em;padding:6px 11px;cursor:pointer}
-  .sp:hover{color:var(--text)}
-  .sp.on{color:var(--signal);border-color:rgba(255,212,41,.4);
-    background:rgba(255,212,41,.08);box-shadow:0 0 20px rgba(255,212,41,.2)}
 
   /* ---------- generic panel ---------- */
   /* the chamfer cuts the top-right and bottom-left corners */
@@ -70,48 +47,7 @@
     background:repeating-linear-gradient(0deg,transparent,transparent 2px,
       rgba(255,255,255,.015) 2px,rgba(255,255,255,.015) 4px)}
 
-  /* ---------- wave control ---------- */
-  #wavebar{position:absolute;top:14px;left:50%;transform:translateX(-50%);
-    display:flex;align-items:center;gap:14px;padding:9px 8px 9px 16px;z-index:5}
-  #wlab{font-family:var(--tech);font-size:10px;letter-spacing:.14em;color:var(--muted);
-    text-transform:uppercase}
-  #wlab b{color:var(--text);font-weight:500}
-  #callBtn{background:var(--signal);border:none;color:#141005;font-family:var(--tech);
-    font-size:11px;font-weight:700;letter-spacing:.1em;padding:8px 16px;cursor:pointer;
-    min-height:44px;
-    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
-  #callBtn:hover{background:#ffe066}
-
-  /* ---------- build rail ---------- */
-  #build{display:flex;background:var(--s0);border-top:1px solid var(--line);
-    flex:none;overflow-x:auto}
-  .bcard{background:transparent;border:none;border-right:1px solid var(--line);
-    border-top:2px solid transparent;color:var(--text);padding:9px 13px 10px;cursor:pointer;
-    text-align:left;min-width:152px;display:flex;align-items:center;gap:10px;
-    font-family:var(--ui);position:relative}
-  .bcard .ic{flex:none;width:32px;height:32px;display:grid;place-items:center;
-    color:var(--muted);background:#0D1015;border:1px solid var(--line);
-    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
-  .bcard .ic svg{width:20px;height:20px}
-  .bcard.sel .ic{color:var(--signal);border-color:rgba(255,212,41,.4);background:#1A1608;
-    box-shadow:0 0 20px rgba(255,212,41,.2)}
-  .bcard .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
-  .bcard .c i{font-style:normal;color:var(--dim);font-size:8px;vertical-align:1px}
-  .bcard{transition:background var(--t-fast) var(--sharp)}
-  .bcard:hover{background:var(--hover)}
-  .bcard.sel{background:var(--active);border-top-color:var(--signal)}
-  .bcard.sel .n{color:var(--signal)}
-  .bcard.poor{opacity:.32}
-  .bcard .n{font-size:11.5px;color:var(--text);letter-spacing:.01em;white-space:nowrap}
-  .bcard .c{font-family:var(--tech);font-size:11px;color:var(--muted);
-    font-variant-numeric:tabular-nums}
-  .bcard .c .s{color:var(--signal)}
-  .bcard .c .y{color:var(--infect)}
-  .bcard .k{font-family:var(--tech);font-size:8.5px;letter-spacing:.14em;color:var(--dim)}
-
   /* ---------- inspector ---------- */
-  #insp{position:absolute;right:14px;top:14px;width:238px;padding:14px;
-    display:none;z-index:5}
   #iName{font-size:13.5px;color:var(--signal);font-weight:500;letter-spacing:.01em}
   #iCode{font-family:var(--tech);font-size:9px;letter-spacing:.16em;color:var(--dim);
     margin:3px 0 11px;text-transform:uppercase}
@@ -132,8 +68,6 @@
   .abtn:disabled{opacity:.3;cursor:default}
 
   /* ---------- log ---------- */
-  #log{position:absolute;left:14px;bottom:14px;width:310px;z-index:5;
-    display:flex;flex-direction:column-reverse;gap:3px;pointer-events:none}
   #log div{background:rgba(10,10,10,.72);backdrop-filter:blur(8px);padding:5px 10px;font-size:10.5px;
     color:var(--muted);border-left:2px solid var(--line);letter-spacing:.01em}
   #log div::before{content:'◇ ';color:var(--dim)}
@@ -153,16 +87,7 @@
     font-family:var(--tech);font-size:11px;font-weight:700;letter-spacing:.14em;
     padding:13px 32px;cursor:pointer;min-height:44px;
     clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
-  #hint{position:absolute;left:14px;top:14px;font-family:var(--tech);font-size:9px;
-    letter-spacing:.12em;color:var(--dim);line-height:2;z-index:4;pointer-events:none;
-    text-transform:uppercase}
 
-  /* ---------- touch + small screens ---------- */
-  canvas{touch-action:none}
-  #build{-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  #build::-webkit-scrollbar{display:none}
-  #top{padding-top:env(safe-area-inset-top)}
-  #build{padding-bottom:env(safe-area-inset-bottom)}
 
   /* hover effects only where a pointer can actually hover */
   @media (hover:none){
@@ -171,101 +96,182 @@
     .abtn:hover{border-color:var(--line);color:var(--text)}
   }
 
+
+  /* ---------- floating HUD: the world holds the centre ---------- */
+  #wrap{position:fixed;inset:0}
+  #stage{position:absolute;inset:0;overflow:hidden}
+  canvas{display:block;position:absolute;inset:0;width:100%;height:100%;
+    cursor:crosshair;touch-action:none}
+  #hud{position:absolute;inset:0;pointer-events:none;z-index:5}
+  #hud > *{pointer-events:auto}
+
+  #tl{position:absolute;left:14px;top:calc(14px + env(safe-area-inset-top));
+    display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+  .chipbar{display:flex;align-items:center;gap:2px}
+  #obj{gap:12px;padding:7px 7px 7px 13px}
+  #wlab{font-family:var(--tech);font-size:10px;letter-spacing:.14em;color:var(--muted);
+    text-transform:uppercase;white-space:nowrap}
+  #wlab b{color:var(--text);font-weight:500}
+  #callBtn{background:var(--signal);border:none;color:#0A0A0A;font-family:var(--tech);
+    font-size:11px;font-weight:700;letter-spacing:.1em;padding:8px 15px;cursor:pointer;
+    transition:background var(--t-fast) var(--sharp);
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+  #callBtn:hover{background:#ffe066}
+
+  #res{gap:6px}
+  .chip{display:flex;flex-direction:column;gap:1px;padding:5px 10px 4px;
+    background:rgba(20,20,20,.55);border:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);min-width:56px;
+    clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
+  .chip .lab{font-style:normal;font-size:8px;letter-spacing:.14em}
+  .chip .v{font-family:var(--tech);font-size:14px;font-weight:500;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--text)}
+  .v.signal{color:var(--signal)} .v.infect{color:var(--infect)} .v.danger{color:var(--danger)}
+
+  #speeds{position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top));
+    display:flex;gap:2px;padding:3px;background:rgba(20,20,20,.55);
+    border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(16px);
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+  .sp{background:transparent;border:1px solid transparent;color:var(--muted);
+    font-family:var(--tech);font-size:10px;letter-spacing:.1em;padding:7px 10px;
+    cursor:pointer;transition:color var(--t-fast) var(--sharp)}
+  .sp:hover{color:var(--text)}
+  .sp.on{color:var(--signal);border-color:rgba(255,212,41,.4);
+    background:rgba(255,212,41,.08);box-shadow:0 0 20px rgba(255,212,41,.2)}
+
+  #hint{position:absolute;right:14px;bottom:calc(72px + env(safe-area-inset-bottom));
+    font-family:var(--tech);font-size:9px;letter-spacing:.12em;color:var(--dim);
+    line-height:2;text-transform:uppercase;text-align:right;pointer-events:none}
+
+  /* build tray floats at the bottom, sized to its contents */
+  #build{position:absolute;left:50%;transform:translateX(-50%);
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    display:flex;max-width:calc(100vw - 28px);overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0}
+  #build::-webkit-scrollbar{display:none}
+  #trayfade{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));
+    right:calc(50vw - min(50vw - 14px, 50%));width:30px;height:52px;
+    pointer-events:none;display:none}
+  .bcard{background:transparent;border:none;border-right:1px solid rgba(255,255,255,.06);
+    border-top:2px solid transparent;color:var(--text);padding:8px 12px 9px;cursor:pointer;
+    text-align:left;min-width:0;display:flex;align-items:center;gap:9px;
+    font-family:var(--ui);position:relative;flex:none;
+    transition:background var(--t-fast) var(--sharp)}
+  .bcard:last-child{border-right:none}
+  .bcard:hover{background:var(--hover)}
+  .bcard.sel{background:var(--active);border-top-color:var(--signal)}
+  .bcard.sel .n{color:var(--signal)}
+  .bcard.poor{opacity:.32}
+  .bcard .ic{flex:none;width:30px;height:30px;display:grid;place-items:center;
+    color:var(--muted);background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    transition:color var(--t-fast) var(--sharp);
+    clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
+  .bcard .ic svg{width:18px;height:18px}
+  .bcard.sel .ic{color:var(--signal);border-color:rgba(255,212,41,.4);
+    background:rgba(255,212,41,.10);box-shadow:0 0 20px rgba(255,212,41,.2)}
+  .bcard .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .bcard .n{font-size:11px;color:var(--text);white-space:nowrap}
+  .bcard .c{font-family:var(--tech);font-size:10px;color:var(--muted);
+    font-variant-numeric:tabular-nums}
+  .bcard .c .s{color:var(--signal)} .bcard .c .y{color:var(--infect)}
+  .bcard .c i{font-style:normal;color:var(--dim);font-size:8px;vertical-align:1px}
+  .bcard .k{display:none}
+
+  #insp{position:absolute;right:14px;top:74px;width:246px;padding:16px;display:none}
+  #log{position:absolute;left:14px;bottom:calc(72px + env(safe-area-inset-bottom));
+    width:300px;display:flex;flex-direction:column-reverse;gap:3px;pointer-events:none}
+
   @media (max-width:900px), (pointer:coarse){
     body{font-size:13px}
-    .cell{min-width:0;padding:6px 10px 5px;flex:1}
-    .cell .v{font-size:15px}
-    .lab{font-size:8px;letter-spacing:.12em}
-    .cell.opt{display:none}
-    #speeds{padding:0 4px}
-    .sp{padding:8px 9px;font-size:10px}
+    #tl{left:8px;top:calc(8px + env(safe-area-inset-top));gap:6px}
+    #obj{gap:9px;padding:6px 6px 6px 11px}
+    #wlab{font-size:9px}
+    #callBtn{padding:10px 15px;min-height:40px}
+    .chip{padding:4px 8px 3px}
+    .chip .v{font-size:13px}
+    .chip.opt{display:none}
+    #speeds{right:8px;top:calc(8px + env(safe-area-inset-top))}
+    .sp{padding:9px 10px;min-height:40px}
     #hint{display:none}
 
-    #wavebar{top:8px;gap:9px;padding:7px 7px 7px 12px}
-    #wlab{font-size:9px}
-    #callBtn{padding:10px 16px;font-size:11px}
+    /* the tray spans the width; the inspector becomes a bottom sheet */
+    #build{left:0;right:0;transform:none;bottom:0;max-width:none;
+      background:rgba(14,14,14,.86);border-left:none;border-right:none;
+      border-bottom:none;clip-path:none;justify-content:flex-start}
+    .bcard{padding:9px 11px 11px;gap:8px}
+    .bcard .n{font-size:11.5px}
 
-    /* inspector becomes a bottom sheet above the build rail */
-    #insp{right:0;left:0;top:auto;bottom:0;width:auto;padding:14px 16px 16px;
-      border-left:none;border-top:1px solid var(--line);
-      clip-path:polygon(11px 0,100% 0,100% 100%,0 100%,0 11px)}
+    #insp{right:0;left:0;top:auto;bottom:66px;width:auto;padding:14px 16px 16px;
+      clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
     #insp::after{display:none}
-    #insp .acts{margin-top:14px}
     .abtn{padding:13px 4px;font-size:11px}
     #insp .row{padding:7px 0}
 
-    .bcard{min-width:140px;padding:10px 12px;gap:9px}
-    .bcard .n{font-size:12px}
-    #log{left:8px;right:8px;bottom:8px;top:auto;width:auto}
+    #log{left:8px;right:8px;bottom:auto;top:96px;width:auto}
     #log div{font-size:10px;padding:5px 9px}
     #log div:nth-child(n+4){display:none}
   }
 
-  /* the rail scrolls; fade its right edge so that is obvious */
+  /* the tray scrolls; fade its trailing edge so that is obvious */
   @media (pointer:coarse){
-    #wrap::after{content:'';position:fixed;right:0;bottom:0;width:38px;
-      height:76px;pointer-events:none;z-index:6;
-      background:linear-gradient(90deg,rgba(16,19,24,0),rgba(16,19,24,.95))}
+    #stage::after{content:'';position:absolute;right:0;bottom:0;width:34px;
+      height:60px;pointer-events:none;z-index:6;
+      background:linear-gradient(90deg,rgba(14,14,14,0),rgba(14,14,14,.9))}
   }
 
-  /* portrait phones: two-line readout, chunkier targets */
   @media (max-width:560px){
-    .cell{padding:5px 8px 4px}
-    .cell .v{font-size:14px}
-    #wavebar{left:8px;right:8px;transform:none;justify-content:space-between}
-    .bcard{min-width:124px;padding:9px 10px;gap:8px}
-    .bcard .k{display:none}
-    .bcard .ic{width:28px;height:28px}
-    .bcard .ic svg{width:17px;height:17px}
-    .cell{padding:5px 7px 4px}
-    .cell .v{font-size:13px}
+    .chip{padding:4px 7px 3px}
+    .chip .v{font-size:12px}
+    .bcard{padding:8px 9px 10px}
     #over h1{font-size:20px;letter-spacing:.2em}
   }
 </style>
 </head>
 <body>
 <div id="wrap">
-  <div id="top" class="scan">
-    <div class="cell"><div class="lab">Supply</div><div class="v signal" id="uSup">0</div></div>
-    <div class="cell"><div class="lab">Crystal</div><div class="v infect" id="uCry">0</div></div>
-    <div class="cell"><div class="lab">Wave</div><div class="v" id="uWave">0</div></div>
-    <div class="cell opt"><div class="lab">Kills</div><div class="v" id="uKill">0</div></div>
-    <div class="cell"><div class="lab">Control Hub</div><div class="v" id="uHub">100%</div></div>
-    <div class="cell opt"><div class="lab">Blight</div><div class="v" id="uBlight">0%</div></div>
-    <div class="grow"></div>
-    <div id="speeds">
-      <button class="sp" data-sp="0">HOLD</button>
-      <button class="sp on" data-sp="1">1×</button>
-      <button class="sp" data-sp="2">2×</button>
-      <button class="sp" data-sp="3">3×</button>
-    </div>
-  </div>
-
   <div id="stage">
     <canvas id="cv"></canvas>
 
-    <div id="hint">
-      LMB 설치 · RMB드래그 이동 · WHEEL 확대<br>
-      1–9 자산 · ESC 취소 · U 강화 · X 철거 · SPACE 소집
-    </div>
-
-    <div id="wavebar" class="panel">
-      <div id="wlab">대기 중</div>
-      <button id="callBtn">소집</button>
-    </div>
-
-    <div id="insp" class="panel scan">
-      <div id="iName"></div>
-      <div id="iCode"></div>
-      <div id="iRows"></div>
-      <div class="desc" id="iDesc"></div>
-      <div class="acts">
-        <button class="abtn" id="iUp">강화</button>
-        <button class="abtn warn" id="iSell">철거</button>
+    <!-- everything below floats over the world; only controls take input -->
+    <div id="hud">
+      <div id="tl">
+        <div id="obj" class="chipbar panel"><span id="wlab">대기 중</span>
+          <button id="callBtn">소집</button></div>
+        <div id="res" class="chipbar">
+          <span class="chip"><i class="lab">SUP</i><b class="v signal" id="uSup">0</b></span>
+          <span class="chip"><i class="lab">CRY</i><b class="v infect" id="uCry">0</b></span>
+          <span class="chip"><i class="lab">WAVE</i><b class="v" id="uWave">0</b></span>
+          <span class="chip opt"><i class="lab">KILL</i><b class="v" id="uKill">0</b></span>
+          <span class="chip"><i class="lab">HUB</i><b class="v" id="uHub">100%</b></span>
+          <span class="chip opt"><i class="lab">BLGT</i><b class="v" id="uBlight">0%</b></span>
+        </div>
       </div>
-    </div>
 
-    <div id="log"></div>
+      <div id="speeds">
+        <button class="sp" data-sp="0">HOLD</button>
+        <button class="sp on" data-sp="1">1×</button>
+        <button class="sp" data-sp="2">2×</button>
+        <button class="sp" data-sp="3">3×</button>
+      </div>
+
+      <div id="hint">LMB 설치 · RMB드래그 이동 · WHEEL 확대<br>
+        1–9 자산 · ESC 취소 · U 강화 · X 철거 · SPACE 소집</div>
+
+      <div id="insp" class="panel scan">
+        <div id="iName"></div>
+        <div id="iCode"></div>
+        <div id="iRows"></div>
+        <div class="desc" id="iDesc"></div>
+        <div class="acts">
+          <button class="abtn" id="iUp">강화</button>
+          <button class="abtn warn" id="iSell">철거</button>
+        </div>
+      </div>
+
+      <div id="log"></div>
+      <div id="build" class="panel"></div>
+    </div>
 
     <div id="over">
       <h1>Hub Lost</h1>
@@ -273,8 +279,6 @@
       <button id="oBtn">재가동</button>
     </div>
   </div>
-
-  <div id="build" class="scan"></div>
 </div>
 
 <script>
