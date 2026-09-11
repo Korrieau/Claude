@@ -1,0 +1,2172 @@
+[
+{
+"code": "01-C03",
+"hall": 1,
+"name": "SanDisk",
+"nx": 0.2134,
+"ny": 0.4903
+},
+{
+"code": "01-C04",
+"hall": 1,
+"name": "DIP (Daegu Digital Innovation Promotion Agency)",
+"nx": 0.3286,
+"ny": 0.4903
+},
+{
+"code": "01-C05",
+"hall": 1,
+"name": "Mizuno",
+"nx": 0.3277,
+"ny": 0.4252
+},
+{
+"code": "01-C06",
+"hall": 1,
+"name": "King's Raid Korea",
+"nx": 0.2545,
+"ny": 0.4252
+},
+{
+"code": "01-C10",
+"hall": 1,
+"name": "Kiou",
+"nx": 0.4804,
+"ny": 0.4903
+},
+{
+"code": "01-C11",
+"hall": 1,
+"name": "Alaya Lab",
+"nx": 0.6357,
+"ny": 0.4903
+},
+{
+"code": "01-C12",
+"hall": 1,
+"name": "Lighthouse Studio",
+"nx": 0.6357,
+"ny": 0.4252
+},
+{
+"code": "01-C13",
+"hall": 1,
+"name": "CFD Sales",
+"nx": 0.5152,
+"ny": 0.4252
+},
+{
+"code": "02-C01",
+"hall": 2,
+"name": "Moscow Game Hub Russia",
+"nx": 0.1301,
+"ny": 0.5052
+},
+{
+"code": "02-C02",
+"hall": 2,
+"name": "BIPA (Busan IT Industry Promotion Agency)",
+"nx": 0.1301,
+"ny": 0.4142
+},
+{
+"code": "02-C03",
+"hall": 2,
+"name": "CITY CONNECTION",
+"nx": 0.3049,
+"ny": 0.6039
+},
+{
+"code": "02-C04",
+"hall": 2,
+"name": "Gemdrops",
+"nx": 0.4195,
+"ny": 0.6039
+},
+{
+"code": "02-C05",
+"hall": 2,
+"name": "IRONMACE Korea",
+"nx": 0.4195,
+"ny": 0.5658
+},
+{
+"code": "02-C06",
+"hall": 2,
+"name": "Games From Portugal Portugal",
+"nx": 0.4195,
+"ny": 0.5071
+},
+{
+"code": "02-C07",
+"hall": 2,
+"name": "BenQJapan",
+"nx": 0.3049,
+"ny": 0.5071
+},
+{
+"code": "02-C08",
+"hall": 2,
+"name": "Studio EMBERS",
+"nx": 0.2878,
+"ny": 0.5658
+},
+{
+"code": "02-C09",
+"hall": 2,
+"name": "Sheer Tianyi Technology China",
+"nx": 0.3049,
+"ny": 0.3748
+},
+{
+"code": "02-C10",
+"hall": 2,
+"name": "Genki USA",
+"nx": 0.4195,
+"ny": 0.3748
+},
+{
+"code": "02-C11",
+"hall": 2,
+"name": "Winking Studios Singapore",
+"nx": 0.4195,
+"ny": 0.3161
+},
+{
+"code": "02-C12",
+"hall": 2,
+"name": "One or Eight",
+"nx": 0.3374,
+"ny": 0.3161
+},
+{
+"code": "02-C13",
+"hall": 2,
+"name": "IzanagiGames",
+"nx": 0.6512,
+"ny": 0.5658
+},
+{
+"code": "02-C14",
+"hall": 2,
+"name": "HYPER REAL",
+"nx": 0.6512,
+"ny": 0.5071
+},
+{
+"code": "02-C15",
+"hall": 2,
+"name": "KAWAKAMISANGYO",
+"nx": 0.561,
+"ny": 0.5071
+},
+{
+"code": "02-C16",
+"hall": 2,
+"name": "Lan-bridge Game China",
+"nx": 0.5366,
+"ny": 0.4013
+},
+{
+"code": "02-C17",
+"hall": 2,
+"name": "Gamesir China",
+"nx": 0.6512,
+"ny": 0.4013
+},
+{
+"code": "02-C18",
+"hall": 2,
+"name": "Devolver Digital USA",
+"nx": 0.6512,
+"ny": 0.3161
+},
+{
+"code": "02-C19",
+"hall": 2,
+"name": "Jeonbuk Global Game Center Korea",
+"nx": 0.7667,
+"ny": 0.5735
+},
+{
+"code": "02-C20",
+"hall": 2,
+"name": "Pulsar Gaming Gears Korea",
+"nx": 0.9049,
+"ny": 0.5135
+},
+{
+"code": "02-C21",
+"hall": 2,
+"name": "GALLERIA (THIRDWAVE)",
+"nx": 0.9049,
+"ny": 0.3161
+},
+{
+"code": "02-C22",
+"hall": 2,
+"name": "EnigmatrixGames China",
+"nx": 0.7667,
+"ny": 0.5135
+},
+{
+"code": "02-N01",
+"hall": 2,
+"name": "Edia",
+"nx": 0.0902,
+"ny": 0.84
+},
+{
+"code": "02-N02",
+"hall": 2,
+"name": "Game Source Entertainment China",
+"nx": 0.0902,
+"ny": 0.7761
+},
+{
+"code": "02-N03",
+"hall": 2,
+"name": "ZUIKI",
+"nx": 0.2301,
+"ny": 0.8187
+},
+{
+"code": "02-N04",
+"hall": 2,
+"name": "ECI GAMES China",
+"nx": 0.2301,
+"ny": 0.7761
+},
+{
+"code": "02-N06",
+"hall": 2,
+"name": "CyberConnect2",
+"nx": 0.2301,
+"ny": 0.6968
+},
+{
+"code": "02-N07",
+"hall": 2,
+"name": "Phase",
+"nx": 0.2545,
+"ny": 0.9142
+},
+{
+"code": "02-N08",
+"hall": 2,
+"name": "viviON",
+"nx": 0.3211,
+"ny": 0.9142
+},
+{
+"code": "02-N09",
+"hall": 2,
+"name": "Topre",
+"nx": 0.5033,
+"ny": 0.9142
+},
+{
+"code": "02-N10",
+"hall": 2,
+"name": "ULTRANOVA Entertainment",
+"nx": 0.5699,
+"ny": 0.9142
+},
+{
+"code": "02-N11",
+"hall": 2,
+"name": "SUCCESS",
+"nx": 0.6374,
+"ny": 0.9142
+},
+{
+"code": "02-N12",
+"hall": 2,
+"name": "netmarble",
+"nx": 0.7244,
+"ny": 0.7123
+},
+{
+"code": "02-S01",
+"hall": 2,
+"name": "Silent Bark Games Thailand",
+"nx": 0.0504,
+"ny": 0.2606
+},
+{
+"code": "02-S02",
+"hall": 2,
+"name": "Axisray Lab China",
+"nx": 0.0504,
+"ny": 0.2026
+},
+{
+"code": "02-S03",
+"hall": 2,
+"name": "noisycroak",
+"nx": 0.0504,
+"ny": 0.1374
+},
+{
+"code": "02-S04",
+"hall": 2,
+"name": "Moss",
+"nx": 0.0504,
+"ny": 0.0994
+},
+{
+"code": "02-S05",
+"hall": 2,
+"name": "VTC MOBILE SERVICES Viet Nam",
+"nx": 0.0439,
+"ny": 0.0503
+},
+{
+"code": "02-S07",
+"hall": 2,
+"name": "Meowster Innovations",
+"nx": 0.1772,
+"ny": 0.0503
+},
+{
+"code": "02-S08",
+"hall": 2,
+"name": "NHN JAPAN",
+"nx": 0.4683,
+"ny": 0.0994
+},
+{
+"code": "02-S09",
+"hall": 2,
+"name": "Smilegate",
+"nx": 0.9699,
+"ny": 0.0994
+},
+{
+"code": "03-C01",
+"hall": 3,
+"name": "lowiro UK",
+"nx": 0.1371,
+"ny": 0.5923
+},
+{
+"code": "03-C02",
+"hall": 3,
+"name": "CORSAIR Fanatec Elgato",
+"nx": 0.3584,
+"ny": 0.5923
+},
+{
+"code": "03-C03",
+"hall": 3,
+"name": "KOREA PAVILION Korea",
+"nx": 0.3584,
+"ny": 0.3161
+},
+{
+"code": "03-C04",
+"hall": 3,
+"name": "ZETA DIVISION",
+"nx": 0.8742,
+"ny": 0.4755
+},
+{
+"code": "03-C05",
+"hall": 3,
+"name": "Malaysia Pavilion Malaysia",
+"nx": 0.8742,
+"ny": 0.3161
+},
+{
+"code": "03-C06",
+"hall": 3,
+"name": "Vrgineers Czech Republic",
+"nx": 0.6247,
+"ny": 0.3161
+},
+{
+"code": "03-N01",
+"hall": 3,
+"name": "L&K Korea",
+"nx": 0.0247,
+"ny": 0.9142
+},
+{
+"code": "03-N02",
+"hall": 3,
+"name": "De",
+"nx": 0.1169,
+"ny": 0.9142
+},
+{
+"code": "03-N03",
+"hall": 3,
+"name": "MUTAN",
+"nx": 0.2101,
+"ny": 0.9142
+},
+{
+"code": "03-N04",
+"hall": 3,
+"name": "DMM GAMES(EXNOA)",
+"nx": 0.2146,
+"ny": 0.7123
+},
+{
+"code": "03-N05",
+"hall": 3,
+"name": "ENTERGRAM",
+"nx": 0.4483,
+"ny": 0.9142
+},
+{
+"code": "03-N06",
+"hall": 3,
+"name": "BeXide",
+"nx": 0.5404,
+"ny": 0.9142
+},
+{
+"code": "03-N07",
+"hall": 3,
+"name": "KOEI TECMO GAMES",
+"nx": 0.8629,
+"ny": 0.7123
+},
+{
+"code": "03-S01",
+"hall": 3,
+"name": "SQUARE ENIX",
+"nx": 0.8618,
+"ny": 0.0994
+},
+{
+"code": "04-C01",
+"hall": 4,
+"name": "AppPay",
+"nx": 0.2928,
+"ny": 0.589
+},
+{
+"code": "04-C02",
+"hall": 4,
+"name": "Shochiku",
+"nx": 0.3895,
+"ny": 0.589
+},
+{
+"code": "04-C03",
+"hall": 4,
+"name": "Minecraft",
+"nx": 0.3888,
+"ny": 0.3155
+},
+{
+"code": "04-C04",
+"hall": 4,
+"name": "Aniplex",
+"nx": 0.6178,
+"ny": 0.4806
+},
+{
+"code": "04-C05",
+"hall": 4,
+"name": "AREA 35",
+"nx": 0.7888,
+"ny": 0.5071
+},
+{
+"code": "04-C06",
+"hall": 4,
+"name": "historia",
+"nx": 0.7888,
+"ny": 0.4329
+},
+{
+"code": "04-C07",
+"hall": 4,
+"name": "TechDestination Pakistan Game Pavilion Pakistan",
+"nx": 0.7882,
+"ny": 0.3155
+},
+{
+"code": "04-C08",
+"hall": 4,
+"name": "CRITICAL REFLEX Australia",
+"nx": 0.6546,
+"ny": 0.3155
+},
+{
+"code": "04-C09",
+"hall": 4,
+"name": "Taipei Game Show Taiwan",
+"nx": 0.5757,
+"ny": 0.4329
+},
+{
+"code": "04-N01",
+"hall": 4,
+"name": "SEGA/ATLUS",
+"nx": 0.9316,
+"ny": 0.7123
+},
+{
+"code": "04-S01",
+"hall": 4,
+"name": "LEVEL5",
+"nx": 0.4961,
+"ny": 0.0994
+},
+{
+"code": "04-S02",
+"hall": 4,
+"name": "Pocketpair",
+"nx": 0.9441,
+"ny": 0.0994
+},
+{
+"code": "05-C01",
+"hall": 5,
+"name": "Lenovo Japan",
+"nx": 0,
+"ny": 0.5329
+},
+{
+"code": "05-C02",
+"hall": 5,
+"name": "LINE GAME",
+"nx": 0.2463,
+"ny": 0.4884
+},
+{
+"code": "05-C03",
+"hall": 5,
+"name": "D3PUBLISHER",
+"nx": 0.2463,
+"ny": 0.3161
+},
+{
+"code": "05-C04",
+"hall": 5,
+"name": "4Gamer.net",
+"nx": 0,
+"ny": 0.3155
+},
+{
+"code": "05-C05",
+"hall": 5,
+"name": "Toydium",
+"nx": 0,
+"ny": 0.4884
+},
+{
+"code": "05-C06",
+"hall": 5,
+"name": "GAME FREAK",
+"nx": 0.6125,
+"ny": 0.4884
+},
+{
+"code": "05-C07",
+"hall": 5,
+"name": "Italy Pavilion Italy",
+"nx": 0.8938,
+"ny": 0.5497
+},
+{
+"code": "05-C08",
+"hall": 5,
+"name": "SilverStarJapan",
+"nx": 0.8938,
+"ny": 0.4884
+},
+{
+"code": "05-C09",
+"hall": 5,
+"name": "LIONA",
+"nx": 0.895,
+"ny": 0.3155
+},
+{
+"code": "05-C10",
+"hall": 5,
+"name": "SHUEISHA GAMES",
+"nx": 0.6125,
+"ny": 0.3155
+},
+{
+"code": "05-N01",
+"hall": 5,
+"name": "Bandai Namco Entertainment",
+"nx": 0.8162,
+"ny": 0.7123
+},
+{
+"code": "05-S01",
+"hall": 5,
+"name": "Konami Digital Entertainment",
+"nx": 0.8875,
+"ny": 0.0994
+},
+{
+"code": "06-C01",
+"hall": 6,
+"name": "Bushiroad",
+"nx": 0.4067,
+"ny": 0.429
+},
+{
+"code": "06-C02",
+"hall": 6,
+"name": "AORUS Taiwan",
+"nx": 0.4067,
+"ny": 0.3155
+},
+{
+"code": "06-C03",
+"hall": 6,
+"name": "Tassei Denki",
+"nx": 0.2385,
+"ny": 0.3155
+},
+{
+"code": "06-C04",
+"hall": 6,
+"name": "Sapporo Game Camp",
+"nx": 0.6423,
+"ny": 0.5884
+},
+{
+"code": "06-C05",
+"hall": 6,
+"name": "INTI CREATES",
+"nx": 0.8913,
+"ny": 0.5884
+},
+{
+"code": "06-C06",
+"hall": 6,
+"name": "GungHo Online Entertainment",
+"nx": 0.8913,
+"ny": 0.3155
+},
+{
+"code": "06-N01",
+"hall": 6,
+"name": "Game Carrot China",
+"nx": 0.0077,
+"ny": 0.7897
+},
+{
+"code": "06-N02",
+"hall": 6,
+"name": "Serenity Forge USA",
+"nx": 0.1798,
+"ny": 0.7897
+},
+{
+"code": "06-N03",
+"hall": 6,
+"name": "ROG(ASUS JAPAN)",
+"nx": 0.1808,
+"ny": 0.7123
+},
+{
+"code": "06-N04",
+"hall": 6,
+"name": "Happinet",
+"nx": 0.9077,
+"ny": 0.7123
+},
+{
+"code": "06-S01",
+"hall": 6,
+"name": "Sony Interactive Entertainment",
+"nx": 0.8913,
+"ny": 0.0994
+},
+{
+"code": "07-C01",
+"hall": 7,
+"name": "Asobism",
+"nx": 0.202,
+"ny": 0.5884
+},
+{
+"code": "07-C02",
+"hall": 7,
+"name": "Wizardry Variants Daphne",
+"nx": 0.3618,
+"ny": 0.5884
+},
+{
+"code": "07-C03",
+"hall": 7,
+"name": "Astrae Oratio Korea",
+"nx": 0.3625,
+"ny": 0.3155
+},
+{
+"code": "07-C04",
+"hall": 7,
+"name": "NEXON",
+"nx": 0.6599,
+"ny": 0.429
+},
+{
+"code": "07-C05",
+"hall": 7,
+"name": "Graph",
+"nx": 0.6605,
+"ny": 0.3155
+},
+{
+"code": "07-C06",
+"hall": 7,
+"name": "PLAYISM",
+"nx": 0.5474,
+"ny": 0.3155
+},
+{
+"code": "07-N01",
+"hall": 7,
+"name": "HORI",
+"nx": 0.2967,
+"ny": 0.9148
+},
+{
+"code": "07-N02",
+"hall": 7,
+"name": "Minimum Studio Korea",
+"nx": 0.3513,
+"ny": 0.9148
+},
+{
+"code": "07-N03",
+"hall": 7,
+"name": "Red Dunes Games United Arab Emirates",
+"nx": 0.4875,
+"ny": 0.7123
+},
+{
+"code": "07-N04",
+"hall": 7,
+"name": "Teyon Japan",
+"nx": 0.4842,
+"ny": 0.9148
+},
+{
+"code": "07-N05",
+"hall": 7,
+"name": "GMI Cloud",
+"nx": 0.5382,
+"ny": 0.9148
+},
+{
+"code": "07-N06",
+"hall": 7,
+"name": "Keimyung University Immersive",
+"nx": 0.5928,
+"ny": 0.9148
+},
+{
+"code": "07-N07",
+"hall": 7,
+"name": "playcare japan activity associetion",
+"nx": 0.6559,
+"ny": 0.9148
+},
+{
+"code": "07-N08",
+"hall": 7,
+"name": "Google Play",
+"nx": 0.8132,
+"ny": 0.7123
+},
+{
+"code": "07-S01",
+"hall": 7,
+"name": "CAPCOM",
+"nx": 0.9401,
+"ny": 0.0994
+},
+{
+"code": "08-C01",
+"hall": 8,
+"name": "PLAION REPLAI (NEOGEO AES+) UK",
+"nx": 0,
+"ny": 0.5684
+},
+{
+"code": "08-C02",
+"hall": 8,
+"name": "NAKANISHI MFG.",
+"nx": 0.1488,
+"ny": 0.5684
+},
+{
+"code": "08-C03",
+"hall": 8,
+"name": "NHK x Game",
+"nx": 0.1488,
+"ny": 0.5245
+},
+{
+"code": "08-C04",
+"hall": 8,
+"name": "K-SILVER China",
+"nx": 0,
+"ny": 0.5245
+},
+{
+"code": "08-C05",
+"hall": 8,
+"name": "YYSTV Media China",
+"nx": 0,
+"ny": 0.5245
+},
+{
+"code": "08-C06",
+"hall": 8,
+"name": "Nextorage",
+"nx": 0,
+"ny": 0.5245
+},
+{
+"code": "08-C07",
+"hall": 8,
+"name": "Samurai Cats: Meow Order Taiwan",
+"nx": 0,
+"ny": 0.3858
+},
+{
+"code": "08-C08",
+"hall": 8,
+"name": "DOBE China",
+"nx": 0,
+"ny": 0.3858
+},
+{
+"code": "08-C09",
+"hall": 8,
+"name": "",
+"nx": 0,
+"ny": 0.3858
+},
+{
+"code": "08-C10",
+"hall": 8,
+"name": "Sichuan Digital Publishing & Media China",
+"nx": 0,
+"ny": 0.3858
+},
+{
+"code": "08-C11",
+"hall": 8,
+"name": "ITC",
+"nx": 0.15,
+"ny": 0.3677
+},
+{
+"code": "08-C12",
+"hall": 8,
+"name": "DITP (Thailand Pavilion) Thailand",
+"nx": 0.15,
+"ny": 0.3155
+},
+{
+"code": "08-C13",
+"hall": 8,
+"name": "Project Moon Korea",
+"nx": 0,
+"ny": 0.3155
+},
+{
+"code": "08-C14",
+"hall": 8,
+"name": "Norwegian Games Norway",
+"nx": 0.3988,
+"ny": 0.4852
+},
+{
+"code": "08-C15",
+"hall": 8,
+"name": "Mango Party Taiwan",
+"nx": 0.5012,
+"ny": 0.5606
+},
+{
+"code": "08-C16",
+"hall": 8,
+"name": "Sofmap",
+"nx": 0.6659,
+"ny": 0.4852
+},
+{
+"code": "08-C17",
+"hall": 8,
+"name": "Rising Tide Thailand",
+"nx": 0.5012,
+"ny": 0.4852
+},
+{
+"code": "08-C18",
+"hall": 8,
+"name": "KIOXIA",
+"nx": 0.3988,
+"ny": 0.3703
+},
+{
+"code": "08-C19",
+"hall": 8,
+"name": "OUTERPLANE Korea",
+"nx": 0.5012,
+"ny": 0.4006
+},
+{
+"code": "08-C20",
+"hall": 8,
+"name": "NeoBards Entertainment Taiwan",
+"nx": 0.6671,
+"ny": 0.3703
+},
+{
+"code": "08-C22",
+"hall": 8,
+"name": "Canon",
+"nx": 0.6659,
+"ny": 0.2955
+},
+{
+"code": "08-C23",
+"hall": 8,
+"name": "I-O DATA",
+"nx": 0.3988,
+"ny": 0.2955
+},
+{
+"code": "08-C24",
+"hall": 8,
+"name": "tatsumaki games",
+"nx": 0.8768,
+"ny": 0.3103
+},
+{
+"code": "08-N01",
+"hall": 8,
+"name": "Iwakuni City",
+"nx": 0,
+"ny": 0.9148
+},
+{
+"code": "08-N02",
+"hall": 8,
+"name": "REBORNSMITH",
+"nx": 0,
+"ny": 0.9148
+},
+{
+"code": "08-N03",
+"hall": 8,
+"name": "WAWE",
+"nx": 0,
+"ny": 0.9148
+},
+{
+"code": "08-N04",
+"hall": 8,
+"name": "PixAI",
+"nx": 0,
+"ny": 0.9148
+},
+{
+"code": "08-N05",
+"hall": 8,
+"name": "LEADJOY China",
+"nx": 0.0549,
+"ny": 0.9148
+},
+{
+"code": "08-N06",
+"hall": 8,
+"name": "G TUNE-NEXTGEAR(MouseComputer)",
+"nx": 0.2561,
+"ny": 0.7123
+},
+{
+"code": "08-N07",
+"hall": 8,
+"name": "Top Hat Studios USA",
+"nx": 0.3012,
+"ny": 0.9148
+},
+{
+"code": "08-N08",
+"hall": 8,
+"name": "VRChat USA",
+"nx": 0.5402,
+"ny": 0.8987
+},
+{
+"code": "08-N10",
+"hall": 8,
+"name": "Panasonic",
+"nx": 0.6671,
+"ny": 0.8987
+},
+{
+"code": "08-N11",
+"hall": 8,
+"name": "TECOPARK",
+"nx": 0.4878,
+"ny": 0.749
+},
+{
+"code": "08-N12",
+"hall": 8,
+"name": "National Institute for Environmental Studies",
+"nx": 0.5878,
+"ny": 0.8097
+},
+{
+"code": "08-N13",
+"hall": 8,
+"name": "Gunma prefecture",
+"nx": 0.6878,
+"ny": 0.8097
+},
+{
+"code": "08-N14",
+"hall": 8,
+"name": "Shenzhen KTC Technology China",
+"nx": 0.6878,
+"ny": 0.749
+},
+{
+"code": "08-N16",
+"hall": 8,
+"name": "TOKYO MX NodaCry's Ambition",
+"nx": 0.8537,
+"ny": 0.8039
+},
+{
+"code": "08-N17",
+"hall": 8,
+"name": "LEAFshade",
+"nx": 0.8537,
+"ny": 0.7626
+},
+{
+"code": "08-N18",
+"hall": 8,
+"name": "MSI Taiwan",
+"nx": 0.4866,
+"ny": 0.6316
+},
+{
+"code": "08-N19",
+"hall": 8,
+"name": "ALLONE",
+"nx": 0.6878,
+"ny": 0.6845
+},
+{
+"code": "08-N20",
+"hall": 8,
+"name": "DUNLOP",
+"nx": 0.6878,
+"ny": 0.6316
+},
+{
+"code": "08-N21",
+"hall": 8,
+"name": "POCKET RD",
+"nx": 0.8537,
+"ny": 0.7123
+},
+{
+"code": "08-N25",
+"hall": 8,
+"name": "KEMCO",
+"nx": 0.8537,
+"ny": 0.6148
+},
+{
+"code": "08-S01",
+"hall": 8,
+"name": "Sanrio",
+"nx": 0.5878,
+"ny": 0.0994
+},
+{
+"code": "08-S02",
+"hall": 8,
+"name": "PinCool",
+"nx": 0.8768,
+"ny": 0.2071
+},
+{
+"code": "08-S03",
+"hall": 8,
+"name": "JET STUDIO",
+"nx": 0.8768,
+"ny": 0.149
+},
+{
+"code": "09-C58",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.2653
+},
+{
+"code": "09-C59",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.3222
+},
+{
+"code": "09-C60",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.4361
+},
+{
+"code": "09-C61",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.5042
+},
+{
+"code": "09-C62",
+"hall": 9,
+"name": "",
+"nx": 0.4149,
+"ny": 0.4361
+},
+{
+"code": "09-C63",
+"hall": 9,
+"name": "",
+"nx": 0.4368,
+"ny": 0.2653
+},
+{
+"code": "09-C64",
+"hall": 9,
+"name": "",
+"nx": 0.4368,
+"ny": 0.3222
+},
+{
+"code": "09-C65",
+"hall": 9,
+"name": "",
+"nx": 0.5092,
+"ny": 0.2917
+},
+{
+"code": "09-C66",
+"hall": 9,
+"name": "",
+"nx": 0.5737,
+"ny": 0.2917
+},
+{
+"code": "09-C67",
+"hall": 9,
+"name": "",
+"nx": 0.5086,
+"ny": 0.4361
+},
+{
+"code": "09-C68",
+"hall": 9,
+"name": "",
+"nx": 0.607,
+"ny": 0.5049
+},
+{
+"code": "09-C69",
+"hall": 9,
+"name": "",
+"nx": 0.6429,
+"ny": 0.5049
+},
+{
+"code": "09-C70",
+"hall": 9,
+"name": "",
+"nx": 0.6429,
+"ny": 0.4361
+},
+{
+"code": "09-C71",
+"hall": 9,
+"name": "",
+"nx": 0.607,
+"ny": 0.4361
+},
+{
+"code": "09-C72",
+"hall": 9,
+"name": "YOKOSUKA City",
+"nx": 0.959,
+"ny": 0.3931
+},
+{
+"code": "09-C73",
+"hall": 9,
+"name": "C&R Creative Studios",
+"nx": 0.959,
+"ny": 0.4681
+},
+{
+"code": "09-C74",
+"hall": 9,
+"name": "KDDI Technology",
+"nx": 0.9898,
+"ny": 0.4681
+},
+{
+"code": "09-C75",
+"hall": 9,
+"name": "ErudAite",
+"nx": 0.9898,
+"ny": 0.3931
+},
+{
+"code": "09-E100",
+"hall": 9,
+"name": "",
+"nx": 0.9587,
+"ny": 0.0972
+},
+{
+"code": "09-E103",
+"hall": 9,
+"name": "",
+"nx": 0.9587,
+"ny": 0.266
+},
+{
+"code": "09-E104",
+"hall": 9,
+"name": "",
+"nx": 0.9892,
+"ny": 0.266
+},
+{
+"code": "09-E108",
+"hall": 9,
+"name": "",
+"nx": 0.9892,
+"ny": 0.0965
+},
+{
+"code": "09-E60",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.066
+},
+{
+"code": "09-E61",
+"hall": 9,
+"name": "",
+"nx": 0.387,
+"ny": 0.1875
+},
+{
+"code": "09-E62",
+"hall": 9,
+"name": "",
+"nx": 0.4371,
+"ny": 0.066
+},
+{
+"code": "09-E63",
+"hall": 9,
+"name": "",
+"nx": 0.4371,
+"ny": 0.1875
+},
+{
+"code": "09-E65",
+"hall": 9,
+"name": "",
+"nx": 0.6133,
+"ny": 0.0208
+},
+{
+"code": "09-E66",
+"hall": 9,
+"name": "",
+"nx": 0.5089,
+"ny": 0.0667
+},
+{
+"code": "09-E67",
+"hall": 9,
+"name": "",
+"nx": 0.5089,
+"ny": 0.1958
+},
+{
+"code": "09-E68",
+"hall": 9,
+"name": "",
+"nx": 0.5371,
+"ny": 0.1958
+},
+{
+"code": "09-E69",
+"hall": 9,
+"name": "",
+"nx": 0.5651,
+"ny": 0.1958
+},
+{
+"code": "09-E70",
+"hall": 9,
+"name": "",
+"nx": 0.66,
+"ny": 0.0424
+},
+{
+"code": "09-E71",
+"hall": 9,
+"name": "",
+"nx": 0.66,
+"ny": 0.1306
+},
+{
+"code": "09-E72",
+"hall": 9,
+"name": "",
+"nx": 0.66,
+"ny": 0.2431
+},
+{
+"code": "09-E73",
+"hall": 9,
+"name": "",
+"nx": 0.66,
+"ny": 0.2993
+},
+{
+"code": "09-E74",
+"hall": 9,
+"name": "",
+"nx": 0.66,
+"ny": 0.3563
+},
+{
+"code": "09-E75",
+"hall": 9,
+"name": "",
+"nx": 0.6905,
+"ny": 0.2993
+},
+{
+"code": "09-E76",
+"hall": 9,
+"name": "",
+"nx": 0.6905,
+"ny": 0.2431
+},
+{
+"code": "09-E77",
+"hall": 9,
+"name": "",
+"nx": 0.6905,
+"ny": 0.1868
+},
+{
+"code": "09-E78",
+"hall": 9,
+"name": "",
+"nx": 0.6905,
+"ny": 0.1306
+},
+{
+"code": "09-E79",
+"hall": 9,
+"name": "",
+"nx": 0.8032,
+"ny": 0.0431
+},
+{
+"code": "09-E80",
+"hall": 9,
+"name": "",
+"nx": 0.8032,
+"ny": 0.1257
+},
+{
+"code": "09-E86",
+"hall": 9,
+"name": "",
+"nx": 0.8032,
+"ny": 0.3736
+},
+{
+"code": "09-E87",
+"hall": 9,
+"name": "",
+"nx": 0.8032,
+"ny": 0.4674
+},
+{
+"code": "09-E88",
+"hall": 9,
+"name": "",
+"nx": 0.8337,
+"ny": 0.4674
+},
+{
+"code": "09-E98",
+"hall": 9,
+"name": "",
+"nx": 0.9689,
+"ny": 0.0215
+},
+{
+"code": "09-E99",
+"hall": 9,
+"name": "",
+"nx": 0.9073,
+"ny": 0.0215
+},
+{
+"code": "09-W01",
+"hall": 9,
+"name": "GIFU PLASTIC INDUSTRY",
+"nx": 0.0381,
+"ny": 0.6028
+},
+{
+"code": "09-W02",
+"hall": 9,
+"name": "",
+"nx": 0.0194,
+"ny": 0.8396
+},
+{
+"code": "09-W03",
+"hall": 9,
+"name": "",
+"nx": 0.0194,
+"ny": 0.9243
+},
+{
+"code": "09-W05",
+"hall": 9,
+"name": "Pixio (Hamee)",
+"nx": 0.1076,
+"ny": 0.5431
+},
+{
+"code": "09-W06",
+"hall": 9,
+"name": "noblechairs and Endgame Gear",
+"nx": 0.1079,
+"ny": 0.6021
+},
+{
+"code": "09-W07",
+"hall": 9,
+"name": "Karumoa",
+"nx": 0.1549,
+"ny": 0.6021
+},
+{
+"code": "09-W08",
+"hall": 9,
+"name": "MIDBASE",
+"nx": 0.1079,
+"ny": 0.6729
+},
+{
+"code": "09-W09",
+"hall": 9,
+"name": "Secretlab Singapore",
+"nx": 0.1079,
+"ny": 0.7299
+},
+{
+"code": "09-W10",
+"hall": 9,
+"name": "Meganemonoya",
+"nx": 0.1308,
+"ny": 0.7521
+},
+{
+"code": "09-W100",
+"hall": 9,
+"name": "",
+"nx": 0.7178,
+"ny": 0.8236
+},
+{
+"code": "09-W103",
+"hall": 9,
+"name": "Lapin",
+"nx": 0.7997,
+"ny": 0.5854
+},
+{
+"code": "09-W106",
+"hall": 9,
+"name": "Scenario Technology Mikagami",
+"nx": 0.7997,
+"ny": 0.7056
+},
+{
+"code": "09-W107",
+"hall": 9,
+"name": "Checkout",
+"nx": 0.8384,
+"ny": 0.7056
+},
+{
+"code": "09-W108",
+"hall": 9,
+"name": "adjoe Playtime Germany",
+"nx": 0.8384,
+"ny": 0.6444
+},
+{
+"code": "09-W109",
+"hall": 9,
+"name": "Poppin Games Japan",
+"nx": 0.8956,
+"ny": 0.5861
+},
+{
+"code": "09-W11",
+"hall": 9,
+"name": "",
+"nx": 0.1635,
+"ny": 0.7375
+},
+{
+"code": "09-W110",
+"hall": 9,
+"name": "Game8",
+"nx": 0.8956,
+"ny": 0.6944
+},
+{
+"code": "09-W111",
+"hall": 9,
+"name": "Almedia Germany",
+"nx": 0.9178,
+"ny": 0.6944
+},
+{
+"code": "09-W112",
+"hall": 9,
+"name": "",
+"nx": 0.9146,
+"ny": 0.8236
+},
+{
+"code": "09-W12",
+"hall": 9,
+"name": "AIMWIZ",
+"nx": 0.1305,
+"ny": 0.6729
+},
+{
+"code": "09-W13",
+"hall": 9,
+"name": "",
+"nx": 0.1467,
+"ny": 0.8396
+},
+{
+"code": "09-W14",
+"hall": 9,
+"name": "",
+"nx": 0.1463,
+"ny": 0.9701
+},
+{
+"code": "09-W15",
+"hall": 9,
+"name": "",
+"nx": 0.2248,
+"ny": 0.5424
+},
+{
+"code": "09-W16",
+"hall": 9,
+"name": "",
+"nx": 0.2248,
+"ny": 0.6069
+},
+{
+"code": "09-W17",
+"hall": 9,
+"name": "",
+"nx": 0.2248,
+"ny": 0.6632
+},
+{
+"code": "09-W18",
+"hall": 9,
+"name": "",
+"nx": 0.2248,
+"ny": 0.7354
+},
+{
+"code": "09-W19",
+"hall": 9,
+"name": "",
+"nx": 0.2495,
+"ny": 0.7354
+},
+{
+"code": "09-W20",
+"hall": 9,
+"name": "",
+"nx": 0.2495,
+"ny": 0.6632
+},
+{
+"code": "09-W21",
+"hall": 9,
+"name": "",
+"nx": 0.2492,
+"ny": 0.6069
+},
+{
+"code": "09-W38",
+"hall": 9,
+"name": "",
+"nx": 0.2813,
+"ny": 0.8271
+},
+{
+"code": "09-W69",
+"hall": 9,
+"name": "",
+"nx": 0.4781,
+"ny": 0.8271
+},
+{
+"code": "09-W88",
+"hall": 9,
+"name": "Mychara",
+"nx": 0.6025,
+"ny": 0.7056
+},
+{
+"code": "09-W94",
+"hall": 9,
+"name": "ThinkingData",
+"nx": 0.6397,
+"ny": 0.5972
+},
+{
+"code": "09-W95",
+"hall": 9,
+"name": "Meshy AI USA",
+"nx": 0.6397,
+"ny": 0.6972
+},
+{
+"code": "09-W99",
+"hall": 9,
+"name": "Sentry USA",
+"nx": 0.6721,
+"ny": 0.5972
+},
+{
+"code": "10-C01",
+"hall": 10,
+"name": "",
+"nx": 0.3462,
+"ny": 0.2806
+},
+{
+"code": "10-C04",
+"hall": 10,
+"name": "",
+"nx": 0.3462,
+"ny": 0.45
+},
+{
+"code": "10-C05",
+"hall": 10,
+"name": "",
+"nx": 0.387,
+"ny": 0.4215
+},
+{
+"code": "10-C07",
+"hall": 10,
+"name": "Aiuto",
+"nx": 0.506,
+"ny": 0.3403
+},
+{
+"code": "10-C08",
+"hall": 10,
+"name": "GRAPHT",
+"nx": 0.506,
+"ny": 0.4201
+},
+{
+"code": "10-C09",
+"hall": 10,
+"name": "Shanghai Flydigi Electronics Tech China",
+"nx": 0.6043,
+"ny": 0.3403
+},
+{
+"code": "10-C10",
+"hall": 10,
+"name": "ATK Gear China",
+"nx": 0.7712,
+"ny": 0.4465
+},
+{
+"code": "10-E01",
+"hall": 10,
+"name": "Shizuoka City Creative Base",
+"nx": 0.1147,
+"ny": 0.0417
+},
+{
+"code": "10-E04",
+"hall": 10,
+"name": "ohashi metal manufacturing",
+"nx": 0.1147,
+"ny": 0.2278
+},
+{
+"code": "10-E05",
+"hall": 10,
+"name": "Original Force China",
+"nx": 0.1147,
+"ny": 0.3514
+},
+{
+"code": "10-E07",
+"hall": 10,
+"name": "PayPal",
+"nx": 0.1147,
+"ny": 0.4417
+},
+{
+"code": "10-E08",
+"hall": 10,
+"name": "NITTOC CONSTRUCTION",
+"nx": 0.1674,
+"ny": 0.3812
+},
+{
+"code": "10-E16",
+"hall": 10,
+"name": "KAMI-GAME CREATORS' EVOLUTION 2026",
+"nx": 0.3473,
+"ny": 0.1868
+},
+{
+"code": "10-E17",
+"hall": 10,
+"name": "Top Game Creators Academy(TGCA)",
+"nx": 0.3473,
+"ny": 0.0424
+},
+{
+"code": "10-E19",
+"hall": 10,
+"name": "KIBU Gateron EWEADN WAIZOWL MelGeek",
+"nx": 0.506,
+"ny": 0.075
+},
+{
+"code": "10-E20",
+"hall": 10,
+"name": "Fumo Shop,Arbiter Studio",
+"nx": 0.506,
+"ny": 0.1951
+},
+{
+"code": "10-E22",
+"hall": 10,
+"name": "Keychron",
+"nx": 0.7712,
+"ny": 0.075
+},
+{
+"code": "10-E24",
+"hall": 10,
+"name": "TALONGAMES",
+"nx": 0.7712,
+"ny": 0.2243
+},
+{
+"code": "10-E25",
+"hall": 10,
+"name": "Be-Area",
+"nx": 0.7712,
+"ny": 0.2896
+},
+{
+"code": "10-E27",
+"hall": 10,
+"name": "TTC China",
+"nx": 0.8223,
+"ny": 0.1951
+},
+{
+"code": "10-E29",
+"hall": 10,
+"name": "Brook Gaming Taiwan",
+"nx": 0.9815,
+"ny": 0.075
+},
+{
+"code": "10-E35",
+"hall": 10,
+"name": "FOSTEX(Foster Electric)",
+"nx": 1,
+"ny": 0.3375
+},
+{
+"code": "10-E36",
+"hall": 10,
+"name": "Tokyo Onkyo",
+"nx": 1,
+"ny": 0.2667
+},
+{
+"code": "10-E37",
+"hall": 10,
+"name": "KAJIMA",
+"nx": 1,
+"ny": 0.1951
+},
+{
+"code": "10-W01",
+"hall": 10,
+"name": "DFGC United Arab Emirates",
+"nx": 0.0174,
+"ny": 0.5896
+},
+{
+"code": "10-W05",
+"hall": 10,
+"name": "Keywords International",
+"nx": 0.1087,
+"ny": 0.5896
+},
+{
+"code": "10-W12",
+"hall": 10,
+"name": "",
+"nx": 0.1853,
+"ny": 0.8271
+},
+{
+"code": "10-W13",
+"hall": 10,
+"name": "Tencent Japan",
+"nx": 0.3891,
+"ny": 0.5896
+},
+{
+"code": "10-W21",
+"hall": 10,
+"name": "AQUASTAR",
+"nx": 0.5658,
+"ny": 0.5896
+},
+{
+"code": "10-W29",
+"hall": 10,
+"name": "Kumamoto City",
+"nx": 0.6038,
+"ny": 0.5896
+},
+{
+"code": "10-W30",
+"hall": 10,
+"name": "",
+"nx": 0.5223,
+"ny": 0.8271
+},
+{
+"code": "10-W33",
+"hall": 10,
+"name": "Kumamoto Prefecture southern part",
+"nx": 0.7875,
+"ny": 0.5896
+},
+{
+"code": "10-W35",
+"hall": 10,
+"name": "Too",
+"nx": 0.7875,
+"ny": 0.7375
+},
+{
+"code": "10-W38",
+"hall": 10,
+"name": "Paymentwall Korea",
+"nx": 0.8473,
+"ny": 0.6236
+},
+{
+"code": "11-C01",
+"hall": 11,
+"name": "EPOMAKER China",
+"nx": 0.1561,
+"ny": 0.2542
+},
+{
+"code": "11-C02",
+"hall": 11,
+"name": "KARNOX China",
+"nx": 0.1561,
+"ny": 0.3333
+},
+{
+"code": "11-C03",
+"hall": 11,
+"name": "AndGAMER ( Void Gaming&AIM1 )",
+"nx": 0,
+"ny": 0.4465
+},
+{
+"code": "11-C04",
+"hall": 11,
+"name": "SHENZHEN TOMTOC TECHNOLOGY China",
+"nx": 0.4226,
+"ny": 0.3653
+},
+{
+"code": "11-C05",
+"hall": 11,
+"name": "Insta360",
+"nx": 0.4226,
+"ny": 0.4201
+},
+{
+"code": "11-C06",
+"hall": 11,
+"name": "Wooting Netherlands",
+"nx": 0.4226,
+"ny": 0.4757
+},
+{
+"code": "11-C07",
+"hall": 11,
+"name": "Guangdong Ouxide China",
+"nx": 0.5165,
+"ny": 0.4201
+},
+{
+"code": "11-E02",
+"hall": 11,
+"name": "MOZA Racing China",
+"nx": 0.1561,
+"ny": 0.075
+},
+{
+"code": "11-E03",
+"hall": 11,
+"name": "AULA China",
+"nx": 0.1561,
+"ny": 0.1535
+},
+{
+"code": "11-E07",
+"hall": 11,
+"name": "Around X Next Challenge Korea",
+"nx": 0.4226,
+"ny": 0.0417
+},
+{
+"code": "11-E12",
+"hall": 11,
+"name": "CANVY",
+"nx": 0.4226,
+"ny": 0.1965
+},
+{
+"code": "11-E13",
+"hall": 11,
+"name": "eXtremeRate China",
+"nx": 0.4226,
+"ny": 0.2722
+},
+{
+"code": "11-E14",
+"hall": 11,
+"name": "Huion China",
+"nx": 0.5171,
+"ny": 0.1965
+},
+{
+"code": "11-E17",
+"hall": 11,
+"name": "Warsong Technology China",
+"nx": 0.714,
+"ny": 0.2229
+},
+{
+"code": "11-E18",
+"hall": 11,
+"name": "XPPen",
+"nx": 0.7573,
+"ny": 0.166
+},
+{
+"code": "11-E19",
+"hall": 11,
+"name": "ONEXPLAYER China",
+"nx": 0.714,
+"ny": 0.334
+},
+{
+"code": "11-E22",
+"hall": 11,
+"name": "AVerMedia Technologies Inc.",
+"nx": 0.714,
+"ny": 0.4944
+},
+{
+"code": "11-E25",
+"hall": 11,
+"name": "HKC China",
+"nx": 0.7573,
+"ny": 0.334
+},
+{
+"code": "11-E26",
+"hall": 11,
+"name": "Moldova Country Booth Moldova",
+"nx": 0.9494,
+"ny": 0.1653
+},
+{
+"code": "11-E34",
+"hall": 11,
+"name": "Darlin",
+"nx": 0.9494,
+"ny": 0.5062
+},
+{
+"code": "11-W01",
+"hall": 11,
+"name": "",
+"nx": 0.0451,
+"ny": 0.591
+},
+{
+"code": "11-W02",
+"hall": 11,
+"name": "",
+"nx": 0.0451,
+"ny": 0.7222
+},
+{
+"code": "11-W03",
+"hall": 11,
+"name": "",
+"nx": 0,
+"ny": 0.8819
+},
+{
+"code": "11-W05",
+"hall": 11,
+"name": "",
+"nx": 0.089,
+"ny": 0.8819
+},
+{
+"code": "11-W06",
+"hall": 11,
+"name": "",
+"nx": 0.2713,
+"ny": 0.591
+},
+{
+"code": "11-W07",
+"hall": 11,
+"name": "",
+"nx": 0.2713,
+"ny": 0.7
+},
+{
+"code": "11-W08",
+"hall": 11,
+"name": "",
+"nx": 0.2713,
+"ny": 0.8458
+},
+{
+"code": "11-W11",
+"hall": 11,
+"name": "",
+"nx": 0.5732,
+"ny": 0.591
+},
+{
+"code": "11-W12",
+"hall": 11,
+"name": "",
+"nx": 0.5732,
+"ny": 0.6826
+},
+{
+"code": "11-W13",
+"hall": 11,
+"name": "",
+"nx": 0.5732,
+"ny": 0.8243
+},
+{
+"code": "11-W15",
+"hall": 11,
+"name": "",
+"nx": 0.5732,
+"ny": 0.9285
+},
+{
+"code": "11-W17",
+"hall": 11,
+"name": "",
+"nx": 0.8756,
+"ny": 0.591
+},
+{
+"code": "11-W18",
+"hall": 11,
+"name": "",
+"nx": 0.8756,
+"ny": 0.6903
+},
+{
+"code": "11-W19",
+"hall": 11,
+"name": "",
+"nx": 0.8756,
+"ny": 0.841
+},
+{
+"code": "11-W21",
+"hall": 11,
+"name": "",
+"nx": 0.8756,
+"ny": 0.9479
+}
+]
