@@ -1,4 +1,4 @@
-<title>TGS 2026 토요일 작전</title>
+<meta charset="utf-8"><title>TGS 2026 토요일 작전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
@@ -10,7 +10,7 @@
   --accent:#1F4FD8; --accent-soft:#E4EAFB;
   --hot:#D62D20; --hot-soft:#FBE4E2;
   --warm:#B06A00; --warm-soft:#FBEFDC;
-  --good:#0E7A4D; --good-soft:#DDF1E7;
+  --good:#0E7A4D;
   --shadow:0 1px 2px rgba(20,26,38,.06),0 6px 18px rgba(20,26,38,.07);
 }
 @media (prefers-color-scheme:dark){
@@ -21,7 +21,7 @@
     --accent:#7B9CFF; --accent-soft:#1C2540;
     --hot:#FF6F63; --hot-soft:#3A1E1C;
     --warm:#F0AE45; --warm-soft:#372B17;
-    --good:#3FCB90; --good-soft:#153025;
+    --good:#3FCB90;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
   }
 }
@@ -32,36 +32,30 @@
   --accent:#7B9CFF; --accent-soft:#1C2540;
   --hot:#FF6F63; --hot-soft:#3A1E1C;
   --warm:#F0AE45; --warm-soft:#372B17;
-  --good:#3FCB90; --good-soft:#153025;
+  --good:#3FCB90;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
+body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
-  font-size:15px;line-height:1.62;-webkit-text-size-adjust:100%;
-}
-.wrap{max-width:860px;margin:0 auto;padding:0 18px;padding-block:0 64px}
+  font-size:15px;line-height:1.62;-webkit-text-size-adjust:100%}
+.wrap{max-width:900px;margin:0 auto;padding:0 18px;padding-block:0 64px}
 h1,h2,h3{text-wrap:balance;margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 .eyebrow{font-family:"Archivo",sans-serif;font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-
-/* header */
 header{padding-block:34px 22px;border-bottom:2px solid var(--ink)}
 h1{font-family:"Archivo",sans-serif;font-weight:800;font-size:clamp(30px,8vw,46px);line-height:1.02;letter-spacing:-.02em;margin-top:8px}
 .sub{color:var(--ink2);margin-top:12px;max-width:62ch}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:22px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:22px}
 .fact{background:var(--surface);padding:11px 13px}
 .fact dt{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"Archivo",sans-serif;font-weight:600}
 .fact dd{margin:3px 0 0;font-weight:700;font-size:15px}
 .fact dd small{font-weight:400;color:var(--muted);font-size:12px;display:block;line-height:1.4}
-
 section{margin-top:46px}
 .shead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:18px}
 .shead h2{font-family:"Archivo",sans-serif;font-weight:800;font-size:20px;letter-spacing:-.01em}
 .shead p{margin:0;color:var(--muted);font-size:13px}
 
-/* missions */
 .missions{display:flex;flex-direction:column;gap:8px}
 .mission{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line2);padding:12px 14px;cursor:pointer}
 .mission:hover{border-color:var(--accent)}
@@ -72,6 +66,46 @@ section{margin-top:46px}
 .mwhere{font-size:12.5px;color:var(--muted);margin-top:2px}
 .mtag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;margin-right:6px;font-family:"Archivo",sans-serif;letter-spacing:.05em}
 .t1{background:var(--hot-soft);color:var(--hot)} .t2{background:var(--accent-soft);color:var(--accent)} .t3{background:var(--surface2);color:var(--muted);border:1px solid var(--line2)}
+
+.rulebox{background:var(--hot-soft);border:1px solid var(--hot);padding:13px 15px;font-size:13.5px}
+.rulebox b{color:var(--hot)}
+.rulebox ul{margin:8px 0 0;padding-left:18px}
+.rulebox li{margin-bottom:4px}
+
+/* ===== map viewer ===== */
+.maptabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:5px 11px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);cursor:pointer;font-family:inherit}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mapview{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);
+  height:min(66vh,560px);touch-action:none;cursor:grab;box-shadow:var(--shadow)}
+.mapview:active{cursor:grabbing}
+.mapstage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.mapstage img{display:block;image-rendering:auto;user-select:none;-webkit-user-drag:none}
+.ov{position:absolute;top:0;left:0;overflow:visible}
+.ovbox{fill:rgba(31,79,216,.10);stroke:#1F4FD8;stroke-width:4}
+.ovbox.k1{fill:rgba(214,45,32,.16);stroke:#D62D20;stroke-width:7}
+.ovbox.sel{stroke:#111;stroke-width:8;stroke-dasharray:14 8}
+.ovhit{fill:transparent;cursor:pointer}
+.ovroute{fill:none;stroke:#FF6A00;stroke-width:8;stroke-linejoin:round;stroke-linecap:round;opacity:.9}
+.ovroute-halo{fill:none;stroke:#fff;stroke-width:16;stroke-linejoin:round;stroke-linecap:round;opacity:.85}
+.pin{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.pin .num{width:26px;height:26px;border-radius:50%;background:#FF6A00;color:#fff;
+  font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:13px;display:grid;place-items:center;
+  box-shadow:0 0 0 2.5px #fff,0 2px 6px rgba(0,0,0,.3)}
+.pin.p1 .num{background:#D62D20}
+.fac{position:absolute;transform:translate(-50%,-50%);pointer-events:none;background:#7A4B00;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tag{position:absolute;transform:translate(-50%,0);pointer-events:auto;cursor:pointer;
+  background:rgba(255,255,255,.96);border:1.5px solid #1F4FD8;color:#14181F;
+  font-size:11px;font-weight:700;line-height:1.2;padding:2px 6px;white-space:nowrap;max-width:150px;
+  box-shadow:0 2px 7px rgba(0,0,0,.18)}
+.tag.k1{border-color:#D62D20}
+.tag em{display:block;font-style:normal;font-weight:400;font-size:9.5px;color:#3B434F;overflow:hidden;text-overflow:ellipsis}
+.mapctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.mapctl button{font-family:inherit;font-size:12px;font-weight:600;padding:5px 10px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);cursor:pointer}
+.mapctl .sp{flex:1}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:10px;margin-right:5px;vertical-align:-1px;border:2px solid}
 
 /* timeline */
 .tl{display:flex;flex-direction:column}
@@ -87,31 +121,11 @@ section{margin-top:46px}
 .bnote{font-size:13px;color:var(--ink2);margin-top:6px;background:var(--surface);border:1px solid var(--line2);padding:8px 11px}
 .bnote b{color:var(--hot)}
 
-/* map */
-.maptools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.chip{font-size:12px;font-weight:600;padding:5px 11px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);cursor:pointer;font-family:inherit}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.mapbox{background:var(--surface);border:1px solid var(--line);padding:10px;box-shadow:var(--shadow)}
-svg.floor{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
-.hallrect{fill:var(--surface2);stroke:var(--line);stroke-width:1}
-.halllabel{font-family:"Archivo",sans-serif;font-weight:800;font-size:13px;fill:var(--muted)}
-.axis{font-family:"IBM Plex Mono",monospace;font-size:7px;fill:var(--muted)}
-.booth{fill:var(--line);stroke:none;cursor:pointer}
-.booth.b2{fill:var(--accent)}
-.booth.b1{fill:var(--hot)}
-.booth.sel{stroke:var(--ink);stroke-width:2}
-.blabel{font-family:"IBM Plex Sans KR",sans-serif;font-size:7.5px;font-weight:700;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--surface);stroke-width:2.2px;stroke-linejoin:round}
-.route{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;opacity:.85}
-.stopnum{font-family:"IBM Plex Mono",monospace;font-size:8px;font-weight:600;fill:#fff;pointer-events:none}
-.facility{font-family:"IBM Plex Sans KR",sans-serif;font-size:7.5px;fill:var(--warm);font-weight:700;pointer-events:none}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--muted)}
-.legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
-
-/* detail sheet */
-.sheet{position:fixed;inset:auto 0 0 0;background:var(--surface);border-top:2px solid var(--ink);box-shadow:0 -10px 40px rgba(0,0,0,.18);max-height:80vh;overflow-y:auto;z-index:50;transform:translateY(101%);transition:transform .22s ease}
+/* sheet */
+.sheet{position:fixed;inset:auto 0 0 0;background:var(--surface);border-top:2px solid var(--ink);box-shadow:0 -10px 40px rgba(0,0,0,.18);max-height:82vh;overflow-y:auto;z-index:60;transform:translateY(101%);transition:transform .2s ease}
 .sheet.open{transform:none}
 @media (prefers-reduced-motion:reduce){.sheet{transition:none}}
-.sheetin{max-width:860px;margin:0 auto;padding:16px 18px 28px}
+.sheetin{max-width:900px;margin:0 auto;padding:16px 18px 28px}
 .sclose{float:right;border:1px solid var(--line);background:var(--surface2);color:var(--ink2);font-size:12px;padding:4px 10px;cursor:pointer;font-family:inherit}
 .scode{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
 .sname{font-family:"Archivo",sans-serif;font-weight:800;font-size:22px;margin-top:2px;letter-spacing:-.01em}
@@ -120,17 +134,16 @@ svg.floor{display:block;width:100%;height:auto;max-width:100%;touch-action:manip
 .skv dd{margin:0}
 .field{margin-top:12px}
 .field label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:"Archivo",sans-serif;margin-bottom:4px}
-.field textarea,.field input{width:100%;font-family:inherit;font-size:14px;background:var(--surface2);color:var(--ink);border:1px solid var(--line);padding:8px 10px;resize:vertical}
-.field textarea:focus,.field input:focus,button:focus-visible,.chip:focus-visible,.mission:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.field textarea{width:100%;font-family:inherit;font-size:14px;background:var(--surface2);color:var(--ink);border:1px solid var(--line);padding:8px 10px;resize:vertical}
+.field textarea:focus,button:focus-visible,.chip:focus-visible,.mission:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .btnrow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .btn{font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
 .btn.ghost{background:transparent;color:var(--ink)}
 .saveflag{font-size:12px;color:var(--good);align-self:center}
 
-/* booth list */
-.searchrow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.searchrow input{flex:1;min-width:180px;font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
-.blist{border:1px solid var(--line);background:var(--surface);max-height:440px;overflow-y:auto}
+.searchrow{display:flex;gap:8px;margin-bottom:12px}
+.searchrow input{flex:1;font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.blist{border:1px solid var(--line);background:var(--surface);max-height:420px;overflow-y:auto}
 .brow{display:grid;grid-template-columns:66px 1fr auto;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line2);cursor:pointer;align-items:center;font-size:13.5px}
 .brow:last-child{border-bottom:none}
 .brow:hover{background:var(--surface2)}
@@ -139,92 +152,91 @@ svg.floor{display:block;width:100%;height:auto;max-width:100%;touch-action:manip
 .dot{width:7px;height:7px;display:inline-block;margin-right:6px;vertical-align:1px;background:var(--line)}
 .dot.b1{background:var(--hot)} .dot.b2{background:var(--accent)}
 
-/* notes log */
 .log{display:flex;flex-direction:column;gap:8px}
-.logitem{background:var(--surface);border:1px solid var(--line2);padding:10px 13px;font-size:13.5px}
+.logitem{background:var(--surface);border:1px solid var(--line2);padding:10px 13px;font-size:13.5px;cursor:pointer}
 .logitem h4{margin:0;font-size:13.5px;font-weight:700}
 .logitem p{margin:4px 0 0;color:var(--ink2);white-space:pre-wrap}
 .empty{color:var(--muted);font-size:13.5px;background:var(--surface);border:1px dashed var(--line);padding:16px;text-align:center}
-
-/* briefs */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
 .card{background:var(--surface);border:1px solid var(--line2);padding:14px 15px}
 .card h3{font-size:14.5px;font-weight:700;margin-bottom:6px}
 .card ul{margin:0;padding-left:17px;font-size:13.5px;color:var(--ink2)}
 .card li{margin-bottom:5px}
 .card li::marker{color:var(--accent)}
-.rulebox{background:var(--hot-soft);border:1px solid var(--hot);padding:13px 15px;font-size:13.5px;color:var(--ink)}
-.rulebox b{color:var(--hot)}
-.rulebox ul{margin:8px 0 0;padding-left:18px}
 table.tt{width:100%;border-collapse:collapse;font-size:13px}
 table.tt th,table.tt td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line2);vertical-align:top}
 table.tt th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:"Archivo",sans-serif;font-weight:600}
 .scroller{overflow-x:auto;background:var(--surface);border:1px solid var(--line)}
 footer{margin-top:52px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-footer a{color:var(--accent)}
 </style>
 
 <div class="wrap">
 <header>
   <div class="eyebrow">Tokyo Game Show 2026 · 30th · Makuhari Messe</div>
   <h1>토요일 하루<br>완주 작전</h1>
-  <p class="sub">9월 19일(토) 09:30 개장 → 17:00 폐장. 시연 3종 확보 + 대형 부스 전수 관찰 + 구조·마케팅·장르 기록까지 하루에 끝내는 동선.</p>
+  <p class="sub">9월 19일(토) 09:30 개장 → 17:00 폐장. 공식 회장 맵 위에 실제 통로를 따라가는 동선을 그렸습니다. 부스를 가로지르지 않습니다.</p>
   <dl class="facts">
     <div class="fact"><dt>날짜</dt><dd>9/19 (토)<small>일반공개 1일차</small></dd></div>
     <div class="fact"><dt>시간</dt><dd class="mono">09:30–17:00<small>초회 입장 16:00 마감</small></dd></div>
-    <div class="fact"><dt>회장</dt><dd>홀 1–11<small>+국제회의장 · TKP</small></dd></div>
+    <div class="fact"><dt>1순위</dt><dd>시연 3종<small>07-C04 · 07-C03 · 02-N12</small></dd></div>
+    <div class="fact"><dt>총 이동</dt><dd class="mono">약 2.4 km<small>홀 내부 통로 기준</small></dd></div>
     <div class="fact"><dt>출품사</dt><dd class="mono">1,138사<small>3,999부스 · 53개국</small></dd></div>
-    <div class="fact"><dt>기간</dt><dd>9/17–21<small>사상 첫 5일 개최</small></dd></div>
-    <div class="fact"><dt>1순위 시연</dt><dd>3종<small>07-C03 · 07-C04 · 02-N12</small></dd></div>
   </dl>
 </header>
-
-<section id="missions">
-  <div class="shead"><h2>오늘의 목표</h2><p>탭하면 완료 처리 · 기기 간 저장됩니다</p></div>
-  <div class="missions" id="missionList"></div>
-</section>
 
 <section id="rules">
   <div class="shead"><h2>먼저 외울 것</h2><p>이거 틀리면 하루가 통째로 꼬입니다</p></div>
   <div class="rulebox">
     <b>반드시 1–8홀 쪽 입구로 입장하세요.</b>
     <ul>
-      <li>10:00까지 <b>9–11홀 → 1–8홀 이동 금지</b>. 반대(1–8 → 9–11)는 가능하지만, 10:00 전에 넘어가면 다시 못 돌아옵니다.</li>
-      <li>목표 3종(넥슨·NC·넷마블)이 전부 1–8홀에 있습니다. 9–11홀은 하드웨어·물販·인디라 오후에 가면 됩니다.</li>
+      <li>10:00까지 <b>9–11홀 → 1–8홀 이동 금지.</b> 반대(1–8 → 9–11)는 되지만 10:00 전에 넘어가면 다시 못 돌아옵니다.</li>
+      <li>목표 3종이 전부 1–8홀. 9–11홀은 하드웨어·물販·인디라 오후에 가면 됩니다.</li>
       <li>당일권 없음. 대기열 안내는 첫차 도착(약 05:00)부터, 철야 대기는 공식 금지.</li>
-      <li>최혼잡 09:30–11:00. 인기작 시연 정리권이 <b>개장 40분 만에 소진된 전례</b>(TGS2024 몬헌 와일즈)가 있습니다.</li>
-      <li>PS Plus 가입자는 플레이스테이션 부스 시연 사전예약 가능 — <b>9/16 23:59 마감</b>.</li>
+      <li>최혼잡 09:30–11:00. 인기작 시연 정리권이 <b>개장 40분 만에 소진된 전례</b>가 있습니다(TGS2024 몬헌 와일즈).</li>
     </ul>
   </div>
 </section>
 
+<section id="map">
+  <div class="shead"><h2>동선 지도</h2><p>공식 회장 맵 원본 · 주황 점선이 실제 통로 경로</p></div>
+  <div class="maptabs">
+    <button class="chip" data-tab="18" aria-pressed="true">홀 1–8 (메인)</button>
+    <button class="chip" data-tab="911" aria-pressed="false">홀 9–11</button>
+  </div>
+  <div class="mapview" id="mv">
+    <div class="mapstage" id="stage">
+      <img id="mapimg" src="map18.png" alt="TGS 2026 공식 회장 맵 홀 1-8" width="2790" height="765">
+      <svg class="ov" id="ov" width="2790" height="765" viewBox="0 0 2790 785"></svg>
+    </div>
+    <div id="pins"></div>
+  </div>
+  <div class="mapctl" id="mapctl">
+    <button data-z="out">−</button><button data-z="in">＋</button><button data-z="fit">전체</button>
+    <span class="sp"></span>
+    <button data-go="07-C04">①넥슨</button><button data-go="07-C03">②NC</button><button data-go="02-N12">④넷마블</button>
+  </div>
+  <div id="hallbar" class="mapctl"></div>
+  <div class="legend">
+    <span><i style="border-color:#D62D20"></i>1순위 시연 부스</span>
+    <span><i style="border-color:#1F4FD8"></i>주요 부스</span>
+    <span><i style="border-color:#FF6A00;border-style:dashed"></i>동선(통로)</span>
+  </div>
+  <p class="hint">드래그로 이동, 두 손가락(또는 휠)로 확대. <b>주황 점선이 동선</b>, 숫자는 방문 순서입니다. 지도 방향은 공식 맵 그대로 — <b>왼쪽이 8홀(동), 오른쪽이 1홀(서), 위가 남쪽, 아래가 북쪽(중앙 입구·역 방향)</b>입니다. 동선은 맵 이미지에서 통로가 비어 있는 픽셀만 골라 이은 경로라, 부스 블록을 통과하지 않습니다.</p>
+</section>
+
 <section id="timeline">
-  <div class="shead"><h2>동선 타임라인</h2><p>플랜 A · 각 블록 탭하면 지도에서 위치 확인</p></div>
+  <div class="shead"><h2>시간표</h2><p>블록을 탭하면 지도가 해당 부스로 이동합니다</p></div>
   <div class="tl" id="tl"></div>
 </section>
 
-<section id="map">
-  <div class="shead"><h2>회장 지도</h2><p>공식 맵 PDF 좌표 기준 · 부스 탭 → 상세 + 메모</p></div>
-  <div class="maptools">
-    <button class="chip" data-f="all" aria-pressed="true">전체</button>
-    <button class="chip" data-f="p1" aria-pressed="false">1순위 목표</button>
-    <button class="chip" data-f="major" aria-pressed="false">대형 퍼블리셔</button>
-    <button class="chip" data-f="kr" aria-pressed="false">한국사</button>
-    <button class="chip" data-f="route" aria-pressed="true">동선 표시</button>
-  </div>
-  <div class="mapbox"><div id="svgHost"></div></div>
-  <div class="legend">
-    <span><i style="background:var(--hot)"></i>1순위 시연</span>
-    <span><i style="background:var(--accent)"></i>주요 부스</span>
-    <span><i style="background:var(--line)"></i>기타 출품사</span>
-    <span><i style="background:var(--warm)"></i>시설·입구</span>
-  </div>
-  <p style="font-size:12px;color:var(--muted);margin-top:10px">위쪽이 서(홀 1), 아래쪽이 동(홀 8). 오른쪽이 북(입구·역 방향), 왼쪽이 남. 9–11홀은 실제로는 4/5홀 북측 연결로 건너편에 있습니다. 부스 위치는 공식 맵의 부스번호 좌표를 그대로 옮긴 값이고, 사각형 크기는 중요도 표시용입니다(실제 부스 면적 아님). 9–11홀 배치는 개략도입니다.</p>
+<section id="missions">
+  <div class="shead"><h2>오늘의 목표</h2><p>탭하면 완료 처리 · 저장됩니다</p></div>
+  <div class="missions" id="missionList"></div>
 </section>
 
 <section id="booths">
-  <div class="shead"><h2>부스 찾기</h2><p>공식 맵에서 뽑은 230개 출품사</p></div>
-  <div class="searchrow"><input id="q" type="text" placeholder="회사명 또는 부스번호 검색 (예: netmarble, 07-C04)" autocomplete="off"></div>
+  <div class="shead"><h2>부스 찾기</h2><p>공식 맵에서 추출한 230개 출품사</p></div>
+  <div class="searchrow"><input id="q" type="text" placeholder="회사명 또는 부스번호 (예: netmarble, 07-C04)" autocomplete="off"></div>
   <div class="blist" id="blist"></div>
 </section>
 
@@ -235,432 +247,360 @@ footer a{color:var(--accent)}
 </section>
 
 <section id="brief">
-  <div class="shead"><h2>분석 브리프</h2><p>목적 5·6·7을 위한 사전 가설 — 현장에서 맞는지 확인</p></div>
+  <div class="shead"><h2>분석 브리프</h2><p>마케팅·장르·TGS 특징 관찰용 사전 가설</p></div>
   <div class="cards">
     <div class="card">
-      <h3>올해의 가장 큰 변화: 중국 대형 퍼블리셔 공백</h3>
+      <h3>올해 최대 변화: 중국 대형 퍼블리셔 공백</h3>
       <ul>
-        <li>텐센트·넷이즈 등 <b>대형 중국 게임사 부스가 없습니다</b>. 작년 TGS2025의 최대 화제였던 넷이즈 &lsquo;무한대(Ananta)&rsquo;와 대형 굿즈 배포 공세가 통째로 빠졌습니다.</li>
+        <li>텐센트·넷이즈 등 <b>대형 중국 게임사 부스가 없습니다.</b> 작년 최대 화제였던 넷이즈 &lsquo;무한대&rsquo;와 그 가방 물량이 통째로 빠졌습니다.</li>
         <li>이유로 지목되는 건 개막일 9/18이 중국 &lsquo;국치일&rsquo;과 겹친다는 점.</li>
-        <li>다만 중국이 완전히 빠진 건 아닙니다 — <b>텐센트 재팬은 10홀</b>에 소규모로, 11홀은 중국 주변기기 업체(XPPen·Huion·MOZA·AULA·EPOMAKER 등)가 대거 차지. <b>&ldquo;퍼블리셔는 빠지고 하드웨어는 남았다&rdquo;</b>가 올해의 한 줄 요약.</li>
-        <li>확인할 것: 작년 중국 부스가 쓰던 대형 옥외광고·굿즈 물량을 누가 대체했는가.</li>
+        <li>다만 완전 철수는 아닙니다 — <b>텐센트 재팬은 10홀</b>, 11홀은 중국 주변기기 업체(XPPen·Huion·MOZA·AULA·EPOMAKER)가 장악. <b>&ldquo;퍼블리셔는 빠지고 하드웨어는 남았다&rdquo;</b>가 올해 한 줄 요약.</li>
+        <li>확인할 것: 작년 중국 부스가 쓰던 대형 광고·굿즈 물량을 누가 대체했는가.</li>
       </ul>
     </div>
     <div class="card">
       <h3>한국 서브컬처 3사 정면 충돌</h3>
       <ul>
-        <li>NC &lsquo;아스트라에 오라티오&rsquo;(07-C03), 넥슨 &lsquo;파레이돌리아&rsquo;(07-C04), 넷마블 &lsquo;펄인블루&rsquo;(02-N12) — 세 곳 다 일본 서브컬처 수집형 RPG 시장을 정조준.</li>
-        <li>NC·넥슨은 <b>7홀에서 바로 옆 부스</b>입니다. 같은 타깃 유저가 두 줄을 동시에 봅니다. 어느 쪽 줄이 더 긴지 반드시 눈으로 세어 두세요.</li>
+        <li>NC 아스트라에 오라티오(07-C03), 넥슨 파레이돌리아(07-C04), 넷마블 펄인블루(02-N12) — 셋 다 일본 서브컬처 수집형 RPG 정조준.</li>
+        <li>NC·넥슨은 <b>7홀에서 통로 하나 사이</b>입니다. 같은 유저가 두 줄을 동시에 봅니다. 줄 길이 비교가 가장 값싼 데이터.</li>
         <li>기타 한국사: 스마일게이트(02-S09), 아이언메이스(02-C05), 프로젝트문(08-C13), 아우터플레인(08-C19), 코리아 파빌리온(03-C03).</li>
-        <li>확인할 것: 한국 게임의 &lsquo;일본 현지화 수준&rsquo;(성우·UI·부스 카피)이 일본 자국 타이틀과 구분되는가.</li>
+        <li>확인할 것: 현지화 수준(성우·UI·부스 카피)이 일본 자국 타이틀과 구분되는가.</li>
       </ul>
     </div>
     <div class="card">
       <h3>마케팅 수단 관찰 리스트</h3>
       <ul>
-        <li><b>공간 재현형</b>: 넥슨은 &lsquo;타소가레관&rsquo;과 티르코네일 모닥불을 실물로 재현. 게임 속 장소를 부스로 옮기는 방식이 올해 얼마나 늘었는지.</li>
-        <li><b>디스플레이 기술</b>: NC×삼성 스페이셜 사이니지(3D 안경 없는 입체 캐릭터), SIE의 300인치 GTA VI 시어터 + 플로어 햅틱.</li>
-        <li><b>디바이스 타이업</b>: NC는 갤럭시 S26 울트라로만 시연. 게임사×제조사 공동 부스가 몇 건인지.</li>
-        <li><b>노벨티 조건</b>: 시연 완료 / SNS 팔로우 / 미니게임 승리 — 어떤 조건이 가장 많이 쓰이는지 세어 보세요.</li>
-        <li><b>물리적 확산</b>: 작년의 &lsquo;무한대 가방&rsquo;처럼 관람객이 들고 다녀 광고판이 되는 물건이 올해는 무엇인지.</li>
+        <li><b>공간 재현형</b> — 넥슨은 &lsquo;타소가레관&rsquo;과 티르코네일 모닥불을 실물 재현. 이 방식이 올해 얼마나 늘었는지.</li>
+        <li><b>디스플레이 기술</b> — NC×삼성 스페이셜 사이니지(3D 안경 없는 입체), SIE 300인치 GTA VI 시어터 + 플로어 햅틱.</li>
+        <li><b>디바이스 타이업</b> — NC는 갤럭시 S26 울트라로만 시연. 게임사×제조사 공동 부스가 몇 건인지.</li>
+        <li><b>노벨티 조건</b> — 시연 완료 / SNS 팔로우 / 미니게임 승리. 어떤 조건이 가장 많이 쓰이는지.</li>
+        <li><b>물리적 확산</b> — 작년 &lsquo;무한대 가방&rsquo;처럼 관람객이 들고 다녀 광고판이 되는 물건이 올해는 무엇인지.</li>
       </ul>
     </div>
     <div class="card">
       <h3>TGS만의 특징 (타 글로벌 행사 대비)</h3>
       <ul>
-        <li><b>시연 중심</b>: 게임스컴·TGA가 발표/영상 중심이라면 TGS는 실제 플레이 대기줄이 행사 본체. 시연대 수와 회전율이 곧 부스의 성의.</li>
-        <li><b>물販이 별도 홀</b>: 9–11홀에 물販 코너가 따로 있을 만큼 굿즈 판매 비중이 큼. 해외 행사엔 드문 구조.</li>
-        <li><b>코스프레 공식 편입</b>: 9홀 옥외 동·서에 코스프레 에어리어, 전용 탈의실까지 운영.</li>
-        <li><b>가족·교육 트랙</b>: 패밀리 게임 파크(TKP 도쿄베이 마쿠하리홀), 1홀 게임 아카데미(전문학교 부스 다수).</li>
-        <li><b>주변기기·게이밍 라이프스타일</b> 비중이 유독 큼 — 9–11홀 전체가 사실상 하드웨어 쇼.</li>
-        <li>확인할 것: 관람객 연령·성비 구성, 대기줄 문화(정리권 vs 직접 대기), 기업 부스의 &lsquo;스테이지 방송&rsquo; 의존도.</li>
+        <li><b>시연 중심</b> — 게임스컴·TGA가 발표/영상 중심이라면 TGS는 대기줄이 행사 본체. 시연대 수와 회전율이 곧 부스의 성의.</li>
+        <li><b>물販이 별도 홀</b> — 9–11홀에 물販 코너가 따로. 해외 행사엔 드문 구조.</li>
+        <li><b>코스프레 공식 편입</b> — 9홀 옥외 동·서에 코스프레 에어리어, 전용 탈의실 운영.</li>
+        <li><b>가족·교육 트랙</b> — 패밀리 게임 파크(TKP 도쿄베이 마쿠하리홀), 1홀 게임 아카데미(전문학교 부스 다수).</li>
+        <li><b>하드웨어 비중</b> — 9–11홀 전체가 사실상 주변기기 쇼.</li>
+        <li>확인할 것: 관람객 연령·성비, 대기줄 문화(정리권 vs 직접 대기), 부스별 스테이지 의존도.</li>
       </ul>
     </div>
   </div>
 </section>
 
 <section id="prep">
-  <div class="shead"><h2>준비·실전 메모</h2></div>
+  <div class="shead"><h2>실전 메모</h2></div>
   <div class="scroller"><table class="tt">
     <tr><th>항목</th><th>내용</th></tr>
-    <tr><td>도착</td><td>카이힌마쿠하리역 → 도보 5~10분. 1–8홀 쪽 입장 대기열로. 오픈런이면 07:00 이전 도착 권장(정리권 경쟁 시).</td></tr>
-    <tr><td>짐</td><td>가벼울수록 유리. 굿즈 구매 예정이면 접이식 가방. 보조배터리 필수(지도·촬영으로 배터리 소모 큼).</td></tr>
-    <tr><td>식사</td><td>홀 4–6 남측 옥외 푸드코트가 가장 접근성 좋음. 간식 위주 이동식 섭취 계획이면 입장 전 편의점에서 확보.</td></tr>
-    <tr><td>기록</td><td>부스별 사진 3장 규칙 — ① 부스 전경 ② 대기줄 길이 ③ 노벨티/배포물. 이 앱의 메모에 즉시 한 줄.</td></tr>
-    <tr><td>대기 판단</td><td>1순위(넥슨·NC)는 60분까지 감수. 그 외에는 30분 넘으면 포기하고 관찰로 전환.</td></tr>
-    <tr><td>마감 리스크</td><td>넷마블 펄인블루 시연은 오후 도착 시 정리권 소진 가능. 7홀 종료 즉시 2홀로 직행하는 것이 플랜 A의 핵심.</td></tr>
+    <tr><td>도착</td><td>카이힌마쿠하리역 → 도보 5~10분. <b>1–8홀 쪽</b> 대기열. 정리권 경쟁을 감안하면 07:00 이전 도착.</td></tr>
+    <tr><td>짐</td><td>가볍게. 보조배터리 필수(지도·촬영 소모 큼).</td></tr>
+    <tr><td>식사</td><td>홀 4–6 남측 옥외 푸드코트가 접근성 최고. 이동식 간식이면 입장 전 확보.</td></tr>
+    <tr><td>기록</td><td>부스당 사진 3장 — ① 전경 ② 대기줄 길이 ③ 노벨티/배포물. 찍고 바로 이 페이지에 한 줄.</td></tr>
+    <tr><td>대기 판단</td><td>1순위(넥슨·NC·넷마블)는 60분까지 감수. 나머지는 30분 넘으면 포기하고 관찰로 전환.</td></tr>
+    <tr><td>최대 리스크</td><td>넷마블 펄인블루 정리권 오후 소진. 7홀 끝나면 즉시 2홀로 직행하는 게 플랜 A의 핵심.</td></tr>
   </table></div>
 </section>
 
 <footer>
-  <p>출처: TGS 2026 공식 회장 맵(2026TGS_MAP_EN.pdf)에서 부스번호·좌표·출품사명 직접 추출. 타이틀·스테이지·노벨티 정보는 각 사 발표 및 게임 매체 보도 기준(2026-09-11 시점). 스테이지 시간과 정리권 운영 방식은 현장에서 바뀔 수 있으니 공식 디지털 맵으로 재확인하세요.</p>
+  <p>지도·부스번호·출품사명은 TGS 2026 공식 회장 맵(2026TGS_MAP_EN.pdf)에서 직접 추출했고, 지도 이미지는 그 PDF를 그대로 렌더한 것입니다. 동선은 맵 이미지의 빈 통로 픽셀만 이어 만든 경로입니다. 타이틀·노벨티 정보는 각 사 발표 및 게임 매체 보도 기준(2026-09-11).</p>
 </footer>
 </div>
 
-<div class="sheet" id="sheet" role="dialog" aria-modal="false" aria-label="부스 상세">
-  <div class="sheetin" id="sheetIn"></div>
-</div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="false" aria-label="부스 상세"><div class="sheetin" id="sheetIn"></div></div>
 
 <script>const BOOTHS=[["01-C03",1,0.2134,0.4903,"SanDisk"],["01-C04",1,0.3286,0.4903,"DIP (Daegu Digital Innovation Promotion Agency)"],["01-C05",1,0.3277,0.4252,"Mizuno"],["01-C06",1,0.2545,0.4252,"King's Raid Korea"],["01-C10",1,0.4804,0.4903,"Kiou"],["01-C11",1,0.6357,0.4903,"Alaya Lab"],["01-C12",1,0.6357,0.4252,"Lighthouse Studio"],["01-C13",1,0.5152,0.4252,"CFD Sales"],["02-C01",2,0.1301,0.5052,"Moscow Game Hub Russia"],["02-C02",2,0.1301,0.4142,"BIPA (Busan IT Industry Promotion Agency)"],["02-C03",2,0.3049,0.6039,"CITY CONNECTION"],["02-C04",2,0.4195,0.6039,"Gemdrops"],["02-C05",2,0.4195,0.5658,"IRONMACE Korea"],["02-C06",2,0.4195,0.5071,"Games From Portugal Portugal"],["02-C07",2,0.3049,0.5071,"BenQJapan"],["02-C08",2,0.2878,0.5658,"Studio EMBERS"],["02-C09",2,0.3049,0.3748,"Sheer Tianyi Technology China"],["02-C10",2,0.4195,0.3748,"Genki USA"],["02-C11",2,0.4195,0.3161,"Winking Studios Singapore"],["02-C12",2,0.3374,0.3161,"One or Eight"],["02-C13",2,0.6512,0.5658,"IzanagiGames"],["02-C14",2,0.6512,0.5071,"HYPER REAL"],["02-C15",2,0.561,0.5071,"KAWAKAMISANGYO"],["02-C16",2,0.5366,0.4013,"Lan-bridge Game China"],["02-C17",2,0.6512,0.4013,"Gamesir China"],["02-C18",2,0.6512,0.3161,"Devolver Digital USA"],["02-C19",2,0.7667,0.5735,"Jeonbuk Global Game Center Korea"],["02-C20",2,0.9049,0.5135,"Pulsar Gaming Gears Korea"],["02-C21",2,0.9049,0.3161,"GALLERIA (THIRDWAVE)"],["02-C22",2,0.7667,0.5135,"EnigmatrixGames China"],["02-N01",2,0.0902,0.84,"Edia"],["02-N02",2,0.0902,0.7761,"Game Source Entertainment China"],["02-N03",2,0.2301,0.8187,"ZUIKI"],["02-N04",2,0.2301,0.7761,"ECI GAMES China"],["02-N06",2,0.2301,0.6968,"CyberConnect2"],["02-N07",2,0.2545,0.9142,"Phase"],["02-N08",2,0.3211,0.9142,"viviON"],["02-N09",2,0.5033,0.9142,"Topre"],["02-N10",2,0.5699,0.9142,"ULTRANOVA Entertainment"],["02-N11",2,0.6374,0.9142,"SUCCESS"],["02-N12",2,0.7244,0.7123,"netmarble"],["02-S01",2,0.0504,0.2606,"Silent Bark Games Thailand"],["02-S02",2,0.0504,0.2026,"Axisray Lab China"],["02-S03",2,0.0504,0.1374,"noisycroak"],["02-S04",2,0.0504,0.0994,"Moss"],["02-S05",2,0.0439,0.0503,"VTC MOBILE SERVICES Viet Nam"],["02-S07",2,0.1772,0.0503,"Meowster Innovations"],["02-S08",2,0.4683,0.0994,"NHN JAPAN"],["02-S09",2,0.9699,0.0994,"Smilegate"],["03-C01",3,0.1371,0.5923,"lowiro UK"],["03-C02",3,0.3584,0.5923,"CORSAIR Fanatec Elgato"],["03-C03",3,0.3584,0.3161,"KOREA PAVILION Korea"],["03-C04",3,0.8742,0.4755,"ZETA DIVISION"],["03-C05",3,0.8742,0.3161,"Malaysia Pavilion Malaysia"],["03-C06",3,0.6247,0.3161,"Vrgineers Czech Republic"],["03-N01",3,0.0247,0.9142,"L&K Korea"],["03-N02",3,0.1169,0.9142,"De"],["03-N03",3,0.2101,0.9142,"MUTAN"],["03-N04",3,0.2146,0.7123,"DMM GAMES(EXNOA)"],["03-N05",3,0.4483,0.9142,"ENTERGRAM"],["03-N06",3,0.5404,0.9142,"BeXide"],["03-N07",3,0.8629,0.7123,"KOEI TECMO GAMES"],["03-S01",3,0.8618,0.0994,"SQUARE ENIX"],["04-C01",4,0.2928,0.589,"AppPay"],["04-C02",4,0.3895,0.589,"Shochiku"],["04-C03",4,0.3888,0.3155,"Minecraft"],["04-C04",4,0.6178,0.4806,"Aniplex"],["04-C05",4,0.7888,0.5071,"AREA 35"],["04-C06",4,0.7888,0.4329,"historia"],["04-C07",4,0.7882,0.3155,"TechDestination Pakistan Game Pavilion Pakistan"],["04-C08",4,0.6546,0.3155,"CRITICAL REFLEX Australia"],["04-C09",4,0.5757,0.4329,"Taipei Game Show Taiwan"],["04-N01",4,0.9316,0.7123,"SEGA/ATLUS"],["04-S01",4,0.4961,0.0994,"LEVEL5"],["04-S02",4,0.9441,0.0994,"Pocketpair"],["05-C01",5,0,0.5329,"Lenovo Japan"],["05-C02",5,0.2463,0.4884,"LINE GAME"],["05-C03",5,0.2463,0.3161,"D3PUBLISHER"],["05-C04",5,0,0.3155,"4Gamer.net"],["05-C05",5,0,0.4884,"Toydium"],["05-C06",5,0.6125,0.4884,"GAME FREAK"],["05-C07",5,0.8938,0.5497,"Italy Pavilion Italy"],["05-C08",5,0.8938,0.4884,"SilverStarJapan"],["05-C09",5,0.895,0.3155,"LIONA"],["05-C10",5,0.6125,0.3155,"SHUEISHA GAMES"],["05-N01",5,0.8162,0.7123,"Bandai Namco Entertainment"],["05-S01",5,0.8875,0.0994,"Konami Digital Entertainment"],["06-C01",6,0.4067,0.429,"Bushiroad"],["06-C02",6,0.4067,0.3155,"AORUS Taiwan"],["06-C03",6,0.2385,0.3155,"Tassei Denki"],["06-C04",6,0.6423,0.5884,"Sapporo Game Camp"],["06-C05",6,0.8913,0.5884,"INTI CREATES"],["06-C06",6,0.8913,0.3155,"GungHo Online Entertainment"],["06-N01",6,0.0077,0.7897,"Game Carrot China"],["06-N02",6,0.1798,0.7897,"Serenity Forge USA"],["06-N03",6,0.1808,0.7123,"ROG(ASUS JAPAN)"],["06-N04",6,0.9077,0.7123,"Happinet"],["06-S01",6,0.8913,0.0994,"Sony Interactive Entertainment"],["07-C01",7,0.202,0.5884,"Asobism"],["07-C02",7,0.3618,0.5884,"Wizardry Variants Daphne"],["07-C03",7,0.3625,0.3155,"Astrae Oratio Korea"],["07-C04",7,0.6599,0.429,"NEXON"],["07-C05",7,0.6605,0.3155,"Graph"],["07-C06",7,0.5474,0.3155,"PLAYISM"],["07-N01",7,0.2967,0.9148,"HORI"],["07-N02",7,0.3513,0.9148,"Minimum Studio Korea"],["07-N03",7,0.4875,0.7123,"Red Dunes Games United Arab Emirates"],["07-N04",7,0.4842,0.9148,"Teyon Japan"],["07-N05",7,0.5382,0.9148,"GMI Cloud"],["07-N06",7,0.5928,0.9148,"Keimyung University Immersive"],["07-N07",7,0.6559,0.9148,"playcare japan activity associetion"],["07-N08",7,0.8132,0.7123,"Google Play"],["07-S01",7,0.9401,0.0994,"CAPCOM"],["08-C01",8,0,0.5684,"PLAION REPLAI (NEOGEO AES+) UK"],["08-C02",8,0.1488,0.5684,"NAKANISHI MFG."],["08-C03",8,0.1488,0.5245,"NHK x Game"],["08-C04",8,0,0.5245,"K-SILVER China"],["08-C05",8,0,0.5245,"YYSTV Media China"],["08-C06",8,0,0.5245,"Nextorage"],["08-C07",8,0,0.3858,"Samurai Cats: Meow Order Taiwan"],["08-C08",8,0,0.3858,"DOBE China"],["08-C10",8,0,0.3858,"Sichuan Digital Publishing & Media China"],["08-C11",8,0.15,0.3677,"ITC"],["08-C12",8,0.15,0.3155,"DITP (Thailand Pavilion) Thailand"],["08-C13",8,0,0.3155,"Project Moon Korea"],["08-C14",8,0.3988,0.4852,"Norwegian Games Norway"],["08-C15",8,0.5012,0.5606,"Mango Party Taiwan"],["08-C16",8,0.6659,0.4852,"Sofmap"],["08-C17",8,0.5012,0.4852,"Rising Tide Thailand"],["08-C18",8,0.3988,0.3703,"KIOXIA"],["08-C19",8,0.5012,0.4006,"OUTERPLANE Korea"],["08-C20",8,0.6671,0.3703,"NeoBards Entertainment Taiwan"],["08-C22",8,0.6659,0.2955,"Canon"],["08-C23",8,0.3988,0.2955,"I-O DATA"],["08-C24",8,0.8768,0.3103,"tatsumaki games"],["08-N01",8,0,0.9148,"Iwakuni City"],["08-N02",8,0,0.9148,"REBORNSMITH"],["08-N03",8,0,0.9148,"WAWE"],["08-N04",8,0,0.9148,"PixAI"],["08-N05",8,0.0549,0.9148,"LEADJOY China"],["08-N06",8,0.2561,0.7123,"G TUNE-NEXTGEAR(MouseComputer)"],["08-N07",8,0.3012,0.9148,"Top Hat Studios USA"],["08-N08",8,0.5402,0.8987,"VRChat USA"],["08-N10",8,0.6671,0.8987,"Panasonic"],["08-N11",8,0.4878,0.749,"TECOPARK"],["08-N12",8,0.5878,0.8097,"National Institute for Environmental Studies"],["08-N13",8,0.6878,0.8097,"Gunma prefecture"],["08-N14",8,0.6878,0.749,"Shenzhen KTC Technology China"],["08-N16",8,0.8537,0.8039,"TOKYO MX NodaCry's Ambition"],["08-N17",8,0.8537,0.7626,"LEAFshade"],["08-N18",8,0.4866,0.6316,"MSI Taiwan"],["08-N19",8,0.6878,0.6845,"ALLONE"],["08-N20",8,0.6878,0.6316,"DUNLOP"],["08-N21",8,0.8537,0.7123,"POCKET RD"],["08-N25",8,0.8537,0.6148,"KEMCO"],["08-S01",8,0.5878,0.0994,"Sanrio"],["08-S02",8,0.8768,0.2071,"PinCool"],["08-S03",8,0.8768,0.149,"JET STUDIO"],["09-C72",9,0.959,0.3931,"YOKOSUKA City"],["09-C73",9,0.959,0.4681,"C&R Creative Studios"],["09-C74",9,0.9898,0.4681,"KDDI Technology"],["09-C75",9,0.9898,0.3931,"ErudAite"],["09-W01",9,0.0381,0.6028,"GIFU PLASTIC INDUSTRY"],["09-W05",9,0.1076,0.5431,"Pixio (Hamee)"],["09-W06",9,0.1079,0.6021,"noblechairs and Endgame Gear"],["09-W07",9,0.1549,0.6021,"Karumoa"],["09-W08",9,0.1079,0.6729,"MIDBASE"],["09-W09",9,0.1079,0.7299,"Secretlab Singapore"],["09-W10",9,0.1308,0.7521,"Meganemonoya"],["09-W103",9,0.7997,0.5854,"Lapin"],["09-W106",9,0.7997,0.7056,"Scenario Technology Mikagami"],["09-W107",9,0.8384,0.7056,"Checkout"],["09-W108",9,0.8384,0.6444,"adjoe Playtime Germany"],["09-W109",9,0.8956,0.5861,"Poppin Games Japan"],["09-W110",9,0.8956,0.6944,"Game8"],["09-W111",9,0.9178,0.6944,"Almedia Germany"],["09-W12",9,0.1305,0.6729,"AIMWIZ"],["09-W88",9,0.6025,0.7056,"Mychara"],["09-W94",9,0.6397,0.5972,"ThinkingData"],["09-W95",9,0.6397,0.6972,"Meshy AI USA"],["09-W99",9,0.6721,0.5972,"Sentry USA"],["10-C07",10,0.506,0.3403,"Aiuto"],["10-C08",10,0.506,0.4201,"GRAPHT"],["10-C09",10,0.6043,0.3403,"Shanghai Flydigi Electronics Tech China"],["10-C10",10,0.7712,0.4465,"ATK Gear China"],["10-E01",10,0.1147,0.0417,"Shizuoka City Creative Base"],["10-E04",10,0.1147,0.2278,"ohashi metal manufacturing"],["10-E05",10,0.1147,0.3514,"Original Force China"],["10-E07",10,0.1147,0.4417,"PayPal"],["10-E08",10,0.1674,0.3812,"NITTOC CONSTRUCTION"],["10-E16",10,0.3473,0.1868,"KAMI-GAME CREATORS' EVOLUTION 2026"],["10-E17",10,0.3473,0.0424,"Top Game Creators Academy(TGCA)"],["10-E19",10,0.506,0.075,"KIBU Gateron EWEADN WAIZOWL MelGeek"],["10-E20",10,0.506,0.1951,"Fumo Shop,Arbiter Studio"],["10-E22",10,0.7712,0.075,"Keychron"],["10-E24",10,0.7712,0.2243,"TALONGAMES"],["10-E25",10,0.7712,0.2896,"Be-Area"],["10-E27",10,0.8223,0.1951,"TTC China"],["10-E29",10,0.9815,0.075,"Brook Gaming Taiwan"],["10-E35",10,1,0.3375,"FOSTEX(Foster Electric)"],["10-E36",10,1,0.2667,"Tokyo Onkyo"],["10-E37",10,1,0.1951,"KAJIMA"],["10-W01",10,0.0174,0.5896,"DFGC United Arab Emirates"],["10-W05",10,0.1087,0.5896,"Keywords International"],["10-W13",10,0.3891,0.5896,"Tencent Japan"],["10-W21",10,0.5658,0.5896,"AQUASTAR"],["10-W29",10,0.6038,0.5896,"Kumamoto City"],["10-W33",10,0.7875,0.5896,"Kumamoto Prefecture southern part"],["10-W35",10,0.7875,0.7375,"Too"],["10-W38",10,0.8473,0.6236,"Paymentwall Korea"],["11-C01",11,0.1561,0.2542,"EPOMAKER China"],["11-C02",11,0.1561,0.3333,"KARNOX China"],["11-C03",11,0,0.4465,"AndGAMER ( Void Gaming&AIM1 )"],["11-C04",11,0.4226,0.3653,"SHENZHEN TOMTOC TECHNOLOGY China"],["11-C05",11,0.4226,0.4201,"Insta360"],["11-C06",11,0.4226,0.4757,"Wooting Netherlands"],["11-C07",11,0.5165,0.4201,"Guangdong Ouxide China"],["11-E02",11,0.1561,0.075,"MOZA Racing China"],["11-E03",11,0.1561,0.1535,"AULA China"],["11-E07",11,0.4226,0.0417,"Around X Next Challenge Korea"],["11-E12",11,0.4226,0.1965,"CANVY"],["11-E13",11,0.4226,0.2722,"eXtremeRate China"],["11-E14",11,0.5171,0.1965,"Huion China"],["11-E17",11,0.714,0.2229,"Warsong Technology China"],["11-E18",11,0.7573,0.166,"XPPen"],["11-E19",11,0.714,0.334,"ONEXPLAYER China"],["11-E22",11,0.714,0.4944,"AVerMedia Technologies Inc."],["11-E25",11,0.7573,0.334,"HKC China"],["11-E26",11,0.9494,0.1653,"Moldova Country Booth Moldova"],["11-E34",11,0.9494,0.5062,"Darlin"]];</script>
+<script>const MAP18={"route":[[1259,729],[1257,729],[1257,445],[769,445],[769,341],[504,341],[504,340],[504,341],[571,341],[571,153],[639,153],[639,177],[639,153],[507,153],[507,151],[507,153],[1384,153],[1384,341],[2205,341],[2205,362],[2205,341],[2143,341],[2143,153],[2116,153],[2116,151],[2116,153],[1902,153],[1902,151],[1902,153],[1917,153],[1917,341],[1868,341],[1868,362],[1868,341],[1715,341],[1715,153],[1618,153],[1618,151],[1618,153],[1570,153],[1570,341],[1520,341],[1520,362],[1520,341],[1384,341],[1384,153],[1414,153],[1414,151],[1414,153],[1306,153],[1306,341],[1319,341],[1319,445],[1206,445],[1206,432],[1206,445],[1082,445],[1082,341],[1071,341],[1071,153],[1193,153],[1193,151],[1193,153],[921,153],[921,151],[921,153],[1229,153],[1229,341],[1319,341],[1319,445],[1405,445],[1405,537],[1405,715]],"stops":[{"code":"07-C04","x":504,"y":340},{"code":"07-C03","x":639,"y":177},{"code":"07-S01","x":507,"y":151},{"code":"02-N12","x":2205,"y":362},{"code":"02-S09","x":2116,"y":151},{"code":"03-S01","x":1902,"y":151},{"code":"03-N07","x":1868,"y":362},{"code":"04-S01","x":1618,"y":151},{"code":"04-N01","x":1520,"y":362},{"code":"04-S02","x":1414,"y":151},{"code":"05-N01","x":1206,"y":432},{"code":"05-S01","x":1193,"y":151},{"code":"06-S01","x":921,"y":151}],"boxes":{"07-C04":{"x":447,"y":233,"w":114,"h":104},"07-C03":{"x":582,"y":180,"w":114,"h":106},"02-N12":{"x":2124,"y":365,"w":162,"h":64},"07-S01":{"x":319,"y":80,"w":376,"h":68},"06-S01":{"x":781,"y":80,"w":280,"h":68},"03-S01":{"x":1792,"y":80,"w":220,"h":68},"04-N01":{"x":1331,"y":365,"w":378,"h":64},"05-N01":{"x":1104,"y":365,"w":204,"h":64},"05-S01":{"x":1087,"y":80,"w":212,"h":68},"03-N07":{"x":1792,"y":365,"w":152,"h":64},"04-S01":{"x":1529,"y":80,"w":178,"h":68},"04-S02":{"x":1325,"y":80,"w":178,"h":68},"02-S09":{"x":2034,"y":80,"w":164,"h":68},"03-C03":{"x":1927,"y":181,"w":110,"h":88},"08-C13":{"x":254,"y":180,"w":170,"h":58},"02-N06":{"x":2307,"y":358,"w":48,"h":28},"02-C03":{"x":2279,"y":270,"w":44,"h":68},"08-S01":{"x":147,"y":80,"w":150,"h":68},"06-C06":{"x":781,"y":180,"w":130,"h":104},"06-C01":{"x":933,"y":233,"w":128,"h":104},"06-N04":{"x":776,"y":365,"w":204,"h":64},"05-C06":{"x":1153,"y":261,"w":64,"h":78},"05-C10":{"x":1153,"y":180,"w":64,"h":158},"04-C03":{"x":1578,"y":180,"w":130,"h":104},"04-C04":{"x":1474,"y":235,"w":82,"h":104},"03-N04":{"x":1965,"y":365,"w":138,"h":64},"07-N08":{"x":377,"y":365,"w":126,"h":64},"08-N06":{"x":229,"y":365,"w":126,"h":64},"02-C21":{"x":2058,"y":181,"w":76,"h":88},"06-N03":{"x":1003,"y":365,"w":78,"h":64},"07-C02":{"x":583,"y":307,"w":112,"h":30},"07-C06":{"x":498,"y":180,"w":62,"h":26}},"w":2790,"h":765,"facil":[{"x":1259,"y":729,"t":"\uc911\uc559 \uc785\uad6c"},{"x":2650,"y":721,"t":"\uc11c\ucabd \uc785\uad6c"},{"x":20,"y":627,"t":"\ub3d9\ucabd \uc785\uad6c"},{"x":1405,"y":720,"t":"\u2192 9\u201311\ud640"}]};</script>
 <script>
-/* ---------- curated layer ---------- */
-const INFO = {
- "07-C04":{tier:1,kr:1,ko:"넥슨",short:"넥슨",titles:["파레이돌리아 (프로젝트 RX)","마비노기 모바일"],play:"둘 다 시연 가능",
+const INFO={
+ "07-C04":{tier:1,kr:1,ko:"넥슨",games:"파레이돌리아 · 마비노기 모바일",titles:["파레이돌리아 (프로젝트 RX)","마비노기 모바일"],play:"둘 다 시연",
    why:"파레이돌리아 <b>세계 최속 시연</b>. 블루 아카이브를 만든 넥슨게임즈 RX스튜디오 신작.",
-   booth:"게임 속 '타소가레관(黄昏館)'을 실물 재현. 마비노기 존은 티르코네일 모닥불 재현. 캐릭터와 가위바위보 미니게임.",
-   novelty:"부스 방문자에게 오리지널 스티커",
-   watch:"대기줄 길이를 NC 부스(바로 옆)와 비교. 시연대 수와 1회 플레이 시간 기록.",
-   queue:"최장 예상"},
- "07-C03":{tier:1,kr:1,ko:"NC · 아스트라에 오라티오",short:"NC 오라티오",titles:["아스트라에 오라티오 (Astrae Oratio)"],play:"세계 최초 플레이어블",
+   booth:"게임 속 '타소가레관(黄昏館)' 실물 재현. 마비노기 존은 티르코네일 모닥불 재현. 캐릭터와 가위바위보 미니게임.",
+   novelty:"부스 방문자 오리지널 스티커",
+   watch:"대기줄을 옆 NC 부스와 비교. 시연대 수 · 1회 플레이 시간 기록.",queue:"최장 예상"},
+ "07-C03":{tier:1,kr:1,ko:"NC 아스트라에 오라티오",games:"시나리오 / 전투 빌드 택1",titles:["아스트라에 오라티오"],play:"세계 최초 플레이어블",
    why:"NC 단독 부스. 시나리오 빌드 / 전투 빌드 중 <b>하나만 선택</b>해 체험.",
-   booth:"삼성 갤럭시 S26 울트라로 시연. 삼성 스페이셜 사이니지로 실물 크기 3D 캐릭터 연출. 부스 스테이지에서 '시나리오 상영회: 프롤로그' 진행.",
-   novelty:"렌티큘러 카드 · 캐릭터 키링 · 명함 케이스 · 파우치 · 부채 (시연/SNS 팔로우/현장 프로그램 참여 조건)",
-   watch:"시나리오 빌드와 전투 빌드 중 어느 쪽 줄이 긴가. 스페이셜 사이니지 앞 체류 시간.",
-   queue:"김"},
- "02-N12":{tier:1,kr:1,ko:"넷마블",short:"넷마블",titles:["펄인블루","샹그릴라 프론티어 ~일곱 최강종~","나 혼자만 레벨업: KARMA"],play:"3종 전부 시연",
-   why:"펄인블루 첫 시연. '월간 러브코미디' 콘셉트의 수집형 RPG.",
-   booth:"샹그릴라 프론티어는 세계 최초 시연대. 성우 토크쇼(다크나이트 4인) 운영.",
-   novelty:"부스 노벨티 배포",
-   watch:"한 부스에 신작 3종을 몰아넣은 구성의 효율. 어느 타이틀 시연대에 줄이 몰리는가.",
-   queue:"중간 — 오후엔 정리권 소진 주의"},
- "07-S01":{tier:2,ko:"캡콤",titles:["몬스터 헌터 와일즈: Ascendance","록맨 Dual Override"],play:"시연 있음",
-   why:"7홀 남측 최대 부스. 스테이지 프로그램이 촘촘.",
-   booth:"9홀에 'e캡콤 출장소'(09-W112) 물販 별도 운영. 캡슐랩 가챠 스팟.",
-   stage:"9/19 10:20 개시 · 10:30–11:20 록맨 · 12:10–13:00 몬헌 와일즈(Switch2판) · 14:20–15:20 캡콤TV!! 라인업 스페셜",
-   watch:"대형 IP 부스의 스테이지 운영 방식(관람 정리권 여부, 모니터 배치).",queue:"매우 김"},
- "06-S01":{tier:2,ko:"소니 인터랙티브 엔터테인먼트",short:"플스",titles:["Marvel's Wolverine","FF7 REVELATION","몬헌 와일즈: Ascendance","ACE COMBAT 8"],play:"시연 4종",
-   why:"<b>GTA VI 확장 영상 시어터</b> — 300인치 대형 스크린 + 소니 플로어 햅틱.",
-   booth:"PS Plus 가입자 시연 사전예약제(9/16 23:59 마감).",
-   watch:"플랫폼 홀더가 '영상 상영'을 주력 콘텐츠로 쓰는 방식. 햅틱 체험의 반응.",queue:"매우 김"},
- "03-S01":{tier:2,ko:"스퀘어에닉스",titles:["FINAL FANTASY VII REVELATION","드래곤 퀘스트 몬스터즈 4","FF 레조넌스"],play:"시연 있음",
-   why:"FF7 리메이크 3부작 완결편의 <b>세계 최초 일반 시연</b>. 원작 30주년.",watch:"장수 IP의 기념 연출 방식.",queue:"매우 김"},
- "04-N01":{tier:2,ko:"세가 / 아틀러스",short:"세가",titles:["페르소나 4 리바이벌 외 16종 스테이지"],play:"시연 있음",
-   why:"역대 최대 규모 부스. 스테이지에 16개 타이틀 등판.",watch:"부스 면적 대비 시연대 밀도.",queue:"김"},
- "05-N01":{tier:2,ko:"반다이남코",short:"반다이남코",titles:["ACE COMBAT 8: WINGS OF THEVE","드래곤볼 제노버스 3","테일즈 오브 에터니아 리마스터"],play:"시연 있음",
-   why:"신작 굿즈 선행 판매(9/17~).",watch:"IP 라이선스 굿즈의 현장 판매 규모.",queue:"김"},
- "05-S01":{tier:2,ko:"코나미",titles:["Castlevania: Belmont's Curse","SILENT HILL: Townfall"],play:"시연 있음",
-   why:"신작 외에 주년 타이틀 전시 코너(간바레 고에몽 / 환상수호전 / 실황 파워풀 프로야구).",watch:"레트로 아카이브형 전시가 관람객을 얼마나 잡아두는가."},
- "03-N07":{tier:2,ko:"코에이테크모",titles:["Wo Long 2","진격의 거인 3","카리아의 아틀리에","노부나가의 야망: 히쇼"],play:"5종 시연",
-   why:"시연 타이틀 수 기준 상위권.",watch:"다작 퍼블리셔의 시연대 분배 방식."},
- "04-S01":{tier:2,ko:"레벨파이브",titles:["레벨파이브 신작 라인업"],play:"시연 있음"},
- "04-S02":{tier:2,ko:"포켓페어",titles:["팰월드 관련"],play:"시연 있음",why:"인디 출신 대형 히트작의 부스 스케일을 볼 것."},
- "02-S09":{tier:2,kr:1,ko:"스마일게이트",titles:["스마일게이트 라인업"],why:"한국 4사 중 하나. 2홀 서쪽 끝."},
- "03-C03":{tier:2,kr:1,ko:"코리아 파빌리온",short:"코리아관",titles:["한국 인디 다수 (PIXELIAN, MAYFLY, NANOO, BANJIHA 등)"],
-   why:"한국 인디 집합. 인디 관심도가 낮다면 5분 스캔만."},
- "02-C05":{tier:2,kr:1,ko:"아이언메이스",titles:["다크 앤 다커"],why:"한국 중소 개발사의 일본 노출 방식."},
- "08-C13":{tier:2,kr:1,ko:"프로젝트문",titles:["림버스 컴퍼니 등"],why:"일본 서브컬처 시장에서 한국 인디의 팬덤 사례."},
- "08-C19":{tier:2,kr:1,ko:"아우터플레인",short:"아우터플레인",titles:["아우터플레인"]},
- "02-N06":{tier:2,ko:"사이버커넥트투",short:"CC2",why:"TGS 첫 출전."},
- "02-C18":{tier:2,ko:"Devolver Digital",short:"Devolver",why:"해외 퍼블리셔의 부스 연출 대조군."},
- "02-C03":{tier:2,ko:"시티커넥션",short:"시티커넥션",novelty:"'쟈쟈마루 가면' 배포",why:"저예산 부스의 화제 만들기 사례."},
- "08-S01":{tier:2,ko:"산리오",novelty:"오리지널 선바이저 3종(헬로키티/시나모롤/폼폼푸린)",why:"비게임 IP의 게임쇼 진입 방식."},
- "06-C06":{tier:2,ko:"겅호 온라인",short:"겅호"},
- "06-C01":{tier:2,ko:"부시로드"},
- "06-N04":{tier:2,ko:"해피넷"},
- "05-C06":{tier:2,ko:"게임프리크"},
- "05-C10":{tier:2,ko:"슈에이샤 게임즈",short:"슈에이샤"},
- "04-C03":{tier:2,ko:"마인크래프트"},
- "04-C04":{tier:2,ko:"아니플렉스"},
- "03-N04":{tier:2,ko:"DMM GAMES (EXNOA)",short:"DMM"},
- "07-N08":{tier:2,ko:"구글 플레이"},
- "08-N06":{tier:2,ko:"G-Tune · NEXTGEAR",short:"G-Tune"},
- "02-C21":{tier:2,ko:"GALLERIA (서드웨이브)",short:"GALLERIA"},
- "06-N03":{tier:2,ko:"ROG (ASUS)"},
- "07-C02":{tier:2,ko:"위저드리 배리언츠 다프네",short:"위저드리"},
- "07-C06":{tier:2,ko:"PLAYISM",why:"일본 인디 퍼블리셔. 인디 흐름 빠르게 스캔하기 좋음."}
+   booth:"갤럭시 S26 울트라로 시연. 삼성 스페이셜 사이니지로 실물 크기 3D 캐릭터 연출.",
+   novelty:"렌티큘러 카드 · 키링 · 명함 케이스 · 파우치 · 부채 (시연/SNS 팔로우/현장 프로그램 조건)",
+   watch:"시나리오와 전투 중 어느 쪽 줄이 긴가. 사이니지 앞 체류 시간.",queue:"김"},
+ "02-N12":{tier:1,kr:1,ko:"넷마블",games:"펄인블루 · 샹그릴라 프론티어 · 나혼렙 KARMA",titles:["펄인블루","샹그릴라 프론티어 ~일곱 최강종~","나 혼자만 레벨업: KARMA"],play:"3종 전부 시연",
+   why:"펄인블루 첫 시연. '월간 러브코미디' 콘셉트 수집형 RPG.",
+   booth:"샹그릴라 프론티어는 세계 최초 시연대.",novelty:"부스 노벨티 배포",
+   watch:"한 부스에 신작 3종을 몰아넣은 구성의 효율. 어느 시연대에 줄이 몰리는가.",queue:"중간 — 오후 정리권 소진 주의"},
+ "07-S01":{tier:2,ko:"캡콤",games:"몬헌 와일즈 Ascendance · 록맨 Dual Override",titles:["몬스터 헌터 와일즈: Ascendance","록맨 Dual Override"],play:"시연 있음",
+   why:"7홀 남측 최대 부스. 9홀에 e캡콤 출장소(09-W112) 물販 별도.",
+   watch:"대형 IP 부스의 동선 설계와 대기 관리 방식.",queue:"매우 김 — 시연은 포기, 관찰만"},
+ "06-S01":{tier:2,ko:"플레이스테이션",games:"GTA VI 시어터 · 울버린 · FF7 REVELATION",titles:["Marvel's Wolverine","FF7 REVELATION","몬헌 와일즈: Ascendance","ACE COMBAT 8"],play:"시연 4종(사전예약 우선)",
+   why:"<b>GTA VI 확장 영상 시어터</b> — 300인치 스크린 + 플로어 햅틱. 회전율이 빨라 시도할 만함.",
+   watch:"플랫폼 홀더가 '영상 상영'을 주력으로 쓰는 방식. 햅틱 체험 반응.",queue:"시연 매우 김 / 시어터는 회전 빠름"},
+ "03-S01":{tier:2,ko:"스퀘어에닉스",games:"FF7 REVELATION · DQM4 · FF 레조넌스",titles:["FINAL FANTASY VII REVELATION","드래곤 퀘스트 몬스터즈 4","FF 레조넌스"],play:"시연 있음",
+   why:"FF7 리메이크 3부작 완결편 <b>세계 최초 일반 시연</b>. 원작 30주년.",watch:"장수 IP의 기념 연출 방식.",queue:"매우 김"},
+ "04-N01":{tier:2,ko:"세가 / 아틀러스",games:"페르소나 4 리바이벌 외",titles:["페르소나 4 리바이벌 등"],play:"시연 있음",
+   why:"역대 최대 규모 부스.",watch:"부스 면적 대비 시연대 밀도.",queue:"김"},
+ "05-N01":{tier:2,ko:"반다이남코",games:"ACE COMBAT 8 · 제노버스 3",titles:["ACE COMBAT 8: WINGS OF THEVE","드래곤볼 제노버스 3","테일즈 오브 에터니아 리마스터"],play:"시연 있음",
+   why:"신작 굿즈 선행 판매.",watch:"IP 굿즈 현장 판매 규모.",queue:"김"},
+ "05-S01":{tier:2,ko:"코나미",games:"Castlevania · SILENT HILL Townfall",titles:["Castlevania: Belmont's Curse","SILENT HILL: Townfall"],play:"시연 있음",
+   why:"주년 타이틀 전시 코너(고에몽 / 환상수호전 / 파워프로).",watch:"레트로 아카이브 전시의 체류 시간."},
+ "03-N07":{tier:2,ko:"코에이테크모",games:"Wo Long 2 · 진격의 거인 3 · 아틀리에",titles:["Wo Long 2","진격의 거인 3","카리아의 아틀리에","노부나가의 야망: 히쇼"],play:"5종 시연",
+   watch:"다작 퍼블리셔의 시연대 분배 방식."},
+ "04-S01":{tier:2,ko:"레벨파이브",games:"레벨파이브 신작",play:"시연 있음"},
+ "04-S02":{tier:2,ko:"포켓페어",games:"팰월드",play:"시연 있음",why:"인디 출신 대형 히트작의 부스 스케일을 볼 것."},
+ "02-S09":{tier:2,kr:1,ko:"스마일게이트",games:"스마일게이트 라인업",why:"한국 4사 중 하나."},
+ "03-C03":{tier:2,kr:1,ko:"코리아 파빌리온",games:"한국 인디 다수",why:"PIXELIAN · MAYFLY · NANOO · BANJIHA 등. 5분 스캔."},
+ "02-C05":{tier:2,kr:1,ko:"아이언메이스",games:"다크 앤 다커"},
+ "08-C13":{tier:2,kr:1,ko:"프로젝트문",games:"림버스 컴퍼니",why:"일본에서 한국 인디 팬덤 사례."},
+ "08-C19":{tier:2,kr:1,ko:"아우터플레인",games:"아우터플레인"},
+ "02-N06":{tier:2,ko:"사이버커넥트투",why:"TGS 첫 출전."},
+ "02-C18":{tier:2,ko:"Devolver Digital",why:"해외 퍼블리셔 부스 연출 대조군."},
+ "02-C03":{tier:2,ko:"시티커넥션",novelty:"'쟈쟈마루 가면' 배포",why:"저예산 부스의 화제 만들기."},
+ "08-S01":{tier:2,ko:"산리오",novelty:"오리지널 선바이저 3종",why:"비게임 IP의 게임쇼 진입 방식."},
+ "06-C06":{tier:2,ko:"겅호 온라인"},"06-C01":{tier:2,ko:"부시로드"},"06-N04":{tier:2,ko:"해피넷"},
+ "05-C06":{tier:2,ko:"게임프리크"},"05-C10":{tier:2,ko:"슈에이샤 게임즈"},
+ "04-C03":{tier:2,ko:"마인크래프트"},"04-C04":{tier:2,ko:"아니플렉스"},
+ "03-N04":{tier:2,ko:"DMM GAMES"},"07-N08":{tier:2,ko:"구글 플레이"},
+ "08-N06":{tier:2,ko:"G-Tune · NEXTGEAR"},"02-C21":{tier:2,ko:"GALLERIA"},"06-N03":{tier:2,ko:"ROG (ASUS)"},
+ "07-C02":{tier:2,ko:"위저드리 배리언츠 다프네"},"07-C06":{tier:2,ko:"PLAYISM",why:"일본 인디 퍼블리셔."}
 };
 
-/* ---------- route ---------- */
-const ROUTE = [
+const ROUTE=[
  {t:"06:30",p:1,title:"카이힌마쿠하리역 도착 → 1–8홀 대기열",meta:"입장 대기",
   note:"<b>9–11홀 쪽 줄에 서면 안 됩니다.</b> 10:00까지 1–8홀로 못 넘어옵니다."},
- {t:"09:30",p:1,title:"개장 · 7홀로 직행",meta:"중앙 입구 → 동쪽 2~3홀 이동 (약 3분)",
-  note:"목표 1·2가 7홀에 나란히 있습니다. 다른 부스는 쳐다보지 말고 직진."},
- {t:"09:35",p:1,title:"넥슨 — 파레이돌리아 시연",meta:"07-C04 · 7홀 중앙",code:"07-C04",
-  note:"세계 최속 시연이라 줄이 가장 길 확률이 높습니다. 여기가 오늘의 병목. 마비노기 모바일은 줄이 짧으면 덤으로."},
- {t:"10:40",p:1,title:"NC — 아스트라에 오라티오 시연",meta:"07-C03 · 넥슨 바로 옆",code:"07-C03",
-  note:"시나리오/전투 중 <b>택1</b>. 갤럭시 S26 울트라 시연. 줄 서 있는 동안 옆 넥슨 줄 길이를 비교 기록."},
- {t:"11:30",p:2,title:"7–8홀 속성 스캔",meta:"캡콤 07-S01 · 구글플레이 07-N08 · 산리오 08-S01",code:"07-S01",
-  note:"캡콤은 시연 포기, 부스 규모와 스테이지 운영만 사진으로. 8홀은 하드웨어·중소사 위주라 통과하며 훑기."},
- {t:"11:55",p:1,title:"서쪽으로 이동 (7홀 → 2홀)",meta:"약 450m · 혼잡 시 12분",
-  note:"이동하면서 6·5·4·3홀 외관과 대기줄 길이만 눈으로 스캔. 들어가진 않습니다."},
- {t:"12:10",p:1,title:"넷마블 — 펄인블루 시연",meta:"02-N12 · 2홀 북측",code:"02-N12",
-  note:"펄인블루 우선. 여유 있으면 샹그릴라 프론티어(세계 최초 시연)까지. 이동 중 간식 섭취."},
- {t:"13:05",p:2,title:"2홀 관찰",meta:"스마일게이트 02-S09 · 아이언메이스 02-C05 · Devolver 02-C18 · 사이버커넥트투 02-N06",code:"02-S09",
-  note:"한국사 3곳이 모여 있는 구간. 일본 현지화 수준을 비교 기록."},
- {t:"13:35",p:3,title:"1홀 이벤트 스테이지 훑기",meta:"1홀 남측 · 게임 아카데미 코너",
-  note:"전문학교 부스 다수. 5~10분만. 일본 특유의 교육 트랙을 사진으로."},
- {t:"13:50",p:2,title:"3홀 — 스퀘어에닉스 · 코에이테크모",meta:"03-S01 / 03-N07 / 코리아 파빌리온 03-C03",code:"03-S01",
-  note:"FF7 REVELATION 시연줄 길이 확인. 코리아 파빌리온 5분 스캔."},
- {t:"14:30",p:2,title:"4홀 — 세가/아틀러스 · 레벨파이브 · 포켓페어",meta:"04-N01 / 04-S01 / 04-S02 / 마인크래프트 04-C03",code:"04-N01",
-  note:"세가는 역대 최대 규모. 부스 면적 대비 시연대 밀도를 세어 보세요."},
- {t:"15:05",p:2,title:"5홀 — 반다이남코 · 코나미",meta:"05-N01 / 05-S01 / 게임프리크 05-C06",code:"05-N01",
-  note:"코나미 주년 전시 코너의 체류 시간 관찰. 굿즈 선행판매 줄 길이."},
- {t:"15:35",p:2,title:"6홀 — 플레이스테이션",meta:"06-S01 · GTA VI 시어터",code:"06-S01",
-  note:"시연은 사전예약자 우선이라 포기. <b>GTA VI 시어터</b>는 회전율 빠르니 시도해볼 만함."},
- {t:"16:00",p:3,title:"9–11홀 — 물販 · 인디 · 하드웨어",meta:"홀 4/5 북측 연결로로 이동",
-  note:"물販 코너, Selected Indie 80(9–10홀), 코스프레 에어리어(9홀 옥외), 중국 주변기기 업체 밀집(11홀). 인디는 우선순위 낮으므로 통로만 훑기."},
- {t:"16:45",p:3,title:"마무리 · 누락분 회수",meta:"놓친 노벨티 / 사진 보강",
-  note:"기록 섹션에서 빈칸 남은 부스 확인. 17:00 폐장."}
+ {t:"09:30",p:1,title:"개장 · 중앙 입구에서 7홀로 직행",meta:"중앙 입구(5홀 북측) → 북측 통로 → 7홀 · 약 3분",
+  note:"목표 1·2가 7홀에 통로 하나 사이로 붙어 있습니다. 다른 부스는 보지 말고 직진."},
+ {t:"09:35",p:1,n:1,title:"넥슨 — 파레이돌리아 시연",meta:"07-C04 · 7홀 중앙열",code:"07-C04",
+  note:"세계 최속 시연이라 줄이 가장 길 확률이 높습니다. 오늘의 병목. 마비노기 모바일은 줄이 짧으면 덤."},
+ {t:"10:40",p:1,n:2,title:"NC — 아스트라에 오라티오 시연",meta:"07-C03 · 넥슨 북동쪽 대각",code:"07-C03",
+  note:"시나리오 / 전투 중 <b>택1</b>. 줄 서 있는 동안 넥슨 줄 길이를 비교 기록."},
+ {t:"11:30",p:2,n:3,title:"캡콤 — 관찰만",meta:"07-S01 · 7홀 남측 최대 부스",code:"07-S01",
+  note:"시연 포기. 부스 규모·대기 관리 방식만 사진으로. 7홀 북측 구글플레이(07-N08)도 지나가며 스캔."},
+ {t:"11:55",p:1,title:"서쪽으로 이동 (7홀 → 2홀)",meta:"북측 메인 통로 · 약 700m · 혼잡 시 12분",
+  note:"이동하며 6·5·4·3홀 외관과 대기줄 길이만 눈으로. 들어가진 않습니다."},
+ {t:"12:10",p:1,n:4,title:"넷마블 — 펄인블루 시연",meta:"02-N12 · 2홀 북측",code:"02-N12",
+  note:"펄인블루 우선. 여유 있으면 샹그릴라 프론티어까지. 이동 중 간식."},
+ {t:"13:05",p:2,n:5,title:"스마일게이트 + 2홀 관찰",meta:"02-S09 · 아이언메이스 02-C05 · Devolver 02-C18 · CC2 02-N06",code:"02-S09",
+  note:"한국사가 모여 있는 구간. 현지화 수준을 비교 기록."},
+ {t:"13:40",p:2,n:6,title:"스퀘어에닉스",meta:"03-S01 · 3홀 남측",code:"03-S01",
+  note:"FF7 REVELATION 시연줄 길이 확인. 코리아 파빌리온(03-C03) 5분 스캔."},
+ {t:"14:05",p:2,n:7,title:"코에이테크모",meta:"03-N07 · 3홀 북측",code:"03-N07",note:"5종 시연 부스의 시연대 분배 방식."},
+ {t:"14:25",p:2,n:8,title:"레벨파이브",meta:"04-S01 · 4홀 남측",code:"04-S01"},
+ {t:"14:40",p:2,n:9,title:"세가 / 아틀러스",meta:"04-N01 · 4홀 북측 최대 부스",code:"04-N01",
+  note:"역대 최대 규모. 면적 대비 시연대 밀도를 세어 보세요. 마인크래프트(04-C03)·아니플렉스(04-C04)도 근처."},
+ {t:"15:05",p:2,n:10,title:"포켓페어",meta:"04-S02 · 4홀 남측",code:"04-S02"},
+ {t:"15:20",p:2,n:11,title:"반다이남코",meta:"05-N01 · 5홀 북측",code:"05-N01",note:"굿즈 선행판매 줄 길이 확인."},
+ {t:"15:35",p:2,n:12,title:"코나미",meta:"05-S01 · 5홀 남측",code:"05-S01",note:"주년 전시 코너 체류 시간 관찰."},
+ {t:"15:55",p:2,n:13,title:"플레이스테이션",meta:"06-S01 · 6홀 남측",code:"06-S01",
+  note:"시연은 사전예약자 우선이라 포기. <b>GTA VI 시어터</b>는 회전율이 빨라 시도해볼 만함."},
+ {t:"16:20",p:3,title:"9–11홀 — 물販 · 인디 · 하드웨어",meta:"4/5홀 북측 연결로로 이동",
+  note:"물販 코너, Selected Indie 80(9–10홀), 코스프레 에어리어(9홀 옥외), 중국 주변기기 밀집(11홀). 통로만 훑기."},
+ {t:"16:50",p:3,title:"마무리",meta:"기록 빈칸 회수",note:"기록 섹션에서 빈 부스 확인. 17:00 폐장."}
 ];
 
-/* ---------- map geometry ---------- */
-const MW=400, HX=52, HW=290, HY0=44, HH=96, HGAP=7;
-const NY0=HY0+8*(HH+HGAP)+34, NHW=93, NHGAP=6, NHH=84;
-const MAPH=NY0+NHH+26;
-function hallBox(h){
-  if(h<=8) return {x:HX,y:HY0+(h-1)*(HH+HGAP),w:HW,h:HH};
-  return {x:HX+(h-9)*(NHW+NHGAP),y:NY0,w:NHW,h:NHH};
-}
-function boothXY(b){
-  const box=hallBox(b[1]);
-  return {x:box.x+10+b[3]*(box.w-20), y:box.y+16+b[2]*(box.h-26)};
-}
-const FACILITIES=[
- {label:"중앙 입구",side:"N",hall:5,nx:0.08},
- {label:"서쪽 입구",side:"N",hall:1,nx:0.55},
- {label:"동쪽 입구",side:"N",hall:8,nx:0.80},
- {label:"↔ 9–11홀 연결",side:"N",hall:4,nx:0.88},
- {label:"이벤트 스테이지",side:"IN",hall:1,nx:0.30,ny:0.10},
- {label:"푸드코트",side:"S",hall:5,nx:0.45},
- {label:"코스프레",side:"S",hall:9,nx:0.5}
-];
-
-/* ---------- state ---------- */
-let BY_CODE={}, SEL=null, FILTER="all", SHOWROUTE=true;
-let db=null, LOCAL={};
-const ls={
-  get(){try{return JSON.parse(localStorage.getItem("tgs26")||"{}")}catch(e){return {}}},
-  set(v){try{localStorage.setItem("tgs26",JSON.stringify(v))}catch(e){}}
-};
-
-function tierOf(code){const i=INFO[code];return i&&i.tier?i.tier:3}
-function nameOf(code){const b=BY_CODE[code];const i=INFO[code];return (i&&i.ko)?i.ko:(b?b[4]:code)}
-
-/* ---------- render: missions ---------- */
 const MISSIONS=[
- {id:"m1",t:1,title:"아스트라에 오라티오 + 파레이돌리아 시연 완주",where:"7홀 07-C03 · 07-C04 — 두 부스가 바로 옆"},
- {id:"m2",t:1,title:"펄인블루 시연",where:"2홀 02-N12 넷마블 부스"},
- {id:"m3",t:2,title:"대형 게임사 부스 전수 관찰 + 유저 반응 기록",where:"캡콤·SIE·스퀘어에닉스·세가·반남·코나미·코에이테크모"},
- {id:"m4",t:2,title:"행사 구조·동선 파악",where:"입구 배치, 홀 간 이동 제약, 대기열 운영 방식"},
+ {id:"m1",t:1,title:"아스트라에 오라티오 + 파레이돌리아 시연 완주",where:"7홀 07-C03 · 07-C04"},
+ {id:"m2",t:1,title:"펄인블루 시연",where:"2홀 02-N12 넷마블"},
+ {id:"m3",t:2,title:"대형 게임사 부스 전수 관찰 + 유저 반응 기록",where:"캡콤·플스·스퀘어에닉스·세가·반남·코나미·코에이테크모"},
+ {id:"m4",t:2,title:"행사 구조·동선 파악",where:"입구 배치, 홀 간 이동 제약, 대기열 운영"},
  {id:"m5",t:2,title:"주요 마케팅·홍보 수단 관찰",where:"공간 재현 / 디스플레이 기술 / 디바이스 타이업 / 노벨티 조건"},
  {id:"m6",t:2,title:"장르 트렌드 변화 기록",where:"서브컬처 수집형 RPG 비중, 중국 퍼블리셔 공백의 여파"},
  {id:"m7",t:3,title:"TGS만의 차이 분석",where:"시연 중심 · 물販 별도 홀 · 코스프레 공식화 · 가족/교육 트랙"},
  {id:"m8",t:3,title:"인디게임 확인 (여유 시)",where:"9–10홀 Selected Indie 80 · 코리아 파빌리온 03-C03"}
 ];
-function renderMissions(){
-  const host=document.getElementById("missionList");
-  host.innerHTML="";
-  MISSIONS.forEach(m=>{
-    const done=(LOCAL.missions&&LOCAL.missions[m.id])?"1":"0";
-    const el=document.createElement("div");
-    el.className="mission";el.setAttribute("data-done",done);el.tabIndex=0;el.setAttribute("role","button");
-    el.innerHTML='<div class="mbox">✓</div><div><div class="mtitle"><span class="mtag t'+m.t+'">P'+m.t+'</span>'+m.title+'</div><div class="mwhere">'+m.where+'</div></div>';
-    const tog=()=>{LOCAL.missions=LOCAL.missions||{};LOCAL.missions[m.id]=!LOCAL.missions[m.id];ls.set(LOCAL);renderMissions()};
-    el.addEventListener("click",tog);
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}});
-    host.appendChild(el);
+
+/* ---------- state ---------- */
+let BY_CODE={},SEL=null,LOCAL={},db=null,TAB="18";
+const ls={get(){try{return JSON.parse(localStorage.getItem("tgs26")||"{}")}catch(e){return{}}},
+          set(v){try{localStorage.setItem("tgs26",JSON.stringify(v))}catch(e){}}};
+BOOTHS.forEach(b=>BY_CODE[b[0]]=b);
+LOCAL=ls.get();
+function tierOf(c){const i=INFO[c];return i&&i.tier?i.tier:3}
+function nameOf(c){const i=INFO[c];if(i&&i.ko)return i.ko;const b=BY_CODE[c];return b?b[4]:c}
+
+/* ---------- map viewer ---------- */
+const mv=document.getElementById("mv"),stage=document.getElementById("stage"),
+      ov=document.getElementById("ov"),pins=document.getElementById("pins"),img=document.getElementById("mapimg");
+const IMG={ "18":{src:"map18.png",w:MAP18.w,h:MAP18.h}, "911":{src:"map911.png",w:700,h:2160} };
+let sc=1,tx=0,ty=0;
+function apply(){
+  stage.style.transform="translate("+tx+"px,"+ty+"px) scale("+sc+")";
+  layoutPins();
+}
+function clampView(){
+  const d=IMG[TAB], vw=mv.clientWidth, vh=mv.clientHeight;
+  const w=d.w*sc,h=d.h*sc;
+  if(w<vw) tx=(vw-w)/2; else tx=Math.min(0,Math.max(vw-w,tx));
+  if(h<vh) ty=(vh-h)/2; else ty=Math.min(0,Math.max(vh-h,ty));
+}
+function fit(){
+  const d=IMG[TAB];
+  sc=Math.min(mv.clientWidth/d.w, mv.clientHeight/d.h);
+  tx=0;ty=0;clampView();apply();
+}
+function centerOn(x,y,scale){
+  if(scale) sc=scale;
+  tx=mv.clientWidth/2-x*sc; ty=mv.clientHeight/2-y*sc;
+  clampView();apply();
+}
+function zoomAt(cx,cy,f){
+  const d=IMG[TAB];
+  const minS=Math.min(mv.clientWidth/d.w, mv.clientHeight/d.h)*0.9;
+  const ns=Math.max(minS,Math.min(3.2,sc*f));
+  const ix=(cx-tx)/sc, iy=(cy-ty)/sc;
+  sc=ns; tx=cx-ix*sc; ty=cy-iy*sc; clampView(); apply();
+}
+/* drag + wheel + pinch */
+let drag=null,pinch=null;
+mv.addEventListener("pointerdown",e=>{if(e.target.closest(".tag"))return;drag={x:e.clientX,y:e.clientY,tx,ty,id:e.pointerId};mv.setPointerCapture(e.pointerId)});
+mv.addEventListener("pointermove",e=>{if(!drag||drag.id!==e.pointerId)return;tx=drag.tx+(e.clientX-drag.x);ty=drag.ty+(e.clientY-drag.y);clampView();apply()});
+["pointerup","pointercancel"].forEach(t=>mv.addEventListener(t,e=>{if(drag&&drag.id===e.pointerId)drag=null}));
+mv.addEventListener("wheel",e=>{e.preventDefault();const r=mv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.14:1/1.14)},{passive:false});
+mv.addEventListener("touchstart",e=>{if(e.touches.length===2){drag=null;const[a,b]=e.touches;pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}}},{passive:true});
+mv.addEventListener("touchmove",e=>{
+  if(e.touches.length===2&&pinch){e.preventDefault();const[a,b]=e.touches;
+    const nd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);const r=mv.getBoundingClientRect();
+    zoomAt((a.clientX+b.clientX)/2-r.left,(a.clientY+b.clientY)/2-r.top,nd/pinch.d);pinch.d=nd}},{passive:false});
+mv.addEventListener("touchend",()=>{pinch=null});
+
+const SVGNS="http://www.w3.org/2000/svg";
+function el(n,a){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e}
+function drawOverlay(){
+  const d=IMG[TAB];
+  ov.setAttribute("width",d.w);ov.setAttribute("height",d.h);ov.setAttribute("viewBox","0 0 "+d.w+" "+d.h);
+  ov.innerHTML="";
+  if(TAB!=="18")return;
+  const pts=MAP18.route.map(p=>p[0]+","+p[1]).join(" ");
+  ov.appendChild(el("polyline",{points:pts,class:"ovroute-halo"}));
+  ov.appendChild(el("polyline",{points:pts,class:"ovroute","stroke-dasharray":"16 11"}));
+  for(const code in MAP18.boxes){
+    const b=MAP18.boxes[code],t=tierOf(code);
+    ov.appendChild(el("rect",{x:b.x-4,y:b.y-4,width:b.w+8,height:b.h+8,rx:3,
+      class:"ovbox"+(t===1?" k1":"")+(SEL===code?" sel":"")}));
+    const hit=el("rect",{x:b.x-6,y:b.y-6,width:b.w+12,height:b.h+12,class:"ovhit"});
+    hit.addEventListener("click",()=>openSheet(code));
+    ov.appendChild(hit);
+  }
+}
+function layoutPins(){
+  pins.innerHTML="";
+  if(TAB!=="18")return;
+  const boxes=[];
+  const hit=(r)=>boxes.some(q=>r.l<q.r+4&&r.r>q.l-4&&r.t<q.b+4&&r.b>q.t-4);
+  const push=(r)=>boxes.push(r);
+  MAP18.stops.forEach((s,i)=>{
+    const t=tierOf(s.code), x=tx+s.x*sc, y=ty+s.y*sc;
+    if(x<-30||x>mv.clientWidth+30||y<-30||y>mv.clientHeight+30)return;
+    const p=document.createElement("div");
+    p.className="pin"+(t===1?" p1":"");
+    p.style.left=x+"px";p.style.top=y+"px";
+    p.innerHTML='<div class="num">'+(i+1)+'</div>';
+    pins.appendChild(p);
+    push({l:x-14,r:x+14,t:y-14,b:y+14});
+  });
+  (MAP18.facil||[]).forEach(f=>{
+    const x=tx+f.x*sc,y=ty+f.y*sc;
+    if(x<-60||x>mv.clientWidth+60||y<-20||y>mv.clientHeight+20)return;
+    const e=document.createElement("div");e.className="fac";
+    e.style.left=x+"px";e.style.top=y+"px";e.textContent=f.t;pins.appendChild(e);
+  });
+  if(sc<0.34)return;
+  const order=Object.keys(MAP18.boxes).sort((a,b)=>tierOf(a)-tierOf(b));
+  order.forEach(code=>{
+    const b=MAP18.boxes[code],t=tierOf(code),inf=INFO[code]||{};
+    const cx=tx+(b.x+b.w/2)*sc, cy=ty+(b.y+b.h)*sc+6;
+    if(cx<-80||cx>mv.clientWidth+80||cy<-30||cy>mv.clientHeight+30)return;
+    const label=nameOf(code), sub=(sc>=0.6&&inf.games)?inf.games:"";
+    const wEst=Math.min(150,Math.max(label.length,sub?Math.min(sub.length,22):0)*(sub?6:7)+14);
+    const hEst=sub?30:19;
+    let ty2=cy, r={l:cx-wEst/2,r:cx+wEst/2,t:cy,b:cy+hEst};
+    if(hit(r)){
+      ty2=ty+b.y*sc-hEst-8; r={l:cx-wEst/2,r:cx+wEst/2,t:ty2,b:ty2+hEst};
+      if(hit(r)){ if(t!==1)return; ty2=cy+hEst+6; r={l:cx-wEst/2,r:cx+wEst/2,t:ty2,b:ty2+hEst}; }
+    }
+    push(r);
+    const d=document.createElement("div");
+    d.className="tag"+(t===1?" k1":"");
+    d.style.left=cx+"px";d.style.top=ty2+"px";
+    d.innerHTML=label+(sub?'<em>'+sub+'</em>':'');
+    d.addEventListener("click",ev=>{ev.stopPropagation();openSheet(code)});
+    pins.appendChild(d);
   });
 }
+function setTab(t){
+  TAB=t;const d=IMG[t];
+  img.src=d.src;img.width=d.w;img.height=d.h;img.alt=t==="18"?"공식 회장 맵 홀 1-8":"공식 회장 맵 홀 9-11";
+  document.querySelectorAll("[data-tab]").forEach(c=>c.setAttribute("aria-pressed",c.dataset.tab===t?"true":"false"));
+  drawOverlay();
+  if(t==="18"){const s=MAP18.stops[0];sc=0.62;centerOn(s.x,s.y,0.62)}else fit();
+}
+function goTo(code){
+  if(TAB!=="18")setTab("18");
+  const b=MAP18.boxes[code];if(!b)return;
+  SEL=code;drawOverlay();
+  centerOn(b.x+b.w/2,b.y+b.h/2,Math.max(sc,0.72));
+  mv.scrollIntoView({behavior:"smooth",block:"center"});
+}
+document.querySelectorAll("[data-tab]").forEach(c=>c.addEventListener("click",()=>setTab(c.dataset.tab)));
+document.getElementById("mapctl").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.z==="in")zoomAt(mv.clientWidth/2,mv.clientHeight/2,1.35);
+  else if(b.dataset.z==="out")zoomAt(mv.clientWidth/2,mv.clientHeight/2,1/1.35);
+  else if(b.dataset.z==="fit")fit();
+  else if(b.dataset.go)goTo(b.dataset.go);
+});
+(function(){
+  const bar=document.getElementById("hallbar");
+  const HALLX={8:171,7:522,6:906,5:1182,4:1530,3:1891,2:2209,1:2562};
+  bar.innerHTML='<span style="font-size:11.5px;color:var(--muted);margin-right:2px">홀 이동</span>';
+  [8,7,6,5,4,3,2,1].forEach(h=>{
+    const b=document.createElement("button");b.textContent="H"+h;
+    b.addEventListener("click",()=>{if(TAB!=="18")setTab("18");centerOn(HALLX[h],470,Math.max(sc,0.55))});
+    bar.appendChild(b);
+  });
+})();
 
-/* ---------- render: timeline ---------- */
+/* ---------- lists ---------- */
+function renderMissions(){
+  const host=document.getElementById("missionList");host.innerHTML="";
+  MISSIONS.forEach(m=>{
+    const done=(LOCAL.missions&&LOCAL.missions[m.id])?"1":"0";
+    const e=document.createElement("div");
+    e.className="mission";e.setAttribute("data-done",done);e.tabIndex=0;e.setAttribute("role","button");
+    e.innerHTML='<div class="mbox">✓</div><div><div class="mtitle"><span class="mtag t'+m.t+'">P'+m.t+'</span>'+m.title+'</div><div class="mwhere">'+m.where+'</div></div>';
+    const tog=()=>{LOCAL.missions=LOCAL.missions||{};LOCAL.missions[m.id]=!LOCAL.missions[m.id];ls.set(LOCAL);renderMissions()};
+    e.addEventListener("click",tog);
+    e.addEventListener("keydown",v=>{if(v.key==="Enter"||v.key===" "){v.preventDefault();tog()}});
+    host.appendChild(e);
+  });
+}
 function renderTL(){
   const host=document.getElementById("tl");host.innerHTML="";
   ROUTE.forEach(r=>{
-    const d=document.createElement("div");
-    d.className="blk";d.setAttribute("data-p",r.p);
-    d.innerHTML='<div class="btime">'+r.t+'</div><div class="bbody"><div class="btitle">'+r.title+'</div><div class="bmeta">'+r.meta+'</div>'+(r.note?'<div class="bnote">'+r.note+'</div>':'')+'</div>';
-    if(r.code){d.style.cursor="pointer";d.addEventListener("click",()=>openSheet(r.code))}
+    const d=document.createElement("div");d.className="blk";d.setAttribute("data-p",r.p);
+    const badge=r.n?'<span class="mtag t'+(r.p===1?1:2)+'">'+r.n+'</span>':'';
+    d.innerHTML='<div class="btime">'+r.t+'</div><div class="bbody"><div class="btitle">'+badge+r.title+'</div><div class="bmeta">'+r.meta+'</div>'+(r.note?'<div class="bnote">'+r.note+'</div>':'')+'</div>';
+    if(r.code){d.style.cursor="pointer";d.addEventListener("click",()=>goTo(r.code))}
     host.appendChild(d);
   });
 }
-
-/* ---------- render: map ---------- */
-function textW(t){let w=0;for(const ch of t){w+=/[\u1100-\u11FF\u3000-\u30FF\u3130-\u318F\uAC00-\uD7AF\u4E00-\u9FFF]/.test(ch)?7.4:(ch===" "?2.2:4.3)}return w}
-function fitText(t,maxW){if(textW(t)<=maxW)return t;let o=t;while(o.length>1&&textW(o+"…")>maxW)o=o.slice(0,-1);return o+"…"}
-function shortOf(code){const i=INFO[code];return (i&&i.short)?i.short:nameOf(code)}
-function renderMap(){
-  const n=(s)=>document.createElementNS("http://www.w3.org/2000/svg",s);
-  const svg=n("svg");
-  svg.setAttribute("viewBox","0 0 "+MW+" "+MAPH);
-  svg.setAttribute("class","floor");
-  svg.setAttribute("role","img");
-  svg.setAttribute("aria-label","마쿠하리 멧세 홀 배치도");
-  const mk=(x,y,txt,cls,anchor)=>{const t=n("text");t.setAttribute("x",x);t.setAttribute("y",y);t.setAttribute("class",cls||"axis");if(anchor)t.setAttribute("text-anchor",anchor);t.textContent=txt;svg.appendChild(t);return t};
-
-  for(let h=1;h<=11;h++){
-    const b=hallBox(h);
-    const r=n("rect");r.setAttribute("x",b.x);r.setAttribute("y",b.y);r.setAttribute("width",b.w);r.setAttribute("height",b.h);
-    r.setAttribute("class","hallrect");svg.appendChild(r);
-    const t=n("text");t.setAttribute("x",b.x+6);t.setAttribute("y",b.y+14);t.setAttribute("class","halllabel");
-    t.textContent=(h<=8?"HALL "+h:"H"+h);svg.appendChild(t);
-  }
-  mk(HX,HY0-18,"↑ W  서");
-  mk(HX+HW,HY0-18,"북 N →","axis","end");
-  mk(HX,HY0+8*(HH+HGAP)+6,"↓ E  동");
-  mk(HX,NY0-12,"북홀 9–11 (하드웨어 · 물販 · 인디) — 개략 배치","facility");
-
-  FACILITIES.forEach(f=>{
-    const box=hallBox(f.hall);
-    if(f.side==="IN"){
-      const x=box.x+10+f.ny*(box.w-20), y=box.y+16+f.nx*(box.h-26);
-      const c=n("circle");c.setAttribute("cx",x);c.setAttribute("cy",y-3);c.setAttribute("r",2.6);c.setAttribute("fill","var(--warm)");svg.appendChild(c);
-      mk(x+5,y,f.label,"facility");
-    }else if(f.side==="N"){
-      const y=box.y+16+f.nx*(box.h-26);
-      const c=n("circle");c.setAttribute("cx",box.x+box.w);c.setAttribute("cy",y-3);c.setAttribute("r",2.8);c.setAttribute("fill","var(--warm)");svg.appendChild(c);
-      mk(box.x+box.w+5,y,f.label,"facility");
-    }else{
-      const y=box.y+16+f.nx*(box.h-26);
-      const c=n("circle");c.setAttribute("cx",box.x);c.setAttribute("cy",y-3);c.setAttribute("r",2.8);c.setAttribute("fill","var(--warm)");svg.appendChild(c);
-      mk(box.x-5,y,f.label,"facility","end");
-    }
-  });
-
-  if(SHOWROUTE){
-    const pts=ROUTE.filter(r=>r.code&&BY_CODE[r.code]).map(r=>boothXY(BY_CODE[r.code]));
-    if(pts.length>1){
-      const p=n("polyline");
-      p.setAttribute("points",pts.map(q=>q.x+","+q.y).join(" "));
-      p.setAttribute("class","route");svg.appendChild(p);
-    }
-  }
-
-  const show=(b)=>{
-    const tier=tierOf(b[0]);
-    if(FILTER==="all")return true;
-    if(FILTER==="p1")return tier===1;
-    if(FILTER==="major")return tier<=2;
-    if(FILTER==="kr")return !!(INFO[b[0]]&&INFO[b[0]].kr);
-    return true;
-  };
-  const vis=BOOTHS.filter(show);
-  vis.forEach(b=>{
-    const tier=tierOf(b[0]);
-    const p=boothXY(b);
-    const w=tier===1?26:(tier===2?20:6), hh=tier===1?13:(tier===2?11:5);
-    const r=n("rect");
-    r.setAttribute("x",p.x-w/2);r.setAttribute("y",p.y-hh/2);
-    r.setAttribute("width",w);r.setAttribute("height",hh);
-    r.setAttribute("class","booth "+(tier===1?"b1":tier===2?"b2":"")+(SEL===b[0]?" sel":""));
-    r.setAttribute("tabindex","0");r.setAttribute("role","button");
-    r.setAttribute("aria-label",nameOf(b[0])+" "+b[0]);
-    const op=()=>openSheet(b[0]);
-    r.addEventListener("click",op);
-    r.addEventListener("keydown",e=>{if(e.key==="Enter"){op()}});
-    svg.appendChild(r);
-  });
-
-  // labels with greedy anti-collision, per hall
-  const placed=[];
-  const fits=(x0,x1,y)=>!placed.some(q=>Math.abs(q.y-y)<8&&x0<q.x1+2&&x1>q.x0-2);
-  vis.filter(b=>tierOf(b[0])<=2)
-     .sort((a,b)=>tierOf(a[0])-tierOf(b[0])||a[1]-b[1]||a[2]-b[2])
-     .forEach(b=>{
-    const tier=tierOf(b[0]);
-    const p=boothXY(b);
-    const hh=tier===1?13:11;
-    const txt=fitText(shortOf(b[0]),tier===1?72:58);
-    const half=textW(txt)/2;
-    let x=Math.min(Math.max(p.x,HX+half+2),HX+HW-half-2);
-    const cands=[p.y+hh/2+8,p.y-hh/2-4,p.y+hh/2+16,p.y-hh/2-12];
-    let y=cands[0];
-    for(const c of cands){ if(fits(x-half,x+half,c)){y=c;break} }
-    placed.push({x0:x-half,x1:x+half,y:y});
-    const t=n("text");
-    t.setAttribute("x",x);t.setAttribute("y",y);
-    t.setAttribute("text-anchor","middle");t.setAttribute("class","blabel");
-    t.textContent=txt;
-    svg.appendChild(t);
-  });
-
-  if(SHOWROUTE){
-    let i=0;
-    ROUTE.forEach(r=>{
-      if(!r.code||!BY_CODE[r.code])return;
-      i++;
-      const p=boothXY(BY_CODE[r.code]);
-      const tierB=tierOf(r.code), wB=tierB===1?26:(tierB===2?20:6), hB=tierB===1?13:(tierB===2?11:5);
-      const bx=Math.min(p.x+wB/2+7,HX+HW-7), by=p.y-hB/2-6;
-      const c=n("circle");c.setAttribute("cx",bx);c.setAttribute("cy",by);c.setAttribute("r",6.8);
-      c.setAttribute("fill","var(--accent)");c.setAttribute("stroke","var(--surface)");c.setAttribute("stroke-width","1.5");svg.appendChild(c);
-      const t=n("text");t.setAttribute("x",bx);t.setAttribute("y",by+2.9);
-      t.setAttribute("text-anchor","middle");t.setAttribute("class","stopnum");t.textContent=i;svg.appendChild(t);
-    });
-  }
-  const host=document.getElementById("svgHost");
-  host.innerHTML="";host.appendChild(svg);
-}
-
-/* ---------- render: booth list ---------- */
 function renderList(){
   const q=(document.getElementById("q").value||"").trim().toLowerCase();
   const host=document.getElementById("blist");host.innerHTML="";
-  const rows=BOOTHS.filter(b=>{
-    if(!q)return true;
-    return b[0].toLowerCase().includes(q)||b[4].toLowerCase().includes(q)||nameOf(b[0]).toLowerCase().includes(q);
-  }).sort((a,b)=>tierOf(a[0])-tierOf(b[0])||a[1]-b[1]||a[0].localeCompare(b[0]));
+  const rows=BOOTHS.filter(b=>!q||b[0].toLowerCase().includes(q)||b[4].toLowerCase().includes(q)||nameOf(b[0]).toLowerCase().includes(q))
+    .sort((a,b)=>tierOf(a[0])-tierOf(b[0])||a[1]-b[1]||a[0].localeCompare(b[0]));
   if(!rows.length){host.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return}
   rows.slice(0,400).forEach(b=>{
-    const tier=tierOf(b[0]);
+    const t=tierOf(b[0]);
     const d=document.createElement("div");d.className="brow";d.tabIndex=0;d.setAttribute("role","button");
-    const saved=LOCAL.visits&&LOCAL.visits[b[0]]&&LOCAL.visits[b[0]].memo?" ✏️":"";
-    d.innerHTML='<span class="c">'+b[0]+'</span><span><span class="dot '+(tier===1?"b1":tier===2?"b2":"")+'"></span>'+nameOf(b[0])+saved+'</span><span class="h">H'+b[1]+'</span>';
-    d.addEventListener("click",()=>openSheet(b[0]));
-    d.addEventListener("keydown",e=>{if(e.key==="Enter")openSheet(b[0])});
+    const saved=LOCAL.visits&&LOCAL.visits[b[0]]&&(LOCAL.visits[b[0]].memo||LOCAL.visits[b[0]].react)?" ✏️":"";
+    d.innerHTML='<span class="c">'+b[0]+'</span><span><span class="dot '+(t===1?"b1":t===2?"b2":"")+'"></span>'+nameOf(b[0])+saved+'</span><span class="h">H'+b[1]+'</span>';
+    const go=()=>openSheet(b[0]);
+    d.addEventListener("click",go);d.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
     host.appendChild(d);
   });
 }
-
-/* ---------- detail sheet ---------- */
-function openSheet(code){
-  SEL=code;
-  const b=BY_CODE[code], i=INFO[code]||{};
-  const v=(LOCAL.visits&&LOCAL.visits[code])||{};
-  const host=document.getElementById("sheetIn");
-  let h='<button class="sclose" id="closeSheet">닫기 ✕</button>';
-  h+='<div class="scode">'+code+' · HALL '+(b?b[1]:"?")+'</div>';
-  h+='<div class="sname">'+nameOf(code)+'</div>';
-  if(b&&i.ko)h+='<div style="color:var(--muted);font-size:13px;margin-top:2px">'+b[4]+'</div>';
-  h+='<dl class="skv">';
-  if(i.titles)h+='<dt>타이틀</dt><dd>'+i.titles.join(' · ')+'</dd>';
-  if(i.play)h+='<dt>시연</dt><dd>'+i.play+'</dd>';
-  if(i.queue)h+='<dt>대기 예상</dt><dd>'+i.queue+'</dd>';
-  if(i.why)h+='<dt>왜 가나</dt><dd>'+i.why+'</dd>';
-  if(i.booth)h+='<dt>부스 구성</dt><dd>'+i.booth+'</dd>';
-  if(i.stage)h+='<dt>스테이지</dt><dd class="mono" style="font-size:12.5px">'+i.stage+'</dd>';
-  if(i.novelty)h+='<dt>노벨티</dt><dd>'+i.novelty+'</dd>';
-  if(i.watch)h+='<dt>관찰 포인트</dt><dd>'+i.watch+'</dd>';
-  h+='</dl>';
-  h+='<div class="field"><label for="f_react">유저 반응 (줄 길이 · 표정 · 체류)</label><textarea id="f_react" rows="2">'+(v.react||"")+'</textarea></div>';
-  h+='<div class="field"><label for="f_mkt">마케팅 수단</label><textarea id="f_mkt" rows="2">'+(v.mkt||"")+'</textarea></div>';
-  h+='<div class="field"><label for="f_memo">한 줄 총평</label><textarea id="f_memo" rows="2">'+(v.memo||"")+'</textarea></div>';
-  h+='<div class="btnrow"><button class="btn" id="saveBooth">저장</button><button class="btn ghost" id="doneBooth">'+(v.done?"방문 취소":"방문 완료")+'</button><span class="saveflag" id="saveFlag"></span></div>';
-  host.innerHTML=h;
-  document.getElementById("sheet").classList.add("open");
-  document.getElementById("closeSheet").onclick=closeSheet;
-  document.getElementById("saveBooth").onclick=()=>saveBooth(code);
-  document.getElementById("doneBooth").onclick=()=>{const cur=(LOCAL.visits&&LOCAL.visits[code])||{};cur.done=!cur.done;persist(code,cur);openSheet(code)};
-  renderMap();
-}
-function closeSheet(){document.getElementById("sheet").classList.remove("open");SEL=null;renderMap()}
-function saveBooth(code){
-  const cur=Object.assign({},(LOCAL.visits&&LOCAL.visits[code])||{});
-  cur.react=document.getElementById("f_react").value;
-  cur.mkt=document.getElementById("f_mkt").value;
-  cur.memo=document.getElementById("f_memo").value;
-  cur.ts=Date.now();
-  persist(code,cur);
-  const f=document.getElementById("saveFlag");if(f){f.textContent="저장됨";setTimeout(()=>{if(f)f.textContent=""},1800)}
-}
-function persist(code,val){
-  LOCAL.visits=LOCAL.visits||{};LOCAL.visits[code]=val;ls.set(LOCAL);
-  renderLog();renderList();
-  if(db){db.doc("visits/"+code).set(val).catch(()=>{})}
-}
 function renderLog(){
-  const host=document.getElementById("logList");
-  const v=LOCAL.visits||{};
+  const host=document.getElementById("logList"),v=LOCAL.visits||{};
   const keys=Object.keys(v).filter(k=>v[k]&&(v[k].react||v[k].mkt||v[k].memo||v[k].done));
   if(!keys.length){host.innerHTML='<div class="empty">아직 기록이 없습니다. 지도나 목록에서 부스를 탭해 메모를 남기세요.</div>';return}
   host.innerHTML="";
@@ -672,53 +612,81 @@ function renderLog(){
     if(v[k].memo)body+="총평 · "+v[k].memo;
     d.innerHTML='<h4>'+(v[k].done?"✅ ":"")+nameOf(k)+' <span class="mono" style="font-size:11px;color:var(--muted)">'+k+'</span></h4>'+(body?'<p></p>':'');
     if(body)d.querySelector("p").textContent=body.trim();
-    d.style.cursor="pointer";d.addEventListener("click",()=>openSheet(k));
+    d.addEventListener("click",()=>openSheet(k));
     host.appendChild(d);
   });
 }
 
-/* ---------- wire up ---------- */
-LOCAL=ls.get();
-BOOTHS.forEach(b=>BY_CODE[b[0]]=b);
-renderMissions();renderTL();renderMap();renderList();renderLog();
-
-document.querySelectorAll(".chip").forEach(c=>{
-  c.addEventListener("click",()=>{
-    const f=c.dataset.f;
-    if(f==="route"){SHOWROUTE=!SHOWROUTE;c.setAttribute("aria-pressed",SHOWROUTE?"true":"false");renderMap();return}
-    FILTER=f;
-    document.querySelectorAll(".chip").forEach(o=>{if(o.dataset.f!=="route")o.setAttribute("aria-pressed",o.dataset.f===f?"true":"false")});
-    renderMap();
-  });
-});
+/* ---------- sheet ---------- */
+function openSheet(code){
+  SEL=code;drawOverlay();
+  const b=BY_CODE[code],i=INFO[code]||{},v=(LOCAL.visits&&LOCAL.visits[code])||{};
+  let h='<button class="sclose" id="closeSheet">닫기 ✕</button>';
+  h+='<div class="scode">'+code+' · HALL '+(b?b[1]:"?")+'</div><div class="sname">'+nameOf(code)+'</div>';
+  if(b&&i.ko)h+='<div style="color:var(--muted);font-size:13px;margin-top:2px">'+b[4]+'</div>';
+  h+='<dl class="skv">';
+  if(i.titles)h+='<dt>타이틀</dt><dd>'+i.titles.join(' · ')+'</dd>';
+  else if(i.games)h+='<dt>타이틀</dt><dd>'+i.games+'</dd>';
+  if(i.play)h+='<dt>시연</dt><dd>'+i.play+'</dd>';
+  if(i.queue)h+='<dt>대기 예상</dt><dd>'+i.queue+'</dd>';
+  if(i.why)h+='<dt>왜 가나</dt><dd>'+i.why+'</dd>';
+  if(i.booth)h+='<dt>부스 구성</dt><dd>'+i.booth+'</dd>';
+  if(i.novelty)h+='<dt>노벨티</dt><dd>'+i.novelty+'</dd>';
+  if(i.watch)h+='<dt>관찰 포인트</dt><dd>'+i.watch+'</dd>';
+  h+='</dl>';
+  h+='<div class="field"><label for="f_react">유저 반응 (줄 길이 · 표정 · 체류)</label><textarea id="f_react" rows="2">'+(v.react||"")+'</textarea></div>';
+  h+='<div class="field"><label for="f_mkt">마케팅 수단</label><textarea id="f_mkt" rows="2">'+(v.mkt||"")+'</textarea></div>';
+  h+='<div class="field"><label for="f_memo">한 줄 총평</label><textarea id="f_memo" rows="2">'+(v.memo||"")+'</textarea></div>';
+  h+='<div class="btnrow"><button class="btn" id="saveBooth">저장</button><button class="btn ghost" id="doneBooth">'+(v.done?"방문 취소":"방문 완료")+'</button>'
+    +(MAP18.boxes[code]?'<button class="btn ghost" id="showMap">지도에서 보기</button>':'')+'<span class="saveflag" id="saveFlag"></span></div>';
+  document.getElementById("sheetIn").innerHTML=h;
+  document.getElementById("sheet").classList.add("open");
+  document.getElementById("closeSheet").onclick=closeSheet;
+  document.getElementById("saveBooth").onclick=()=>saveBooth(code);
+  document.getElementById("doneBooth").onclick=()=>{const c=Object.assign({},(LOCAL.visits&&LOCAL.visits[code])||{});c.done=!c.done;c.ts=Date.now();persist(code,c);openSheet(code)};
+  const sm=document.getElementById("showMap");if(sm)sm.onclick=()=>{closeSheet();goTo(code)};
+}
+function closeSheet(){document.getElementById("sheet").classList.remove("open");SEL=null;drawOverlay()}
+function saveBooth(code){
+  const c=Object.assign({},(LOCAL.visits&&LOCAL.visits[code])||{});
+  c.react=document.getElementById("f_react").value;
+  c.mkt=document.getElementById("f_mkt").value;
+  c.memo=document.getElementById("f_memo").value;
+  c.ts=Date.now();persist(code,c);
+  const f=document.getElementById("saveFlag");if(f){f.textContent="저장됨";setTimeout(()=>{if(f)f.textContent=""},1600)}
+}
+function persist(code,val){
+  LOCAL.visits=LOCAL.visits||{};LOCAL.visits[code]=val;ls.set(LOCAL);
+  renderLog();renderList();
+  if(db)db.doc("visits/"+code).set(val).catch(()=>{});
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
 document.getElementById("q").addEventListener("input",renderList);
 document.getElementById("copyAll").addEventListener("click",()=>{
-  const v=LOCAL.visits||{};
-  let out="# TGS 2026 (9/19 토) 현장 기록\n\n";
-  Object.keys(v).forEach(k=>{
-    const x=v[k];if(!x||(!x.react&&!x.mkt&&!x.memo&&!x.done))return;
+  const v=LOCAL.visits||{};let out="# TGS 2026 (9/19 토) 현장 기록\n\n";
+  Object.keys(v).forEach(k=>{const x=v[k];if(!x||(!x.react&&!x.mkt&&!x.memo&&!x.done))return;
     out+="## "+nameOf(k)+" ("+k+")"+(x.done?" ✅":"")+"\n";
     if(x.react)out+="- 유저 반응: "+x.react+"\n";
     if(x.mkt)out+="- 마케팅: "+x.mkt+"\n";
-    if(x.memo)out+="- 총평: "+x.memo+"\n";
-    out+="\n";
-  });
+    if(x.memo)out+="- 총평: "+x.memo+"\n";out+="\n"});
   const f=document.getElementById("copyFlag");
-  navigator.clipboard.writeText(out).then(()=>{f.textContent="복사 완료";setTimeout(()=>f.textContent="",1800)})
+  navigator.clipboard.writeText(out).then(()=>{f.textContent="복사 완료";setTimeout(()=>f.textContent="",1600)})
    .catch(()=>{f.textContent="복사 실패 — 길게 눌러 선택하세요"});
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
 
-/* ---------- db sync (optional) ---------- */
+renderMissions();renderTL();renderList();renderLog();
+drawOverlay();
+if(img.complete)setTab("18"); else img.addEventListener("load",()=>setTab("18"),{once:true});
+setTab("18");
+window.addEventListener("resize",()=>{clampView();apply()});
+
 (window.claude&&window.claude.use?window.claude.use("db"):Promise.resolve(null)).then(x=>{
   if(!x)return;db=x;
   db.collection("visits").onSnapshot(snap=>{
-    let changed=false;
-    snap.docs.forEach(d=>{
-      const remote=d.data(), code=d.id, local=(LOCAL.visits&&LOCAL.visits[code])||null;
-      if(!local||(remote.ts||0)>(local.ts||0)){LOCAL.visits=LOCAL.visits||{};LOCAL.visits[code]=remote;changed=true}
-    });
-    if(changed){ls.set(LOCAL);renderLog();renderList()}
+    let ch=false;
+    snap.docs.forEach(d=>{const r=d.data(),c=d.id,l=(LOCAL.visits&&LOCAL.visits[c])||null;
+      if(!l||(r.ts||0)>(l.ts||0)){LOCAL.visits=LOCAL.visits||{};LOCAL.visits[c]=r;ch=true}});
+    if(ch){ls.set(LOCAL);renderLog();renderList()}
   },()=>{});
 }).catch(()=>{});
 </script>
