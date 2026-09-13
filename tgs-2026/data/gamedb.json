@@ -1,0 +1,753 @@
+{
+ "아스트라에 오라티오": {
+  "jp": "アストラエ・オラティオ",
+  "en": "Astrae Oratio",
+  "genre": "판타지 RPG",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "NC (엔씨)",
+  "dev": "Dynamis One",
+  "summary": "마법이 존재하는 판타지 세계가 무대. 주요 배경은 「특구청」이며 마법사·결투재판 등의 세계관 요소가 공개됐다. 캐릭터PV에서 전투·일상생활·시나리오 연출이 공개됐다.",
+  "tgs": "세계 최초 플레이어블 출전. 부스에서 「시나리오 상영회: 프롤로그」 진행, 회장 한정 노벨티 배포.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000003054.000001868.html",
+   "https://prtimes.jp/main/html/rd/p/000002979.000001868.html"
+  ]
+ },
+ "파레이돌리아": {
+  "jp": "ファレイドリア",
+  "en": "Fareidolia",
+  "genre": "미소녀 게임",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "넥슨",
+  "dev": "IO DIVISION (블루 아카이브 개발진)",
+  "summary": "옛 코드명 「프로젝트 RX」. 현실과 비슷하지만 조금 다른 이세계 「아니마시」가 무대. 몰입감 높은 스토리, 개성 있는 캐릭터와의 교류, 각종 라이프스타일 콘텐츠가 특징. 언리얼 엔진 5로 캐릭터·일상 분위기·전투를 고품질 3D로 구현.",
+  "tgs": "넥슨 부스 출전. 스탬프를 모으면 노벨티(캔뱃지·냉감타월) 증정.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000000519.000014847.html",
+   "https://cmn-jp.nexon.com/event/tgs2026/fareidolia"
+  ]
+ },
+ "펄인블루": {
+  "jp": "パールインブルー",
+  "en": "Pearl in Blue",
+  "genre": "미소녀 RPG",
+  "platform": "모바일",
+  "release": "미정",
+  "maker": "넷마블",
+  "dev": "Netmarble N2",
+  "summary": "「러브코미디」가 콘셉트. 러브코미디 애니 주인공이 된 듯한 연애 체험과 RPG를 융합. 자신의 「진주(펄)」를 피우지 못하는 소녀들 「殻っぽ」를 이끄는 매니저가 되어 함께 성장하는 이야기.",
+  "tgs": "TGS2026 출전 특설 사이트 개설. 노벨티·부스 이미지 공개.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000002611.000007736.html",
+   "https://pearlinblue.netmarble.com/"
+  ]
+ },
+ "몬헌 와일즈: 어센던스": {
+  "jp": "モンスターハンターワイルズ：アセンダンス",
+  "en": "Monster Hunter Wilds: Ascendance",
+  "genre": "헌팅 액션",
+  "platform": "PS5 / Xbox Series X|S / PC",
+  "release": "미정 (본편은 2025.2.28 발매)",
+  "maker": "캡콤",
+  "dev": "캡콤",
+  "summary": "몬스터헌터 와일즈의 최신 확장. 신요소 「부스트 브레이서」를 사용한 새로운 액션이 핵심.",
+  "tgs": "세계 최초 플레이어블 출전. 퀘스트 3종 준비, 전 퀘스트에서 부스트 브레이서 체험 가능.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000005996.000013450.html"
+  ]
+ },
+ "록맨 듀얼 오버라이드": {
+  "jp": "ロックマン：デュアル オーバーライド",
+  "en": "Mega Man: Dual Override",
+  "genre": "액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "캡콤",
+  "dev": "캡콤",
+  "summary": "신시스템 「오버라이드」를 축으로 한 록맨 시리즈 신작.",
+  "tgs": "「트윙클걸」 스테이지 1~3 시연 가능. 오버라이드 시스템 체감.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000005996.000013450.html"
+  ]
+ },
+ "드래곤즈 도그마 2: 다크 어리즌": {
+  "jp": "ドラゴンズドグマ2：ダークアリズン",
+  "en": "Dragon's Dogma 2: Dark Arisen",
+  "genre": "오픈월드 액션 RPG",
+  "platform": "PS5 / Xbox Series X|S / PC",
+  "release": "미정",
+  "maker": "캡콤",
+  "dev": "캡콤",
+  "summary": "드래곤즈 도그마 2의 확장판.",
+  "tgs": "일본 최초 플레이어블 출전.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000005996.000013450.html"
+  ]
+ },
+ "오니무샤 Way of the Sword": {
+  "jp": "鬼武者 Way of the Sword",
+  "en": "Onimusha: Way of the Sword",
+  "genre": "액션",
+  "platform": "PS5 / Xbox Series X|S / PC",
+  "release": "미정",
+  "maker": "캡콤",
+  "dev": "캡콤",
+  "summary": "오니무샤 시리즈 신작.",
+  "tgs": "캡콤 부스 시연 출전.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000005996.000013450.html"
+  ]
+ },
+ "FF7 REVELATION": {
+  "jp": "ファイナルファンタジーVII リべレーション",
+  "en": "FINAL FANTASY VII REVELATION",
+  "genre": "RPG",
+  "platform": "미정",
+  "release": "2027.4.8 (디럭스 에디션 기준)",
+  "maker": "스퀘어에닉스",
+  "dev": "스퀘어에닉스",
+  "summary": "파이널 판타지 VII 리메이크 프로젝트의 최신작.",
+  "tgs": "부스에서 일부 구간 시연 가능. FF7 리메이크·리버스·리벨레이션 테마 포토스팟 설치.",
+  "src": [
+   "https://www.jp.square-enix.com/tgs26/"
+  ]
+ },
+ "드퀘 몬스터즈 4": {
+  "jp": "ドラゴンクエストモンスターズ4 枯れ木の国のビアンカとフローラ",
+  "en": "Dragon Quest Monsters 4",
+  "genre": "몬스터 육성 RPG",
+  "platform": "미정",
+  "release": "2026.12.3",
+  "maker": "스퀘어에닉스",
+  "dev": "스퀘어에닉스",
+  "summary": "드래곤 퀘스트 몬스터즈 시리즈 최신작. 부제는 「마른 나무의 나라의 비앙카와 플로라」.",
+  "tgs": "수수께끼의 정령 「와타보」와 인사할 수 있는 코너 운영.",
+  "src": [
+   "https://www.jp.square-enix.com/tgs26/"
+  ]
+ },
+ "FF 레조넌스": {
+  "jp": "ファイナルファンタジー レゾナンス",
+  "en": "FINAL FANTASY Resonance",
+  "genre": "RPG",
+  "platform": "미정",
+  "release": "2026.10.22 (컬렉터즈 에디션 기준)",
+  "maker": "스퀘어에닉스",
+  "dev": "스퀘어에닉스",
+  "summary": "파이널 판타지 신작.",
+  "tgs": "스퀘어에닉스 부스 출전 5타이틀 중 하나.",
+  "src": [
+   "https://www.jp.square-enix.com/tgs26/"
+  ]
+ },
+ "로맨싱 사가 3": {
+  "jp": "ロマンシング サガ3 Destiny United",
+  "en": "Romancing SaGa 3 Destiny United",
+  "genre": "RPG",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "스퀘어에닉스",
+  "dev": "스퀘어에닉스",
+  "summary": "로맨싱 사가 3 관련 신작.",
+  "tgs": "스퀘어에닉스 부스 출전 5타이틀 중 하나.",
+  "src": [
+   "https://www.jp.square-enix.com/tgs26/"
+  ]
+ },
+ "STRANGER THAN HEAVEN": {
+  "jp": "STRANGER THAN HEAVEN",
+  "en": "STRANGER THAN HEAVEN",
+  "genre": "액션 어드벤처",
+  "platform": "미정",
+  "release": "2027.1.15",
+  "maker": "세가",
+  "dev": "세가 (류가고토쿠 스튜디오 계열)",
+  "summary": "「운명을 날려버려라」. 있을 곳 없는 남자들이 있을 곳을 찾아 싸운 50년의 이야기. 스토리·주요 캐스트·메인 테마·컴뱃 시스템이 공개됐다.",
+  "tgs": "데모 플레이, 시어터 상영(사전 응모제), 스페셜 스테이지 등 출전 콘텐츠 7종. TGS 개막 전야 9/16 생방송에서 최신 정보·신규 영상 공개.",
+  "src": [
+   "https://www.sega.jp/topics/detail/260806_2/",
+   "https://www.sega.jp/topics/detail/260608_3/"
+  ]
+ },
+ "페르소나 4 리바이벌": {
+  "jp": "ペルソナ４ リバイバル",
+  "en": "Persona 4 Revival",
+  "genre": "RPG",
+  "platform": "PS5 / Xbox / PC / Nintendo Switch 2",
+  "release": "2027.2.18",
+  "maker": "아틀러스 / 세가",
+  "dev": "아틀러스",
+  "summary": "페르소나 4의 리바이벌 작품. 스토리·캐릭터·배틀이 공개됐다. 시리즈 전세계 누계 3,000만 본 돌파. 같은 발표에서 시리즈 최신작 「페르소나 6」도 발표됐다.",
+  "tgs": "시연·체험형 코너 운영. 신규 전투곡 「Prime Time Golden Hour Show」 선행 배포 중.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000007422.000005397.html",
+   "https://www.sega.jp/topics/detail/260824_7/"
+  ]
+ },
+ "메타포: 리판타지오": {
+  "jp": "メタファー：リファンタジオ",
+  "en": "Metaphor: ReFantazio",
+  "genre": "판타지 RPG",
+  "platform": "Nintendo Switch 2 (신규) / PS5 / Xbox / PC",
+  "release": "Switch 2판 발매 결정",
+  "maker": "아틀러스 / 세가",
+  "dev": "아틀러스",
+  "summary": "아틀러스의 판타지 RPG. TGS2026에는 Nintendo Switch 2 버전으로 출전.",
+  "tgs": "P4R과 함께 시연·체험형 코너 운영.",
+  "src": [
+   "https://www.sega.jp/topics/detail/260824_7/"
+  ]
+ },
+ "크레이지 택시: 월드 투어": {
+  "jp": "クレイジータクシー：ワールドツアー",
+  "en": "Crazy Taxi: World Tour",
+  "genre": "드라이빙 액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "세가",
+  "dev": "세가",
+  "summary": "크레이지 택시 시리즈 신작.",
+  "tgs": "세가/아틀러스 부스 출전. 출전 내용 별도 공개.",
+  "src": [
+   "https://www.sega.jp/topics/detail/260911_6/",
+   "https://tgs.sega.jp/2026/ja/lineup/04/"
+  ]
+ },
+ "GUNDAM ROGUE ORBIT": {
+  "jp": "GUNDAM ROGUE ORBIT",
+  "en": "GUNDAM ROGUE ORBIT",
+  "genre": "고기동 액션",
+  "platform": "PS5 / Xbox Series X|S / PC(Steam)",
+  "release": "2027.3.5",
+  "maker": "반다이남코",
+  "dev": "반다이남코",
+  "summary": "건담 IP 기반의 고기동 SF 액션 게임.",
+  "tgs": "주인공기 「건담 헬릭스」의 콕핏을 형상화한 특별 시연대 설치.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000002308.000051316.html",
+   "https://www.bandainamcoent.com/games/gundam-rogue-orbit"
+  ]
+ },
+ "드래곤볼 제노버스 3": {
+  "jp": "ドラゴンボール ゼノバース３",
+  "en": "DRAGON BALL Xenoverse 3",
+  "genre": "액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "반다이남코",
+  "dev": "반다이남코",
+  "summary": "플레이어가 직접 캐릭터를 만들고, 드래곤볼의 상징적 캐릭터들과 인연을 맺으며 영웅으로 키워가는 게임.",
+  "tgs": "시연 출전.",
+  "src": [
+   "https://www.famitsu.com/article/202608/83592"
+  ]
+ },
+ "SILENT HILL: Townfall": {
+  "jp": "SILENT HILL: Townfall",
+  "en": "SILENT HILL: Townfall",
+  "genre": "1인칭 몰입형 호러",
+  "platform": "PS5 / Steam / Epic Games",
+  "release": "2026.9.24",
+  "maker": "코나미",
+  "dev": "코나미",
+  "summary": "사일런트 힐 시리즈 최신작. 1인칭 몰입형 호러.",
+  "tgs": "코나미 부스에서 몰입형 시어터 형태로 체험 제공.",
+  "src": [
+   "https://www.konami.com/games/corporate/ja/news/release/20260904/",
+   "https://www.konami.com/games/corporate/ja/news/topics/20260603/"
+  ]
+ },
+ "Castlevania: Belmont's Curse": {
+  "jp": "悪魔城ドラキュラ Belmont's Curse",
+  "en": "Castlevania: Belmont's Curse",
+  "genre": "액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "코나미",
+  "dev": "코나미",
+  "summary": "캐슬바니아 시리즈 신작. 부스의 「KONAMI Anniversary to the Future」 코너에서 시리즈 역사와 함께 전시.",
+  "tgs": "일본 최초 플레이어블 출전.",
+  "src": [
+   "https://www.konami.com/games/corporate/ja/news/release/20260904/"
+  ]
+ },
+ "와이와이 월드 크래프트": {
+  "jp": "ワイワイワールドクラフト",
+  "en": "Wai Wai World Craft",
+  "genre": "크래프트 액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "코나미",
+  "dev": "코나미",
+  "summary": "코나미 캐릭터들이 모이는 「와이와이 월드」 계열 신작.",
+  "tgs": "세계 최초 플레이어블 출전.",
+  "src": [
+   "https://www.konami.com/games/corporate/ja/news/release/20260904/"
+  ]
+ },
+ "Wo Long 2": {
+  "jp": "Wo Long 2: Wings of Ember",
+  "en": "Wo Long 2: Wings of Ember",
+  "genre": "다크 삼국 액션 RPG (소울라이크)",
+  "platform": "미정",
+  "release": "2027년 초",
+  "maker": "코에이테크모",
+  "dev": "팀 닌자",
+  "summary": "전 세계 누계 플레이어 500만 명을 넘은 「다크 삼국 죽음의 게임」 시리즈 최신작.",
+  "tgs": "시연 출전.",
+  "src": [
+   "https://www.gamecity.ne.jp/news/28726.html"
+  ]
+ },
+ "진격의 거인 3": {
+  "jp": "進撃の巨人3",
+  "en": "Attack on Titan 3",
+  "genre": "택티컬 헌팅 액션",
+  "platform": "PS5 / Nintendo Switch 2 / Xbox / Steam",
+  "release": "발매 결정",
+  "maker": "코에이테크모",
+  "dev": "오메가 포스",
+  "summary": "「진격의 거인」의 이야기를 처음부터 끝까지 그리는 집대성. 신요소 「벽외 조사」로 자신만의 반을 편성해 목숨을 걸고 도전한다.",
+  "tgs": "시연 출전.",
+  "src": [
+   "https://www.gamecity.ne.jp/news/28567.html",
+   "https://www.gamecity.ne.jp/news/29027.html"
+  ]
+ },
+ "카리아의 아틀리에": {
+  "jp": "カリアのアトリエ ～夜の王国と追憶の道標～",
+  "en": "Atelier Karia",
+  "genre": "연금술 RPG",
+  "platform": "PS5 / Nintendo Switch 2 / Xbox Series X|S / Steam",
+  "release": "미정",
+  "maker": "코에이테크모",
+  "dev": "거스트",
+  "summary": "아틀리에 시리즈 최신작. 부제는 「밤의 왕국과 추억의 이정표」.",
+  "tgs": "시연 출전. 유저 앙케트 진행 중.",
+  "src": [
+   "https://www.gamecity.ne.jp/news/29624.html",
+   "https://www.gamecity.ne.jp/news/29373.html"
+  ]
+ },
+ "진・삼국무쌍2 리마스터": {
+  "jp": "真・三國無双2 with 猛将伝 Remastered",
+  "en": "Dynasty Warriors 3 Remastered",
+  "genre": "택티컬 액션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "코에이테크모",
+  "dev": "오메가 포스",
+  "summary": "진・삼국무쌍2에 맹장전을 더한 리마스터.",
+  "tgs": "시연 출전.",
+  "src": [
+   "https://www.gamecity.ne.jp/news/29624.html"
+  ]
+ },
+ "노부나가의 야망 비상": {
+  "jp": "信長の野望・飛翔",
+  "en": "Nobunaga's Ambition: Hisho",
+  "genre": "역사 시뮬레이션",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "코에이테크모",
+  "dev": "코에이테크모",
+  "summary": "전국시대를 다루는 역사 시뮬레이션 시리즈 최신작.",
+  "tgs": "시연 출전.",
+  "src": [
+   "https://www.gamecity.ne.jp/news/29624.html"
+  ]
+ },
+ "레이튼 교수와 증기의 신세계": {
+  "jp": "レイトン教授と蒸気の新世界",
+  "en": "Professor Layton and the New World of Steam",
+  "genre": "수수께끼풀이 판타지 어드벤처",
+  "platform": "Nintendo Switch 2 / Nintendo Switch / PS5 / Steam",
+  "release": "2026.12.10",
+  "maker": "레벨파이브",
+  "dev": "레벨파이브",
+  "summary": "레이튼 교수 시리즈 신작. 증기 시대를 배경으로 한 나조토키 어드벤처.",
+  "tgs": "시연 출전. 레벨파이브 사상 최대 규모 테마파크형 부스.",
+  "src": [
+   "https://www.level5.co.jp/tgs2026/en/",
+   "https://www.layton.jp/jouki/en/"
+  ]
+ },
+ "데카폴리스": {
+  "jp": "デカポリス",
+  "en": "DECAPOLICE",
+  "genre": "크라임 서스펜스 RPG",
+  "platform": "Nintendo Switch 2 / PS5 / Steam",
+  "release": "미정",
+  "maker": "레벨파이브",
+  "dev": "레벨파이브",
+  "summary": "범죄 수사를 다루는 서스펜스 RPG.",
+  "tgs": "두 가지 모드 중 하나를 골라 체험 가능.",
+  "src": [
+   "https://www.level5.co.jp/tgs2026/en/",
+   "https://www.decapolice.jp/en/"
+  ]
+ },
+ "홀리 호러 맨션": {
+  "jp": "ホーリーホラーマンション",
+  "en": "Holy Horror Mansion",
+  "genre": "고스트 크래프트 RPG",
+  "platform": "Nintendo Switch 2 / PS5 / Steam",
+  "release": "미정",
+  "maker": "레벨파이브",
+  "dev": "레벨파이브",
+  "summary": "유령을 다루는 크래프트 RPG.",
+  "tgs": "TGS2026 첫 출전·시연.",
+  "src": [
+   "https://www.level5.co.jp/tgs2026/en/"
+  ]
+ },
+ "스낵월드 RELOADED": {
+  "jp": "スナックワールド RELOADED",
+  "en": "The Snack World RELOADED",
+  "genre": "액션 RPG",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "레벨파이브",
+  "dev": "레벨파이브",
+  "summary": "스낵월드 시리즈 리로디드 버전.",
+  "tgs": "TGS2026 첫 출전·시연.",
+  "src": [
+   "https://www.level5.co.jp/tgs2026/en/"
+  ]
+ },
+ "도검난무 퍼즈기리": {
+  "jp": "刀剣乱舞ぱずぎり",
+  "en": "Touken Ranbu Puzugiri",
+  "genre": "퍼즐",
+  "platform": "모바일",
+  "release": "미정",
+  "maker": "DMM GAMES (EXNOA)",
+  "dev": "EXNOA",
+  "summary": "도검난무 IP의 퍼즐 게임.",
+  "tgs": "발매 전 선행 시연 코너 운영. 풍선·오리지널 스티커 7종·부채 배포.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000006443.000032953.html"
+  ]
+ },
+ "마브러브 걸즈 가든": {
+  "jp": "マブラヴ ガールズガーデン",
+  "en": "Muv-Luv Girls Garden",
+  "genre": "미정",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "DMM GAMES (EXNOA)",
+  "dev": "EXNOA",
+  "summary": "마브러브 IP 신작.",
+  "tgs": "DMM GAMES 부스(3홀, 역대 최대 규모) 출전.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000006443.000032953.html"
+  ]
+ },
+ "닷 어비스": {
+  "jp": "ドットアビス",
+  "en": "Dot Abyss",
+  "genre": "미정",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "DMM GAMES (EXNOA)",
+  "dev": "EXNOA",
+  "summary": "DMM GAMES 신작.",
+  "tgs": "DMM GAMES 부스 출전.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000006443.000032953.html"
+  ]
+ },
+ "연희 대전": {
+  "jp": "恋姫†大戦",
+  "en": "Koihime Taisen",
+  "genre": "미정",
+  "platform": "PC / 모바일",
+  "release": "서비스 중",
+  "maker": "DMM GAMES (EXNOA)",
+  "dev": "EXNOA",
+  "summary": "연희 시리즈 기반 게임.",
+  "tgs": "DMM GAMES 부스 출전.",
+  "src": [
+   "https://koihime-taisen.games.dmm.com/"
+  ]
+ },
+ "팰월드": {
+  "jp": "パルワールド",
+  "en": "Palworld",
+  "genre": "오픈월드 서바이벌 크래프트",
+  "platform": "PC / Xbox / PS5",
+  "release": "서비스 중",
+  "maker": "포켓페어",
+  "dev": "포켓페어",
+  "summary": "신기한 생물 「팰」이 사는 세계가 무대. 최대 32인 멀티플레이에 대응하는 몬스터 육성 오픈월드 서바이벌 크래프트.",
+  "tgs": "포켓페어 사상 최대 규모 부스. 팰월드 세계관을 체감하는 구성.",
+  "src": [
+   "https://www.pocketpair.jp/news/tgs2026announce/"
+  ]
+ },
+ "브리간다인 아비스": {
+  "jp": "ブリガンダイン アビス",
+  "en": "Brigandine: Abyss",
+  "genre": "판타지 워 시뮬레이션",
+  "platform": "미정",
+  "release": "2026년",
+  "maker": "해피넷",
+  "dev": "해피넷",
+  "summary": "「거악에 맞서라」. 침략에 맞서는 판타지 워 시뮬레이션. 브리간다인 시리즈 최신작.",
+  "tgs": "해피넷 메인 부스(6홀) 시연. 부스 전체 13타이틀 이상 시연 가능.",
+  "src": [
+   "https://brigandine-abyss.happinet-games.com/",
+   "https://www.happinet-games.com/release/260213/happinet0213.pdf"
+  ]
+ },
+ "Beast of Reincarnation": {
+  "jp": "Beast of Reincarnation",
+  "en": "Beast of Reincarnation",
+  "genre": "액션 RPG",
+  "platform": "PC / PS5 / Xbox Series X|S",
+  "release": "2026.8.4 발매",
+  "maker": "해피넷",
+  "dev": "게임프리크",
+  "summary": "게임프리크의 완전 신작. 서기 4026년, 붕괴한 일본이 무대인 「사람 하나와 짐승 한 마리의 액션 RPG」. 실시간 액션과 커맨드형 RPG가 융합된 구성. PS5 패키지판도 발매.",
+  "tgs": "해피넷 부스에서 시연. 등신대 「쿠우」와 사진 찍는 포토스팟 설치. 게임프리크는 TGS 첫 부스 출전이며 포켓몬 관련 타이틀은 출전하지 않음.",
+  "src": [
+   "https://beast-of-reincarnation.happinet-games.com/",
+   "https://prtimes.jp/main/html/rd/p/000002833.000031422.html",
+   "https://www.4gamer.net/games/991/G999110/20260709040/"
+  ]
+ },
+ "모노노케의 나라": {
+  "jp": "モノノケの国",
+  "en": "Mononoke no Kuni",
+  "genre": "미정",
+  "platform": "Steam",
+  "release": "2026년 가을",
+  "maker": "해피넷",
+  "dev": "미정",
+  "summary": "「세계의 저편에서도, 너와. 떨어지지 않아.」 퍼블리셔가 해피넷으로 결정됐다.",
+  "tgs": "해피넷 부스 시연.",
+  "src": [
+   "https://mononokenokuni.happinet-games.com/",
+   "https://prtimes.jp/main/html/rd/p/000002833.000031422.html"
+  ]
+ },
+ "MELTY BLOOD: TWI-LUMINA": {
+  "jp": "MELTY BLOOD: TWI-LUMINA",
+  "en": "MELTY BLOOD: TWI-LUMINA",
+  "genre": "2D 대전 격투",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "아니플렉스",
+  "dev": "프랑스빵 / 타입문",
+  "summary": "멜티 블러드 시리즈 신작 2D 대전 격투 게임.",
+  "tgs": "아니플렉스 부스에서 세계 최속 시연회 실시. 해피넷 부스에도 출전.",
+  "src": [
+   "https://www.aniplex.co.jp/tgs/"
+  ]
+ },
+ "Fate/EXTRA Record": {
+  "jp": "Fate/EXTRA Record",
+  "en": "Fate/EXTRA Record",
+  "genre": "RPG",
+  "platform": "PS5 / Nintendo Switch 2",
+  "release": "2027.1.28",
+  "maker": "아니플렉스",
+  "dev": "타입문 / 아니플렉스",
+  "summary": "Fate/EXTRA의 리메이크 작품.",
+  "tgs": "세계 최속 시연회 실시.",
+  "src": [
+   "https://www.aniplex.co.jp/tgs/",
+   "https://online.aniplex.co.jp/itemXLlrXrXU01.html"
+  ]
+ },
+ "귀멸의 칼날 히노카미 혈풍담 2": {
+  "jp": "鬼滅の刃 ヒノカミ血風譚2",
+  "en": "Demon Slayer: Hinokami Chronicles 2",
+  "genre": "대전 액션",
+  "platform": "PS5 / PS4 / Nintendo Switch / Switch 2",
+  "release": "2025.8.1 (Switch 2판 2026.10.29)",
+  "maker": "아니플렉스",
+  "dev": "사이버커넥트투",
+  "summary": "귀멸의 칼날 대전 액션 시리즈 2편. Switch 2 에디션에는 「무한성편 제1장」 캐릭터 패스가 포함된다.",
+  "tgs": "시연자에게 캐릭터 비주얼 스티커 배포.",
+  "src": [
+   "https://www.aniplex.co.jp/news/detail/?id=70701",
+   "https://www.aniplex.co.jp/tgs/"
+  ]
+ },
+ "닌자라 2 미지의 행성": {
+  "jp": "ニンジャラ２ 未知なる惑星",
+  "en": "Ninjala 2",
+  "genre": "닌자껌 액션",
+  "platform": "Nintendo Switch 2 전용",
+  "release": "2027년 봄",
+  "maker": "군호 온라인",
+  "dev": "군호 온라인",
+  "summary": "고속·상쾌 껌 액션이 더 강화된 속편. 광대한 오픈월드를 누비며 솔로 모험은 물론 최대 4인 협력 멀티플레이도 가능.",
+  "tgs": "TGS2026 출전 결정.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000002164.000025063.html",
+   "https://www.gungho.co.jp/jp/news/ccjg5s00000000xl-att/pr_2026010.pdf"
+  ]
+ },
+ "마비노기 모바일": {
+  "jp": "マビノギモバイル",
+  "en": "Mabinogi Mobile",
+  "genre": "온라인 RPG",
+  "platform": "모바일",
+  "release": "2026년 일본 서비스 예정",
+  "maker": "넥슨",
+  "dev": "넥슨",
+  "summary": "20년 넘게 사랑받은 넥슨 대표작 「마비노기」 IP의 세계를 계승·재구축. 켈트 신화를 모티프로 한 세계관과 풍부한 생활 콘텐츠·소셜 기능이 특징.",
+  "tgs": "넥슨 부스 출전. 사전 등록 접수 중.",
+  "src": [
+   "https://cmn-jp.nexon.com/event/tgs2026/mabinogimobile",
+   "https://prtimes.jp/main/html/rd/p/000000499.000014847.html"
+  ]
+ },
+ "나혼렙 KARMA": {
+  "jp": "俺だけレベルアップな件：KARMA",
+  "en": "Solo Leveling: KARMA",
+  "genre": "로그라이트 액션 RPG",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "넷마블",
+  "dev": "Netmarble Neo",
+  "summary": "「나 혼자만 레벨업」 IP 기반 신작 로그라이트 액션 RPG.",
+  "tgs": "TGS2026 출전 특설 사이트 공개, 출전 콘텐츠 개요 발표.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000002609.000007736.html",
+   "https://sololeveling-karma.netmarble.com/en"
+  ]
+ },
+ "샹그릴라 프론티어": {
+  "jp": "シャングリラ・フロンティア～七つの最強種～",
+  "en": "Shangri-La Frontier",
+  "genre": "RPG",
+  "platform": "Android / iOS / Netmarble Launcher",
+  "release": "미정",
+  "maker": "넷마블",
+  "dev": "넷마블",
+  "summary": "「샹그릴라 프론티어 ~일곱 개의 최강종~」. 동명 작품 기반 게임.",
+  "tgs": "넷마블 부스 출전.",
+  "src": [
+   "https://www.netmarble.co.jp/news/view/2173/1"
+  ]
+ },
+ "바이스 슈발츠 온라인": {
+  "jp": "ヴァイスシュヴァルツ オンライン",
+  "en": "Weiss Schwarz Online",
+  "genre": "디지털 트레이딩 카드 게임",
+  "platform": "Nintendo Switch / Steam",
+  "release": "2027년 봄",
+  "maker": "부시로드",
+  "dev": "부시로드",
+  "summary": "애니·게임·VTuber 캐릭터 카드가 등장하는 디지털 TCG.",
+  "tgs": "첫 시연 출전 (6홀).",
+  "src": [
+   "https://news.mynavi.jp/article/20260907-4917079/"
+  ]
+ },
+ "주술회전 RUMBLE: SURVIVAL": {
+  "jp": "呪術廻戦 RUMBLE: SURVIVAL",
+  "en": "Jujutsu Kaisen RUMBLE: Survival",
+  "genre": "서바이버즈 로얄",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "슈에이샤 게임즈",
+  "dev": "poncle (Vampire Survivors 제작진)",
+  "summary": "「Vampire Survivors」를 만든 poncle이 개발. 주술회전 캐릭터가 되어 수많은 주령·라이벌과 싸우는 서바이버즈 로얄 게임.",
+  "tgs": "세계 최초 체험판 출전. 슈에이샤 게임즈 부스(05-C10)와 사이버커넥트투 부스(02-N06) 양쪽에서 시연.",
+  "src": [
+   "https://news.mynavi.jp/article/20260818-4834018/",
+   "https://www.cc2.co.jp/30th/cc2-ten/tgs2026/"
+  ]
+ },
+ "UN:Me": {
+  "jp": "UN:Me",
+  "en": "UN:Me",
+  "genre": "어드벤처",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "슈에이샤 게임즈",
+  "dev": "사이버커넥트투",
+  "summary": "아름답지만 기괴한 세계가 무대. 소녀 안에 깃든 네 개의 영혼과의 「대화」를 통해 진짜 몸의 주인을 찾아가는 어드벤처.",
+  "tgs": "일본 최초 체험판 출전.",
+  "src": [
+   "https://news.mynavi.jp/article/20260818-4834018/",
+   "https://www.cc2.co.jp/30th/cc2-ten/tgs2026/"
+  ]
+ },
+ "CC2 30주년 전시": {
+  "jp": "サイバーコネクトツー展",
+  "en": "CyberConnect2 Exhibition",
+  "genre": "전시",
+  "platform": "-",
+  "release": "-",
+  "maker": "사이버커넥트투",
+  "dev": "사이버커넥트투",
+  "summary": "창립 30주년 기념 전시. 개발 자료·아트워크·회사 역사를 전시하고 포토스팟 코너 운영. 2026년 6월부터 전국 47개 도도부현을 도는 순회 전시의 일부.",
+  "tgs": "부스에 30주년 로고 모뉴먼트와 특별 장식. 물販 코너는 9홀 09-W119.",
+  "src": [
+   "https://www.cc2.co.jp/30th/cc2-ten/tgs2026/"
+  ]
+ },
+ "MIRESI: 보이지 않는 미래": {
+  "jp": "MIRESI：視えない未来",
+  "en": "MIRESI",
+  "genre": "미정",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "스마일게이트",
+  "dev": "스마일게이트",
+  "summary": "스마일게이트 신작.",
+  "tgs": "부스 상세 프로그램 공개. 게스트 등단 및 한정 굿즈 배포.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000000216.000137745.html"
+  ]
+ },
+ "데드 어카운트: 두 개의 푸른 불꽃": {
+  "jp": "デッドアカウント～二つの蒼い炎～",
+  "en": "Dead Account",
+  "genre": "미정",
+  "platform": "미정",
+  "release": "미정",
+  "maker": "스마일게이트",
+  "dev": "스마일게이트",
+  "summary": "스마일게이트 신작. 통칭 「데드아오」.",
+  "tgs": "부스 상세 프로그램 공개.",
+  "src": [
+   "https://prtimes.jp/main/html/rd/p/000000216.000137745.html"
+  ]
+ },
+ "요괴워치 뿌니뿌니": {
+  "jp": "妖怪ウォッチ ぷにぷに",
+  "en": "Yo-kai Watch Puni Puni",
+  "genre": "퍼즐",
+  "platform": "모바일",
+  "release": "서비스 중",
+  "maker": "NHN 재팬",
+  "dev": "NHN",
+  "summary": "요괴워치 IP의 퍼즐 게임.",
+  "tgs": "NHN JAPAN 부스(2홀 02-S08) 시연 출전.",
+  "src": [
+   "https://gamewith.jp/tgs/573893"
+  ]
+ },
+ "환상세계의 푸치포용": {
+  "jp": "幻想世界のぷちぽよん",
+  "en": "Puchipoyon",
+  "genre": "퍼즐",
+  "platform": "모바일",
+  "release": "미정",
+  "maker": "NHN 재팬",
+  "dev": "NHN",
+  "summary": "NHN 재팬 신작 퍼즐 게임.",
+  "tgs": "NHN JAPAN 부스 시연 출전.",
+  "src": [
+   "https://gamewith.jp/tgs/573893"
+  ]
+ }
+}
