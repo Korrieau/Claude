@@ -107,6 +107,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | GreetingHR 회사 페이지 | Playwright로 사이트를 열고 응답·`__NEXT_DATA__` 안의 `openingId`·`title`·`dueDate` 수집. 상세 `https://{사이트}/ko/o/{openingId}` 본문 텍스트. 사이트: careers.hybecorp.com, recruit.kakaogames.com, supercent / 111percent / antstudio / kstd-lezhin / epidgames `.career.greetinghr.com` |
 | 스마일게이트 | careers.smilegate.com/apply/announce를 연 뒤 페이지 안에서 `POST /api/apply/announce/guest` (pageIndex, pageSize 50). 상세 `/apply/announce/view?seq=ID` |
 | 쿠로게임즈 · 릴리스 (Feishu) | `https://kurogame.jobs.feishu.cn/index/position/list?current=N&limit=100`을 페이지마다 열고 `/api/v1/search/job/posts` 응답 수집 (요청 서명 때문에 직접 호출 불가). 상세 `/index/position/{id}/detail`. lilithgames도 같은 방식 |
+| 하이퍼그리프 (Moka) | `https://jobs.hypergryph.com/apply/hypergryph/26325/#/jobs`를 Playwright로 열고 `button[data-page=N]`을 눌러 페이지마다 `a[href*="#/job/"]` 수집 (약 330건, API 응답은 암호화돼서 화면에서 읽음). 상세 `#/job/{id}` 본문의 "职位描述" ~ "申请职位" 구간 |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.
@@ -141,4 +142,4 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 앱은 `deadline_date`가 지난 공고를 자동으로 "마감됨" 처리해서 지원 가능 목록에서 뺌. 매일 추적 때는 마감·내려간 공고를 `closed:true`로 기록하고, 마감일이 바뀐 공고는 새 날짜로 고침.
 
 ## 확인 못 하는 곳 (회사 사이트에서 직접 확인)
-- 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403. 하이퍼그리프: Feishu 페이지가 테스트용뿐.
+- 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
