@@ -1,1 +1,21 @@
-{"name": "コトブキヤ", "category": "goods", "category_label": "굿즈·피규어", "country": "JP", "careers_url": null, "candidate_urls": ["https://www.kotobukiya.co.jp/recruit/"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": true, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "コトブキヤ",
+ "category": "goods",
+ "category_label": "굿즈·피규어",
+ "country": "JP",
+ "careers_url": null,
+ "candidate_urls": [
+  "https://www.kotobukiya.co.jp/recruit/"
+ ],
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "ats": null,
+ "ip_focus": true,
+ "verified": null,
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,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"
+}

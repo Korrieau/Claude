@@ -1,1 +1,19 @@
-{"name": "Sumzap", "category": "game", "category_label": "서브컬처 게임", "country": "JP", "careers_url": "https://sumzap.co.jp:443/recruit/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": "hrmos", "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "Sumzap",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "country": "JP",
+ "careers_url": "https://sumzap.co.jp:443/recruit/",
+ "candidate_urls": [],
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "ats": "hrmos",
+ "ip_focus": false,
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v78/Pz5+fn39/f29vby8vLt7e3p6eni4uLW1tb/8QD97wD87gD46gDs3wDh1QDHx8fBwcG9vb24uLiysrKxsbHFugCjo6OvpgCkmwCTk5OKioqHh4eMiVeGfwCFfQB3d3eDewB3cABtbW1paWltaRRaWlplYABYVABOTk5TTgBMSABDQ0NIRAA5OTk6NxImJQ8cHBwaGhoXFg8SEg0NDAgKCgoICAIHBgQFBQUGBQAEAwECAgEBAQAAAAB/gTpQAAABfUlEQVR42u3Y21LCMBRA0Soid1BAEArjBRmq3KRaqRU4//9XhrRFv4CHk70eMnndk86ZpJ4HAAAAAAAAAAAAAAAAAAAA4Fwub+96qW7Zhd7KWmS7FbMkkowu9Ae/iSy77cgs3W/Zt9X3FiIRf9YLZTTrhCJP6oOLiUh4PzWLbxZ5cSH4Z/Wa2jgSPKxlmu9OBP+0bupZ8bMTwftov8iKHx0ILpmhJXHL1A7mk0B/cGFpeg+BOeH+TlyY0qNjpcRmbj3YXVhR/kFHNlMW+QnL+kp1sJ/2xgM7sayx6uBlGimbG1M8sduPgubgzyzYXj4agd2qfj/I/xOuNRfHve9CcBxkFw9R/mDa5sWH5ilY9dRa573zvxO+1xw8trlR0K+fghPVP7bKXyK7YbN2ei2JzHRftY5HPMh7GyuRbVX/4yEOJinTe/A95Ur53LJ2Y/3/aYtPyak37HkuqE4/jrX7tX/tOeKy2uneli48AAAAAAAAAAAAAAAAAAAAAOf0C844TkKj38nkAAAAAElFTkSuQmCC"
+}

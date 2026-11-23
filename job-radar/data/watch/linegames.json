@@ -1,1 +1,22 @@
-{"name": "라인게임즈", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": null, "candidate_urls": ["https://linegames.career.greetinghr.com", "https://www.linegames.co.kr"], "method": "gamejob", "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "라인게임즈",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "country": "KR",
+ "careers_url": null,
+ "candidate_urls": [
+  "https://linegames.career.greetinghr.com",
+  "https://www.linegames.co.kr"
+ ],
+ "method": "gamejob",
+ "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
+ "ats": null,
+ "ip_focus": false,
+ "verified": null,
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn4+Pj39/f19fX09PTx8fHs7Ozj4+Pe3t7d3d3c3NzJycnExMTDw8O8vLy6urq4uLiurq6pqamenp6cnJybm5uampqWlpaVlZWUlJSHh4dubm5sbGxra2tmZmZdXV1VVVVUVFQ+Pj49PT07Ozs3Nzc2NjYzMzMuLi4tLS0lJSUkJCQbGxsZGRkYGBgXFxcVFRUUFBQTExMJCQkHBwcEBAQDAwMCAgIBAQEAAAC9h+cBAAABvUlEQVR42u3c2U7CQBSA4baAKLggICqouARowb0oAu3M+7+VELkQlKVhjDPT/79umnw5hF6d4zhERERERERERLQmzyk02q9Cbp0I243C5HXaVwuksoKa9vP1LocyipVoRRzJ4aWn+YyrIxmpm3AkR1W9vcWuSu9U3C1qDa7LsVTaWNa1BnfUDng64o7W4FAqL9QaLNSDhdZg+QeZBhaL2Q3+xScsn/DHYCGbJyzk/Wm5Uv5e5fh6FFsMvvj5TKaX7GNtFrjp5by5Mt6ubzP4ysnMP+E6+QAwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQO2EeyLsVieheDeyoHGtoFdtzXovy9p8GbdT3oy4r3S0eGSSgdnLyK2C7yuW2kd2PVWlL2TqZqw6wAGDBgwYMCAAQPeDNx0E4Jdw8HnTj6bpJxzYzI4lq2dhG/YfzR7wvLJD/zNC/xn0zfTki9XGr6ZFiUsNn4VL3XbpYABmwxO3Up86o4epO6shfrDJULvwyXqT9M86H2aRv3xoRO9vbPzUkr+rL/OS7nanxBL1wGx2Ym4cPsRi6hvyIk4IiIiIiIiIqL/7hMpZzN0HR9onQAAAABJRU5ErkJggg=="
+}

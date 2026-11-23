@@ -1,1 +1,19 @@
-{"name": "Aniplex of America", "category": "ip", "category_label": "애니·IP·라이선스", "country": "US", "careers_url": "https://aniplexusa.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": true, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "Aniplex of America",
+ "category": "ip",
+ "category_label": "애니·IP·라이선스",
+ "country": "US",
+ "careers_url": "https://aniplexusa.com/",
+ "candidate_urls": [],
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "ats": null,
+ "ip_focus": true,
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/////v/+/v/+/v7+/f79/f/9/f79/f38/P77+/z39vrw7/bm4/Df3O3a1+rQzOTKxuC5s9alnsuknMqjnMqYkMKLgrt/dbNzZ61wZatwZKtwZKpvZKpwY6tvY6tvY6pvYqpuY6puYqlvYatuYapuYaltYaptYalsYKhrYKZqXqdpXadoW6ZmWaVkV6RjVqRiVqNiVaNZVY9ZVY5hVKJYVIxYVItXVIthU6JgU6JgU6FgUqJfUqJfUqFeUKDv9gHqAAADxElEQVR42u2c63KaQBSAV4EiEbwrcrHdurGFoIgkNI1N9P3fqmjCsnhLOmOn5XC+n5kdZr7ssufCuoQgCIIgCIIgCIIgCIIgF/nxF0BhFP7Xwj8fr8TPcgg/XJEyCD/eB3dXIrh/LIPwg387uwq3/kM5hO9m3lWY3YEVZtMiDLgw8xdFfNjCLHDGRSwfsnA6v+1mkf6zDVjYTXqHj+lvAAu7K1PVZElAkyALs8DWiVR4iAp6hulTNzWsjrCzHhKFVEf4SzhuqvKR8GDtwBRm3qJ1uKBBCzvr3rEvYOFJbGpavTrC+4gkk+oI0195RJJIDbywkwy5r0p6OnRhmkYkWcoU23aT51swhcWIVCdNy7oBLuwkeUTSyGA7bpI6ZGE3MrmvQrpRAFx4Gli6JGcbtG4F8/EN6E2LrnlEqmnqKLFDE7Sw89QXFnQvmbDQ1AALT8Kx3pAzX8P3GQ1NuSAMrDyc84gkKZq5nHiHwrDqYbFGShf0Jl2+dDmqgRV2Y1PRuFt7wVgqHI0IVOFdRMqGy3JzHFJvP8NwhaMOySe4nzj7bWwFVthOBvwFbpBORN+W+YgnWrCE3V3X7q1KkGTdmmfCQ5jC+xqpwXfoUexkn1uGeTcekrAYkTTSfaa8durnzR5AwpOVWct8ZWIwn8EWpmlEqr99Z5C0prl0+cxv8uQakvCqw7+rqKT37HiwhXfrNrP6RFoLMVhBFKZCROIpFhcWPkEoZAihPGS7GknhO3R/OxFneAtP2E0jksZ36HZoOwLWEzhhJ00es8AjScZ8m2xecqJt/t+AITydW7rMhYnRPcTI4zAI4a9pjaR+8CEQhG2ha/caeoooqgRKeHLqZAPkGfbTiPRhXwDC7smTDXCFd+2MP/AtvTBLIxKpV0h4GgsRST0HnF1arJGqMMNpRLrhZwvTHLrbOUlXB5JpMT9oCd9VOuvNy+YEMZhc2hEKXUnSrbnlnMJadmEIO1EekeoqGSXOuW4mDGEq1kgK6a7p2UOIMITZsiO8wMZn3pY9bu+BEHbFGklVzSX1QAvTZd6127Vl961IwMLM9/M2RoO0w2/fzwtD2KXdTR5bJbXYlj3qAAEQ3nXteIqlkkFie6CF6cLSNU1+RSOdeHrxqOmiI2eD5YZcQuGZN28Lf09TrMvChdGk/1I64Wk4Mlocw4zcy0eZgp44fLQfXrJ32I8jTryg751VC8Xhc1bGn9NSAfb+gfHj4YB/El+5OwBKLly1ay2qdnFJ5a6mqd7lQ3ifFgoDEkYQBEEQBEEQBEEQBPkP+A0scaAYus6YVAAAAABJRU5ErkJggg=="
+}

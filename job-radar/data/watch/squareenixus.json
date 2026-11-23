@@ -1,1 +1,19 @@
-{"name": "Square Enix (Americas)", "category": "game", "category_label": "서브컬처 게임", "country": "US", "careers_url": "https://www.square-enix-games.com/en_US/careers", "candidate_urls": [], "method": "api", "method_note": "자동 수집 (채용 시스템 데이터)", "ats": "workable", "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "Square Enix (Americas)",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "country": "US",
+ "careers_url": "https://www.square-enix-games.com/en_US/careers",
+ "candidate_urls": [],
+ "method": "api",
+ "method_note": "자동 수집 (채용 시스템 데이터)",
+ "ats": "workable",
+ "ip_focus": false,
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX//////v7+/v7//f39/f3//Pz8/Pz/+/v7+/v/+vr/+fn/+Pj6+vr4+Pj/9/f39/f58PD63d3/19f/1tb/1dXV1dX009Pxzs7FxcXYsrL/lJT/kZH/kJD/jo7/g4P/enp3d3f/VVX/T0//Tk7/Pz9zc3P/KCj/IyP/ISH/Hx9qampkZGRWVlYdHR3/FBT/DAz/Cgr/CAj/Bgb/BAT/AwP/AgL/AQEVFRUQEBALCwsHBwcGBgYEBAQBAQH/AAAAAAB1z+F0AAACHUlEQVR42u3c23KaQACA4VA0UROCBzpp8ZAQicQ0EQKBNgbp+79Vd3V6h3YGm0l29/8v9gLGGb8BVkXg5ISIiIiIiD5Bv98hwIABAwYMGDBgwID/tjku9cBluT4mBbdw+SbaDk3iGAYM+MPAm40cXn8+HZNK4LIUw/rp8UZ0d9MwhcBiehbj6+P3r8ekEvhtLcZfD5/7Pf9P8HoLvjMHbNwW3oF/fOt0Oheu02mWimDHcdy+6zRLRXCr1Tp1L1rNUhEs1nxxTw06hgED1h1s2e1/ZtuWNmCr3e2d9w4mVp9Z7NKAAQP+aLAlZ6Jef+h53mjk7Wm3ZnApX2CrDbbaEtC/8mez6dgfT2ob+/50dj29GsgXdNUG2922GAd+EIZhENzOa7sNgrlYPfEk+FJxcO9MgqfhKl4tFtF9bVEULVercKYF+FyCh9eLosriOHmuKRHFaaYZeFlVVZrmRU35dunzcj4Z6QQu8ipLi6qmQi4t4kXgD7UBj7ZbOM+q/ekF3u3SL+kBcBLpBb4Xx2qaZHlNmVz6EmsGXop56RA41w68m6XrduZcLi0SwOzSTFp8LPHFg6+W/Hjg5yEnADjFw0k8o0/TmnciHjBgHcHm/SFu2iUPHMOAAasFNu7iUuMuHzbsAnFu8tB90jJoC5t2o5Zxt+KZd7Ml9w8D1vOxFqY99MC8x1qY9uASJi3AgAEDBgwYMGDARERERES0tz8ND/LhtkHgAQAAAABJRU5ErkJggg=="
+}

@@ -1,1 +1,22 @@
-{"name": "슈퍼크리에이티브", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": null, "candidate_urls": ["https://supercreative.career.greetinghr.com", "https://www.supercreative.kr"], "method": "gamejob", "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "슈퍼크리에이티브",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "country": "KR",
+ "careers_url": null,
+ "candidate_urls": [
+  "https://supercreative.career.greetinghr.com",
+  "https://www.supercreative.kr"
+ ],
+ "method": "gamejob",
+ "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
+ "ats": null,
+ "ip_focus": false,
+ "verified": null,
+ "last_checked": "2026-11-23",
+ "open_count": null,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX///////7//v///v7//v3//f3//vr//fz//fv//Pv/9vD/9fD/9O3/7eb/4NT/2sr/yrb/vqL/qon/lG7/jGH/ilr/glb/dUj/cT3/bDP/bCv/YiD/WSL/WR3/WBb/VhH/VAz/VAb/VAP/Uw7/UwT/UgT/UwP/UgP/UQP/UwL/UQL/UwH/UQH/UQD/UAH/UAD/TQf/TwD/TQD/TAD/SwD/SAb/SQD/RwD/RQD/QwD/QgD/QQL/QQD/PwD/PgD/OQH8H9SbAAADdUlEQVR42u2c7XKqMBBAo2gpVkFEi61V/KBaaIQhahqtH+//Vhd7O+303oR2Rn4k6R5+Oewwc1wwycoGIQAAAAAAAAAAAAAAAOBbTIRaHX8wuYiB37HfLqWCb9MbUUqyiyCUBl4L1VXwbQ92JIpwehE4jsh24MpvbCKXrsMLbd+dwxXryH5Xm8ihySItieiJtSU3NpqDdWm+aRqTkW3InWJvF6YlEm57cvu2ApKUKZwkj7bUwh0apaUSvXhSC/s0LlcYr+6lFh4QXK5wkgVSC0+yfxI0F/FT42yikvCSbJkALYUxCXwRj5mGwvNtXxTYCNZYQ2HWN0yDQ91oBis9hVGNOwNF+gnjKI6nvyjDy3wFT8mx4BnWTDibDYfDh6HfEmBrJjw9eo2b/HBmwYxPotc4nAujav7Z2REBqXbChpUfDoswH/2EkXUu+LBLFxOqCdNpxEdX4dN2xydbaiicT6jaAtwxwfoJF3Cl3zj8JlwxuVhmU1NhUfkaaShsWdcc8uTqKlwUpp9wxHxXQFvP9fCSHrhsT3e5ro4FgDjkMtn4mgoLmDNdhZOYy+SrMI4FYAVLPGse56rPp7Aoak3JUrkSz4OAW1T9EM5GoqggU2wcPniN5g2Xxuew9Hxw+VHNRucwVbLEUzzxiI4u/3wVdY5TBUs8fL4I86MsQ0FhZFWE1Cq5cJzM8wxf885bamb4m1t6mT4f3Sr3rSQ1M1z4glVj9rphm5PLjzKVyzAmo7tC+o5t247jic5/vDuhzMRjxV7E0P346i3+9kS5AWy9VO7fw0UBIRk161Z+dF8n/Aisy+Lh/dtYjxr5L1cd9fah5qslEAZhEAZhEAZhEAZhEAZhEC5H+DVMuOib4eh3Zfj2tOGjXgHgJ8IItc6Vnv9xbG8/11JYiGpFvJ8KG3UuVk1XYQGWhhlumpYpxLL0E64UX8jVSzglk163kD7FWgmn2W5fxIHqNQ6fe78LmUaKzLRGZbfTppK30/ZLb5gmA6mFS2+JX9Cu1ML2uNxND9IkcaQWRt1tqdtazJkv9z4eRmuwKvEpxsnYrkgtbKI2eyrtMcaPW1f+zXg6bDUv6X4mzJN/S606ckcsW1w8HONFymYuqlVkF85TYvcmdJVdyIomvs3vL5fPGDnefXDZFnHBfbeNilufAAAAAAAAAAAAAAAAgL/8AQ6RIdNsKxBVAAAAAElFTkSuQmCC"
+}

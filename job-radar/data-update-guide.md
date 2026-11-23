@@ -99,10 +99,20 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | HoYoverse | `api.ashbyhq.com/posting-api/job-board/hoyoverse` |
 | Crunchyroll·NC America·크래프톤 | `boards-api.greenhouse.io/v1/boards/{crunchyroll,ncamerica,krafton}/jobs?content=true` |
 | 텐센트 | `careers.tencent.com/tencentcareer/api/post/Query?keyword=...` / `ByPostId` (키워드: 二次元, 发行, 海外运营, IP, 周边 등) |
-| 게임잡 | `/Recruit/joblist?menucode=duty&duty=24~30&page=1~3` 목록 + 상세 페이지 meta description(경력·고용형태·마감) |
+| 게임잡 (전체) | 브라우저로 게임잡 목록 페이지를 연 뒤 페이지 안에서 `POST /Recruit/_GI_Job_List/` body `page=N&condition%5Bmenucode%5D=&condition%5Btabcode%5D=1&direct=0&order=1&pagesize=100&tabcode=1` (N=1.. 빈 페이지까지, 전체 약 1,300건). 상세 meta description(경력·고용형태·마감), 로고 `//file.gamejob.co.kr/net/Corp/CoImage/LogoView?FN=` |
 | 사람인 (국내 중소 회사) | `https://www.saramin.co.kr/zf_user/search/recruit?searchword=KW&recruitPageCount=100` curl 가능. `.item_recruit` 안 `.job_tit a`(rec_idx), `.corp_name a`, `.job_condition span`, `.job_date .date`, `.job_sector` |
 | Green (일본 중소 회사) | Playwright로 `https://www.green-japan.com/search?keyword=KW&page=N`, 공고 링크 `/company/ID/job/JID`, 상세 페이지 본문 "仕事内容" 구간 (지원 자격은 로그인 필요) |
 | 해외 중견 Greenhouse | riotgames, epicgames, scopely, 2k, roblox, twitch, neteasegames, hasbro, vizmedia, bungie / Lever: neowiz |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.
+
+## 로고 수집 순서
+1. 게임잡 공고 페이지의 회사 로고 (LogoView)
+2. 사람인 회사 페이지 `company-info/view?csn=` 의 og:image (주소에 logo가 있을 때만. 사람인 기본 이미지는 버림)
+3. Green 회사 페이지 `alt="企業メインロゴ"` 이미지
+4. 공식 사이트 apple-touch-icon / Google favicon (128px)
+- 240x120 흰 바탕 PNG로 맞춰 `logo`에 저장. 앱은 watch 로고 → companies 로고 → 회사 이름 글자 순으로 표시.
+
+## 중복 정리
+- 같은 공고가 게임잡·사람인·원티드에 동시에 올라오는 경우가 많음. 회사명 앞 4글자 + 제목(공백·괄호·"모집/채용" 제거)이 같으면 하나만 남김 (게임잡 > 원티드 > 사람인 순).
