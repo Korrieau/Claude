@@ -57,7 +57,7 @@ a{color:inherit}
 
 /* angled segment */
 .seg{position:relative;margin-top:14px;height:44px;background:var(--navy);border:3px solid var(--rim);border-radius:21px;display:flex;align-items:center;padding:0 4px;overflow:hidden}
-.seg button{position:relative;z-index:1;flex:1;height:100%;font:800 13px/1 var(--ko);color:#fff;transition:color .3s var(--ease)}
+.seg button{position:relative;z-index:1;flex:1;height:100%;font:800 12.5px/1 var(--ko);color:#fff;transition:color .3s var(--ease)}
 .seg button[aria-pressed="true"]{color:var(--navy)}
 .seg .th{position:absolute;top:4px;height:30px;background:#fff;transform:skewX(-20deg);border-radius:4px;transition:left .3s var(--ease),width .3s var(--ease)}
 .row-sort{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font:700 12px/1 var(--ko);color:var(--sub)}
@@ -239,7 +239,8 @@ const TYPES = {
   devpm:   {label:"개발PM",   en:"DEV PM",      k:"#0B5CAD", kd:"#08447F"},
   ops:     {label:"운영",     en:"LIVE OPS",    k:"#2A7BD6", kd:"#1C5DA6"}
 };
-const COUNTRIES = [["all","전체"],["KR","한국"],["JP","일본"],["CN","중국"],["US","미국"]];
+const COUNTRIES = [["all","전체"],["KR","한국"],["JP","일본"],["CN","중국"],["US","미국"],["etc","기타"]];
+const MAIN_C = ["KR","JP","CN","US"];
 const STATUSES = ["관심","지원함","결과 대기","종료"];
 const LANG_LV = ["못 함","학습 중","기초","일상 회화","비즈니스","원어민"];
 const LANG_NAMES = {en:"영어",ko:"한국어",ja:"일본어",zh:"중국어"};
@@ -380,7 +381,8 @@ function deadlineText(j){
 
 function viewJobs(){
   let list = S.jobs.map(j=>({j, sc:score(j)}));
-  if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
+  if(S.country==="etc") list = list.filter(x=>!MAIN_C.includes(x.j.country));
+  else if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
   list.sort(S.sort==="fit" ? (a,b)=>b.sc.total-a.sc.total : (a,b)=>(a.j.deadline_date||"9999").localeCompare(b.j.deadline_date||"9999"));
   const weekAgo = new Date(Date.now()-7*864e5).toISOString().slice(0,10);
   const nNew = S.jobs.filter(j=>(j.added||"")>=weekAgo).length;
@@ -393,7 +395,7 @@ function viewJobs(){
     ${stateNote()}
     <div class="sum"><div><b>${nNew}</b><span>이번 주 새 공고</span></div><div><b>${nSoon}</b><span>7일 안 마감</span></div><div><b>${nApplied}</b><span>지원함·결과 대기</span></div></div>
     <div class="seg" role="group" aria-label="국가">
-      <div class="th" style="left:calc(4px + ${idx} * (100% - 8px) / 5);width:calc((100% - 8px) / 5)"></div>
+      <div class="th" style="left:calc(4px + ${idx} * (100% - 8px) / ${COUNTRIES.length});width:calc((100% - 8px) / ${COUNTRIES.length})"></div>
       ${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}
     </div>
     <div class="row-sort"><span>${list.length}건</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"} ▾</button></div>
