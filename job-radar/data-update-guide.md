@@ -130,3 +130,9 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 
 ## 회사 정보
 - watch 문서 `info` = `{summary, size, founded, address, site}`. 사람인 `company-info/view?csn=` 의 `.company_summary`·`.company_details`에서 수집.
+
+## 마감일
+- 날짜가 보이면 항상 `deadline_date`(YYYY-MM-DD)를 채움. 게임잡·사람인 목록 날짜, 잡코리아 페이지 meta "마감일 : YYYY.MM.DD", 원티드 due_time, 해외 ATS 필드.
+- "오늘마감/내일마감/D-3/~12/05" 같은 상대 표현은 수집한 날 기준으로 실제 날짜로 바꿔 저장.
+- 날짜가 정말 없을 때만 `deadline`에 "상시채용" 또는 "채용시 마감".
+- 앱은 `deadline_date`가 지난 공고를 자동으로 "마감됨" 처리해서 지원 가능 목록에서 뺌. 매일 추적 때는 마감·내려간 공고를 `closed:true`로 기록하고, 마감일이 바뀐 공고는 새 날짜로 고침.

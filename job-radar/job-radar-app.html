@@ -589,12 +589,13 @@ async function boot(){
   const seen = {bodies:false,tr:false,jobs:false,jobpacks:false,companies:false,tests:false,news:false,watch:false,watchpacks:false,status:false,profile:false};
   const R={jobs:[],jobpacks:[],watch:[],watchpacks:[]};
   const flat=(single,packs)=>{ const m=new Map(); packs.forEach(p=>Object.entries(p.items||{}).forEach(([id,v])=>m.set(id,{id,...v}))); single.forEach(x=>m.set(x.id,x)); return [...m.values()]; };
+  const expire=list=>list.map(j=>{ const d=daysLeft(j.deadline_date); return (!j.closed&&d!==null&&d<0)?{...j,closed:true,expired:true}:j; });
   const done = k => { seen[k]=true; bootProgress(Object.values(seen).filter(Boolean).length/Object.keys(seen).length); if(Object.values(seen).every(Boolean)){ S.ready=true; S.failed=false; clearTimeout(timer); bootEnd(); } render(); };
   const onErr = e => { S.failed = e?.code||"error"; clearTimeout(timer); bootEnd(); render(); };
-  db.collection("jobs").onSnapshot(s=>{ R.jobs=s.docs.map(d=>({id:d.id,...d.data()})); S.jobs=flat(R.jobs,R.jobpacks); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
+  db.collection("jobs").onSnapshot(s=>{ R.jobs=s.docs.map(d=>({id:d.id,...d.data()})); S.jobs=expire(flat(R.jobs,R.jobpacks)); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
   db.collection("companies").onSnapshot(s=>{ S.companies=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("companies"); else render(); }, onErr);
   db.collection("watch").onSnapshot(s=>{ R.watch=s.docs.map(d=>({id:d.id,...d.data()})); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watch"); else render(); }, onErr);
-  db.collection("jobpacks").onSnapshot(s=>{ R.jobpacks=s.docs.map(d=>d.data()); S.jobs=flat(R.jobs,R.jobpacks); if(!s.metadata.fromCache) done("jobpacks"); else render(); }, onErr);
+  db.collection("jobpacks").onSnapshot(s=>{ R.jobpacks=s.docs.map(d=>d.data()); S.jobs=expire(flat(R.jobs,R.jobpacks)); if(!s.metadata.fromCache) done("jobpacks"); else render(); }, onErr);
   db.collection("watchpacks").onSnapshot(s=>{ R.watchpacks=s.docs.map(d=>d.data()); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watchpacks"); else render(); }, onErr);
   db.collection("bodypacks").onSnapshot(s=>{ const m={}; s.docs.forEach(d=>Object.assign(m,d.data().items||{})); S.bodies=m; if(!s.metadata.fromCache) done("bodies"); else render(); }, onErr);
   db.collection("tr").onSnapshot(s=>{ S.tr=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("tr"); else render(); }, onErr);
@@ -835,7 +836,7 @@ function viewJobs(){
     <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.jobs.length).padStart(3,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
     <div class="cards fx3">
     ${list.slice(0,S.limit||40).map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
-      return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><div class="in">${j.closed?`<span class="gone">공고 내려감</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
+      return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><div class="in">${j.closed?`<span class="gone">${j.expired?"마감됨":"공고 내려감"}</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
         <div class="hd">${logoTile(j.company_id,j.company)}
           <div class="who"><div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div></div>
           <div class="fit"><b class="w">${sc.total}<span>/100</span></b><small>FIT SCORE</small>${flagHtml(sc)}</div></div>
