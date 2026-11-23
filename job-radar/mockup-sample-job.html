@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Radar Mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
+<style>
+:root{
+  --lime:#D8FA00; --lime-soft:#BFDB5A; --bg:#EFEFEF; --ink:#222122; --black:#000;
+  --panel:#1F1F1F; --sub:#7A7A7A; --line:#767678; --tab:#222122;
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --en:Impact,"Anton","Arial Narrow",sans-serif;
+  --ko:"Pretendard",-apple-system,"Apple SD Gothic Neo",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:calc(min(100vw,480px) / 7.5)}
+body{background:#cfcfcf;font-family:var(--ko);color:var(--ink);-webkit-font-smoothing:antialiased}
+.screen{position:relative;width:7.5rem;max-width:100%;margin:0 auto 40px;background:var(--bg);overflow:hidden;min-height:100vh;padding-bottom:1.6rem}
+/* header */
+.hd{position:sticky;top:0;z-index:5;height:1.1rem;background:var(--black);display:flex;align-items:center;justify-content:space-between;padding:0 .3rem}
+.logo{font-family:var(--en);color:#fff;font-size:.42rem;letter-spacing:.01rem;display:flex;align-items:center;gap:.1rem}
+.logo i{width:.16rem;height:.16rem;background:var(--lime);transform:skewX(-20deg);display:inline-block}
+.hd-btn{font-family:var(--en);color:#fff;font-size:.24rem;border:.04rem solid #fff;border-radius:.4rem;height:.6rem;padding:0 .26rem;display:flex;align-items:center}
+.menu-btn{position:absolute;right:.2rem;top:1.3rem;width:.86rem;height:.86rem;background:#000;border:.04rem solid #fff;border-radius:.12rem;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.1rem;z-index:4}
+.menu-btn b{width:.42rem;height:.05rem;background:#fff;display:block}
+/* section label */
+.sec{position:relative;height:2.3rem}
+.sec-label{position:absolute;left:0;top:.3rem;width:2.7rem;height:1.5rem;background:var(--lime);clip-path:polygon(0 0,82% 0,100% 30%,100% 100%,0 100%);padding:.12rem 0 0 .16rem}
+.sec-label .en{font-family:var(--en);font-size:.32rem;line-height:1;color:var(--ink)}
+.sec-label .num{font-family:var(--en);font-size:.86rem;line-height:.95;color:var(--ink)}
+.sec-stripe{position:absolute;left:0;top:0;width:3.2rem;height:2.3rem;background:repeating-linear-gradient(135deg,#1a1a1a 0 .04rem,#262626 .04rem .08rem);clip-path:polygon(0 0,100% 0,0 100%);opacity:.95}
+.watermark{position:absolute;right:1.2rem;top:.25rem;font-family:var(--en);font-style:italic;font-size:.9rem;line-height:.9;color:#dcdcdc;text-transform:uppercase;text-align:right}
+/* summary */
+.sum{position:relative;z-index:2;display:flex;gap:.16rem;padding:0 .4rem;margin-top:.1rem}
+.sum div{flex:1;background:#fff;border-radius:0 .3rem 0 .3rem;padding:.16rem .2rem}
+.sum b{font-family:var(--en);font-size:.56rem;font-weight:400;display:block;line-height:1}
+.sum span{font-size:.2rem;color:var(--sub);font-weight:700}
+/* tabs */
+.tabs{position:relative;margin:.4rem .4rem 0;height:.62rem;background:var(--tab);border:.01rem solid #353335;border-radius:.32rem;display:flex;align-items:center;padding:0 .08rem}
+.tabs .thumb{position:absolute;left:.08rem;top:.08rem;width:1.3rem;height:.46rem;background:#fff;transform:skewX(-20deg);border-radius:.06rem;transition:all .3s var(--ease)}
+.tabs span{position:relative;z-index:1;flex:1;text-align:center;font-size:.22rem;font-weight:800;color:#fff}
+.tabs span.on{color:#333}
+/* job card */
+.list{padding:.5rem .4rem 0}
+.card{margin-bottom:.8rem;transition:all .5s ease}
+.banner{position:relative;height:3rem;border-radius:0 .55rem 0 .55rem;overflow:hidden;background:#111}
+.banner .pat{position:absolute;inset:0;background:repeating-linear-gradient(135deg,#151515 0 .05rem,#1f1f1f .05rem .1rem)}
+.banner .slab{position:absolute;right:-0.6rem;top:0;width:3.4rem;height:100%;background:#2a2a2a;transform:skewX(-18deg)}
+.banner .co{position:absolute;left:.3rem;top:.3rem;color:#fff}
+.banner .co .ini{font-family:var(--en);font-size:1.1rem;line-height:1;color:var(--lime)}
+.banner .co .nm{font-size:.24rem;font-weight:800;margin-top:.06rem}
+.banner .co .gm{font-size:.2rem;color:#aaa;margin-top:.04rem}
+.film{position:absolute;left:0;bottom:0;width:100%;height:.3rem;background:#000;display:flex;gap:.12rem;align-items:center;padding-left:.12rem}
+.film i{width:.16rem;height:.12rem;background:#fff;display:block;flex-shrink:0}
+.fit{position:absolute;right:.3rem;top:.28rem;text-align:right}
+.fit .lb{font-family:var(--en);font-size:.2rem;color:#fff;letter-spacing:.01rem}
+.fit .n{font-family:var(--en);font-size:1.16rem;line-height:1;color:var(--lime)}
+.fit .n small{font-size:.3rem;color:#888}
+.fit .warn{display:inline-block;margin-top:.06rem;font-size:.18rem;font-weight:800;color:#000;background:#fff;border-radius:.2rem;padding:.03rem .12rem}
+.meta{display:flex;align-items:center;gap:.14rem;margin-top:.4rem}
+.date{font-family:var(--en);font-size:.28rem}
+.tag{background:#000;color:var(--lime-soft);font-size:.16rem;font-weight:700;border-radius:.14rem 0 0 .14rem;padding:.04rem .14rem .04rem .12rem;clip-path:polygon(0 0,100% 0,88% 100%,0 100%)}
+.ttl{margin-top:.26rem;font-size:.32rem;font-weight:800;line-height:1.3}
+.desc{margin-top:.12rem;font-size:.24rem;color:var(--sub);line-height:.34rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ghost .banner{background:#bdbdbd}.ghost .banner .pat{opacity:.25}
+/* detail */
+.dt-top{background:#000;color:#fff;padding:.5rem .4rem .5rem;position:relative;border-radius:0 0 .55rem 0}
+.dt-top .bk{font-family:var(--en);font-size:.24rem;color:#aaa}
+.dt-top h1{font-size:.42rem;font-weight:800;line-height:1.3;margin-top:.24rem}
+.dt-top .tags{display:flex;gap:.1rem;margin-top:.22rem;flex-wrap:wrap}
+.dt-top .co2{font-size:.24rem;color:#bbb;margin-top:.16rem}
+.score{display:flex;align-items:flex-end;gap:.2rem;margin-top:.4rem}
+.score .big{font-family:var(--en);font-size:1.9rem;line-height:.85;color:var(--lime)}
+.score .side{padding-bottom:.08rem}
+.score .side div{font-size:.22rem;color:#ddd;line-height:1.6}
+.score .side b{color:var(--lime);font-weight:800}
+.blk{margin:.5rem .4rem 0}
+.blk-h{display:flex;align-items:baseline;gap:.14rem;margin-bottom:.22rem}
+.blk-h .n{font-family:var(--en);font-size:.5rem;line-height:1}
+.blk-h .t{font-size:.3rem;font-weight:800}
+.blk-h .e{font-family:var(--en);font-size:.2rem;color:#9a9a9a;margin-left:auto}
+.rows{background:#fff;border-radius:0 .4rem 0 .4rem;padding:.1rem .26rem}
+.row{display:flex;gap:.18rem;padding:.2rem 0;border-bottom:.01rem solid #e6e6e6}
+.row:last-child{border-bottom:0}
+.chip{flex-shrink:0;width:1.1rem;text-align:center;font-size:.18rem;font-weight:800;border-radius:.2rem;padding:.05rem 0;height:.34rem;line-height:.24rem}
+.c-ok{background:var(--lime);color:#000}
+.c-part{background:#d6d6d6;color:#222}
+.c-no{background:#222;color:#fff}
+.c-ask{background:#fff;color:#000;border:.03rem solid #000}
+.row .k{font-size:.24rem;font-weight:800;line-height:1.35}
+.row .k em{font-style:normal;font-family:var(--en);font-weight:400;color:#9a9a9a;font-size:.2rem;margin-left:.06rem}
+.row .v{font-size:.21rem;color:var(--sub);margin-top:.06rem;line-height:1.45}
+.need{background:var(--panel);color:#fff;border-radius:0 .4rem 0 .4rem;padding:.26rem}
+.need li{list-style:none;display:flex;gap:.16rem;padding:.14rem 0;border-bottom:.01rem solid #333;font-size:.24rem;line-height:1.45}
+.need li:last-child{border:0}
+.need li b{font-family:var(--en);font-weight:400;color:var(--lime);font-size:.3rem;width:.4rem;flex-shrink:0}
+.need li span small{display:block;color:#999;font-size:.2rem;margin-top:.04rem}
+.txt{background:#fff;border-radius:0 .4rem 0 .4rem;padding:.26rem}
+.txt h4{font-size:.22rem;font-weight:800;margin:.18rem 0 .08rem;display:flex;align-items:center;gap:.1rem}
+.txt h4:first-child{margin-top:0}
+.txt h4:before{content:"";width:.12rem;height:.24rem;background:var(--lime);transform:skewX(-20deg)}
+.txt p,.txt li{font-size:.22rem;color:#444;line-height:1.6;list-style:none}
+.txt li:before{content:"· "}
+.co-card{background:#fff;border-radius:0 .4rem 0 .4rem;padding:.26rem;display:grid;grid-template-columns:1.5rem 1fr;row-gap:.14rem;font-size:.22rem}
+.co-card dt{color:#999;font-weight:700}
+.co-card dd{color:#222;font-weight:600;line-height:1.45}
+.co-card dd.na{color:#b04;font-weight:700}
+.src{font-size:.18rem;color:#999;margin-top:.14rem;line-height:1.5}
+.bar{position:sticky;bottom:0;z-index:6;margin-top:.6rem;background:rgba(0,0,0,.7);border-radius:.14rem .14rem 0 0;padding:.16rem .2rem;display:flex;gap:.14rem}
+.bar a{flex:1;height:.84rem;border-radius:.42rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.26rem;text-decoration:none}
+.bar .p{background:var(--lime);color:#111;flex:1.6}
+.bar .s{background:#000;color:#fff;border:.06rem solid var(--line)}
+.cap{max-width:7.5rem;margin:24px auto 8px;font:700 14px/1.4 var(--ko);color:#333;padding:0 8px}
+</style>
+</head>
+<body>
+
+<p class="cap" id="cap-list">화면 A · 공고 목록 (탭 01)</p>
+<section class="screen" id="list">
+  <header class="hd"><div class="logo"><i></i>JOB RADAR</div><div class="hd-btn">MY SPEC</div></header>
+  <div class="menu-btn"><b></b><b></b><b></b></div>
+  <div class="sec">
+    <div class="sec-stripe"></div>
+    <div class="watermark">JOB<br>LIST</div>
+    <div class="sec-label"><div class="en">Jobs</div><div class="num">01</div></div>
+  </div>
+  <div class="sum">
+    <div><b>1</b><span>새 공고</span></div>
+    <div><b>0</b><span>마감 임박 (7일)</span></div>
+    <div><b>45</b><span>최고 적합도</span></div>
+  </div>
+  <div class="tabs"><div class="thumb"></div><span class="on">전체</span><span>한국</span><span>일본</span><span>중국</span><span>미국</span></div>
+  <div class="list">
+    <article class="card">
+      <div class="banner">
+        <div class="pat"></div><div class="slab"></div>
+        <div class="co"><div class="ini">EPID</div><div class="nm">에피드게임즈</div><div class="gm">트릭컬 리바이브</div></div>
+        <div class="fit"><div class="lb">FIT SCORE</div><div class="n">45<small>/100</small></div><div class="warn">확인 필요 2</div></div>
+        <div class="film"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="meta"><span class="date">2026/10/27</span><span class="tag">KR</span><span class="tag">사업PM</span><span class="tag">채용시 마감</span></div>
+      <h3 class="ttl">[트릭컬 리바이브] 글로벌 사업PM 추가 모집</h3>
+      <p class="desc">경력 무관 · 정규직 · 서울 강남(논현역). 일본어 또는 중국어 원어민 수준이 필수 조건. 런칭·라이브 전략, 데이터 분석, 파트너 조율, 통역 업무.</p>
+    </article>
+    <article class="card ghost">
+      <div class="banner"><div class="pat"></div></div>
+      <div class="meta"><span class="date">----/--/--</span><span class="tag">JP</span></div>
+      <h3 class="ttl" style="color:#aaa">다음 공고 자리 (4단계에서 채움)</h3>
+    </article>
+  </div>
+</section>
+
+<p class="cap" id="cap-detail">화면 B · 공고 상세 (샘플 공고 1개)</p>
+<section class="screen" id="detail">
+  <header class="hd"><div class="logo"><i></i>JOB RADAR</div><div class="hd-btn">MY SPEC</div></header>
+  <div class="dt-top">
+    <div class="bk">&lt; JOBS 01</div>
+    <h1>[트릭컬 리바이브]<br>글로벌 사업PM 추가 모집</h1>
+    <div class="co2">에피드게임즈 · 서울 강남구 · 정규직 · 경력 무관</div>
+    <div class="tags"><span class="tag">KR</span><span class="tag">서브컬처</span><span class="tag">사업PM</span><span class="tag">채용시 마감</span></div>
+    <div class="score">
+      <div class="big">45</div>
+      <div class="side">
+        <div>FIT SCORE / 100 · 참고용</div>
+        <div>확인 필요 2개 모두 충족 시 <b>최대 85</b></div>
+        <div>핵심 변수: <b>일본어·중국어 원어민 수준</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-h"><span class="n">A</span><span class="t">적합도 근거</span><span class="e">WHY</span></div>
+    <div class="rows">
+      <div class="row"><span class="chip c-ok">충족</span><div><div class="k">서브컬처·게임·애니 이해와 애정<em>필수 20/20</em></div><div class="v">어릴 때부터 서브컬처 행사 참여, 2차창작 굿즈 부스 참여, 대부분의 서브컬처 게임 플레이 중</div></div></div>
+      <div class="row"><span class="chip c-ask">확인 필요</span><div><div class="k">중국어 또는 일본어 원어민 수준<em>필수 0/20</em></div><div class="v">내 이력에 일본어·중국어 실력 정보 없음. 영어 원어민은 이 공고 조건이 아님</div></div></div>
+      <div class="row"><span class="chip c-ask">확인 필요</span><div><div class="k">해외 출장 결격 사유 없음<em>필수 0/20</em></div><div class="v">해외 장기 거주 경험으로 문제없을 가능성 높음. 본인 확인 후 반영</div></div></div>
+      <div class="row"><span class="chip c-no">부족</span><div><div class="k">초기 개발~출시 주도 관리 경험<em>우대 0/10</em></div><div class="v">넷마블 사업PM(SQC) 8개월. 출시를 직접 주도한 경험은 이력에 없음</div></div></div>
+      <div class="row"><span class="chip c-part">일부</span><div><div class="k">라이브 게임 통계 분석 → 문제 해결<em>우대 5/10</em></div><div class="v">SQC에서 라이브 게임 문제점 분석·개선안 발표 경험. 지표(통계) 분석 경험은 확인 안 됨</div></div></div>
+      <div class="row"><span class="chip c-ok">충족</span><div><div class="k">국내·글로벌 모바일 게임 이해도<em>우대 10/10</em></div><div class="v">매주 구글 플레이 매출 상위 30위 조사(TOP20), 게임 트렌드 포럼(GTF) 제작</div></div></div>
+      <div class="row"><span class="chip c-ok">충족</span><div><div class="k">경력 조건: 무관<em>10/10</em></div><div class="v">신입~고경력 모두 지원 가능</div></div></div>
+    </div>
+    <p class="src">계산: 필수 3개 × 20점 + 우대 3개 × 10점 + 경력 조건 10점 = 100점. AI가 공고와 내 이력을 비교한 참고용 점수.</p>
+  </div>
+
+  <div class="blk">
+    <div class="blk-h"><span class="n">B</span><span class="t">지원에 필요한 스탯</span><span class="e">STATS</span></div>
+    <ul class="need">
+      <li><b>01</b><span>일본어 또는 중국어 원어민 수준 + 한국어 통역 가능<small>없으면 지원 불가에 가까움. JLPT N1 / HSK 6급은 최소 기준일 뿐</small></span></li>
+      <li><b>02</b><span>라이브 게임 지표 분석 사례 1개 이상<small>예: 매출·잔존율 변화 → 원인 → 개선안. SQC 결과물을 지표 중심으로 정리하면 대체 가능</small></span></li>
+      <li><b>03</b><span>서브컬처 덕력 증빙<small>행사 참여 이력, 2차창작 부스, 플레이 기록. 이 회사는 "진짜 오타쿠"를 명시적으로 찾음</small></span></li>
+    </ul>
+  </div>
+
+  <div class="blk">
+    <div class="blk-h"><span class="n">C</span><span class="t">공고 요약</span><span class="e">원문: 한국어</span></div>
+    <div class="txt">
+      <h4>담당 업무</h4>
+      <ul><li>게임 런칭 및 라이브 서비스 프로젝트 전략 수립</li><li>게임·유저 데이터 분석으로 방향 제시</li><li>유관 부서·파트너사 커뮤니케이션 조율</li><li>일본어 또는 중국어 ↔ 한국어 통역</li></ul>
+      <h4>지원 자격</h4>
+      <ul><li>서브컬처·게임·애니메이션에 대한 깊은 이해와 애정</li><li>네이티브 수준 중국어 또는 일본어</li><li>해외 출장 결격 사유 없음</li></ul>
+      <h4>우대 사항</h4>
+      <ul><li>게임 초기 개발~출시까지 주도적으로 관리·운영한 경험</li><li>서비스 중인 게임의 통계를 분석해 문제를 해결하고 개선안을 낸 경험</li><li>국내·글로벌 모바일 게임 이해도</li></ul>
+      <h4>근무 조건</h4>
+      <ul><li>주 5일, 시차 출근 9~11시, 코어타임 11~18시, 하루 7.5시간</li><li>전형: 서류 → 1차 면접 → 2차 면접 → 처우 협의 → 입사</li><li>급여: 면접 시 협의</li></ul>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-h"><span class="n">D</span><span class="t">기업 정보</span><span class="e">COMPANY</span></div>
+    <dl class="co-card">
+      <dt>위치</dt><dd>서울 강남구 강남대로 556 (이투데이 빌딩) 4층 · 논현역 9번 출구 30초</dd>
+      <dt>규모</dt><dd>임직원 241명(2026년 9월, 더브이씨) / 220명(게임잡) · 2013년 설립 · 비상장 벤처기업</dd>
+      <dt>대표작</dt><dd>트릭컬 리바이브 (2026년 10월 구글 매출 3위, 일본 앱스토어 매출 3위)</dd>
+      <dt>근무</dt><dd>주 5일, 시차 출근(9~11시), 하루 7.5시간</dd>
+      <dt>복지<br>(공고)</dt><dd>연차 횟수 무제한·당일 사용 가능, 점심 90분, 중식·석식, 식대 포인트, 커피·음료, 서브컬처 행사 지원, 동아리비, 실내 풋살장, 닉네임 호칭</dd>
+      <dt>복지<br>(기타)</dt><dd>인센티브제, 장기근속 포상, 스톡옵션 (사람인 기재, 회사 입력 정보)</dd>    </dl>
+    <p class="src">출처: 게임잡 공고(2026-11-20 수정)와 공고 이미지, 사람인 기업정보, 더브이씨, 더게임스데일리 기사(2026-10-02, 09-28)</p>
+  </div>
+
+  <div class="bar"><a class="p" href="https://www.gamejob.co.kr/Recruit/GI_Read/View?GI_No=286405">원문 보기</a><a class="s" href="https://epidgames.career.greetinghr.com/ko/apply">회사 지원 페이지</a></div>
+</section>
+
+</body>
+</html>
