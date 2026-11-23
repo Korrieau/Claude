@@ -1,0 +1,32 @@
+<!doctype html><html><head>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=JetBrains+Mono:wght@700;800&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#888}
+.i{width:1024px;height:1024px;position:relative;overflow:hidden;background:#ECEEF1;font-family:Archivo;font-stretch:125%}
+.hatch{position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(25,25,25,.06) 0 10px,transparent 10px 26px)}
+.top{position:absolute;left:0;top:0;right:0;height:150px;background:#191919}
+.top .m{position:absolute;left:130px;top:50px;font:800 40px/1 'JetBrains Mono';color:#fff;letter-spacing:6px}
+.top .m b{color:#1F5BFF}
+.top .sq{position:absolute;right:130px;top:45px;width:60px;height:60px;background:#1F5BFF}
+.big{position:absolute;left:96px;top:300px;font-weight:900;font-size:400px;line-height:.8;color:#191919;letter-spacing:-12px}
+.slash{position:absolute;left:430px;top:560px;width:900px;height:170px;background:#1F5BFF;transform:skewX(-35deg);transform-origin:left top}
+.slash2{position:absolute;left:600px;top:760px;width:900px;height:70px;background:repeating-linear-gradient(135deg,#191919 0 14px,transparent 14px 32px);transform:skewX(-35deg)}
+.radar{position:absolute;right:120px;top:215px;width:150px;height:150px;border:16px solid #191919;border-radius:50%;box-sizing:border-box}
+.radar:before{content:"";position:absolute;inset:28px;border:10px solid #191919;border-radius:50%}
+.radar i{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px;background:#1F5BFF;border-radius:50%}
+.radar u{position:absolute;left:50%;top:-16px;width:12px;height:150px;margin-left:-6px;background:#191919}
+.radar s{position:absolute;right:18px;top:26px;width:28px;height:28px;background:#1F5BFF}
+.bot{position:absolute;left:130px;bottom:110px;font:800 34px/1.3 'JetBrains Mono';color:#191919;letter-spacing:4px}
+.bot em{font-style:normal;color:#1F5BFF}
+.tri{position:absolute;right:0;bottom:0;width:0;height:0;border-left:190px solid transparent;border-bottom:190px solid #191919}
+.tick{position:absolute;width:64px;height:64px;border:0 solid #191919}
+</style></head><body>
+<div class="i" id="i">
+ <div class="hatch"></div>
+ <div class="top"><div class="m">JOB RADAR <b>//</b> 00</div><div class="sq"></div></div>
+ <div class="slash"></div><div class="slash2"></div>
+ <div class="big">JR</div>
+ <div class="radar"><u></u><i></i><s></s></div>
+ <div class="bot">FIELD SCAN<br><em>■</em> GAME·IP PM</div>
+ 
+</div></body></html>
