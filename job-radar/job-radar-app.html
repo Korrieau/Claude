@@ -496,10 +496,10 @@ function viewTests(){
   return `${topbar()}${secHead("Test","04","BETA<br>TEST","CBT·베타테스트 신청 모집")}
   <main class="pad">${stateNote()}
     ${list.length?`<div class="snap">${list.map(x=>{ const d=daysLeft(x.end); const t=TYPES[x.tone]||TYPES.publish;
-      return `<article class="tcard" style="${kvars(t)}"><div class="tb"><h3>${esc(x.game)}</h3><p>${esc(x.company)}</p><div class="dd">${d===null?"—":d<0?"END":"D-"+d}</div></div>
+      return `<article class="tcard" style="${kvars(t)}"><div class="tb"><h3>${esc(x.game)}</h3><p>${esc(x.company)}</p><div class="dd">${d===null?(x.start&&x.start<=today()?"OPEN":"SOON"):d<0?"END":"D-"+d}</div></div>
         <div class="tbar">${esc(x.kind||"CBT")} · ${esc(x.platform||"")}</div>
-        <dl><dt>모집</dt><dd>${esc(x.start||"")} ~ ${esc(x.end||"")}</dd><dt>테스트</dt><dd>${esc(x.test_period||"미정")}</dd><dt>지역</dt><dd>${esc(x.region||"")}</dd>${x.note?`<dt>메모</dt><dd>${esc(x.note)}</dd>`:""}</dl>
-        ${x.url?`<a class="btn k" href="${esc(x.url)}" target="_blank" rel="noopener">신청 페이지</a>`:""}</article>`;}).join("")}</div>`
+        <dl><dt>모집</dt><dd>${x.start?esc(x.start):"시작일 미기재"} ~ ${x.end?esc(x.end):"마감일 미정"}</dd><dt>테스트</dt><dd>${esc(x.test_period||"미정")}</dd><dt>지역</dt><dd>${esc(x.region||"")}</dd>${x.note?`<dt>메모</dt><dd>${esc(x.note)}</dd>`:""}</dl>
+        ${x.url?`<a class="btn k" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.link_label||"신청 페이지")}</a>`:""}</article>`;}).join("")}</div>`
     : S.ready?`<div class="empty"><h3>모집 중인 테스트를 아직 담지 않았습니다</h3><p>4단계에서 CBT·베타테스트 신청 모집을 찾아 채웁니다. 카드는 옆으로 넘겨 보는 형태로, 게임명·회사·모집 기간·신청 링크·남은 날짜를 보여줍니다.</p></div>`:""}
   </main>${tabbar("tests")}`;
 }
