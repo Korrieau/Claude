@@ -23,5 +23,15 @@
    "closed": 0
   }
  ],
- "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+//7//v/+/v/+/v7+/f/9/f/9/P728/7x7P7u6P/s5P/r4v/p4P/p4P7p3//o3//o3v/n3v/n3f7k2v3f0vvczf/ayvzPu/nEqvK7nviti/Onfv+mfP+gd/SXafOQXfuNWP+MVv+LVv+IV9iLVf+KVf+LVP+KVP+JU/+HVNmIUf+GTv+ES/+ESv+DSv+CT9d+RfNsMNJnKc5mKM5mKM1mJ85lJ81kJs1mJc5kJc1jI81eHMtbGMtbF8pXEMnI6YLEAAAC1klEQVR42u3aS3OiQBSGYSKDXMQMBC+AooJgIKIYcMQAwv//V3MQrVTNYmoWs2q+Jxvj7q3TrQLNcQAAAAAAAAAAAAAAAAAAAAAA0Ae8wA961fuoFvg+1A44wbbnhnT/ZyjwPPvBL85n7K6X9nwsPhc4yyt8wPHLgxvFybGttmaSyPi2pmAn8cLA24ZUnSSuY5uTR7Ug8swGk91u67ne/pgc3M2yre6iWdvW38HhLgyjcOd5wT4+HLptPWJ5wmFE6zpoXwTb7TaI4mOSvNO2nsoik8GUS3s4jjzvkb2lWUcHesu1uSF7wcF+Y5r2chO2ift21gEtcdrWnpusOIHJ4KmiKPqMqtfunjbxPqIhb8PQSxxGg2eqoauKLMsqVS+cjdt+OUeBe3QERoNH2ljTDcMYjxRZUSdzy3Y2u+T46XCiKLLyS/uP4I6m65o6GinKeDI37dVS5pid8LefmqbpY5WqJevir+jbifHgZ/bbRLaamv7854Uk08HEkK0qy7L646U/wfW5ON98BCMYwQhGMIIRjGAE/9dgTZ/0Jri9NtZVZST2IFgzjO7uh2LMLduvcnaD6TKYBqsqkiS9zq3F6pQW1S0v2AxWjTetveKnuZr26iPNyupWlWVOvcW5Zip4F3jhZibTGn6dUqufVk3TVGV+zvP8WhTX/JJV7AQvY/c9PiThrGvNbjXNlS75z+1ki/ycZTmNujmxc8fj8xBvHNvyabuSMqfC6731cjlTa13XZerbU1Zu4/F296hQSunDqV3ExT22m2tdpSd/YRocc4aCcqrurdd2EWdl3dRfqb+wpvfHpgNxyNBTU15sHwLLFEytl4IWcdNkp7a1e24oigJ7E26Dy1/UWlVfp/ViLr3c3xaYPebCc0raVOnHemFOngcemD7TQxNeLcxuw7ZruA9H1e6LeCAw9fH0dz96dgSxV7EAAAAAAAAAAAAAAAAAAAAAAP/qN61SneXlc2yOAAAAAElFTkSuQmCC"
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+//7//v/+/v/+/v7+/f/9/f/9/P728/7x7P7u6P/s5P/r4v/p4P/p4P7p3//o3//o3v/n3v/n3f7k2v3f0vvczf/ayvzPu/nEqvK7nviti/Onfv+mfP+gd/SXafOQXfuNWP+MVv+LVv+IV9iLVf+KVf+LVP+KVP+JU/+HVNmIUf+GTv+ES/+ESv+DSv+CT9d+RfNsMNJnKc5mKM5mKM1mJ85lJ81kJs1mJc5kJc1jI81eHMtbGMtbF8pXEMnI6YLEAAAC1klEQVR42u3aS3OiQBSGYSKDXMQMBC+AooJgIKIYcMQAwv//V3MQrVTNYmoWs2q+Jxvj7q3TrQLNcQAAAAAAAAAAAAAAAAAAAAAA0Ae8wA961fuoFvg+1A44wbbnhnT/ZyjwPPvBL85n7K6X9nwsPhc4yyt8wPHLgxvFybGttmaSyPi2pmAn8cLA24ZUnSSuY5uTR7Ug8swGk91u67ne/pgc3M2yre6iWdvW38HhLgyjcOd5wT4+HLptPWJ5wmFE6zpoXwTb7TaI4mOSvNO2nsoik8GUS3s4jjzvkb2lWUcHesu1uSF7wcF+Y5r2chO2ift21gEtcdrWnpusOIHJ4KmiKPqMqtfunjbxPqIhb8PQSxxGg2eqoauKLMsqVS+cjdt+OUeBe3QERoNH2ljTDcMYjxRZUSdzy3Y2u+T46XCiKLLyS/uP4I6m65o6GinKeDI37dVS5pid8LefmqbpY5WqJevir+jbifHgZ/bbRLaamv7854Uk08HEkK0qy7L646U/wfW5ON98BCMYwQhGMIIRjGAE/9dgTZ/0Jri9NtZVZST2IFgzjO7uh2LMLduvcnaD6TKYBqsqkiS9zq3F6pQW1S0v2AxWjTetveKnuZr26iPNyupWlWVOvcW5Zip4F3jhZibTGn6dUqufVk3TVGV+zvP8WhTX/JJV7AQvY/c9PiThrGvNbjXNlS75z+1ki/ycZTmNujmxc8fj8xBvHNvyabuSMqfC6731cjlTa13XZerbU1Zu4/F296hQSunDqV3ExT22m2tdpSd/YRocc4aCcqrurdd2EWdl3dRfqb+wpvfHpgNxyNBTU15sHwLLFEytl4IWcdNkp7a1e24oigJ7E26Dy1/UWlVfp/ViLr3c3xaYPebCc0raVOnHemFOngcemD7TQxNeLcxuw7ZruA9H1e6LeCAw9fH0dz96dgSxV7EAAAAAAAAAAAAAAAAAAAAAAP/qN61SneXlc2yOAAAAAElFTkSuQmCC",
+ "info": {
+  "founded": "2018",
+  "size": "81명",
+  "type": "스타트업",
+  "revenue": "125억 1,327만원",
+  "industry": "응용 소프트웨어 개발 및 공급업",
+  "business": "응용 소프트웨어 개발 및 공급업,온라인정보제공업/자동응답전화정보제공업,번역 및 통역 서비스업",
+  "address": "서울 강남구 강남대로 374, 케이스퀘어 강남2 10층",
+  "homepage": "https://voithru.com/"
+ }
 }

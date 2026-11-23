@@ -23,5 +23,14 @@
    "closed": 0
   }
  ],
- "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAeFBMVEX////+/v79/f38/Pz7+/v5+fn39/f29vbs7Ozr6+vh4eHLy8vJycnCwsLBwcHAwMC/v7+oqKinp6empqaZmZmXl5eWlpaDg4OCgoKBgYEzMzMwMDAvLy8sLCwpKSkfHx8eHh4bGxsICAgHBwcFBQUDAwMCAgIAAABLj9hPAAAA/ElEQVR42u3ZyW6CUACG0UsFrVOdWq0DtlYq7/+GRbp0A6YhufacNT/hC4GEEAIAAAAAAAAAAAAxevrV8ZSuJGE8n75MZ5O0/TadzKrpfFydJB69kJdXx0Hby07C4FhP8+okMQUfykv5Xeb99sH9vBpeyoNgwYIFCxYsWLBgwbfBSUPucKTB2fC5kWH2EMFpWJYNLUP6AMFJGK0WqwYWq9H1aM9wfMFJ2lDiLS1YsGDBggULFiz4JnhXnIuvYn9P8L4anotdZMEf9ffe6Z6/h6d6+hlVcBLetpv3zXadtd9m63r6GtX/4X+oV3/v9TqeAgAAAAAAAAAAAPytH5UjTIPAt4B4AAAAAElFTkSuQmCC"
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAeFBMVEX////+/v79/f38/Pz7+/v5+fn39/f29vbs7Ozr6+vh4eHLy8vJycnCwsLBwcHAwMC/v7+oqKinp6empqaZmZmXl5eWlpaDg4OCgoKBgYEzMzMwMDAvLy8sLCwpKSkfHx8eHh4bGxsICAgHBwcFBQUDAwMCAgIAAABLj9hPAAAA/ElEQVR42u3ZyW6CUACG0UsFrVOdWq0DtlYq7/+GRbp0A6YhufacNT/hC4GEEAIAAAAAAAAAAAAxevrV8ZSuJGE8n75MZ5O0/TadzKrpfFydJB69kJdXx0Hby07C4FhP8+okMQUfykv5Xeb99sH9vBpeyoNgwYIFCxYsWLBgwbfBSUPucKTB2fC5kWH2EMFpWJYNLUP6AMFJGK0WqwYWq9H1aM9wfMFJ2lDiLS1YsGDBggULFiz4JnhXnIuvYn9P8L4anotdZMEf9ffe6Z6/h6d6+hlVcBLetpv3zXadtd9m63r6GtX/4X+oV3/v9TqeAgAAAAAAAAAAAPytH5UjTIPAt4B4AAAAAElFTkSuQmCC",
+ "info": {
+  "founded": "2005",
+  "size": "978명",
+  "type": "1000대기업",
+  "industry": "음악 및 기타 오디오물 출판업",
+  "business": "음악 기획/제작,퍼블리싱,아티스트 매니지먼트",
+  "address": "서울 용산구 한강대로 42 (한강로3가,용산트레이드센터)",
+  "homepage": "https://hybecorp.com/kor/main"
+ }
 }

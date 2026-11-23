@@ -169,7 +169,7 @@ a{color:inherit}
 .qs .q small em{font-style:normal;color:var(--k);font-weight:800}
 .raw{margin-top:10px;border:2px solid var(--rim);border-radius:2px;background:var(--paper)}
 .raw summary{padding:11px 12px;font:800 12.5px/1 var(--ko);cursor:pointer}
-.raw pre{margin:0;padding:0 12px 12px;white-space:pre-wrap;font:500 12px/1.6 var(--ko);color:var(--sub);max-height:420px;overflow:auto}
+.raw pre{margin:0;padding:0 12px 12px;white-space:pre-wrap;font:500 13px/1.7 var(--ko);color:var(--ink);max-height:none}
 .calc{margin:8px 2px 0;font:500 11px/1.5 var(--ko);color:var(--mute)}
 .need{background:var(--dark);color:#fff;border-radius:2px;padding:4px 14px;margin:0;list-style:none;position:relative;overflow:hidden}
 .need::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--k)}
@@ -486,6 +486,10 @@ body{background-color:var(--bg);background-image:repeating-linear-gradient(45deg
 .inst .iu code{flex:1;min-width:0;font:700 11px/1.4 var(--mono);word-break:break-all;user-select:all}
 .inst .is{margin:0;padding:0 0 0 20px;background:var(--paper);border:3px solid var(--rim);border-radius:2px;padding:12px 14px 12px 32px}
 .inst .is li{font:600 13.5px/1.6 var(--ko);margin:4px 0}
+.trbox{background:var(--dark);color:#fff;border-radius:2px;padding:14px;margin-bottom:12px}
+.trbox p{margin:0 0 10px;font:700 13px/1.5 var(--ko)}
+.trbox small{display:block;margin-top:8px;font:600 11.5px/1.4 var(--ko);color:#9AA3B2}
+.trnote{margin:0 0 8px;font:700 11px/1 var(--mono);color:var(--k)}
 </style>
 
 
@@ -582,7 +586,7 @@ async function boot(){
   try { db = await window.claude?.use?.("db"); } catch(e){ db = null; }
   if(!db){ clearTimeout(timer); S.failed="none"; bootEnd(); render(); return; }
   S.db = db;
-  const seen = {jobs:false,jobpacks:false,companies:false,tests:false,news:false,watch:false,watchpacks:false,status:false,profile:false};
+  const seen = {bodies:false,tr:false,jobs:false,jobpacks:false,companies:false,tests:false,news:false,watch:false,watchpacks:false,status:false,profile:false};
   const R={jobs:[],jobpacks:[],watch:[],watchpacks:[]};
   const flat=(single,packs)=>{ const m=new Map(); packs.forEach(p=>Object.entries(p.items||{}).forEach(([id,v])=>m.set(id,{id,...v}))); single.forEach(x=>m.set(x.id,x)); return [...m.values()]; };
   const done = k => { seen[k]=true; bootProgress(Object.values(seen).filter(Boolean).length/Object.keys(seen).length); if(Object.values(seen).every(Boolean)){ S.ready=true; S.failed=false; clearTimeout(timer); bootEnd(); } render(); };
@@ -592,6 +596,8 @@ async function boot(){
   db.collection("watch").onSnapshot(s=>{ R.watch=s.docs.map(d=>({id:d.id,...d.data()})); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watch"); else render(); }, onErr);
   db.collection("jobpacks").onSnapshot(s=>{ R.jobpacks=s.docs.map(d=>d.data()); S.jobs=flat(R.jobs,R.jobpacks); if(!s.metadata.fromCache) done("jobpacks"); else render(); }, onErr);
   db.collection("watchpacks").onSnapshot(s=>{ R.watchpacks=s.docs.map(d=>d.data()); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watchpacks"); else render(); }, onErr);
+  db.collection("bodypacks").onSnapshot(s=>{ const m={}; s.docs.forEach(d=>Object.assign(m,d.data().items||{})); S.bodies=m; if(!s.metadata.fromCache) done("bodies"); else render(); }, onErr);
+  db.collection("tr").onSnapshot(s=>{ S.tr=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("tr"); else render(); }, onErr);
   db.collection("news").onSnapshot(s=>{ S.news=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("news"); else render(); }, onErr);
   db.collection("tests").onSnapshot(s=>{ S.tests=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("tests"); else render(); }, onErr);
   db.collection("status").onSnapshot(s=>{ S.status=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("status"); else render(); }, onErr);
@@ -848,6 +854,9 @@ function viewJobs(){
 function viewJob(){
   const j = S.jobs.find(x=>x.id===S.param);
   if(!j) return `${topbar()}<main class="pad">${stateNote()}${S.ready?`<div class="empty"><h3>공고를 찾을 수 없습니다</h3><p><a href="#jobs">공고 목록으로 돌아가기</a></p></div>`:""}</main>${tabbar("jobs")}`;
+  const bd=(S.bodies||{})[j.id]||{}; const J0={...j,raw:bd.raw||j.raw,raw_ocr:bd.ocr||j.raw_ocr,duties:(j.duties||[]).length?j.duties:(bd.duties||[]),quals:(j.quals||[]).length?j.quals:(bd.quals||[]),prefs:(j.prefs||[]).length?j.prefs:(bd.prefs||[])};
+  const tr=(S.tr||{})[j.id]; const needTr=!!J0.raw && !(J0.duties||[]).length && j.lang_original_label!=="한국어";
+  const J2=tr?{...J0,duties:tr.duties||[],quals:tr.quals||[],prefs:tr.prefs||[],summary:tr.summary||j.summary}:J0;
   const t=typeOf(j), sc=score(j), st=S.status[j.id]?.status, c=S.companies.find(x=>x.id===j.company_id);
   const chip = s=>({ok:["c-ok","충족"],part:["c-part","일부"],no:["c-no","부족"],ask:["c-ask","답변 필요"]}[s]||["c-ask","답변 필요"]);
   const reqRow = r=>{const [cl,lb]=chip(r.status);return `<div class="req"><span class="chip ${cl}">${lb}</span><div style="flex:1"><div class="k">${esc(r.text)}<em>${r.kind==="must"?"MUST":r.kind==="plus"?"PLUS":"CAREER"} ${r.pts}/${r.max}</em></div><div class="v">${esc(r.reason)}</div>${r.kind!=="career"?ansBtns(r):""}</div></div>`};
@@ -872,15 +881,19 @@ function viewJob(){
       ${sc.thin?`<div class="alert ask" style="margin:0 0 10px">이 공고는 지원 자격이 목록에 없어 점수를 최대 70점으로 제한했습니다. 원문에서 자격을 확인하세요.</div>`:""}<p class="calc">필수 조건 60점 + 우대 조건 30점 + 경력 조건 10점. 충족은 만점, 일부는 절반. 공고와 내 이력을 비교한 참고용 점수입니다.</p></section>
     ${(j.needs||[]).length?`<section class="blk"><div class="blk-h"><span class="n">// 02</span><h2>지원에 필요한 스탯</h2><small>STATS <span class="arrowbox">↘</span></small></div>
       <ol class="need">${j.needs.map((n,i)=>`<li><b class="w">${String(i+1).padStart(2,"0")}</b><span>${esc(n.title)}<small>${esc(n.detail)}</small></span></li>`).join("")}</ol></section>`:""}
-    <section class="blk"><div class="blk-h"><span class="n">// 03</span><h2>공고 요약</h2><small>${esc(j.lang_original_label||"한국어")}</small></div>
-      <div class="txt">${(j.duties||[]).length?`<h3>담당 업무</h3>${list(j.duties)}`:""}${(j.quals||[]).length?`<h3>지원 자격</h3>${list(j.quals)}`:""}${(j.prefs||[]).length?`<h3>우대 사항</h3>${list(j.prefs)}`:""}${(j.conditions||[]).length?`<h3>근무 조건</h3>${list(j.conditions)}`:""}
-        ${!(j.duties||[]).length?`<p class="calc">${esc(j.summary||"")}</p>`:""}</div>
-      ${j.raw?`<details class="raw"${(j.duties||[]).length?"":" open"}><summary>원문 보기 (${esc(j.lang_original_label||"원문")}${j.title_original?` · ${esc(j.title_original)}`:""})</summary><pre>${esc(j.raw)}</pre></details>`:""}</section>
-    ${c?`<section class="blk"><div class="blk-h"><span class="n">// 04</span><h2>기업 정보</h2><small>COMPANY <span class="arrowbox">↘</span></small></div>${companyCard(c)}</section>`:""}
+    <section class="blk"><div class="blk-h"><span class="n">// 03</span><h2>공고 내용</h2><small>${esc(j.lang_original_label||"한국어")}</small></div>
+      ${needTr&&!tr?`<div class="trbox"><p>원문(${esc(j.lang_original_label||"외국어")})만 있는 공고입니다.</p><button class="btn" id="trBtn" data-id="${esc(j.id)}" ${S.trBusy===j.id?"disabled":""}>${S.trBusy===j.id?"번역 중… (10~20초)":"한국어로 번역하기"}</button><small>한 번 번역하면 저장돼서 다음부터 바로 보입니다.</small></div>`:""}
+      ${tr?`<p class="trnote">Claude 번역 · ${esc(tr.at||"")}</p>`:""}
+      <div class="txt">${(J2.duties||[]).length?`<h3>담당 업무</h3>${list(J2.duties)}`:""}${(J2.quals||[]).length?`<h3>지원 자격</h3>${list(J2.quals)}`:""}${(J2.prefs||[]).length?`<h3>우대 사항</h3>${list(J2.prefs)}`:""}${(j.conditions||[]).length?`<h3>근무 조건</h3>${list(j.conditions)}`:""}
+        ${!(J2.duties||[]).length?`<p class="calc">${esc(J2.summary||"")}</p>`:""}</div>
+      ${J0.raw?`<details class="raw" open><summary>공고 원문 전체 (${esc(j.lang_original_label||"원문")}${j.title_original?` · ${esc(j.title_original)}`:""})</summary><pre>${esc(J0.raw)}</pre>${J0.raw_ocr?`<p class="trnote" style="padding:0 12px 10px">이미지 공고를 글자 인식(OCR)으로 읽은 내용이라 오타가 있을 수 있습니다.</p>`:""}</details>`:""}</section>
+    ${(()=>{ const w=S.watch.find(x=>x.id===j.company_id); const body=c?companyCard(c):(w&&w.info)?infoCard(w):""; return body?`<section class="blk"><div class="blk-h"><span class="n">// 04</span><h2>기업 정보</h2><small>COMPANY <span class="arrowbox">↘</span></small></div>${body}</section>`:""; })()}
     <p class="src">공고 출처: ${esc(j.source||"")} · 확인 ${esc(j.checked||"")}</p>
   </main>
   <div class="cta"><div class="in"><a class="p" href="${esc(j.url)}" target="_blank" rel="noopener">원문 보기</a>${j.apply_url?`<a class="s" href="${esc(j.apply_url)}" target="_blank" rel="noopener">회사 지원 페이지</a>`:""}</div></div></div>`;
 }
+function infoCard(w){ const i=w.info||{}; const row=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:"";
+  return `<dl class="co-card">${row("위치",i.address)}${row("규모",[i.size,i.type].filter(Boolean).join(" · "))}${row("설립",i.founded)}${row("업종",i.industry)}${row("사업",i.business)}${row("매출",i.revenue)}${i.homepage?`<dt>홈페이지</dt><dd><a href="${esc(i.homepage)}" target="_blank" rel="noopener">${esc(i.homepage)}</a></dd>`:""}</dl><p class="src">출처: 사람인·Green 기업정보</p>`; }
 function companyCard(c){
   const row=(k,v)=>v?`<dt>${k}</dt><dd>${v}</dd>`:"";
   return `<dl class="co-card">${row("위치",esc(c.address||c.location))}${row("규모",esc(c.size))}${row("대표작",esc(c.titles))}${row("근무",esc(c.work))}
@@ -913,7 +926,7 @@ function viewCompanies(){
         <div class="wbot"><span>${esc(w.method_note)}${w.open_count!=null?` · 채용 페이지 공고 ${w.open_count}개`:""}</span>
           ${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:`<a href="https://www.google.com/search?q=${encodeURIComponent(w.name+" 채용")}" target="_blank" rel="noopener">채용 검색 ›</a>`}</div>
         ${js.length?`<div class="co-jobs">${js.slice(0,5).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}${js.length>5?`<button class="re" style="border:0;background:none;padding:6px 0;color:var(--k);font:800 12.5px/1 var(--ko);text-align:left;cursor:pointer" data-cof="${esc(w.id)}">외 ${js.length-5}개 전체 보기 ›</button>`:""}</div>`:""}
-        ${c?`<details><summary>기업 정보</summary>${companyCard(c)}</details>`:""}
+        ${c?`<details><summary>기업 정보</summary>${companyCard(c)}</details>`:w.info?`<details><summary>기업 정보</summary>${infoCard(w)}</details>`:""}
       </article>`;}).join("")}
     ${S.ready&&!list.length?`<div class="empty"><h3>조건에 맞는 회사가 없습니다</h3><p>분야·국가 필터를 바꿔 보세요.</p></div>`:""}</div>
   </main>${tabbar("companies")}`;
@@ -986,6 +999,7 @@ function closeMenu(){ const m=$("#menu"); if(!m||m.hidden) return; m.classList.r
 document.addEventListener("click", async e=>{
   const b = e.target.closest("button"); if(!b) return;
   if(b.id==="fsBtn"){ document.documentElement.requestFullscreen?.().then(()=>render()).catch(()=>toast("이 화면에서는 전체 화면을 쓸 수 없습니다")); return; }
+  if(b.id==="trBtn"){ translateJob(b.dataset.id); return; }
   if(b.id==="iconSave"){ let dl=null; try{ dl=await window.claude?.use?.("downloads"); }catch(_){}
     if(!dl) return toast("이 화면에서는 저장할 수 없습니다. 아이콘을 길게 눌러 저장하세요");
     try{ const blob=await (await fetch(APP_ICON)).blob(); await dl.save({filename:"job-radar-icon.png",data:blob}); toast("아이콘을 저장했습니다"); }catch(err){ if(err?.code!=="declined") toast("저장하지 못했습니다. 아이콘을 길게 눌러 저장하세요"); } return; }
@@ -1020,6 +1034,29 @@ document.addEventListener("click", async e=>{
   if(b.id==="saveNotes"){ saveProfile({notes:$("#notes").value}); toast("메모를 저장했습니다"); return; }
   if(b.id==="exportBtn"){ exportCsv(); return; }
 });
+async function translateJob(id){
+  const j0=S.jobs.find(x=>x.id===id); if(!j0||S.trBusy) return; const j={...j0,raw:((S.bodies||{})[id]||{}).raw||j0.raw};
+  let sample=null; try{ sample=await window.claude?.use?.("sample"); }catch(_){}
+  if(!sample) return toast("이 화면에서는 번역 기능을 쓸 수 없습니다");
+  S.trBusy=id; render();
+  const prompt=`다음 채용 공고 원문을 한국어로 번역해 정리해 주세요. 게임·IP 업계 용어는 자연스러운 한국어 업계 표현으로 씁니다. 원문에 없는 내용은 만들지 마세요.
+JSON만 출력: {"summary":"2문장 요약 (경력·언어·근무지 핵심)","duties":["담당 업무 항목"...],"quals":["지원 자격"...],"prefs":["우대 사항"...]}
+각 항목은 한 줄, 40자 안팎. 해당 항목이 원문에 없으면 빈 배열.
+
+회사: ${j.company}
+제목: ${j.title_original||j.title}
+근무지: ${j.location||j.country}
+원문:
+${(j.raw||"").slice(0,4000)}`;
+  try{
+    const r=await sample.json(prompt,{modelTier:"default"});
+    const doc={summary:String(r.summary||""),duties:(r.duties||[]).map(String).slice(0,12),quals:(r.quals||[]).map(String).slice(0,12),prefs:(r.prefs||[]).map(String).slice(0,10),at:today()};
+    S.tr={...(S.tr||{}),[id]:doc};
+    if(S.db) write(()=>S.db.doc("tr/"+id).set(doc));
+    toast("번역했습니다");
+  }catch(err){ toast(err?.code==="not_granted"?"번역 권한이 꺼져 있습니다":err?.code==="rate_limited"?"잠시 뒤 다시 눌러 주세요":"번역하지 못했습니다"); }
+  S.trBusy=null; render();
+}
 async function exportCsv(){
   const cols=["id","company","game","title","job_type","country","fit_score","fit_max","must_missing","status","posted","deadline","location","url","apply_url","source","checked"];
   const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
