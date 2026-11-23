@@ -12,8 +12,8 @@
  "method": "api",
  "method_note": "자동 수집 (채용 시스템 데이터)",
  "name": "VIZ Media",
- "new_count": 0,
- "open_count": null,
+ "new_count": 2,
+ "open_count": 2,
  "verified": "2026-11-23",
  "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX//////v7//f3//Pz/+/v/+vr/+Pj/9/f/9PT/7u7/7e3/7Oz/6+v/6en/5+f/4+P/29v/0dH/urr/sbH/ra3/q6v/qan/p6f/pqb/o6P/oKD/nJz/mJj/kZH/jY3/i4v/fHz/cXH/Zmb/XV3/UlL/T0//TEz/S0v/RUX/QkL/QUH/Ojr/Njb/MDD/Li7/LS3/LCz/Kyv/KSn/ICD/HBz/FRX/DQ3/Cwv/Bwf/Bgb/BQX/BAT/AwP/AgL/AQH/AABszHk5AAADiUlEQVR42u2caVfiMBSGk7ayuAyb22CRis7ICDiKLAJN7v//V5O2CfRA2/mC5xB5ny+eRM3pQ9Lk5qaUMQAAAAAAAAAAAABQiFu6Hqxob6wG1yX3oIXLPdozvfJBC1+REPvUVa1dHbTwUIr9drCQw4MWDmnvhActTF8AhCEMYQhDGMIQhjCEIQxhCEMYwhCGMIQh/PXCwiDXVy3TVdmFXdDDhyo8Gb2/RYxn66vWVe+vM5I0f00Kf+eqMEkKO7yPJnYIq2Harl6cxTySycv7SdV5tU9LGujCaVToVM/PsriotuPGbBBumeJG+NpU/aIF/TGF30r4LrexljXCl9zjCsfprYVvdRWPhU3hWQn73OVZePzKGuEbFp9xOuyBzNnLbVLFdQ/rwnPcw05mUy67tENYOd4zLxHuHIXwkh7YSSLcWq/E31l4RU+Jg8PqE3MT5wv7judEbLXETxxL7mGlOKgoGXXN3O3L1f+Ef2Y0wx3PnllaCU8bSRe77I5ksbAaDp3uffe+EzQdbnSj33r1escSYWXsJ8Kcnb/pRwLyhNcn6E91roXVv5abvZfJdG5LaCno2XX0tftaKV9YhOFqsQwY43o0s0r7ZWVVLK2C5bqetnhlmBgX9bAaBAHbzFrNQTTzhUJKe7aHMtBrDWeNaXzhRcKCnlyu/57z+09apfaVdgjTR00buKwdP8lUICzkpGY+H84CotC+jIdQsYdjbslupFAkTG3mmvkqoFBamOKRctYwAZQynlNYMGnJfklP0A67WQppZU5LUN8zywxnzbEKL3KF1W5Sz+m8NqHQ0iSeoK4Zp0rnR9A0K/O2sKBhRX80nPXEItxgVU5LiuVlypiVTG9vC0vhr2f0us1pWknqNvaMsVlkM0LLWX0jHAWZhm7n0a6spVqbNsYsX3jIuN0pns1ToTRtsa1tX8ZuKUjth50U9mwPU8afvgo9eLFwy/oEQHpUU+9HtNzkC6cW7G8grAIQ+vDL0VDlOcI0rn0n4aiT5etNxdyeu2laGp2pn1anaXee4ScaBs2K+YutRDwNSrmNtawUjr+oQZ8fvXazUTvdOWqhkaq0+6gl62sLcZC4mI53D9NorirtPkzLRAoRHt0TADLzQLzgPBwH4hCGMIQhDGEIQxjCEIYwhCEMYQhDGMIQhvD+ObpX0xzdy4eO7vVSR/cCsaN7RRwAAAAAAAAAAADAAfAPqW14/3KvmzAAAAAASUVORK5CYII="
 }

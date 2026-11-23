@@ -86,6 +86,12 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 
 ---
 
+## 묶음(pack) 컬렉션
+- `jobpacks/pNNN` = `{items:{<job id>: <jobs 문서>}, updated}` (문서 1개당 170KB 이하). `watchpacks/wNNN`도 같은 형식.
+- 앱은 jobs + jobpacks, watch + watchpacks를 합쳐서 보여줌. 같은 id가 단독 문서에도 있으면 단독 문서가 우선 → 공고 1건을 고칠 때는 `jobs/<id>`에 전체 문서를 쓰면 됨 (pack은 그대로 둬도 됨).
+- 대량 추가는 새 pack 문서로 (쓰기 횟수 절약).
+- lite 공고 중 지원 자격 목록이 없고 필수 조건도 없으면 앱이 점수를 70점으로 제한함.
+
 ## 수집 경로 (자동 추적용)
 | 경로 | 방법 |
 |---|---|
@@ -94,6 +100,9 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | Crunchyroll·NC America·크래프톤 | `boards-api.greenhouse.io/v1/boards/{crunchyroll,ncamerica,krafton}/jobs?content=true` |
 | 텐센트 | `careers.tencent.com/tencentcareer/api/post/Query?keyword=...` / `ByPostId` (키워드: 二次元, 发行, 海外运营, IP, 周边 등) |
 | 게임잡 | `/Recruit/joblist?menucode=duty&duty=24~30&page=1~3` 목록 + 상세 페이지 meta description(경력·고용형태·마감) |
+| 사람인 (국내 중소 회사) | `https://www.saramin.co.kr/zf_user/search/recruit?searchword=KW&recruitPageCount=100` curl 가능. `.item_recruit` 안 `.job_tit a`(rec_idx), `.corp_name a`, `.job_condition span`, `.job_date .date`, `.job_sector` |
+| Green (일본 중소 회사) | Playwright로 `https://www.green-japan.com/search?keyword=KW&page=N`, 공고 링크 `/company/ID/job/JID`, 상세 페이지 본문 "仕事内容" 구간 (지원 자격은 로그인 필요) |
+| 해외 중견 Greenhouse | riotgames, epicgames, scopely, 2k, roblox, twitch, neteasegames, hasbro, vizmedia, bungie / Lever: neowiz |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.

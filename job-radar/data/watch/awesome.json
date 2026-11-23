@@ -1,1 +1,20 @@
-{"name": "어썸엔터테인먼트", "category": "ip", "category_label": "애니·IP·라이선스", "country": "KR", "careers_url": null, "candidate_urls": ["https://www.awesomeent.co.kr"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": true, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "name": "어썸엔터테인먼트",
+ "category": "ip",
+ "category_label": "애니·IP·라이선스",
+ "country": "KR",
+ "careers_url": null,
+ "candidate_urls": [
+  "https://www.awesomeent.co.kr"
+ ],
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "ats": null,
+ "ip_focus": true,
+ "verified": null,
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": []
+}

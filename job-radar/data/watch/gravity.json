@@ -15,7 +15,7 @@
  "method": "gamejob",
  "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
  "name": "그라비티",
- "new_count": 0,
- "open_count": null,
+ "new_count": 1,
+ "open_count": 3,
  "verified": null
 }
