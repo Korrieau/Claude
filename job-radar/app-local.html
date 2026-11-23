@@ -1,0 +1,530 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Job Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;600;700&family=Noto+Sans+KR:wght@500;600;700;800;900&display=swap">
+<style>
+/* Layout: one mobile column (max 480px). ZZZ structure (angled label blocks, stripes, film strip, half-round cards)
+   in a blue key color borrowed from the Suisei site; the key tone shifts by job type. Single light theme by design. */
+:root{
+  --k:#003CFF; --k-d:#0029B8;            /* key color, overridden per job type */
+  --ice:#9EF0FF;                          /* accent on key-color surfaces */
+  --bg:#CDDEE5; --bg-2:#DDECF1; --line:#ADCBD7;
+  --paper:#FFFFFF; --ink:#0B1533; --sub:#4E5E73; --mute:#8191A6;
+  --navy:#0B1533; --navy-2:#1A2647; --rim:#767678;
+  --ok:#003CFF; --warn:#C2185B;
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --disp:"Anton",Impact,"Arial Narrow",sans-serif;
+  --ko:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --lab:"Inter","Noto Sans KR",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ko);-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(90deg,transparent calc(50% - .5px),var(--line) calc(50% - .5px),var(--line) calc(50% + .5px),transparent calc(50% + .5px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--navy)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--k);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;min-height:100%;position:relative;padding-bottom:96px}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;height:56px;background:var(--navy);display:flex;align-items:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px))}
+.top .logo{flex:1;display:flex;align-items:center;gap:8px;font:400 22px/1 var(--disp);color:#fff;letter-spacing:.02em}
+.top .logo i{width:12px;height:12px;background:var(--k);transform:skewX(-20deg);box-shadow:3px 0 0 var(--ice)}
+.top .back{flex:1;display:flex;align-items:center;gap:6px;color:#fff;font:700 14px/1 var(--ko)}
+.top .back b{font:400 18px/1 var(--disp);color:var(--ice);letter-spacing:.04em}
+.top .sq{width:56px;height:56px;background:var(--k);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  font:600 9px/1 var(--lab);letter-spacing:.14em;margin-right:env(safe-area-inset-right,0px);transition:background .3s var(--ease)}
+.top .sq svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8}
+
+/* section label (ZZZ) */
+.sec{position:relative;height:132px;overflow:hidden;border-bottom:4px solid var(--navy)}
+.sec .stripe{position:absolute;left:0;top:0;width:58%;height:100%;background:repeating-linear-gradient(135deg,var(--navy) 0 3px,var(--navy-2) 3px 6px);clip-path:polygon(0 0,100% 0,0 100%)}
+.sec .lab{position:absolute;left:0;top:18px;width:168px;height:94px;background:var(--k);clip-path:polygon(0 0,80% 0,100% 28%,100% 100%,0 100%);padding:10px 0 0 14px;color:#fff}
+.sec .lab .en{font:400 20px/1 var(--disp);letter-spacing:.02em}
+.sec .lab .num{font:400 52px/1 var(--disp);color:var(--ice)}
+.sec .wm{position:absolute;right:16px;top:20px;text-align:right;font:400 54px/.92 var(--disp);color:#BCD2DB;text-transform:uppercase;font-style:italic}
+.sec .ko{position:absolute;right:16px;bottom:10px;font:800 13px/1 var(--ko);color:var(--sub)}
+
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.sum div{background:var(--paper);padding:12px 12px 10px;border-radius:0 16px 0 16px;border:3px solid var(--navy)}
+.sum b{display:block;font:400 34px/1 var(--disp);color:var(--k)}
+.sum span{display:block;margin-top:6px;font:700 11px/1.25 var(--ko);color:var(--sub)}
+
+/* angled segment */
+.seg{position:relative;margin-top:14px;height:44px;background:var(--navy);border:3px solid var(--rim);border-radius:21px;display:flex;align-items:center;padding:0 4px;overflow:hidden}
+.seg button{position:relative;z-index:1;flex:1;height:100%;font:800 13px/1 var(--ko);color:#fff;transition:color .3s var(--ease)}
+.seg button[aria-pressed="true"]{color:var(--navy)}
+.seg .th{position:absolute;top:4px;height:30px;background:#fff;transform:skewX(-20deg);border-radius:4px;transition:left .3s var(--ease),width .3s var(--ease)}
+.row-sort{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font:700 12px/1 var(--ko);color:var(--sub)}
+.row-sort button{color:var(--k);font-weight:800}
+
+/* job card */
+.cards{display:flex;flex-direction:column;gap:16px;margin-top:12px}
+.card{display:block;text-decoration:none;background:var(--paper);border-radius:0 26px 0 26px;overflow:hidden;border:4px solid var(--navy);transition:transform .3s var(--ease)}
+.card:active{transform:scale(.985)}
+.card .bn{position:relative;background:var(--k);color:#fff;padding:14px 16px 18px;border-bottom:4px solid var(--navy);overflow:hidden;min-height:150px}
+.card .bn::before{content:"";position:absolute;right:-40px;top:0;width:46%;height:100%;background:var(--k-d);transform:skewX(-18deg)}
+.card .type{position:relative;display:inline-block;font:600 10px/1 var(--lab);letter-spacing:.16em;background:var(--navy);color:var(--ice);padding:5px 8px;clip-path:polygon(0 0,100% 0,92% 100%,0 100%);padding-right:14px}
+.card .co{position:relative;margin-top:10px;font:900 26px/1.12 var(--ko);letter-spacing:-.01em;max-width:68%;text-wrap:balance}
+.card .gm{position:relative;margin-top:4px;font:700 13px/1.3 var(--ko);color:#D7E0FF}
+.card .fit{position:absolute;right:16px;top:12px;text-align:right;z-index:1}
+.card .fit small{display:block;font:600 9px/1 var(--lab);letter-spacing:.18em;color:#D7E0FF}
+.card .fit b{display:block;font:400 56px/1 var(--disp);color:var(--ice)}
+.flag{display:inline-block;font:800 10.5px/1 var(--ko);padding:5px 8px;border-radius:10px;background:#fff;color:var(--warn)}
+.flag.ask{color:var(--k)}
+.card .cb{padding:14px 16px 14px}
+.ttl{font:900 19px/1.35 var(--ko);letter-spacing:-.01em;text-wrap:balance;margin:0}
+.meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.date{font:400 15px/1 var(--disp);letter-spacing:.03em;margin-right:2px}
+.tag{font:800 10.5px/1 var(--ko);color:var(--k);border:2px solid var(--k);padding:4px 9px 4px 8px;border-radius:9px 0 0 9px}
+.tag.fill{background:var(--navy);border-color:var(--navy);color:var(--ice)}
+.desc{margin:8px 0 0;font:500 12.5px/1.55 var(--ko);color:var(--sub);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:2px solid var(--bg-2)}
+.st{font:800 11px/1 var(--ko);padding:5px 10px;border-radius:12px;background:var(--bg-2);color:var(--k);border:2px solid currentColor}
+.st.s-지원함{background:var(--k);color:#fff}.st.s-결과대기{background:var(--navy);color:var(--ice)}.st.s-종료{background:#E3E8EC;color:var(--mute)}
+.dl{font:700 11px/1 var(--ko);color:var(--mute)}
+
+/* detail */
+.dt-top{background:var(--k);color:#fff;position:relative;overflow:hidden;padding-top:18px;padding-bottom:24px;border-radius:0 0 34px 0;border-bottom:4px solid var(--navy)}
+.dt-top::before{content:"";position:absolute;right:-50px;top:0;width:44%;height:100%;background:var(--k-d);transform:skewX(-18deg)}
+.dt-top>*{position:relative}
+.dt-top .co{font:900 30px/1.1 var(--ko);margin-top:10px;text-wrap:balance}
+.dt-top .gm{font:700 13px/1.3 var(--ko);color:#D7E0FF;margin-top:4px}
+.dt-top h1{margin:14px 0 0;font:900 23px/1.35 var(--ko);text-wrap:balance}
+.crumb{margin-top:14px;min-height:36px;border-radius:18px;background:var(--navy);border:3px solid var(--rim);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;font:600 12px/1.3 var(--ko)}
+.crumb span:last-child{font:400 14px/1 var(--disp);letter-spacing:.03em;color:var(--ice);white-space:nowrap}
+.score{display:flex;align-items:flex-end;gap:14px;margin-top:16px}
+.score b{font:400 86px/.85 var(--disp);color:var(--ice)}
+.score div{font:600 12.5px/1.6 var(--ko);color:#E3E9FF;padding-bottom:4px}
+.score div strong{color:var(--ice);font-weight:800}
+.alert{margin-top:12px;background:var(--paper);color:var(--warn);font:800 12.5px/1.5 var(--ko);padding:10px 12px;border-radius:0 12px 0 12px;border:3px solid var(--navy)}
+.alert.ask{color:var(--k)}
+.status{display:flex;margin-top:14px;background:var(--paper);border-radius:24px;padding:3px;border:3px solid var(--navy)}
+.status button{flex:1;font:800 12.5px/1 var(--ko);padding:11px 0;border-radius:18px;color:var(--sub);transition:background .3s var(--ease),color .3s var(--ease)}
+.status button[aria-pressed="true"]{background:var(--k);color:#fff}
+.blk{margin-top:22px}
+.blk-h{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
+.blk-h .n{font:400 30px/1 var(--disp);color:var(--k)}
+.blk-h h2{margin:0;font:900 17px/1 var(--ko)}
+.blk-h small{margin-left:auto;font:600 10px/1 var(--lab);letter-spacing:.16em;color:var(--mute)}
+.rows{background:var(--paper);border-radius:0 20px 0 20px;padding:2px 14px;border:3px solid var(--navy)}
+.req{display:flex;gap:10px;padding:12px 0;border-bottom:2px solid var(--bg-2)}
+.req:last-child{border:0}
+.chip{flex:0 0 62px;text-align:center;font:800 11px/1 var(--ko);padding:6px 0;border-radius:11px;height:23px}
+.c-ok{background:var(--k);color:#fff}.c-part{background:var(--bg-2);color:var(--k)}.c-no{background:var(--warn);color:#fff}.c-ask{border:2px solid var(--k);color:var(--k)}
+.req .k{font:800 13.5px/1.35 var(--ko)}
+.req .k em{font-style:normal;font:600 10.5px/1 var(--lab);color:var(--mute);margin-left:4px;white-space:nowrap}
+.req .v{margin-top:3px;font:500 12px/1.5 var(--ko);color:var(--sub)}
+.calc{margin:8px 2px 0;font:500 11px/1.5 var(--ko);color:var(--mute)}
+.need{background:var(--navy);color:#fff;border-radius:0 20px 0 20px;padding:6px 16px;margin:0;list-style:none;border:3px solid var(--rim)}
+.need li{display:flex;gap:12px;padding:12px 0;border-bottom:2px solid #26314F;font:700 13.5px/1.45 var(--ko)}
+.need li:last-child{border:0}
+.need li b{font:400 22px/1 var(--disp);color:var(--ice);flex:0 0 28px}
+.need li small{display:block;margin-top:3px;font:500 11.5px/1.5 var(--ko);color:#A9B5CF}
+.txt{background:var(--paper);border-radius:0 20px 0 20px;padding:14px 16px;border:3px solid var(--navy)}
+.txt h3{display:flex;align-items:center;gap:8px;margin:14px 0 6px;font:800 13.5px/1 var(--ko)}
+.txt h3:first-child{margin-top:0}
+.txt h3::before{content:"";width:8px;height:15px;background:var(--k);transform:skewX(-20deg)}
+.txt ul{margin:0;padding:0;list-style:none}
+.txt li{font:500 12.5px/1.65 var(--ko);color:#33415A;padding-left:12px;position:relative}
+.txt li::before{content:"";position:absolute;left:2px;top:.75em;width:4px;height:4px;background:var(--k)}
+.co-card{background:var(--paper);border-radius:0 20px 0 20px;border:3px solid var(--navy);padding:14px 16px;display:grid;grid-template-columns:72px 1fr;row-gap:12px;column-gap:10px;margin:0}
+.co-card dt{font:700 12px/1.45 var(--ko);color:var(--mute)}
+.co-card dd{margin:0;font:600 12.5px/1.5 var(--ko);color:var(--ink);min-width:0}
+.src{margin:8px 2px 0;font:500 11px/1.5 var(--ko);color:var(--mute)}
+.cta{position:fixed;left:0;right:0;bottom:0;z-index:25;background:rgba(11,21,51,.92);border-radius:16px 16px 0 0;border-top:3px solid var(--rim);
+  padding:10px max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.cta .in{max-width:456px;margin:0 auto;display:flex;gap:8px}
+.cta a{height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font:900 14.5px/1 var(--ko);text-decoration:none}
+.cta .p{flex:1.5;background:var(--k);color:#fff;border:4px solid var(--ice)}
+.cta .s{flex:1;background:#000;color:#fff;border:4px solid var(--rim)}
+
+/* company list */
+.cos{display:flex;flex-direction:column;gap:16px;margin-top:14px}
+.co-head{background:var(--k);color:#fff;padding:14px 16px;border-radius:0 20px 0 0;position:relative;overflow:hidden;border:3px solid var(--navy);border-bottom:0}
+.co-head::before{content:"";position:absolute;right:-40px;top:0;width:40%;height:100%;background:var(--k-d);transform:skewX(-18deg)}
+.co-head>*{position:relative}
+.co-head h3{margin:0;font:900 24px/1.15 var(--ko)}
+.co-head p{margin:4px 0 0;font:700 12.5px/1.3 var(--ko);color:#D7E0FF}
+.co-wrap .co-card{border-radius:0 0 0 20px}
+.co-jobs{display:flex;gap:6px;flex-wrap:wrap}
+.co-jobs a{font:800 11.5px/1.3 var(--ko);color:var(--k);text-decoration:none;border-bottom:1.5px solid var(--k)}
+
+/* spec (game settings style) */
+.grp{margin-top:18px}
+.grp .gh{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 7px;border-bottom:4px solid var(--k)}
+.grp .gh b{font:400 22px/1 var(--disp);letter-spacing:.06em;color:var(--k)}
+.grp .gh span{font:800 11.5px/1 var(--ko);color:var(--sub)}
+.set{display:flex;align-items:center;min-height:56px;border-bottom:2px solid var(--line);padding:6px 2px;gap:10px}
+.set .l{flex:1;min-width:0;font:800 14.5px/1.3 var(--ko)}
+.set .l small{display:block;font:600 11.5px/1.35 var(--ko);color:var(--sub);margin-top:2px}
+.sel{display:flex;align-items:center;gap:4px;background:var(--paper);border-radius:20px;height:40px;padding:0 4px;flex-shrink:0;border:3px solid var(--navy)}
+.sel button{width:28px;height:28px;border-radius:14px;background:var(--bg-2);color:var(--k);font:700 15px/1 var(--lab)}
+.sel span{min-width:78px;text-align:center;font:800 12.5px/1 var(--ko)}
+.sel.hi{background:var(--k)}.sel.hi span{color:#fff}.sel.hi button{background:var(--k-d);color:#fff}
+.tg{width:54px;height:32px;border-radius:16px;background:#B7C6CF;position:relative;flex-shrink:0;border:3px solid var(--navy);transition:background .3s var(--ease)}
+.tg::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .3s var(--ease)}
+.tg[aria-checked="true"]{background:var(--k)}.tg[aria-checked="true"]::after{left:25px;background:var(--ice)}
+.tg[aria-checked="mixed"]{background:#B7C6CF}
+.impact{margin-top:12px;background:var(--navy);color:#fff;border-radius:0 14px 0 14px;padding:12px 14px;border:3px solid var(--rim);font:600 12.5px/1.55 var(--ko)}
+.impact b{color:var(--ice)}
+.career{background:var(--paper);border-radius:0 16px 0 16px;padding:12px 14px;margin-top:10px;border:3px solid var(--navy)}
+.career div{font:800 14px/1.35 var(--ko)}.career small{display:block;font:600 12px/1.45 var(--ko);color:var(--sub);margin-top:2px}
+textarea{width:100%;min-height:120px;margin-top:10px;border:3px solid var(--navy);border-radius:0 14px 0 14px;padding:12px;font:500 13px/1.55 var(--ko);color:var(--ink);background:var(--paper);resize:vertical}
+textarea:focus{outline:none;border-color:var(--k)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 18px;border-radius:22px;background:#000;color:#fff;border:4px solid var(--rim);font:800 13px/1 var(--ko);margin-top:10px}
+.btn.k{background:var(--k);border-color:var(--ice)}
+.note{font:600 11.5px/1.5 var(--ko);color:var(--sub);margin-top:6px}
+
+/* tests: snap cards (ZZZ game features) */
+.snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:14px;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.tcard{flex:0 0 86%;scroll-snap-align:start;background:var(--navy);color:#fff;border-radius:0 24px 0 24px;overflow:hidden;border:4px solid var(--navy)}
+.tcard .tb{height:120px;background:var(--k);position:relative;overflow:hidden;padding:14px 16px}
+.tcard .tb::before{content:"";position:absolute;right:-30px;top:0;width:45%;height:100%;background:var(--k-d);transform:skewX(-18deg)}
+.tcard .tb h3{position:relative;margin:0;font:900 22px/1.2 var(--ko)}
+.tcard .tb p{position:relative;margin:4px 0 0;font:700 12px/1.3 var(--ko);color:#D7E0FF}
+.tcard .dd{position:absolute;right:14px;bottom:10px;font:400 40px/1 var(--disp);color:var(--ice)}
+.tcard .tbar{background:rgba(158,240,255,.12);border-top:4px solid var(--ice);padding:10px 16px;font:400 15px/1.2 var(--disp);color:var(--ice);text-align:right;letter-spacing:.02em}
+.tcard dl{margin:0;padding:12px 16px 16px;display:grid;grid-template-columns:62px 1fr;gap:8px 10px;font:600 12.5px/1.45 var(--ko)}
+.tcard dt{color:#8D9BBD}
+.tcard dd{margin:0;min-width:0}
+.tcard a.btn{margin:0 16px 16px}
+
+/* empty / state */
+.empty{background:var(--paper);border-radius:0 20px 0 20px;padding:22px 18px;margin-top:14px;border:3px solid var(--navy)}
+.empty h3{margin:0;font:900 17px/1.35 var(--ko)}
+.empty p{margin:6px 0 0;font:500 12.5px/1.6 var(--ko);color:var(--sub)}
+.banner-state{margin-top:12px;font:700 12px/1.5 var(--ko);color:var(--sub);background:var(--bg-2);padding:10px 12px;border-radius:0 12px 0 12px}
+.banner-state[hidden]{display:none}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--navy);color:#fff;font:700 12.5px/1 var(--ko);padding:12px 16px;border-radius:20px;z-index:40;border:2px solid var(--ice)}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--paper);border-top:4px solid var(--navy);
+  padding:0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.tabbar .in{max-width:480px;margin:0 auto;display:flex;height:64px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--mute);font:800 10.5px/1 var(--ko);position:relative}
+.tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.4}
+.tabbar .n{font:400 11px/1 var(--disp);letter-spacing:.06em}
+.tabbar a[aria-current="page"]{color:var(--k)}
+.tabbar a[aria-current="page"]::before{content:"";position:absolute;top:0;width:40px;height:6px;background:var(--k);transform:skewX(-20deg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app" id="app"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- constants ---------- */
+const TYPES = {
+  bizpm:   {label:"사업PM",   en:"BIZ PM",      k:"#003CFF", kd:"#0029B8"},
+  publish: {label:"퍼블리싱", en:"PUBLISHING",  k:"#3B1FE0", kd:"#2A12B0"},
+  service: {label:"서비스PM", en:"SERVICE PM",  k:"#0066D6", kd:"#004FA8"},
+  design:  {label:"게임기획", en:"GAME DESIGN", k:"#0A7FA8", kd:"#06627F"},
+  local:   {label:"로컬라이징",en:"LOCALIZATION",k:"#2B54C8", kd:"#1D3E99"},
+  mkt:     {label:"마케팅",   en:"MARKETING",   k:"#6A2BE0", kd:"#5019B5"},
+  ip:      {label:"IP 사업",  en:"IP BUSINESS", k:"#1F3FA8", kd:"#132C7F"}
+};
+const COUNTRIES = [["all","전체"],["KR","한국"],["JP","일본"],["CN","중국"],["US","미국"]];
+const STATUSES = ["관심","지원함","결과 대기","종료"];
+const LANG_LV = ["못 함","학습 중","기초","일상 회화","비즈니스","원어민"];
+const LANG_NAMES = {en:"영어",ko:"한국어",ja:"일본어",zh:"중국어"};
+const PLACES = ["미입력","서울","판교·성남","도쿄","상하이","해외 어디든","원격","무관"];
+const DEFAULT_PROFILE = {lang:{en:"원어민",ko:"원어민",ja:"못 함",zh:"못 함"},learn:["ja","zh"],travel:null,overseas:null,place:"미입력",
+  career:[{org:"넷마블",role:"게임사업PM (SQC팀)",months:8,note:"공채 인턴십 합격"},{org:"호주 국립해양박물관",role:"인턴",months:4,note:"대학 시절"}],notes:""};
+
+/* ---------- state ---------- */
+const S = {db:null, ready:false, failed:false, jobs:[], companies:[], tests:[], status:{}, profile:null,
+  country:"all", sort:"fit", route:"jobs", param:null};
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const typeOf = j => TYPES[j.job_type] || TYPES.bizpm;
+const kvars = t => `--k:${t.k};--k-d:${t.kd}`;
+const today = () => new Date().toISOString().slice(0,10);
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
+const prof = () => S.profile || DEFAULT_PROFILE;
+const months = () => prof().career.reduce((a,c)=>a+(+c.months||0),0);
+function daysLeft(d){ if(!d) return null; const ms=new Date(d+"T23:59:59")-new Date(); return Math.ceil(ms/864e5); }
+
+/* ---------- scoring ----------
+   Each requirement: {kind:"must"|"plus", text, status, reason, rule?}
+   rule.type: "lang" {any:[codes], min:level} | "travel" | "overseas"
+   Profile-linked rules are re-evaluated live; others keep the stored AI judgement. */
+function evalReq(r){
+  const p = prof(), rule = r.rule;
+  if(!rule) return {status:r.status, reason:r.reason};
+  if(rule.type==="lang"){
+    const need = LANG_LV.indexOf(rule.min||"원어민");
+    const best = (rule.any||[]).map(c=>({c,lv:LANG_LV.indexOf(p.lang?.[c]||"못 함")})).sort((a,b)=>b.lv-a.lv)[0];
+    if(best && best.lv>=need) return {status:"ok", reason:`${LANG_NAMES[best.c]} ${p.lang[best.c]}`};
+    const learning = (rule.any||[]).filter(c=>p.lang?.[c]==="학습 중"||(p.learn||[]).includes(c)).map(c=>LANG_NAMES[c]);
+    const have = (rule.any||[]).map(c=>`${LANG_NAMES[c]} ${p.lang?.[c]||"못 함"}`).join(", ");
+    return {status:"no", reason:`${have}${learning.length?" (학습 희망)":""}. 필요 수준: ${rule.min||"원어민"}`};
+  }
+  if(rule.type==="travel"||rule.type==="overseas"){
+    const v = p[rule.type];
+    if(v===true) return {status:"ok", reason:"내 스펙: 가능"};
+    if(v===false) return {status:"no", reason:"내 스펙: 불가"};
+    return {status:"ask", reason:`내 스펙에서 "${rule.type==="travel"?"해외 출장":"해외 근무"} 가능"을 설정하면 반영`};
+  }
+  return {status:r.status, reason:r.reason};
+}
+function score(j){
+  const reqs = (j.reqs||[]).map(r=>({...r, ...evalReq(r)}));
+  const musts = reqs.filter(r=>r.kind==="must"), pluses = reqs.filter(r=>r.kind==="plus");
+  const mw = musts.length?60/musts.length:0, pw = pluses.length?30/pluses.length:0;
+  const pts = (r,w)=> r.status==="ok"?w : r.status==="part"?w/2 : 0;
+  reqs.forEach(r=>{ const w=r.kind==="must"?mw:pw; r.max=Math.round(w); r.pts=Math.round(pts(r,w)); });
+  const minM = +j.min_years_months||0, careerOk = months()>=minM;
+  const career = {kind:"career", text:`경력 조건: ${j.career_req||"무관"}`, status:careerOk?"ok":"no",
+    reason: careerOk ? (minM?`내 경력 ${months()}개월`:"신입~경력 모두 지원 가능") : `필요 ${minM}개월, 내 경력 ${months()}개월`, max:10, pts:careerOk?10:0};
+  let total = reqs.reduce((a,r)=>a+(r.kind==="must"?pts(r,mw):pts(r,pw)),0) + career.pts;
+  const askGain = reqs.filter(r=>r.status==="ask").reduce((a,r)=>a+(r.kind==="must"?mw:pw),0);
+  const mustNo = musts.filter(r=>r.status==="no").length, ask = reqs.filter(r=>r.status==="ask").length;
+  return {reqs, career, total:Math.round(total), max:Math.round(total+askGain), mustNo, ask};
+}
+
+/* ---------- db ---------- */
+async function boot(){
+  render();
+  const timer = setTimeout(()=>{ if(!S.ready){ S.failed="slow"; render(); } }, 10000);
+  let db = null;
+  try { db = await window.claude?.use?.("db"); } catch(e){ db = null; }
+  if(!db){ clearTimeout(timer); S.failed="none"; render(); return; }
+  S.db = db;
+  const seen = {jobs:false,companies:false,tests:false,status:false,profile:false};
+  const done = k => { seen[k]=true; if(Object.values(seen).every(Boolean)){ S.ready=true; S.failed=false; clearTimeout(timer); } render(); };
+  const onErr = e => { S.failed = e?.code||"error"; clearTimeout(timer); render(); };
+  db.collection("jobs").onSnapshot(s=>{ S.jobs=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
+  db.collection("companies").onSnapshot(s=>{ S.companies=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("companies"); else render(); }, onErr);
+  db.collection("tests").onSnapshot(s=>{ S.tests=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("tests"); else render(); }, onErr);
+  db.collection("status").onSnapshot(s=>{ S.status=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("status"); else render(); }, onErr);
+  db.doc("profile/me").onSnapshot(d=>{ S.profile = d.exists ? {...DEFAULT_PROFILE,...d.data()} : null; if(!d.metadata.fromCache) done("profile"); else render(); }, onErr);
+}
+let writing = Promise.resolve();
+function write(fn){ writing = writing.then(fn).catch(e=>{ toast(e?.code==="invalid_argument"?"저장 권한이 없습니다":"저장하지 못했습니다. 다시 시도해 주세요"); }); return writing; }
+function setStatus(id, st){
+  if(!S.db) return toast("저장 기능을 쓸 수 없는 화면입니다");
+  S.status[id] = {status:st, updated:today()}; render();
+  write(()=>S.db.doc("status/"+id).set({status:st, updated:today()}));
+}
+function saveProfile(patch){
+  S.profile = {...prof(), ...patch}; render();
+  if(!S.db) return toast("저장 기능을 쓸 수 없는 화면입니다");
+  const body = JSON.parse(JSON.stringify(S.profile));
+  clearTimeout(saveProfile._t); saveProfile._t = setTimeout(()=>write(()=>S.db.doc("profile/me").set(body)), 400);
+}
+
+/* ---------- routing ---------- */
+function readHash(){
+  const h = location.hash.replace("#","");
+  if(h.startsWith("job-")){ S.route="job"; S.param=h.slice(4); }
+  else if(["jobs","companies","spec","tests"].includes(h)){ S.route=h; S.param=null; }
+  else { S.route="jobs"; S.param=null; }
+}
+window.addEventListener("hashchange",()=>{ readHash(); render(); window.scrollTo(0,0); });
+
+/* ---------- views ---------- */
+const ICON = {
+  jobs:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
+  companies:'<svg viewBox="0 0 24 24"><path d="M5 20V6l7-3 7 3v14M9 20v-5h6v5M9 9h1M14 9h1M9 12h1M14 12h1"/></svg>',
+  spec:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+  tests:'<svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M7.5 15h9"/></svg>'
+};
+function tabbar(cur){
+  const t=[["jobs","공고","01"],["companies","기업","02"],["spec","내 스펙","03"],["tests","테스트","04"]];
+  return `<nav class="tabbar" aria-label="메뉴"><div class="in">${t.map(([id,l,n])=>`<a href="#${id}" ${cur===id?'aria-current="page"':""}>${ICON[id]}${l}<span class="n">${n}</span></a>`).join("")}</div></nav>`;
+}
+function topbar(btn){
+  return `<header class="top"><div class="logo"><i></i>JOB RADAR</div>${btn||""}</header>`;
+}
+function secHead(en,num,wm,ko){
+  return `<div class="sec"><div class="stripe"></div><div class="wm">${wm}</div><div class="lab"><div class="en">${en}</div><div class="num">${num}</div></div><div class="ko">${ko}</div></div>`;
+}
+function stateNote(){
+  if(S.failed==="none") return `<div class="empty"><h3>데이터를 불러올 수 없는 화면입니다</h3><p>claude.ai에 로그인한 상태에서 이 링크를 열어 주세요. 공고·내 스펙·지원 상태는 그곳에 저장됩니다.</p></div>`;
+  if(S.failed==="slow") return `<div class="banner-state">데이터 연결이 늦어지고 있습니다. 화면 내용이 최신이 아닐 수 있습니다.</div>`;
+  if(S.failed) return `<div class="banner-state">데이터를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.</div>`;
+  if(!S.ready && !S.jobs.length) return `<div class="banner-state">불러오는 중…</div>`;
+  return "";
+}
+function flagHtml(sc){
+  if(sc.mustNo) return `<span class="flag">필수 ${sc.mustNo}개 부족</span>`;
+  if(sc.ask) return `<span class="flag ask">확인 필요 ${sc.ask}</span>`;
+  return "";
+}
+function deadlineText(j){
+  const d=daysLeft(j.deadline_date);
+  if(d===null) return j.deadline||"마감일 미표기";
+  if(d<0) return "마감됨"; if(d===0) return "오늘 마감"; return `D-${d} · ${j.deadline_date.replaceAll("-",".")}`;
+}
+
+function viewJobs(){
+  let list = S.jobs.map(j=>({j, sc:score(j)}));
+  if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
+  list.sort(S.sort==="fit" ? (a,b)=>b.sc.total-a.sc.total : (a,b)=>(a.j.deadline_date||"9999").localeCompare(b.j.deadline_date||"9999"));
+  const weekAgo = new Date(Date.now()-7*864e5).toISOString().slice(0,10);
+  const nNew = S.jobs.filter(j=>(j.added||"")>=weekAgo).length;
+  const nSoon = S.jobs.filter(j=>{const d=daysLeft(j.deadline_date);return d!==null&&d>=0&&d<=7}).length;
+  const nApplied = Object.values(S.status).filter(s=>s.status==="지원함"||s.status==="결과 대기").length;
+  const idx = COUNTRIES.findIndex(c=>c[0]===S.country);
+  return `${topbar(`<button class="sq" id="exportBtn" aria-label="시트용 파일 내보내기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>CSV</button>`)}
+  ${secHead("Jobs","01","JOB<br>LIST","서브컬처·게임 PM 공고")}
+  <main class="pad">
+    ${stateNote()}
+    <div class="sum"><div><b>${nNew}</b><span>이번 주 새 공고</span></div><div><b>${nSoon}</b><span>7일 안 마감</span></div><div><b>${nApplied}</b><span>지원함·결과 대기</span></div></div>
+    <div class="seg" role="group" aria-label="국가">
+      <div class="th" style="left:calc(4px + ${idx} * (100% - 8px) / 5);width:calc((100% - 8px) / 5)"></div>
+      ${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}
+    </div>
+    <div class="row-sort"><span>${list.length}건</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"} ▾</button></div>
+    <div class="cards">
+    ${list.map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
+      return `<a class="card" href="#job-${esc(j.id)}" style="${kvars(t)}">
+        <div class="bn"><span class="type">${t.en}</span>
+          <div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div>
+          <div class="fit"><small>FIT SCORE</small><b>${sc.total}</b>${flagHtml(sc)}</div></div>
+        <div class="cb"><h3 class="ttl">${esc(j.title)}</h3>
+          <div class="meta"><span class="date">${esc((j.posted||"").replaceAll("-","."))}</span><span class="tag fill">${esc(j.country)}</span><span class="tag">${t.label}</span>${(j.tags||[]).slice(0,2).map(x=>`<span class="tag">${esc(x)}</span>`).join("")}</div>
+          <p class="desc">${esc(j.summary)}</p>
+          <div class="foot"><span class="st s-${(st||"관심").replace(" ","")}">${st||"미분류"}</span><span class="dl">${esc(deadlineText(j))}</span></div></div></a>`; }).join("")}
+    ${S.ready && !list.length ? `<div class="empty"><h3>${S.country==="all"?"아직 저장된 공고가 없습니다":"이 국가의 공고가 없습니다"}</h3><p>Claude에게 "공고 채워줘"라고 요청하면 게임잡·회사 채용 페이지·링크드인 알림에서 찾아 여기에 추가합니다.</p></div>`:""}
+    </div>
+  </main>${tabbar("jobs")}`;
+}
+
+function viewJob(){
+  const j = S.jobs.find(x=>x.id===S.param);
+  if(!j) return `${topbar()}<main class="pad">${stateNote()}${S.ready?`<div class="empty"><h3>공고를 찾을 수 없습니다</h3><p><a href="#jobs">공고 목록으로 돌아가기</a></p></div>`:""}</main>${tabbar("jobs")}`;
+  const t=typeOf(j), sc=score(j), st=S.status[j.id]?.status, c=S.companies.find(x=>x.id===j.company_id);
+  const chip = s=>({ok:["c-ok","충족"],part:["c-part","일부"],no:["c-no","부족"],ask:["c-ask","확인 필요"]}[s]||["c-ask","확인 필요"]);
+  const reqRow = r=>{const [cl,lb]=chip(r.status);return `<div class="req"><span class="chip ${cl}">${lb}</span><div><div class="k">${esc(r.text)}<em>${r.kind==="must"?"필수":r.kind==="plus"?"우대":""} ${r.pts}/${r.max}</em></div><div class="v">${esc(r.reason)}</div></div></div>`};
+  const list = a=>`<ul>${(a||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<div style="${kvars(t)}">
+  <header class="top"><a class="back" href="#jobs">‹ <b>JOBS</b></a><button class="sq" id="saveBtn" aria-label="관심 공고로 저장"><svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>${st?"SAVED":"SAVE"}</button></header>
+  <section class="dt-top pad">
+    <span class="tag fill" style="border-radius:0;clip-path:polygon(0 0,100% 0,92% 100%,0 100%);padding-right:14px">${t.en}</span>
+    <div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div>
+    <h1>${esc(j.title)}</h1>
+    <div class="crumb"><span>${esc(j.company)} &gt; ${t.label} · ${esc(j.country)}</span><span>${esc((j.posted||"").replaceAll("-","."))}</span></div>
+    <div class="score"><b>${sc.total}</b><div>FIT SCORE / 100 · 참고용${sc.max>sc.total?`<br>확인 필요 항목 충족 시 <strong>최대 ${sc.max}</strong>`:""}</div></div>
+    ${sc.mustNo?`<div class="alert">필수 조건 ${sc.mustNo}개 부족: ${esc(sc.reqs.filter(r=>r.kind==="must"&&r.status==="no").map(r=>r.text).join(", "))}. 지금은 지원이 어려운 공고입니다.</div>`
+      : sc.ask?`<div class="alert ask">확인 필요 ${sc.ask}개. 내 스펙 탭에서 설정하면 점수가 다시 계산됩니다.</div>`:""}
+  </section>
+  <main class="pad">
+    <div class="status" role="group" aria-label="지원 상태">${STATUSES.map(s=>`<button data-status="${s}" aria-pressed="${st===s}">${s}</button>`).join("")}</div>
+    <section class="blk"><div class="blk-h"><span class="n">A</span><h2>적합도 근거</h2><small>WHY</small></div>
+      <div class="rows">${sc.reqs.filter(r=>r.kind==="must").map(reqRow).join("")}${sc.reqs.filter(r=>r.kind==="plus").map(reqRow).join("")}${reqRow(sc.career)}</div>
+      <p class="calc">필수 조건 60점 + 우대 조건 30점 + 경력 조건 10점. 충족은 만점, 일부는 절반. 공고와 내 이력을 비교한 참고용 점수입니다.</p></section>
+    ${(j.needs||[]).length?`<section class="blk"><div class="blk-h"><span class="n">B</span><h2>지원에 필요한 스탯</h2><small>STATS</small></div>
+      <ol class="need">${j.needs.map((n,i)=>`<li><b>${String(i+1).padStart(2,"0")}</b><span>${esc(n.title)}<small>${esc(n.detail)}</small></span></li>`).join("")}</ol></section>`:""}
+    <section class="blk"><div class="blk-h"><span class="n">C</span><h2>공고 요약</h2><small>원문 ${esc(j.lang_original_label||"한국어")}</small></div>
+      <div class="txt"><h3>담당 업무</h3>${list(j.duties)}<h3>지원 자격</h3>${list(j.quals)}${(j.prefs||[]).length?`<h3>우대 사항</h3>${list(j.prefs)}`:""}<h3>근무 조건</h3>${list(j.conditions)}</div></section>
+    ${c?`<section class="blk"><div class="blk-h"><span class="n">D</span><h2>기업 정보</h2><small>COMPANY</small></div>${companyCard(c)}</section>`:""}
+    <p class="src">공고 출처: ${esc(j.source||"")} · 확인 ${esc(j.checked||"")}</p>
+  </main>
+  <div class="cta"><div class="in"><a class="p" href="${esc(j.url)}" target="_blank" rel="noopener">원문 보기</a>${j.apply_url?`<a class="s" href="${esc(j.apply_url)}" target="_blank" rel="noopener">회사 지원 페이지</a>`:""}</div></div></div>`;
+}
+function companyCard(c){
+  const row=(k,v)=>v?`<dt>${k}</dt><dd>${v}</dd>`:"";
+  return `<dl class="co-card">${row("위치",esc(c.address||c.location))}${row("규모",esc(c.size))}${row("대표작",esc(c.titles))}${row("근무",esc(c.work))}
+    ${row("복지<br>(공고)",esc((c.benefits_posting||[]).join(", ")))}${row("복지<br>(기타)",esc((c.benefits_other||[]).join(", ")))}</dl>
+    <p class="src">출처: ${esc((c.sources||[]).join(", "))}${c.checked?` · 확인 ${esc(c.checked)}`:""}</p>`;
+}
+function viewCompanies(){
+  return `${topbar()}${secHead("Company","02","COMPANY<br>INFO","공고를 낸 회사 정보")}
+  <main class="pad">${stateNote()}
+    <div class="cos">${S.companies.map(c=>{ const js=S.jobs.filter(j=>j.company_id===c.id); const t=js[0]?typeOf(js[0]):TYPES.bizpm;
+      return `<article class="co-wrap" style="${kvars(t)}"><div class="co-head"><h3>${esc(c.name)}</h3><p>${esc(c.titles||"")}</p></div>${companyCard(c)}
+        ${js.length?`<div class="co-jobs" style="margin-top:6px">${js.map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}</div>`:""}</article>`;}).join("")}
+    ${S.ready&&!S.companies.length?`<div class="empty"><h3>아직 저장된 회사가 없습니다</h3><p>공고를 추가하면 회사 정보도 함께 정리됩니다.</p></div>`:""}</div>
+  </main>${tabbar("companies")}`;
+}
+function selRow(id,label,sub,val,hi){
+  return `<div class="set"><div class="l">${label}${sub?`<small>${sub}</small>`:""}</div><div class="sel ${hi?"hi":""}"><button data-cycle="${id}" data-dir="-1" aria-label="${label} 이전 값">‹</button><span>${esc(val)}</span><button data-cycle="${id}" data-dir="1" aria-label="${label} 다음 값">›</button></div></div>`;
+}
+function toggleRow(id,label,val){
+  const v = val===true?"true":val===false?"false":"mixed";
+  return `<div class="set"><div class="l">${label}<small>${val===null||val===undefined?"미입력":val?"가능":"불가"}</small></div><button class="tg" role="switch" aria-checked="${v}" aria-label="${label}" data-toggle="${id}"></button></div>`;
+}
+function viewSpec(){
+  const p = prof();
+  const hit = S.jobs.filter(j=>score(j).reqs.some(r=>r.rule?.type==="lang"&&r.status==="no"&&r.kind==="must")).length;
+  const askN = S.jobs.reduce((a,j)=>a+score(j).ask,0);
+  return `${topbar()}${secHead("Spec","03","MY<br>SPEC","적합도 계산 기준")}
+  <main class="pad">${S.failed==="none"?stateNote():""}
+    <section class="grp"><div class="gh"><b>LANGUAGE</b><span>언어</span></div>
+      ${["en","ko","ja","zh"].map(c=>selRow("lang."+c, LANG_NAMES[c], (p.learn||[]).includes(c)?"학습 희망":"", p.lang?.[c]||"못 함", LANG_LV.indexOf(p.lang?.[c]||"못 함")>=4)).join("")}
+    </section>
+    ${hit?`<div class="impact">일본어·중국어가 <b>필수 조건</b>인 공고 <b>${hit}개</b>에서 점수가 깎이고 있습니다.</div>`:""}
+    <section class="grp"><div class="gh"><b>CONDITIONS</b><span>근무 조건</span></div>
+      ${toggleRow("travel","해외 출장 가능",p.travel)}${toggleRow("overseas","해외 근무 가능",p.overseas)}
+      ${selRow("place","희망 근무지","",p.place||"미입력",false)}
+    </section>
+    ${askN?`<div class="impact">"확인 필요" 항목 <b>${askN}개</b>가 이 설정을 기다리고 있습니다.</div>`:""}
+    <section class="grp"><div class="gh"><b>CAREER</b><span>경력 · 총 ${months()}개월</span></div>
+      ${(p.career||[]).map(c=>`<div class="career"><div>${esc(c.org)} · ${esc(c.role)}</div><small>${c.months}개월${c.note?" · "+esc(c.note):""}</small></div>`).join("")}
+    </section>
+    <section class="grp"><div class="gh"><b>NOTES</b><span>이력 메모</span></div>
+      <label class="note" for="notes">자격증, 희망 연봉, 프로젝트 경험 등을 자유롭게 적어 두세요. Claude가 다음 공고를 채울 때 읽고 점수에 반영합니다.</label>
+      <textarea id="notes" placeholder="예: TOP20 매주 매출 순위 조사 6개월, GTF 발표 2회, 엑셀 피벗·VLOOKUP 가능">${esc(p.notes||"")}</textarea>
+      <button class="btn k" id="saveNotes">메모 저장</button>
+    </section>
+  </main>${tabbar("spec")}`;
+}
+function viewTests(){
+  const list = [...S.tests].sort((a,b)=>(a.end||"9999").localeCompare(b.end||"9999"));
+  return `${topbar()}${secHead("Test","04","BETA<br>TEST","CBT·베타테스트 신청 모집")}
+  <main class="pad">${stateNote()}
+    ${list.length?`<div class="snap">${list.map(x=>{ const d=daysLeft(x.end); const t=TYPES[x.tone]||TYPES.publish;
+      return `<article class="tcard" style="${kvars(t)}"><div class="tb"><h3>${esc(x.game)}</h3><p>${esc(x.company)}</p><div class="dd">${d===null?"—":d<0?"END":"D-"+d}</div></div>
+        <div class="tbar">${esc(x.kind||"CBT")} · ${esc(x.platform||"")}</div>
+        <dl><dt>모집</dt><dd>${esc(x.start||"")} ~ ${esc(x.end||"")}</dd><dt>테스트</dt><dd>${esc(x.test_period||"미정")}</dd><dt>지역</dt><dd>${esc(x.region||"")}</dd>${x.note?`<dt>메모</dt><dd>${esc(x.note)}</dd>`:""}</dl>
+        ${x.url?`<a class="btn k" href="${esc(x.url)}" target="_blank" rel="noopener">신청 페이지</a>`:""}</article>`;}).join("")}</div>`
+    : S.ready?`<div class="empty"><h3>모집 중인 테스트를 아직 담지 않았습니다</h3><p>4단계에서 CBT·베타테스트 신청 모집을 찾아 채웁니다. 카드는 옆으로 넘겨 보는 형태로, 게임명·회사·모집 기간·신청 링크·남은 날짜를 보여줍니다.</p></div>`:""}
+  </main>${tabbar("tests")}`;
+}
+
+function render(){
+  const app = $("#app");
+  app.innerHTML = S.route==="job"?viewJob():S.route==="companies"?viewCompanies():S.route==="spec"?viewSpec():S.route==="tests"?viewTests():viewJobs();
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", async e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.country){ S.country=b.dataset.country; render(); return; }
+  if(b.id==="sortBtn"){ S.sort = S.sort==="fit"?"deadline":"fit"; render(); return; }
+  if(b.dataset.status){ const cur=S.status[S.param]?.status; setStatus(S.param, cur===b.dataset.status?"관심":b.dataset.status); return; }
+  if(b.id==="saveBtn"){ if(!S.status[S.param]) setStatus(S.param,"관심"); else toast("이미 관심 공고에 있습니다"); return; }
+  if(b.dataset.cycle){
+    const [k,sub]=b.dataset.cycle.split("."), dir=+b.dataset.dir, p=prof();
+    if(k==="lang"){ const i=LANG_LV.indexOf(p.lang?.[sub]||"못 함"); const v=LANG_LV[(i+dir+LANG_LV.length)%LANG_LV.length]; saveProfile({lang:{...p.lang,[sub]:v}}); }
+    if(k==="place"){ const i=PLACES.indexOf(p.place||"미입력"); saveProfile({place:PLACES[(i+dir+PLACES.length)%PLACES.length]}); }
+    return;
+  }
+  if(b.dataset.toggle){ const k=b.dataset.toggle, v=prof()[k]; saveProfile({[k]: v===true?false:true}); return; }
+  if(b.id==="saveNotes"){ saveProfile({notes:$("#notes").value}); toast("메모를 저장했습니다"); return; }
+  if(b.id==="exportBtn"){ exportCsv(); return; }
+});
+async function exportCsv(){
+  const cols=["id","company","game","title","job_type","country","fit_score","fit_max","must_missing","status","posted","deadline","location","url","apply_url","source","checked"];
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const rows=S.jobs.map(j=>{const sc=score(j);return [j.id,j.company,j.game,j.title,typeOf(j).label,j.country,sc.total,sc.max,sc.mustNo,S.status[j.id]?.status||"",j.posted,j.deadline_date||j.deadline,j.location,j.url,j.apply_url,j.source,j.checked].map(q).join(",")});
+  const csv="﻿"+[cols.join(","),...rows].join("\n");
+  let dl=null; try{ dl=await window.claude?.use?.("downloads"); }catch(_){}
+  if(!dl) return toast("이 화면에서는 파일 저장을 쓸 수 없습니다");
+  try{ await dl.save({filename:`job-radar-${today()}.csv`, data:csv}); toast("CSV를 저장했습니다"); }
+  catch(err){ if(err?.code!=="declined") toast("파일을 저장하지 못했습니다"); }
+}
+
+readHash();
+boot();
+</script>
+</body></html>
