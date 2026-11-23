@@ -63,3 +63,18 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | pin | true면 맨 앞에 고정 |
 
 마감 14일 이내 공고는 앱이 자동으로 "마감 임박" 소식을 만듦 (따로 저장하지 않음).
+
+### watch (추적 회사 1곳 = 문서 1개, 문서 id = companies·jobs의 company_id와 같음)
+| 필드 | 뜻 |
+|---|---|
+| name, category(game·vtuber·ip·goods·webtoon·platform), category_label, country | 기본 정보 |
+| careers_url / candidate_urls | 확인된 채용 페이지 / 확인 못 한 후보 주소 |
+| method | api(채용 시스템 데이터), page(채용 페이지 확인), page+gamejob, gamejob(게임잡으로 추적), manual(자동 접속 불가) |
+| ip_focus | IP 사업 관련 회사 (우선 표시) |
+| open_count | 마지막 확인 때 채용 페이지의 관련 공고 수 (모르면 null) |
+| new_count / closed_count | 마지막 확인에서 새로 생긴 / 내려간 공고 수 |
+| last_checked, history | 마지막 확인일, [{date, open, new, closed}] 기록 (최근 30개) |
+
+### jobs 추적 필드
+- `closed: true` + `deadline: "공고 내려감 (확인 날짜)"`: 공고가 내려감. 삭제하지 않음
+- `added`: 처음 발견한 날 (3일 이내면 앱에 NEW 표시)

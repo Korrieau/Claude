@@ -380,6 +380,48 @@ body{background-color:var(--bg);background-image:repeating-linear-gradient(45deg
 .stat4 b{display:block;font-weight:800;font-size:22px;line-height:1}
 .stat4 span{display:block;margin-top:5px;font:700 10.5px/1 var(--ko);color:var(--sub)}
 .txt h3::before{content:"▼//"}
+.gauge{margin-top:12px}
+.gauge .gc{display:grid;grid-template-columns:repeat(50,1fr);gap:1px;height:12px}
+.gauge .gc i{background:var(--rim);display:block}
+.gauge .gc i.t{margin-right:1px}
+.gauge .gc i.on{background:var(--k)}
+.gauge .gc i.mx{background:repeating-linear-gradient(-45deg,var(--k) 0 1.5px,transparent 1.5px 3.5px);opacity:.55}
+.gauge .gl{display:flex;justify-content:space-between;margin-top:4px;font:700 8px/1 var(--mono);color:var(--mute)}
+.gauge.big .gc{height:18px;gap:2px}
+.dt-top .gauge .gc i{background:var(--dark-3)}
+.dt-top .gauge .gc i.on{background:var(--k);box-shadow:0 0 6px rgba(31,91,255,.6)}
+.dt-top .gauge .gc i.mx{background:repeating-linear-gradient(-45deg,#7EA2FF 0 1.5px,transparent 1.5px 3.5px);opacity:.8}
+.dt-top .gauge .gl{color:#6C7076}
+.anim .gauge .gc i.on{animation:fill .5s var(--ease) both}
+@keyframes fill{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
+.wl{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.wrow{background:var(--paper);border:3px solid var(--rim);border-radius:2px;position:relative;padding:12px 12px 10px 18px}
+.wrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--rim-2)}
+.wrow.ipf::before{background:var(--k)}
+.wtop{display:flex;align-items:center;gap:10px}
+.wtop .lt{width:56px;height:32px}
+.wn{flex:1;min-width:0}
+.wn b{display:block;font:900 15px/1.25 var(--ko)}
+.wtags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.wtags .tag{font-size:10px;padding:4px 6px}
+.tag.ipt{background:var(--k);color:#fff}
+.mth{font:700 9px/1 var(--mono);letter-spacing:.06em;color:var(--sub);border:1px solid var(--rim-2);padding:4px 5px;border-radius:2px}
+.wc{text-align:right}.wc b{display:block;font-weight:800;font-size:22px;line-height:1;color:var(--k)}.wc small{font:700 8.5px/1 var(--mono);color:var(--mute)}
+.wchg{display:flex;gap:6px;margin-top:8px}
+.newb{display:inline-block;font:700 9.5px/1 var(--mono);letter-spacing:.06em;background:var(--k);color:#fff;padding:4px 6px;border-radius:2px}
+.gone{display:inline-block;font:700 9.5px/1 var(--mono);letter-spacing:.04em;background:#E7E9EC;color:var(--warn);padding:4px 6px;border-radius:2px}
+.card .newb,.card .gone{position:absolute;top:10px;right:12px;z-index:1}
+.card .newb+.hd,.card .gone+.hd{margin-top:14px}
+.card.closed{opacity:.55}
+.wbot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:9px;padding-top:8px;border-top:1px dashed var(--rim-2);font:600 11px/1.4 var(--ko);color:var(--sub)}
+.wbot a{flex-shrink:0;font:800 11.5px/1 var(--ko);color:var(--k);text-decoration:none}
+.wbot em{flex-shrink:0;font-style:normal;font:700 10.5px/1 var(--ko);color:var(--mute)}
+.wrow .co-jobs{padding:8px 0 0}
+.wrow details{margin-top:8px}
+.wrow summary{cursor:pointer;font:800 11.5px/1 var(--ko);color:var(--ink);list-style:none;display:flex;align-items:center;gap:6px}
+.wrow summary::before{content:"▶";font-size:8px;color:var(--k);transition:transform .3s ease}
+.wrow details[open] summary::before{transform:rotate(90deg)}
+.wrow details .co-card{margin-top:8px;border-width:2px}
 @media (prefers-reduced-motion:reduce){.boot{display:none}.radar::after,.hero .tip{animation:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -413,7 +455,7 @@ const DEFAULT_PROFILE = {lang:{en:"원어민",ko:"원어민",ja:"못 함",zh:"�
   career:[{org:"넷마블",role:"게임사업PM (SQC팀)",months:8,note:"공채 인턴십 합격",game:true},{org:"호주 국립해양박물관",role:"인턴",months:4,note:"대학 시절",game:false}],notes:""};
 
 /* ---------- state ---------- */
-const S = {db:null, ready:false, failed:false, jobs:[], companies:[], tests:[], news:[], status:{}, profile:null, animUntil:0, lastRoute:"",
+const S = {db:null, ready:false, failed:false, jobs:[], companies:[], tests:[], news:[], watch:[], wcat:"all", wcountry:"all", status:{}, profile:null, animUntil:0, lastRoute:"",
   country:"all", sort:"fit", reach:"all", route:"jobs", param:null};
 
 /* ---------- helpers ---------- */
@@ -474,11 +516,12 @@ async function boot(){
   try { db = await window.claude?.use?.("db"); } catch(e){ db = null; }
   if(!db){ clearTimeout(timer); S.failed="none"; bootEnd(); render(); return; }
   S.db = db;
-  const seen = {jobs:false,companies:false,tests:false,news:false,status:false,profile:false};
+  const seen = {jobs:false,companies:false,tests:false,news:false,watch:false,status:false,profile:false};
   const done = k => { seen[k]=true; bootProgress(Object.values(seen).filter(Boolean).length/Object.keys(seen).length); if(Object.values(seen).every(Boolean)){ S.ready=true; S.failed=false; clearTimeout(timer); bootEnd(); } render(); };
   const onErr = e => { S.failed = e?.code||"error"; clearTimeout(timer); bootEnd(); render(); };
   db.collection("jobs").onSnapshot(s=>{ S.jobs=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
   db.collection("companies").onSnapshot(s=>{ S.companies=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("companies"); else render(); }, onErr);
+  db.collection("watch").onSnapshot(s=>{ S.watch=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("watch"); else render(); }, onErr);
   db.collection("news").onSnapshot(s=>{ S.news=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("news"); else render(); }, onErr);
   db.collection("tests").onSnapshot(s=>{ S.tests=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("tests"); else render(); }, onErr);
   db.collection("status").onSnapshot(s=>{ S.status=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("status"); else render(); }, onErr);
@@ -517,7 +560,7 @@ const ICON = {
   dl:'<svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
   save:'<svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>'
 };
-const NAV=[["home","홈","00"],["jobs","공고","01"],["companies","기업","02"],["spec","내 스펙","03"],["tests","테스트","04"]];
+const NAV=[["home","홈","00"],["jobs","공고","01"],["companies","워치","02"],["spec","내 스펙","03"],["tests","테스트","04"]];
 function tabbar(cur){
   const t=NAV;
   return `<nav class="tabbar" aria-label="메뉴"><div class="in">${t.map(([id,l,n])=>`<a href="#${id}" ${cur===id?'aria-current="page"':""}>${ICON[id]}${l}<span class="n">// ${n}</span></a>`).join("")}</div></nav>`;
@@ -561,6 +604,12 @@ function deadlineText(j){
   if(d<0) return "마감됨"; if(d===0) return "오늘 마감"; return `D-${d} · ${j.deadline_date.replaceAll("-",".")}`;
 }
 const pd = s => (s||"").replaceAll("-",".");
+/* 100-point gauge: 50 cells x 2 points; solid = current score, hatched = reachable if "확인 필요" items are met */
+function gauge(total,max,big){
+  const cur=Math.round(total/2), mx=Math.round((max||total)/2);
+  let cells=""; for(let i=0;i<50;i++) cells+=`<i class="${i<cur?"on":i<mx?"mx":""}${i%5===4?" t":""}"></i>`;
+  return `<div class="gauge ${big?"big":""}" role="img" aria-label="적합도 ${total}점 / 100${max>total?`, 최대 ${max}점`:""}"><div class="gc">${cells}</div><div class="gl"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>`;
+}
 
 
 /* ---------- home ---------- */
@@ -581,7 +630,7 @@ function blockers(){
 }
 function viewHome(){
   const all = S.jobs.map(j=>({j,sc:score(j)}));
-  const now = all.filter(x=>x.sc.mustNo===0&&x.sc.career.status==="ok").sort((a,b)=>b.sc.total-a.sc.total);
+  const now = all.filter(x=>!x.j.closed&&x.sc.mustNo===0&&x.sc.career.status==="ok").sort((a,b)=>b.sc.total-a.sc.total);
   const br = briefItems(), bl = blockers(), maxB = bl.length?bl[0][1]:1;
   const dls = S.jobs.filter(j=>{const d=daysLeft(j.deadline_date);return d!==null&&d>=0}).sort((a,b)=>a.deadline_date.localeCompare(b.deadline_date));
   const open = S.jobs.length - S.jobs.filter(j=>j.deadline_date).length;
@@ -624,10 +673,10 @@ function viewJobs(){
   let list = S.jobs.map(j=>({j, sc:score(j)}));
   if(S.country==="etc") list = list.filter(x=>!MAIN_C.includes(x.j.country));
   else if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
-  const reachOf = x => (x.sc.mustNo===0 && x.sc.career.status==="ok") ? "now" : "goal";
+  const reachOf = x => (!x.j.closed && x.sc.mustNo===0 && x.sc.career.status==="ok") ? "now" : "goal";
   const nNow = list.filter(x=>reachOf(x)==="now").length, nGoal = list.length-nNow;
   if(S.reach!=="all") list = list.filter(x=>reachOf(x)===S.reach);
-  list.sort(S.sort==="fit" ? (a,b)=>b.sc.total-a.sc.total : (a,b)=>(a.j.deadline_date||"9999").localeCompare(b.j.deadline_date||"9999"));
+  list.sort(S.sort==="fit" ? (a,b)=>(!!a.j.closed-!!b.j.closed)||(b.sc.total-a.sc.total) : (a,b)=>(!!a.j.closed-!!b.j.closed)||(a.j.deadline_date||"9999").localeCompare(b.j.deadline_date||"9999"));
   const weekAgo = new Date(Date.now()-7*864e5).toISOString().slice(0,10);
   const nNew = S.jobs.filter(j=>(j.added||"")>=weekAgo).length;
   const nSoon = S.jobs.filter(j=>{const d=daysLeft(j.deadline_date);return d!==null&&d>=0&&d<=7}).length;
@@ -642,11 +691,11 @@ function viewJobs(){
     <div class="row-sort"><span>${String(list.length).padStart(2,"0")} / ${String(S.jobs.length).padStart(2,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
     <div class="cards fx3">
     ${list.map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
-      return `<a class="card" href="#job-${esc(j.id)}" style="${kvars(t)}"><div class="in">
+      return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><div class="in">${j.closed?`<span class="gone">공고 내려감</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
         <div class="hd">${logoTile(j.company_id,j.company)}
           <div class="who"><div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div></div>
           <div class="fit"><b class="w">${sc.total}<span>/100</span></b><small>FIT SCORE</small>${flagHtml(sc)}</div></div>
-        <div class="bar"><i style="width:${sc.total}%"></i></div>
+        ${gauge(sc.total,sc.max)}
         <h3 class="ttl">${esc(j.title)}</h3>
         <div class="meta"><span class="tag k">${esc(j.country)}</span><span class="tag">${t.label}</span>${(j.tags||[]).slice(0,2).map(x=>`<span class="tag">${esc(x)}</span>`).join("")}${j.posted?`<span class="date">${pd(j.posted)}</span>`:""}</div>
         <p class="desc">${esc(j.summary)}</p>
@@ -673,7 +722,7 @@ function viewJob(){
     <h1>${esc(j.title)}</h1>
     <div class="crumb"><span class="tag">${t.label}</span><span class="tag">${esc(j.location||j.country)}</span>${j.posted?`<span class="date">${pd(j.posted)}</span>`:""}</div>
     <div class="score"><b class="w">${sc.total}<span>/100</span></b><div><em>FIT SCORE · 참고용</em>${sc.max>sc.total?`확인 필요 항목 충족 시 <strong>최대 ${sc.max}</strong>`:"현재 기준 최종 점수"}</div></div>
-    <div class="bar"><i style="width:${sc.total}%"></i></div>
+    ${gauge(sc.total,sc.max,true)}
     ${sc.mustNo?`<div class="alert">필수 조건 ${sc.mustNo}개 부족: ${esc(sc.reqs.filter(r=>r.kind==="must"&&r.status==="no").map(r=>r.text).join(", "))}. 지금은 목표 공고입니다.</div>`
       : sc.ask?`<div class="alert ask">확인 필요 ${sc.ask}개. 내 스펙 탭에서 설정하면 점수가 다시 계산됩니다.</div>`:""}
   </div></section><div class="tri"></div>
@@ -697,13 +746,35 @@ function companyCard(c){
     ${row("복지<br>(공고)",esc((c.benefits_posting||[]).join(", ")))}${row("복지<br>(기타)",esc((c.benefits_other||[]).join(", ")))}</dl>
     <p class="src">출처: ${esc((c.sources||[]).join(", "))}${c.checked?` · 확인 ${esc(c.checked)}`:""}</p>`;
 }
+const WCAT=[["all","전체"],["game","게임"],["vtuber","버튜버"],["ip","애니·IP"],["goods","굿즈"],["webtoon","웹툰·출판"],["platform","플랫폼"]];
+const WMETHOD={api:["AUTO","자동 수집"],page:["PAGE","페이지 확인"],"page+gamejob":["PAGE+GJ","페이지+게임잡"],gamejob:["GAMEJOB","게임잡 추적"],manual:["MANUAL","직접 확인"]};
+function isNew(j){ const d=new Date(Date.now()-3*864e5).toISOString().slice(0,10); return !j.closed && (j.added||"")>=d; }
 function viewCompanies(){
-  return `${topbar()}${secHead("Company","02","EMPLOYERS","공고를 낸 회사 정보")}
+  let list=[...S.watch];
+  if(S.wcat!=="all") list=list.filter(w=>w.category===S.wcat);
+  if(S.wcountry==="etc") list=list.filter(w=>!MAIN_C.includes(w.country)); else if(S.wcountry!=="all") list=list.filter(w=>w.country===S.wcountry);
+  if(S.wip) list=list.filter(w=>w.ip_focus);
+  const jobsOf=id=>S.jobs.filter(j=>j.company_id===id&&!j.closed);
+  list.sort((a,b)=>(jobsOf(b.id).length-jobsOf(a.id).length)||((b.new_count||0)-(a.new_count||0))||a.name.localeCompare(b.name));
+  const openTotal=S.watch.reduce((a,w)=>a+(w.open_count||0),0), newTotal=S.watch.reduce((a,w)=>a+(w.new_count||0),0);
+  const checked=S.watch.map(w=>w.last_checked||"").sort().pop()||"";
+  return `${topbar()}${secHead("Watch","02","WATCHLIST",`서브컬처 관련 회사 ${S.watch.length}곳 추적`)}
   <main class="pad">${stateNote()}
-    <div class="cos fx2">${S.companies.map(c=>{ const js=S.jobs.filter(j=>j.company_id===c.id); const t=js[0]?typeOf(js[0]):TYPES.bizpm;
-      return `<article class="co-wrap" style="${kvars(t)}"><div class="co-head">${logoTile(c.id,c.name)}<div><h3>${esc(c.name)}</h3><p>${esc(c.titles||"")}</p></div></div>${companyCard(c)}
-        ${js.length?`<div class="co-jobs">${js.map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}</div>`:""}</article>`;}).join("")}
-    ${S.ready&&!S.companies.length?`<div class="empty"><h3>아직 저장된 회사가 없습니다</h3><p>공고를 추가하면 회사 정보도 함께 정리됩니다.</p></div>`:""}</div>
+    <div class="sum fx2"><div><b class="w">${S.watch.length}</b><span>추적 회사</span></div><div><b class="w">${openTotal||"—"}</b><span>확인된 열린 공고</span></div><div><b class="w">${newTotal}</b><span>최근 새 공고</span></div></div>
+    <div class="ttabs fx2" role="group" aria-label="분야">${WCAT.map(([k,l])=>`<button data-wcat="${k}" aria-pressed="${S.wcat===k}">${l}</button>`).join("")}</div>
+    <div class="chips" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-wcountry="${c}" aria-pressed="${S.wcountry===c}">${l}</button>`).join("")}<button data-wip="1" aria-pressed="${!!S.wip}">IP 사업</button></div>
+    <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.watch.length).padStart(3,"0")}</span><span>확인 ${pd(checked)}</span></div>
+    <div class="wl fx3">${list.map(w=>{ const js=jobsOf(w.id), c=S.companies.find(x=>x.id===w.id), m=WMETHOD[w.method]||["?",w.method];
+      return `<article class="wrow ${w.ip_focus?"ipf":""}">
+        <div class="wtop">${logoTile(w.id,w.name)}<div class="wn"><b>${esc(w.name)}</b><span class="wtags"><span class="tag k">${esc(w.country)}</span><span class="tag">${esc(w.category_label)}</span>${w.ip_focus?`<span class="tag ipt">IP</span>`:""}<span class="mth" title="${esc(m[1])}">${m[0]}</span></span></div>
+          <div class="wc"><b class="w">${js.length}</b><small>앱 공고</small></div></div>
+        ${(w.new_count||w.closed_count)?`<div class="wchg">${w.new_count?`<span class="newb">NEW ${w.new_count}</span>`:""}${w.closed_count?`<span class="gone">CLOSED ${w.closed_count}</span>`:""}</div>`:""}
+        <div class="wbot"><span>${esc(w.method_note)}${w.open_count!=null?` · 채용 페이지 공고 ${w.open_count}개`:""}</span>
+          ${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:`<em>주소 확인 필요</em>`}</div>
+        ${js.length?`<div class="co-jobs">${js.map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}</div>`:""}
+        ${c?`<details><summary>기업 정보</summary>${companyCard(c)}</details>`:""}
+      </article>`;}).join("")}
+    ${S.ready&&!list.length?`<div class="empty"><h3>조건에 맞는 회사가 없습니다</h3><p>분야·국가 필터를 바꿔 보세요.</p></div>`:""}</div>
   </main>${tabbar("companies")}`;
 }
 function selRow(id,label,sub,val,hi){
@@ -779,6 +850,9 @@ document.addEventListener("click", async e=>{
   if(b.id==="menuCsv"){ closeMenu(); exportCsv(); return; }
   if(b.dataset.country){ S.country=b.dataset.country; render(); return; }
   if(b.dataset.reach){ S.reach=b.dataset.reach; render(); return; }
+  if(b.dataset.wcat){ S.wcat=b.dataset.wcat; render(); return; }
+  if(b.dataset.wcountry){ S.wcountry=b.dataset.wcountry; render(); return; }
+  if(b.dataset.wip){ S.wip=!S.wip; render(); return; }
   if(b.id==="sortBtn"){ S.sort = S.sort==="fit"?"deadline":"fit"; render(); return; }
   if(b.dataset.status){ const cur=S.status[S.param]?.status; setStatus(S.param, cur===b.dataset.status?"관심":b.dataset.status); return; }
   if(b.id==="saveBtn"){ if(!S.status[S.param]) setStatus(S.param,"관심"); else toast("이미 관심 공고에 있습니다"); return; }
