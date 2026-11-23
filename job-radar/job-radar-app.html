@@ -155,6 +155,20 @@ a{color:inherit}
 .req .k{font:800 13px/1.4 var(--ko)}
 .req .k em{font-style:normal;font:700 9.5px/1 var(--mono);color:var(--mute);margin-left:5px;white-space:nowrap}
 .req .v{margin-top:3px;font:500 12px/1.5 var(--ko);color:var(--sub)}
+.ans{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ans button{min-height:34px;padding:0 12px;border:2px solid var(--k);background:var(--paper);color:var(--k);font:800 12px/1 var(--ko);border-radius:2px;cursor:pointer}
+.ans button.y{background:var(--k);color:#fff}
+.ans button.n{border-color:var(--ink);color:var(--ink)}
+.ans .re{border:0;min-height:28px;padding:0;color:var(--sub);font:700 11px/1 var(--ko);text-decoration:underline}
+.qs{background:var(--paper);border:3px solid var(--rim);border-radius:2px}
+.qs .q{padding:12px 14px;border-bottom:1px dashed var(--rim-2)}
+.qs .q:last-child{border-bottom:0}
+.qs .q b{display:block;font:800 14px/1.4 var(--ko)}
+.qs .q small{display:block;margin-top:3px;font:600 11.5px/1.45 var(--ko);color:var(--sub)}
+.qs .q small em{font-style:normal;color:var(--k);font-weight:800}
+.raw{margin-top:10px;border:2px solid var(--rim);border-radius:2px;background:var(--paper)}
+.raw summary{padding:11px 12px;font:800 12.5px/1 var(--ko);cursor:pointer}
+.raw pre{margin:0;padding:0 12px 12px;white-space:pre-wrap;font:500 12px/1.6 var(--ko);color:var(--sub);max-height:420px;overflow:auto}
 .calc{margin:8px 2px 0;font:500 11px/1.5 var(--ko);color:var(--mute)}
 .need{background:var(--dark);color:#fff;border-radius:2px;padding:4px 14px;margin:0;list-style:none;position:relative;overflow:hidden}
 .need::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--k)}
@@ -473,9 +487,11 @@ function daysLeft(d){ if(!d) return null; const ms=new Date(d+"T23:59:59")-new D
    Each requirement: {kind:"must"|"plus", text, status, reason, rule?}
    rule.type: "lang" {any:[codes], min:level} | "travel" | "overseas"
    Profile-linked rules are re-evaluated live; others keep the stored AI judgement. */
+function reqKey(r){ return r.rule&&r.rule.type!=="lang" ? r.rule.type : "q:"+(r.text||"").trim(); }
+const ANS_LABEL={ok:"있음",part:"조금 있음",no:"없음"};
 function evalReq(r){
   const p = prof(), rule = r.rule;
-  if(!rule) return {status:r.status, reason:r.reason};
+  if(!rule){ const a=p.answers?.[reqKey(r)]; if(r.status==="ask"&&a) return {status:a, reason:`내 답변: ${ANS_LABEL[a]}`, answered:true}; return {status:r.status, reason:r.reason}; }
   if(rule.type==="lang"){
     const need = LANG_LV.indexOf(rule.min||"원어민");
     const best = (rule.any||[]).map(c=>({c,lv:LANG_LV.indexOf(p.lang?.[c]||"못 함")})).sort((a,b)=>b.lv-a.lv)[0];
@@ -486,9 +502,9 @@ function evalReq(r){
   }
   if(rule.type==="travel"||rule.type==="overseas"){
     const v = p[rule.type];
-    if(v===true) return {status:"ok", reason:"내 스펙: 가능"};
-    if(v===false) return {status:"no", reason:"내 스펙: 불가"};
-    return {status:"ask", reason:`내 스펙에서 "${rule.type==="travel"?"해외 출장":"해외 근무"} 가능"을 설정하면 반영`};
+    if(v===true) return {status:"ok", reason:"내 답변: 가능", answered:true};
+    if(v===false) return {status:"no", reason:"내 답변: 불가", answered:true};
+    return {status:"ask", reason:rule.type==="travel"?"해외 출장이 가능한지 답해 주세요":"이 나라에서 일할 수 있는지(이주·비자) 답해 주세요"};
   }
   return {status:r.status, reason:r.reason};
 }
@@ -584,7 +600,22 @@ function secHead(en,num,cap,ko){
     <div class="micro">SECTOR ${num} / FIELD SCAN\nLAT 37.50 · LNG 127.03</div>
   </section><div class="band-rule"></div>`;
 }
-function logoOf(id){ return S.companies.find(c=>c.id===id)?.logo || null; }
+function logoOf(id){ return S.companies.find(c=>c.id===id)?.logo || S.watch.find(w=>w.id===id)?.logo || null; }
+const QTEXT={travel:"해외 출장 갈 수 있나요?",overseas:"해외(현지)에서 일할 수 있나요? (이주·비자)"};
+function ansBtns(r){
+  const k=reqKey(r);
+  if(r.answered) return `<div class="ans"><button class="re" data-ans="${esc(k)}" data-v="">답변 바꾸기</button></div>`;
+  if(r.status!=="ask") return "";
+  if(k==="travel"||k==="overseas") return `<div class="ans"><button class="y" data-ans="${k}" data-v="ok">가능</button><button class="n" data-ans="${k}" data-v="no">불가</button></div>`;
+  return `<div class="ans"><button class="y" data-ans="${esc(k)}" data-v="ok">있음</button><button data-ans="${esc(k)}" data-v="part">조금 있음</button><button class="n" data-ans="${esc(k)}" data-v="no">없음</button></div>`;
+}
+function openQuestions(){
+  const m={};
+  S.jobs.filter(j=>!j.closed).forEach(j=>{ const sc=score(j);
+    sc.reqs.filter(r=>r.status==="ask").forEach(r=>{ const k=reqKey(r); const q=m[k]||(m[k]={k,r,text:QTEXT[k]||`"${r.text}" 경험이 있나요?`,jobs:0,gain:0}); q.jobs++; q.gain+=r.max; });
+  });
+  return Object.values(m).sort((a,b)=>b.jobs-a.jobs||b.gain-a.gain);
+}
 function logoTile(id,name){ const l=logoOf(id); return `<span class="lt">${l?`<img src="${esc(l)}" alt="${esc(name)} 로고">`:`<b class="w">${esc((name||"?").replace(/[㈜()주식회사\s]/g,"").slice(0,2).toUpperCase())}</b>`}</span>`; }
 function stateNote(){
   if(S.failed==="none") return `<div class="empty"><h3>데이터를 불러올 수 없는 화면입니다</h3><p>claude.ai에 로그인한 상태에서 이 링크를 열어 주세요. 공고·내 스펙·지원 상태는 그곳에 저장됩니다.</p></div>`;
@@ -595,7 +626,7 @@ function stateNote(){
 }
 function flagHtml(sc){
   if(sc.mustNo) return `<span class="flag">필수 ${sc.mustNo}개 부족</span>`;
-  if(sc.ask) return `<span class="flag ask">확인 필요 ${sc.ask}</span>`;
+  if(sc.ask) return `<span class="flag ask">답변 필요 ${sc.ask}</span>`;
   return "";
 }
 function deadlineText(j){
@@ -655,6 +686,9 @@ function viewHome(){
       ${now.length?`<div class="mini">${now.slice(0,4).map(({j,sc})=>`<a href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}">${logoTile(j.company_id,j.company)}<span class="tx"><b>${esc(j.title)}</b><small>${esc(j.company)} · ${esc(deadlineText(j))}</small></span><span class="sc w">${sc.total}</span></a>`).join("")}</div>`
       :`<div class="empty"><h3>지금 바로 지원 가능한 공고가 없습니다</h3><p>내 스펙 탭의 설정을 채우면 다시 계산됩니다.</p></div>`}
     </section>
+    ${(()=>{ const qs=openQuestions(); if(!qs.length) return ""; return `<section class="blk"><div class="blk-h"><span class="n">// 02+</span><h2>답할 질문</h2><small>QUESTIONS <span class="arrowbox">↘</span></small></div>
+      <div class="qs">${qs.slice(0,6).map(q=>`<div class="q"><b>${esc(q.text)}</b><small>공고 <em>${q.jobs}개</em>에 걸린 조건 · 답하면 해당 공고 점수가 바로 다시 계산됩니다</small>${ansBtns(q.r)}</div>`).join("")}</div>
+      ${qs.length>6?`<p class="calc">나머지 ${qs.length-6}개 질문은 각 공고 화면의 "적합도 근거"에서 답할 수 있습니다.</p>`:""}</section>`; })()}
     <section class="blk"><div class="blk-h"><span class="n">// 03</span><h2>마감 캘린더</h2><small>DEADLINES <span class="arrowbox">↘</span></small></div>
       <div class="cal">${dls.slice(0,6).map(j=>{ const dd=daysLeft(j.deadline_date); return `<a class="r" href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}"><span class="dt">${pd(j.deadline_date).slice(5)}</span><span class="nm"><b>${esc(j.company)} · ${esc(j.title)}</b><i><span style="width:${Math.max(4,100-Math.min(dd,60)/60*100)}%"></span></i></span><span class="dd2 w ${dd<=7?"hot":""}">D-${dd}</span></a>`;}).join("")}
         <div class="more">상시·채용시 마감 공고 ${open}건은 마감일이 정해져 있지 않습니다.</div></div>
@@ -671,6 +705,7 @@ function viewHome(){
 
 function viewJobs(){
   let list = S.jobs.map(j=>({j, sc:score(j)}));
+  if(S.cof) list = list.filter(x=>x.j.company_id===S.cof);
   if(S.country==="etc") list = list.filter(x=>!MAIN_C.includes(x.j.country));
   else if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
   const reachOf = x => (!x.j.closed && x.sc.mustNo===0 && x.sc.career.status==="ok") ? "now" : "goal";
@@ -687,10 +722,11 @@ function viewJobs(){
     ${stateNote()}
     <div class="sum fx2"><div><b class="w">${nNew}</b><span>이번 주 새 공고</span></div><div><b class="w">${nSoon}</b><span>7일 안 마감</span></div><div><b class="w">${nApplied}</b><span>지원함·결과 대기</span></div></div>
     <div class="ttabs fx2" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}</div>
+    ${S.cof?`<div class="chips"><button data-cof="" aria-pressed="true">회사: ${esc((S.watch.find(w=>w.id===S.cof)||{}).name||S.cof)} ✕</button></div>`:""}
     <div class="chips" role="group" aria-label="지원 가능 여부">${[["all","전체"],["now",`지금 지원 가능 ${nNow}`],["goal",`목표 ${nGoal}`]].map(([k,l])=>`<button data-reach="${k}" aria-pressed="${S.reach===k}">${l}</button>`).join("")}</div>
-    <div class="row-sort"><span>${String(list.length).padStart(2,"0")} / ${String(S.jobs.length).padStart(2,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
+    <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.jobs.length).padStart(3,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
     <div class="cards fx3">
-    ${list.map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
+    ${list.slice(0,S.limit||40).map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
       return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><div class="in">${j.closed?`<span class="gone">공고 내려감</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
         <div class="hd">${logoTile(j.company_id,j.company)}
           <div class="who"><div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div></div>
@@ -701,6 +737,7 @@ function viewJobs(){
         <p class="desc">${esc(j.summary)}</p>
         <div class="foot"><span class="st ${st?"on":""} s-${(st||"").replace(" ","")}">${st||"미분류"}</span><span class="dl">${esc(deadlineText(j))}</span></div>
       </div></a>`; }).join("")}
+    ${list.length>(S.limit||40)?`<button class="btn" id="moreBtn">더 보기 (${list.length-(S.limit||40)}개 남음)</button>`:""}
     ${S.ready && !list.length ? `<div class="empty"><h3>${S.reach==="now"?"이 조건에서 지금 지원 가능한 공고가 없습니다":S.country==="all"?"아직 저장된 공고가 없습니다":"이 국가의 공고가 없습니다"}</h3><p>Claude에게 "공고 채워줘"라고 요청하면 게임잡·회사 채용 페이지·링크드인 알림에서 찾아 여기에 추가합니다.</p></div>`:""}
     </div>
   </main>${tabbar("jobs")}`;
@@ -710,8 +747,8 @@ function viewJob(){
   const j = S.jobs.find(x=>x.id===S.param);
   if(!j) return `${topbar()}<main class="pad">${stateNote()}${S.ready?`<div class="empty"><h3>공고를 찾을 수 없습니다</h3><p><a href="#jobs">공고 목록으로 돌아가기</a></p></div>`:""}</main>${tabbar("jobs")}`;
   const t=typeOf(j), sc=score(j), st=S.status[j.id]?.status, c=S.companies.find(x=>x.id===j.company_id);
-  const chip = s=>({ok:["c-ok","충족"],part:["c-part","일부"],no:["c-no","부족"],ask:["c-ask","확인 필요"]}[s]||["c-ask","확인 필요"]);
-  const reqRow = r=>{const [cl,lb]=chip(r.status);return `<div class="req"><span class="chip ${cl}">${lb}</span><div><div class="k">${esc(r.text)}<em>${r.kind==="must"?"MUST":r.kind==="plus"?"PLUS":"CAREER"} ${r.pts}/${r.max}</em></div><div class="v">${esc(r.reason)}</div></div></div>`};
+  const chip = s=>({ok:["c-ok","충족"],part:["c-part","일부"],no:["c-no","부족"],ask:["c-ask","답변 필요"]}[s]||["c-ask","답변 필요"]);
+  const reqRow = r=>{const [cl,lb]=chip(r.status);return `<div class="req"><span class="chip ${cl}">${lb}</span><div style="flex:1"><div class="k">${esc(r.text)}<em>${r.kind==="must"?"MUST":r.kind==="plus"?"PLUS":"CAREER"} ${r.pts}/${r.max}</em></div><div class="v">${esc(r.reason)}</div>${r.kind!=="career"?ansBtns(r):""}</div></div>`};
   const list = a=>`<ul>${(a||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
   return `<div style="${kvars(t)}">
   <header class="top"><a class="back" href="#jobs"><span class="arr">‹</span>공고 목록</a><button class="gbtn" id="saveBtn" aria-label="관심 공고로 저장">${ICON.save}${st?"SAVED":"SAVE"}</button></header>
@@ -721,10 +758,10 @@ function viewJob(){
     <div class="gm">${esc(j.game||"")}</div>
     <h1>${esc(j.title)}</h1>
     <div class="crumb"><span class="tag">${t.label}</span><span class="tag">${esc(j.location||j.country)}</span>${j.posted?`<span class="date">${pd(j.posted)}</span>`:""}</div>
-    <div class="score"><b class="w">${sc.total}<span>/100</span></b><div><em>FIT SCORE · 참고용</em>${sc.max>sc.total?`확인 필요 항목 충족 시 <strong>최대 ${sc.max}</strong>`:"현재 기준 최종 점수"}</div></div>
+    <div class="score"><b class="w">${sc.total}<span>/100</span></b><div><em>FIT SCORE · 참고용</em>${sc.max>sc.total?`질문에 "있음·가능"으로 답하면 <strong>최대 ${sc.max}</strong>`:"현재 기준 최종 점수"}</div></div>
     ${gauge(sc.total,sc.max,true)}
     ${sc.mustNo?`<div class="alert">필수 조건 ${sc.mustNo}개 부족: ${esc(sc.reqs.filter(r=>r.kind==="must"&&r.status==="no").map(r=>r.text).join(", "))}. 지금은 목표 공고입니다.</div>`
-      : sc.ask?`<div class="alert ask">확인 필요 ${sc.ask}개. 내 스펙 탭에서 설정하면 점수가 다시 계산됩니다.</div>`:""}
+      : sc.ask?`<div class="alert ask">답할 질문 ${sc.ask}개. 아래 "적합도 근거"에서 버튼으로 답하면 점수가 바로 바뀌고, 같은 질문이 있는 다른 공고에도 함께 반영됩니다.</div>`:""}
   </div></section><div class="tri"></div>
   <main class="pad">
     <div class="status fx2" role="group" aria-label="지원 상태">${STATUSES.map(s=>`<button data-status="${s}" aria-pressed="${st===s}">${s}</button>`).join("")}</div>
@@ -734,7 +771,9 @@ function viewJob(){
     ${(j.needs||[]).length?`<section class="blk"><div class="blk-h"><span class="n">// 02</span><h2>지원에 필요한 스탯</h2><small>STATS <span class="arrowbox">↘</span></small></div>
       <ol class="need">${j.needs.map((n,i)=>`<li><b class="w">${String(i+1).padStart(2,"0")}</b><span>${esc(n.title)}<small>${esc(n.detail)}</small></span></li>`).join("")}</ol></section>`:""}
     <section class="blk"><div class="blk-h"><span class="n">// 03</span><h2>공고 요약</h2><small>${esc(j.lang_original_label||"한국어")}</small></div>
-      <div class="txt"><h3>담당 업무</h3>${list(j.duties)}<h3>지원 자격</h3>${list(j.quals)}${(j.prefs||[]).length?`<h3>우대 사항</h3>${list(j.prefs)}`:""}<h3>근무 조건</h3>${list(j.conditions)}</div></section>
+      <div class="txt">${(j.duties||[]).length?`<h3>담당 업무</h3>${list(j.duties)}`:""}${(j.quals||[]).length?`<h3>지원 자격</h3>${list(j.quals)}`:""}${(j.prefs||[]).length?`<h3>우대 사항</h3>${list(j.prefs)}`:""}${(j.conditions||[]).length?`<h3>근무 조건</h3>${list(j.conditions)}`:""}
+        ${!(j.duties||[]).length?`<p class="calc">${esc(j.summary||"")}</p>`:""}</div>
+      ${j.raw?`<details class="raw"${(j.duties||[]).length?"":" open"}><summary>원문 보기 (${esc(j.lang_original_label||"원문")}${j.title_original?` · ${esc(j.title_original)}`:""})</summary><pre>${esc(j.raw)}</pre></details>`:""}</section>
     ${c?`<section class="blk"><div class="blk-h"><span class="n">// 04</span><h2>기업 정보</h2><small>COMPANY <span class="arrowbox">↘</span></small></div>${companyCard(c)}</section>`:""}
     <p class="src">공고 출처: ${esc(j.source||"")} · 확인 ${esc(j.checked||"")}</p>
   </main>
@@ -747,7 +786,7 @@ function companyCard(c){
     <p class="src">출처: ${esc((c.sources||[]).join(", "))}${c.checked?` · 확인 ${esc(c.checked)}`:""}</p>`;
 }
 const WCAT=[["all","전체"],["game","게임"],["vtuber","버튜버"],["ip","애니·IP"],["goods","굿즈"],["webtoon","웹툰·출판"],["platform","플랫폼"]];
-const WMETHOD={api:["AUTO","자동 수집"],page:["PAGE","페이지 확인"],"page+gamejob":["PAGE+GJ","페이지+게임잡"],gamejob:["GAMEJOB","게임잡 추적"],manual:["MANUAL","직접 확인"]};
+const WMETHOD={api:["AUTO","자동 수집"],page:["PAGE","페이지 확인"],"page+gamejob":["PAGE+GJ","페이지+게임잡"],gamejob:["GAMEJOB","게임잡 추적"],wanted:["WANTED","원티드 추적"],manual:["MANUAL","직접 확인"]};
 function isNew(j){ const d=new Date(Date.now()-3*864e5).toISOString().slice(0,10); return !j.closed && (j.added||"")>=d; }
 function viewCompanies(){
   let list=[...S.watch];
@@ -770,8 +809,8 @@ function viewCompanies(){
           <div class="wc"><b class="w">${js.length}</b><small>앱 공고</small></div></div>
         ${(w.new_count||w.closed_count)?`<div class="wchg">${w.new_count?`<span class="newb">NEW ${w.new_count}</span>`:""}${w.closed_count?`<span class="gone">CLOSED ${w.closed_count}</span>`:""}</div>`:""}
         <div class="wbot"><span>${esc(w.method_note)}${w.open_count!=null?` · 채용 페이지 공고 ${w.open_count}개`:""}</span>
-          ${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:`<em>주소 확인 필요</em>`}</div>
-        ${js.length?`<div class="co-jobs">${js.map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}</div>`:""}
+          ${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:`<a href="https://www.google.com/search?q=${encodeURIComponent(w.name+" 채용")}" target="_blank" rel="noopener">채용 검색 ›</a>`}</div>
+        ${js.length?`<div class="co-jobs">${js.slice(0,5).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}${js.length>5?`<button class="re" style="border:0;background:none;padding:6px 0;color:var(--k);font:800 12.5px/1 var(--ko);text-align:left;cursor:pointer" data-cof="${esc(w.id)}">외 ${js.length-5}개 전체 보기 ›</button>`:""}</div>`:""}
         ${c?`<details><summary>기업 정보</summary>${companyCard(c)}</details>`:""}
       </article>`;}).join("")}
     ${S.ready&&!list.length?`<div class="empty"><h3>조건에 맞는 회사가 없습니다</h3><p>분야·국가 필터를 바꿔 보세요.</p></div>`:""}</div>
@@ -798,7 +837,7 @@ function viewSpec(){
       ${toggleRow("travel","해외 출장 가능",p.travel)}${toggleRow("overseas","해외 근무 가능",p.overseas)}
       ${selRow("place","희망 근무지","",p.place||"미입력",false)}
     </section>
-    ${askN?`<div class="impact">"확인 필요" 항목 <b>${askN}개</b>가 이 설정을 기다리고 있습니다.</div>`:""}
+    ${askN?`<div class="impact">아직 답하지 않은 조건이 <b>${askN}개</b> 있습니다. 위 두 항목을 켜고 끄거나, 홈의 "답할 질문"에서 답하세요.</div>`:""}
     <section class="grp"><div class="gh"><b class="w">CAREER</b><span>// 게임 경력 ${months()}개월</span></div>
       ${(p.career||[]).map(c=>`<div class="career"><div>${esc(c.org)} · ${esc(c.role)}</div><small>${c.months}개월${c.note?" · "+esc(c.note):""}${c.game===false?" · 게임 경력 제외":""}</small></div>`).join("")}
     </section>
@@ -848,8 +887,10 @@ document.addEventListener("click", async e=>{
   if(b.id==="menuClose"){ closeMenu(); return; }
   if(b.dataset.brief){ const br=$("#brief"); if(br) br.scrollBy({left:(+b.dataset.brief)*br.clientWidth,behavior:"smooth"}); return; }
   if(b.id==="menuCsv"){ closeMenu(); exportCsv(); return; }
-  if(b.dataset.country){ S.country=b.dataset.country; render(); return; }
-  if(b.dataset.reach){ S.reach=b.dataset.reach; render(); return; }
+  if(b.dataset.cof!==undefined){ S.cof=b.dataset.cof||null; S.limit=40; if(S.cof) location.hash="jobs"; else render(); return; }
+  if(b.id==="moreBtn"){ S.limit=(S.limit||40)+40; render(); return; }
+  if(b.dataset.country){ S.country=b.dataset.country; S.limit=40; render(); return; }
+  if(b.dataset.reach){ S.reach=b.dataset.reach; S.limit=40; render(); return; }
   if(b.dataset.wcat){ S.wcat=b.dataset.wcat; render(); return; }
   if(b.dataset.wcountry){ S.wcountry=b.dataset.wcountry; render(); return; }
   if(b.dataset.wip){ S.wip=!S.wip; render(); return; }
@@ -862,6 +903,10 @@ document.addEventListener("click", async e=>{
     if(k==="place"){ const i=PLACES.indexOf(p.place||"미입력"); saveProfile({place:PLACES[(i+dir+PLACES.length)%PLACES.length]}); }
     return;
   }
+  if(b.dataset.ans!==undefined){ const k=b.dataset.ans, v=b.dataset.v, p=prof();
+    if(k==="travel"||k==="overseas"){ saveProfile({[k]: v==="ok"?true:v==="no"?false:null}); }
+    else { const a={...(p.answers||{})}; if(v) a[k]=v; else delete a[k]; saveProfile({answers:a}); }
+    toast(v?"답변을 저장했습니다. 점수를 다시 계산했습니다":"답변을 지웠습니다"); return; }
   if(b.dataset.toggle){ const k=b.dataset.toggle, v=prof()[k]; saveProfile({[k]: v===true?false:true}); return; }
   if(b.id==="saveNotes"){ saveProfile({notes:$("#notes").value}); toast("메모를 저장했습니다"); return; }
   if(b.id==="exportBtn"){ exportCsv(); return; }

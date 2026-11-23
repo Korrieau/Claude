@@ -1,1 +1,19 @@
-{"name": "Nexon America", "category": "game", "category_label": "서브컬처 게임", "country": "US", "careers_url": "https://www.nexon.com/main/en/careers", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.nexon.com/main/en/careers",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "US",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "Nexon America",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX///////7+//z//v3+/v/+/v7+/v3+/f79/f7+/vz9/vj8/P37/P35+/Dz99zn7s/g65bT4mrR6TLK4DjH20LC2DPE2y/C1zDC2C7B1y7L2yfC1kK91jbA1i/A1y6xwc6kt8ahy1uYrL9nvsAXpMwAr/QCn9tYiKcCl9QAnd4AndwAndsAnN4AmOIbZ5IGQW4JO2UGO2QGOmMFOmIFOWEAOWYCNmAAOGUAOGQAOGMANmECNV4ANWAANV8ANV4BMVladuAOAAAErUlEQVR42u2ZW1PqWBCFSRgYgiSBSG4ctlxNDLcgQxAi0f//r6Z7BxxUHJHzcvZOL6ussgofvlq9+rIplUgkEolEIpFIJBKJRCKRSL+nvxo3RcJtNOBXL+zVSpWimNvoDRdPw0YRgBFRN4fxNln2iwBcg2rWh/Eq2zwVALiG4dXDRbzb7lfyO4zmlsxhuEy2q/VmvZUcuAJsFaMX7pPscZNlWQGAazCJHtPsILmBbxo1HLyL9TbdbKQHrmCragDuLsnWG+kdhkrmg3eRbNerN1ypHb75GwYvlPIJrbTAvJr14SJOd/sCANewVcHgjZPtZv0eV0bgGh6AZi/cJOnyE66sDpth+im8cgLX8AbshfE/aZqd5ZXQ4X64SJN0fd5f6YB1OPCT5N3glRu4Hz99ba6MwGG832f/K+mAl5uCAa8yAiZgAiZgAiZgAiZgAiZgAiZgAiZgAiZgAiZgsYAfC/Zq+bTOUlSBnmmfn19fX16KAjx6WMRrAP7aZtmA7x9Ai0W8fAW9pLvd7gO3dMBRdB9NkBmo4+cc+9Ru6YCDKShCcafjONkhNqR6n+6lBJ5wRfCD6Jx694JdLP+aTVJgZJ1wnycPh1SvsLyz9DFZ9utlTTqHD9A59n30cJLqTQ8+qGqqVq7KBXwOm6e6b+j1/ONKWVWUilzAJ+SQ7CiIxoNfraapg8PVkowOnwAHwXw+Hgy6jm+3261Ws2nk/6TVNU1U+q+BgyAC3NGg2+n4nmNZlmO3gbkJZuf/Wq/XtbIiC/B0Op9Px+Gg0/G6jLmubdsux/aA2jRNQz+gahrEuiI8cDSbBcF40PEYu/OPYi6Qu77jOJxaR4vlKOkgmMxnUMx+x/OZfyIGf3kOyoVUY4Xn5a1AqFVNERMYWtVsHowGeTX7n8SgwhlzjqnGWJv1AzZwVxWxgKe8VY1Hvzqd7jncN2qeaucWsNkx1UKWNIZ3POpieP1vhZEGecDt8FSDNJEcnuIoGg/AWc/zL5bHU+0dUm3qwgAHxz2j02GX+HtqNHweU+14VrspCDBvVbBneNiq7vwfizHbdiwbepggwJhd3DNYl/nXiEFhQ9M2xGhauDVPwwFjP8nuO+FCYjf1uiIC8HHwepf15jO0vJrzfiVAl4ateRyOrq9m5nqWBf0ZcDW1+uc7PJ+NcfA63evcxaULV2vYqoXYrEf3UT54r8wubppO26xXRbkTR/ngvbs2vMyyWqYBu7QiCHJ/APvCLe5JtvtDaNg3HIvBblUSpJq5zBaobfsOUDue715MzWAO3dqtlokPmmWxbmLdbAIzrpOed/kg9lzHhj1DUYR75YFpouuGgdS8vPHyA6e/CS8OXn4RCgasqJqmHY024ZhvtV0Lb3v/61QzGz7SbpqwRlaFfLxUgPntecoAZky1B7c9pBrfsdiHJdLh128ZW5WA5fzObFVVT1KND5VwEnyINcTcbpsCLJHfq/JfA6rrEOtDqmFmufbBaMi2A4OXf/MiPG8OXT15fwRms5lT82HtM6jzfPBqqhy8x+quam+PzqrRPMTa9fG9zsDQqyUZpZTB7MP9Y/BR7eOBr2pKiUQikUgkEolEIpFIJBKJdL3+BfBYMHIs4t2zAAAAAElFTkSuQmCC"
+}

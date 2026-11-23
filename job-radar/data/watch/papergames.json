@@ -1,1 +1,19 @@
-{"name": "Papergames / Infold", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://www.papegames.com/home", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.papegames.com/home",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "Papergames / Infold",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////5///++/v59vb28vL87+/y7u7w7Oz96Ojt5eX64uHo4ODr3d3l3Nzi29vv1tXl1NTj0dHf19fazs75ycnhyMjhwsHgycnxt7bdsbDrpqX3lpT5iIblh4bkioj3g4H6enj5cnDxcW/scnH7b23zcG7+bWv6bWz6bGr8a2n9aGb0bWv5amjwamj4Z2X/ZmT/ZmP+ZmT8ZmT7ZmT6ZmT5ZmX5ZmT5ZmP3ZmT/ZWP/ZWL/ZGL7ZWP5ZWT5ZWP4ZWSCbQfAAAAD20lEQVR42u2abVOjMBCAOWqVoq16hxYBC2guCRVp71QsULn//68u0BcSS7Rz94XUfWY6nTILw8OSZDdTTQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAL8XFtcCgPepEjLrS1RW+LzKO4qY96lqMmh2pK3ybPXNkEuGr7Dcf9VNp4ZRDLvzER919RWH97EKg10G5tnv8Z+FBlvPjOr/ooPAR8j0fTXE0q+81v/wv4ef5U8Ov+WUHhU8so29YThChp+XmHluEL24EriTCizl36Pe8ixk++VZ/mS5FScnuUSI8mWM8ZUR4mhV5ca+w8Hpi0d2YpKVU2MHEc2zb8RB7MK/5RH1hTfdI/IGwZ/WrqJ7FXoX4IIQ1i9J0KRO+3obpDgpnByGse/RlmUmER9wpDsUHIaw5L4lU+Dt/jncgwva+wtZXE9a9A3ml4z2FNedQJq10T2H79iCXpbLmA+FluUZJ4b5PEr7wWHmwr0L2ShfLJInjOHmpIpUT7rmULy3LMokpYcSxdNKaUUQrEE1e1WsevEhsHmJEUOD7ASFYtizhKHBt23YDVmwqJGwZhsnaQ1L5boTzlKDQtcy+YdrejrC+LjxCx1w9LCdEVBnh47uApTFmOSrTrXBGkG+tA3r2+9LSXZWWY6tJeYCmygj/xGwYxslbmTbCU+SbTciYfW6Mza8+a5fq5oFPuhWiHeFy2cktnuOH7HW9sjTCOLS4kMrMCWyz2mk3bJ81xHV7OBLm7UgUri7Z0Qw/FFvdjfAEu9p7YUwD13XYBEXY6pW/z7BmBAEnzC7IJnmMO5phYdithM93hGeU0JitVDRhgz3bEdbcJsOVLSIUBYEywn5/R7hgGoz0ta4ydoXtrXBZLWmha1umMVRF2NV3hLN1FflWF84fCJcJ03XO6yucqiws9BNS4SyNQ+Jtpryhwq/0Z8LrMZwxX3fbjygjjK09hIVlyQhr4T+zEDnNUWWEI3efDPcbDHdWCyeY8KeqInyLkfW58Nj3tgQI18Ix9nQVhacoeFdatghfYUzWsBV6lWGEhBVcGeGMkmCT437dPLQJC1s8eS1MhbGgjnCeUoRYe2gY57YXyYSL7RYPY9UeiglWR7jIsimOMGscwynGUmHhTy1pJezpSgpPFo8VDxWPjwuJ8Dh55FjcV8KOpqTwYChw3C7cE6MGLLmnlprCLbQIt3Bmir9HXdzTehaGYj7+H+Hj6x8Cgy5m+H7BD8VEluF8zpHfasqiD4anDcNTyV+rnOWCYznRDp2T0aiZn0bfBxoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfHX+Ah0mrQewQ9QPAAAAAElFTkSuQmCC"
+}

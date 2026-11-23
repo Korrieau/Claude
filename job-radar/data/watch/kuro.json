@@ -1,1 +1,19 @@
-{"name": "Kuro Games", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://www.kurogames.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.kurogames.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "Kuro Games",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

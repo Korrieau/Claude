@@ -1,0 +1,27 @@
+{
+ "name": "위메이드",
+ "category": "game",
+ "category_label": "게임",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/14104",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": false,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 1,
+   "new": 1,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn4+Pj19fXv7+/s7Ozq6uro6Ojm5ubk5OTi4uLh4eHe3t7b29vX19fV1dXT09PHx8e9vb22trarq6uhoaGXl5eWlpaOjo6Dg4N9fX10dHRtbW1paWlnZ2dmZmZjY2NgYGBZWVlMTExBQUE3NzcuLi4sLCwnJyceHh4aGhoWFhYVFRUUFBQTExMQEBAMDAwLCwsJCQkHBwcGBgYFBQUEBAQDAwMCAgIBAQEAAAAKIGdMAAADv0lEQVR42u2bW5eiOhBGE8D2cvCu7WUUldFGdAR1tLEFkv//r6YSUXvOOu/TmfNtzVIrycOmSIFrEcYAAAAAAAAAAAAAAAAAAAAA+PNwp3TH5s+w9Qg71qfR9mOww3HswBc8nxkr1TutZotot2vOs6fSbLc07WblOZpX2201uNnq1Et6umGQYcNbr/zl8rsfvI1d5aQWMGODReBT2PeDxUAHqMNi5dFb4H+n8GrtNfR0w3hhrBtmp/h4PMTJadEphElkHF33++Nxv79G45sZZzarzk6X+HA8xqcs7Orp5gn3f0j5IaWg9tbVaeTK79u7zDKp2vs3Jcy18D8LGiz0hB99Y4WFTKVU7a33FJ4kUpAZtWTyFHZ9WQwW5gpvhbgIkVP7LcNnkaZCtfNvGabBuZ6whTDWMIQhDGEIQxjCEIYwhCEMYQhDGMIQhjCEIQxhCEMYwhCGMIQhDGEIQxjCEP6awu7/QnjCH8K1v0C4txUP4b7FtLDNytPkLpxMyxTQwlw9tnQTFtueqcIbKa834eDVsS2bW9y2qp+FqzpoWSXeWt6EacLGVOFuSFokTA7rYdW2HOX20p9fZK6Ec3mZd0uWPgp2ZRCQrNATzHz0sMRYJ3jPcxLOpIjmLRW0GePjMJMqTC1dj25BxtzZTspUP6B3Dtp6umE4hYQQUr22o4rzwh3mdFYHeX/0UMR+h0K87JSHG3UMdMduVjfxaVrKW2UYiFwtV7K4hN6wV6+6g9kuJ7E8zwV9ZLvZwK3We0NvfdayOY1fj6pF2o1ClWR3eqITWiWY0hcF3nQ8We0ylUmNyuluNRlPvWBHQ7RwRgu7X+LMYszAVcwHm2t2TW968hRHUXTKpNZSS1t5ZycKxidRHIL0InejMi8xE6E8NSYb7ZeL7K4t05S+5kly/1pEM3U20894ZmTJUqjbiZq3lyJP6XQtcqh+UTHehWEkRUod97BQy52u2MuOxZmp+3io8vSm4emhmmeF33Y2Gs23RTjLH9py57+aWLCelctmlVEQJx9X8chvkpw3Ht0t97zNOUkeORbpR3LezjrM4gbv0+JUbGuvYy/YRIfjT3rH23DljQdtusza7cHYW4Xb+OfxQO9oE8zGww5jzOx9aY66g3CH07naz7NcLsi2oSuarksNcl7oDn8+HaoOuqs22rdIV6XWuO3NarjV8i1+6yhX3WbRU6t8mmCysf3y74tMqax2WVpO+T86sM/S0Cw7xRZah/4W889Fzb7vraUeZBcAAAAAAAAAAAAAAAAAAAB8KX4B4izNLklBNw4AAAAASUVORK5CYII="
+}

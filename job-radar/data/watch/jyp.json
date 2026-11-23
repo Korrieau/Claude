@@ -1,0 +1,27 @@
+{
+ "name": "JYP엔터테인먼트",
+ "category": "ip",
+ "category_label": "IP·엔터",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/18915",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": true,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 2,
+ "new_count": 2,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 2,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,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"
+}

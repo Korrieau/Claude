@@ -1,1 +1,21 @@
-{"name": "Cygames", "category": "game", "category_label": "서브컬처 게임", "country": "JP", "careers_url": null, "candidate_urls": ["https://www.cygames.co.jp/recruit/"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://www.cygames.co.jp/recruit/"
+ ],
+ "careers_url": null,
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "name": "Cygames",
+ "new_count": 0,
+ "open_count": null,
+ "verified": null,
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn4+Pj19fXz8/Pw8PDs7Ozn5+fi4uLd3d3Y2NjT09PMzMzCwsK7u7u5ubmzs7OxsbGtra2oqKikpKSjo6OgoKCZmZmWlpaRkZGMjIyGhoZ+fn55eXl0dHRtbW1kZGRfX19aWlpWVlZRUVFLS0tDQ0NAQEA6Ojo0NDQwMDArKysmJiYiIiIeHh4aGhoWFhYPDw8KCgoICAgGBgYFBQUEBAQDAwMCAgIBAQEAAADBpVGqAAAEC0lEQVR42u2caVPiQBCGeyYJIMglIiDKJTcG5GbJzPT//1c7SSgXCdR+2irt7ecDpVMWVS9990QAGIZhGIZhGIZhGIZhmL8hv+2bfX+5P0My+zObmGEYhmF+BIL1Em/TJjVw/h/zOtDe3tPsJIUT8UWb/a2GLZJ6xafXSinjsBXSnr3u1neCYBhbaamHp+ZrrXJ/flweIjbIRbAIM9N9x8eI5ejloeDZY69YGx4R++DQM7CN1CWiDpQKAqtZbRfvs/fFDtHgLEvOoWXOhY5CpWIL68DgCX1EP0etDgvINmUHjQ4VmsAaWRtjtFbHo8Gg65LL0BLKg+pBxXpPlg2s7tCzZxWCuxwJ9Y9VLNXgbjKdLTaRb+/mg4oDkmK+GqCJ9GrjF+1BrlCuWEqZuFiR0yvymzh+UeMLpM48WJLsJ13o4ik9m1Cw47iel/I8V9IckiQUtuaUqzQuCudNNMl5QWTGqPGTTa/Vbrdfa1EA03ToHgZ/9H52HLjsl8gN/kLaYSjtG/VHMGoL4nY+6E97HjHFkZry9MyqsZHN4S1PdHWTr052l3ptQPt2TnKp5Sw7ADWmdj7Cw1FfKDb7Xmhhl5o/pxd4k+2wekes7xDgTBHng49W6x21UueOHfVdfhjIlBRLaL31BtlngLqOQ/eLZPsBbDpZWqNDFu4aMuNmZ7gdjdZ4EcphsVo+0kvUqeYQJyWA4uJcscZOsVwdrrDnEbKxiFZ3Qxw44Yb2YW/MmeBR1v5F5mXXpzX/CyFXKxfCMT/3cW5ig+t2KDn/Qs2nU2+1eEmbX32JYvvzvEL0QklEi40nY8xF0goXeC49uTJ6cX1UF1n6l8bhHc2rUpuzeqhNouH6hZM0yb2HhK5WXx0at/1+uMrsU1xbOtDFi6FJoe/BfW+HuklxL/2KyiRGprIVWvZxU6SmWMLjPhm/CmvguJAb44iYYCFyy4sEHe/k61aorcPjY5FWOZbQvqLXHlVCywrhvXdJCRYg5peDUtRorQuRKwvIF0nVYheqB5WswEZvS3HsUitKVvDuSsthh4eSkJ9DFa0YriYWl2jMvkT1GX+blpJBrHFC938aBAzOL1tOObojqQoWUo4TdUnhm3CJCrbd1DYRxAaXQPZx0kL/StJC7NK8X7KN9DqpN+48yhSHf+Et8Hj1tsUO/wQnYQHOXKurggM9kvSeoRUyPb7SSUeth03U9CqTA82DvnGDaPYP5JoPAZk5qhuCNU7JZS0JLbxlYOvUqkpt2SFhodXNW/GA3HbHhnDbWtjcQKsnat2WgOwHqht6Fc5SgmIQ3+aR3ogoRK7+3Hi+RuO5ngaGgI0d9xYOfzoMwzDMv2qpfsJbMt/JHv/Zd6axPzMMwzAMwzAMwzAMw/yd39EqMc8EIXQoAAAAAElFTkSuQmCC"
+}

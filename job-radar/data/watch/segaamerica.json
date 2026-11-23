@@ -1,1 +1,21 @@
-{"name": "SEGA of America", "category": "game", "category_label": "서브컬처 게임", "country": "US", "careers_url": null, "candidate_urls": ["https://www.sega.com/careers"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://www.sega.com/careers"
+ ],
+ "careers_url": null,
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "US",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "name": "SEGA of America",
+ "new_count": 0,
+ "open_count": null,
+ "verified": null,
+ "logo": "data:image/png;base64,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"
+}

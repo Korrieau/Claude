@@ -1,1 +1,28 @@
-{"name": "하이브IM", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": null, "candidate_urls": ["https://hybeim.career.greetinghr.com"], "method": "gamejob", "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://hybeim.career.greetinghr.com"
+ ],
+ "careers_url": "https://www.gamejob.co.kr/Company/Detail?M=34586425",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 3,
+   "new": 3,
+   "closed": 0
+  }
+ ],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "gamejob",
+ "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
+ "name": "하이브IM",
+ "new_count": 3,
+ "open_count": 3,
+ "verified": null,
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v5+fn29vby8vLv7+/s7Ozq6urp6enn5+fl5eXi4uLd3d3Y2NjU1NTOzs7CwsK7u7u4uLi1tbW0tLSwsLCurq6pqamhoaGVlZWKioqBgYF9fX18fHx7e3t6enp5eXl2dnZ1dXVzc3NwcHBra2tiYmJYWFhJSUk/Pz8zMzMqKiopKSkkJCQeHh4YGBgVFRUTExMQEBANDQ0LCwsJCQkGBgYFBQUEBAQDAwMCAgIBAQEAAABpqBsHAAAITklEQVR42u1ZaVfiwBLt7iRssoOOyiLjoLJEBGTP0v//X72qTkLSCfgyju+8L3XnjIf0flNrVxgjEAgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAoFAIBAIBAKBQCAQrmPeZszkqUaTseaszsTPbcNzNnP+vyYs989lxoxkk8FZabhzqhphMwFDO5UwNSQmcXzmXzDOy44byR3itVPItZYn5aovmHE+pwDyvaWUm9oXEja+EL640GdZl8hxZhVS8i2Y/ALdH5Ww70hpd2OhMNaxpTz52wRhzorD5xC/R/1OKdYJwTqvCfzpN6M+wZrY0mICps+qLHNsAc017UUYbNrPjIPnQqf//BJg/DIsMg5rj55GGp5Gg3yEpfRd6c/aynpg8cZMStfzpU64CpoQYzVpRdZmsqHUcJy1gjMb7A6fH9FE2Pq9lFYYwa25W0wSFrwpV0XBU3xvRsvkBl4VZf4gMzjmJSxdX256cB4DJbmFF+D5acKVtXNyTgEcX8r9MLRAkw2cgxN1nU4u9N0rxgbrOsejc4/LGu/SLuqMOTdncl1KEjbYXMqhJmKQZW8NMjlvcDytK0j4zjkmdlUdq5yEPU8e/sDGPDReFxqkkya8kX70Jn3HBTOYFZSMgTAMjuGCiZw6eGggLF1XPijCC0/ahSRjLsRMep9JwmqCt61zkTTfNziM5yQUbKsI/5JeWsKf+ZwWiGQGdmcagfG62LCA17DJEj7t9oADqpV/kjN0bxHhg+ra77DTlR/4MnTC8giMYyrwawZNGmFhvPswYZoQscHG0vGR2mEfYLdflc+Ew12jjpwStm8x6DBWn4Z0Px6tri0P1RThk5yUa9XqTa0z3gCpY6B8IeFOuXoDqNQHB/QJPWhPEfYcObeiMAsnngITjbDBerAsjGufGRvsHrYFDZzc1io3IcoCO4AwbIMHOqOSi/CqzyGSRsYLG26GGCp4f1HPEH6NnutzUF332AA5hYSb5wXvXc/x5+gRUoRh2IwHHknxPUmNMBfFFcrSlXZEmHNs8uSinQmLAeH7b4SlUqDNjx+BeL1pXSUZjBULyYCpCL9xEBHYusVMYOzICdANCbe4gV1cWMyGkUsLSaUII2OMURFfnbDJnoAseEvkYYRNfbBfubyBI/I4v+Fnwo9m4a8TD6XNnbnyDKDenaCB6bMjwsyMDlffguJ+FjFuhxIO1cEwZjByVbxEGAaCgYJ7Bk90kjphwRs7DA7oHxZWoAiC2RAxvA6zrkj47hsSVsbrR8YLS8ELLPUbjJlfEGZ4ZDBB8MZ/I2HU6glOeUbL9DXCBjgx9Fg22tVAiRii/wFmzPGBs3I3QjF0Wp586t7dxujmY2wNNqDNEIq3mMKYQWzaDrRcMEPY4B30Qn3UhJQN//Ku2XDA+I1BquKoxwRhg3U8wLbYwaxnc8OV3nYwD+xj9oeLRWhj+nshLG1z8e2tQt88bYTqbaPqyVUvcXHJEIbUzoVRwzPhdqmsUB/s1SGzXtqR9hz+wKSBdKOnM2HBbfQKkB3OcdIkCAAPcDR5GwZ1CMae53u+0zoT9r0YrrfORfjXu+IXGW9DxSZoWD7+FeHddrfdwv8gDi+L2Th8kvPCeyBaD0N1aQJNEWGDPaJkVwVY+ACnd1oqAGQIoxl4/0ZYyXjZC4y3ONwFselzYOZQaT9WaS3Tci5kWjDdZuV3oOqhI17W2SwmzEVh6aPXBZ8H3gFmoeFeVGmN8HdUGmiWe6Wz8arE8jip/a3TUukseFl0s3EunSIMy6BqA99Vg/FpTBgXgaE2iJWL8idyv8VpymnZgdOq3N3edSf4wiLCnvx9d/8rRjd/WIqNF7VZFUFyhCV/HYel6PX7/j6+LWUkbLEqMHblugk/Y8KC17aglDJUjD5Ow9AEho0XmURY6qNNRIS/F5ZqYZ7RiGLT4j6gW0nc3LTEQ4BULTuVeExf395e16Cu3rYZnu8CYVDYGmQ46xbuEBPG3zByBuoGy5uFDyTTR+3BxMOHxMNSiUfBHOiEv5N4fA4wo8LEUgbGC3caExxGf/lFatlQqeU+kVpWsbm9QwPdNK9KGO2yvtphspwgbLA2+qNdPVr+FtTVX5eEyKSWKQl/J7XEdKMQGa87qQfiBd+9z14eppV6rVard1+36vIwSFweWqZlWuz2CCKWH9UrNhxobKsdzEsQDkJRqRrcDqplG5/HqBDa5aFaHuqEe+XqTYxyLsKQIcplGIrReGET1sKix/bS9fCAUL4YrocscT1UqaWJwQX+vau7/mXC2CNYkjCygs3lLnHTw4hzaIL1sNfk9XB31L20fj1c5i0AwBroq1RiCfGzPD7g2/uvBYAg4dVyaUvpHDhW7LtCOCzynQkLYS18L1uwQZs2wgKAGxcAvghLnzkJS6QnN2C8YJKCPW7x+asSD6ShkHvqJZ7w8oBXnuPpAGdVuXRc4lnAIDtZvAHC0LQuqSvR0XH0eg0+Ho/otcMSjxt1nJyjIvwPJR7k52JiqRJ23poc0Gd8WcRbvjaY0Ip4rXCwySZqxKwozEQRz4BDy3ed8AzFCCrd8OUVLItKUSpPWhEvyKW/X8Tzo8TyHITa8wtl2kFYFn0aDXvtglamHQ1Ho0oYw8AkYOTTcIyuugG/Rk18NaIPg3rJmpZgD9CEIaIz/v3nIp7HDabuEMxq90Zxe1WVaV/GLxrGL8O8hfjlY7KyjrW8h8U/FOJ/HD9ciN8MS4yL1KeDwuDTvfqpxRDZTy08PZLrn1rUvNRLC3MFYV5FXP7JtH77U4uqWGYLCpB5/ejHNAKBQCAQCAQCgUAgEAgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAuH/jf8AgKQkn16YCbYAAAAASUVORK5CYII="
+}

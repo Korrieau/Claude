@@ -1,1 +1,19 @@
-{"name": "KLab", "category": "game", "category_label": "서브컬처 게임", "country": "JP", "careers_url": "https://www.klab.com/jp/recruit/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.klab.com/jp/recruit/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "KLab",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

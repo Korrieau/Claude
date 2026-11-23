@@ -1,1 +1,19 @@
-{"name": "학산문화사", "category": "webtoon", "category_label": "웹툰·만화·출판", "country": "KR", "careers_url": "https://www.haksanpub.co.kr/ko", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.haksanpub.co.kr/ko",
+ "category": "webtoon",
+ "category_label": "웹툰·만화·출판",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "학산문화사",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAdVBMVEX////+/v79/f37+/v6+vr5+fno5+jm5ebi4eKPjY6Ni4yHhIWEgYKDgIGBgICAfX98enp7eXk7OTs5Nzk4NTgvKi0rJigqJScmIiMlISIjICEgHR4aGBkaFxkVEBMPCw0OCgwNCQsMCAoLBwkKBggKBQgJBQedbnuVAAABK0lEQVR42u3c2U6DQBiAUaCL3ehmaxfb0lbg/R/RYBRjSqJXJjDnu53/5mS4YSaZKJIkSZIk/Wvz8/H1sf1lHPU+1nvR+LJvmDie5+0Er8q8fOxepDU4Le4NE3m5aid4Wd7yx7JiVoNnRdYwcSuXbQU37d/1B/ja9A0AAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA3+C02SQVA2SNAzwtJ6YhgFeDEdPVaPhIgRwXp62u5eq3fbUfGXeLfDvdQ6cv32VhwEOboeBgYGBgYGBgYGBgYH/9nv4nR3u5BHPYb15rtqsDyEc8WTFpJ6YFFkQ59JxP67qx6mbB2BgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBg4BaAA3vmMbiHPIN7qlWSJEmSWtw7sRCcWwHwD48AAAAASUVORK5CYII="
+}

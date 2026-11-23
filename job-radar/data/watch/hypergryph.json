@@ -1,1 +1,19 @@
-{"name": "Hypergryph / GRYPHLINE", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://www.hypergryph.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.hypergryph.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "Hypergryph / GRYPHLINE",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn39/f29vb19fX09PTy8vLx8fHv7+/u7u7s7Ozr6+vp6eno6Ojn5+fl5eXj4+Pg4ODe3t7c3Nza2trY2NjX1tbV1dXT0tLQ0NDMzMzIyMjEw8PAwMC9vb27urq4uLi3tbW0s7OysbGvr6+trKyrqqqpqamop6empKSkpKSioaGfn5+dnJybmpqZmJiVlJSUk5OSkZGQj4+OjY2Ni4uKiYmCgYF3dXVnZWVNS0snmt1bAAAEqElEQVR42u2b15KqWhCG24RhjIOCiGREgmQDiuj7v9UGdcLWU3Vud7X9VVmkq58Oq7sXAhAEQRAEQRAEQRAEQRAEQRAEQRAE8c9Ra9RrbyW4zQnDt1Lc0x2999vi6C2s+7FQ/7pqDic97DHMx44//LoaGgaHxcZVdip/rz7tWIncuJ+3lMgVsAjuzflel+dfPLYmpkb0MPEkcZIZFt8dm674abpC4/nBMDG2i5tZW2ps2WhieOB6m4WXWt3nBy19vVq1qzN2r6RLNGm6pQSBEfnR+OXJMpH2k/LIaKGUjvDkYzaxs52Xvsbo7DjdK80ygg/zQG0hWnFXVnL24/lrdJ9ktUxbDWXHZTM8eqG2jLTrNhRfLXwawZYtI1hemx1MNQZ7mF8PvvRyX9wDn01GbsIeOVxls6+cM1d5rj0aagBazNsH8HAZGJqqqwVr7Xkh7jhrcKJNxrA5LgMD8IdxEJpMu9/9vdiyuQzHc96H2GjjSVg3hcOdZJ7dHm+ow59HjJbW4HoZg7ab4rFtZzYtS8auZ8zP7sdiE2sfv3K0AOZ1CvN8iWgNHhkbfQyMbcF53R66dqR8pae2EYN0mUP/pGLKWIOVGzoTxrTBWbVqQqrvZObu61w+FM8LgNTqY0pXLT5aWQFvJLBeM9BWUvUo3hy4Z9lyUSZnN/zElaBbfGya+zgC0ylT8cCxtfSWooRdWJQZTD3y2IZZDe4o65ctGH7VHwo5+HoLuvO4MMsXoOdSC7DB6Bu45mBEVYffj2Uu4zkr21TdwiqX2oAP8QBFAep2UBVdWgyHXebc3Hq9FxiEemGaT5xd2SbcspN8huDC3+67MdfEqBfGR3kqweDE3RqGCPJ7ZxwEbB2lXpieWGUOzbyaWn34Ru1c+XE38T+xbjYIWUMri4tg1QFGLmZLq6orc2eCVW9dCUEtE9Y0GTWXZwMEtryZOkMAtILLPr8U3NvOpVLvvbDMBMALl4tq6dJS4Z0eekGJBogF97yVWOpbXXdfgw22UFqIBdcVTyojdhF9v4HLxV+O23h3hKfb+HdFVfPCubM9WEu218ApuGPt/2onxpXZRXu3N1mcVmZW7n/eX3oCzlqr65lPb0AJi/M+DtdILdzfqk+Cef1yLTx5hLSY/jwtXm+yznGzQPohyzx7DGfFv9r9gXmwOYwDAFhsHiVX8dzvuwedRViCcKf77m9R/K6/lCgPlqrn8vgW43GmVQf+On6UXr2RGF0uxeV6vRYX/xOh4NtmOH+fdDBmkhd5dJtqfQhunono1qZZPvm5WB/t/o8T14pLPEMneLn/td46l20UhrcxnnUMLOO8GaOrLPXw50IOYkXWMq88Fc4r3U9XNroY/tx/V5bCNlPHTWjKOwYmudJp9gVdwTbsqSv+PUgbM/X0WHYHvgUHs6qzagyDbVlqGfbtaGdHX3xsBdeFyHEnSNt/xqoCtpam8vTj25g9QZog7Ryg41WDaCf6uxVE/BePflI2h1LOv80/OoY7Bfq5wsDbCN4vIMH1Icf/WXiu7dj30Qv9SN1LjTcS3FbX5hs5dFlk9Mf9OhAEQRAEQRAEQRAEQRAEQRAEQRAEQfxL/AFScHXAsVm4XwAAAABJRU5ErkJggg=="
+}

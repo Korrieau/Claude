@@ -1,0 +1,27 @@
+{
+ "name": "하이브 (HYBE)",
+ "category": "vtuber",
+ "category_label": "버추얼·버튜버",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/287",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": true,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 2,
+ "new_count": 2,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 2,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAeFBMVEX////+/v79/f38/Pz7+/v5+fn39/f29vbs7Ozr6+vh4eHLy8vJycnCwsLBwcHAwMC/v7+oqKinp6empqaZmZmXl5eWlpaDg4OCgoKBgYEzMzMwMDAvLy8sLCwpKSkfHx8eHh4bGxsICAgHBwcFBQUDAwMCAgIAAABLj9hPAAAA/ElEQVR42u3ZyW6CUACG0UsFrVOdWq0DtlYq7/+GRbp0A6YhufacNT/hC4GEEAIAAAAAAAAAAAAxevrV8ZSuJGE8n75MZ5O0/TadzKrpfFydJB69kJdXx0Hby07C4FhP8+okMQUfykv5Xeb99sH9vBpeyoNgwYIFCxYsWLBgwbfBSUPucKTB2fC5kWH2EMFpWJYNLUP6AMFJGK0WqwYWq9H1aM9wfMFJ2lDiLS1YsGDBggULFiz4JnhXnIuvYn9P8L4anotdZMEf9ffe6Z6/h6d6+hlVcBLetpv3zXadtd9m63r6GtX/4X+oV3/v9TqeAgAAAAAAAAAAAPytH5UjTIPAt4B4AAAAAElFTkSuQmCC"
+}

@@ -1,0 +1,27 @@
+{
+ "name": "라이엇게임즈 코리아",
+ "category": "game",
+ "category_label": "게임",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/59160",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": false,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 1,
+   "new": 1,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+//79//38//z8/vz6/fr7/Pv5/Pn4+/j3+vf1+PX09/T09vTy9vLx9vHz9fPx9fHx9PHw9fDw9PDx8/Hv9O/v8+/u8+7v8u/u8u7t8u3t8e3s8ezs7+zl5uXf4N/d393X2dfP0M/Gx8ays7KhoqGMjYx7fHtmZ2ZUVFREREQzMzMnJycbHBsYGBgXGBcUFBQODw4KCgoICAgHBwcGBwYGBgYFBgUFBQUEBQQEBAQDAwMCAgIBAQEAAQAAAADmff4vAAAEoElEQVR42u2cW1ejOhSAQ0ttaWXkiI1Fhmq531pbYDJMC2f//391klAfRo8++aDp/l7qwrKWn/sGJAtCEARBEARBEARBEARBkA/Z7j6d7ZcWfm4/necvLbxjn87uawu37HPjy1oURmEURmEURmEURmEURmEURmEURmF1hFnN6voXuxRh1nTA6du6YRcg3NQAhyzKyv0gXTOlhVndwXMazAnxgigtfnNpHuj3Iv3dhXnpAuwTfzK2XHsxJuO1H2WFTG/W/F+kv7lwcwTYJhsyvXUs07Qdas8mGo90nJa/ZXqrJVy1UBXxmuiOzXUHrCWlCyLSO86K/YmpI8wansxFuCKGQ82/sV3XMUbkehWe3hh/V+Gm4Rmbh3fEcJfmG3i8Lf5v0NasV0OYyTkU6GTh2Oa7UONJDWExdrepr5Ola1nv+5r29FEFYVG6u3hDRqb7ka0ywnwOlckTMWxq3ZgXIZxHHu9U75cudVQSZsc6JAuPftCpRuRlKCshzLpYf3hf94c1C2LjxlInpRvIp4u3zYqeD1F9UzWPM0cdYdbv/NHrArYsMlpaQ0I/7atAc1UaSxCNnFfd2JyH0cz6IX6cuwXExFNIuOkTshri+pLHLgm7jNAfMtZ2BglRKcK8iK9lEVsmmdhn4QiKm8WtOLiY55DNhj6tSoQPvi7H0jyKDOscYSgfp9KeahkUd3NboRquICLujeVq8SklUuz+anOog6GyVySB7UajCgnXkGm2CGsMuSmTmxrrkncqWbgOP1yFRCVh1m/veCo7Mo9l7trGYwnnaAthLi8e+Kgi3LZdMFqa91rwp/K1e9mpvAKyYTo7o7DibVqlCPM+LdKXjvzDKSKicC37KoetIzsYnQQHyO7mt0oJZ9o/3Gyzg0RzhjzOgG3kkLInwR6K9Uwt4cKb25axKiHT5SMPSlLoQpnedOwfYO8P8qoI9/vgil9l6QWUxo0thRM4t2l7xjt2FY6WKjWtmssJ4VKE0pGdKup4mxad6nbu5dDHsrbt2ZMqwtnE4mHNoQ2HsI7Dll9x8rsI89bgwpBqnue5zliRx7QMSs+wHZHHibwxolp4hHI9dyz7gV5z4VzXxMnG5pcaz6WPbaDbD0I4FXdOljPxG9j6urUwiMYP92UQhEma5eXpqISwmMQOFddU+fXyp7tYaLxT1RHxPD8I46JnXVX9K1YQgamxmFZBbvz0rkKAwuDfGd2tw11/ytK8KA8AXV1Xf7quFcInNYR5/q7573w4HaIoSbKieIZW7nkA6Hv50R0OZZknbafG2tIR4ihNc567cIa17Cg+q+dtnqdJHAb+nU5WjSqLaadOqIo10wH+pVOVp3HERVczeeZ4rsxi2rmQq/rvu0bmkzHRp1PTslzXofSWqnKldf7DX9NH6zkP7Gy2oMt7yi/FbKWE33LalzypQ39tyoQ2bU+tlH7L0KX3RcZr2V9f87PXags3TVU3g3a1K7l2GDZKC79sdmnqYUQBHI8XspuWiU1prGm7S9s+zC5NGDeIozAKozAKozAKozAKozAKozAKqyJ8aa+XurgXiF3cK+IQBEEQBEEQBEEQBEG+AP8Bb1c7lgQlJjMAAAAASUVORK5CYII="
+}

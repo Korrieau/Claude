@@ -1,1 +1,25 @@
-{"name": "miHoYo (米哈游)", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://jobs.mihoyo.com/", "candidate_urls": [], "method": "api", "method_note": "자동 수집 (채용 시스템 데이터)", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://jobs.mihoyo.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 97,
+   "new": 91,
+   "closed": 0
+  }
+ ],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "api",
+ "method_note": "자동 수집 (채용 시스템 데이터)",
+ "name": "miHoYo (米哈游)",
+ "new_count": 91,
+ "open_count": 97,
+ "verified": "2026-11-23"
+}

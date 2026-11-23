@@ -1,1 +1,19 @@
-{"name": "Phase Connect", "category": "vtuber", "category_label": "버튜버·크리에이터", "country": "US", "careers_url": "https://phase-connect.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://phase-connect.com/",
+ "category": "vtuber",
+ "category_label": "버튜버·크리에이터",
+ "closed_count": 0,
+ "country": "US",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "Phase Connect",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v7+/v39/f38/Pz7+/v6+vr4+Pjy8vLp6enc3N3Q0NDP0NDOz8/Hx8e2traxsbGurq6dnZ2CgoJxcnJjY2NfX19NTU0xMTIkJCQfHx8cHBwbGxwPDxAKCgoGBwgFBggFBgcEBggFBQgEBQcFBQUEBQYDBQcEBAYDBAcDBAYEBAUDAwYDAwMCBAYCAwYCAwUCAwQCAgUCAgQBAgUBAgQCAgMCAQUBAQQBAQMBAQEBAQABAAAAAQIAAAEAAABxjK42AAAEgElEQVR42u1b23LiOBCV1jIEMkACIVyScFkM4/FlIuzI286u0f//1chJGCSSmso8bNW4q0+wEwyqyimdbnW3WowRCAQCgUAgEAgEAoFAIBB+CfU/4M8mDErB23X84/XHeaTeXp/6Js0wESZJE2GSNBEmSRNhkjQR/gV+qtp9htdpvd6cxzJG7LRARftQukjCJAOF02mBqiJ9jjJIYrQ2DFDO5/cO7hZFET99ZMk4bPgw7Pa+WOhdDhdxpEBKhDZsfi/19OJ87FiHZdQ4wp8zYeO09Fi0hO8dwVviYqaDPKzeiRrBDEMexfHiivneaaTXZoOHbSgV0tAyivWsw23CwmcjvcxxBh7mXgT6lgnBjyM58/jF9JDUX8aZPGSJvma+Pdhj/UW+kmjz4c3zrMM8e7SoRZ29+nGE6WGx1TeesEdzz3jqr4A0PYR8u94OnSnmLdZ7KCIAnJKGclXedVmLnwjXnvoQOdUQPCUeBZFa6Qm3FmPPvLmY6FC9uWpkNlwFWbjTQ2abMfeNp04enWgLDWGQURYWs67F2GMv4ccGbMZ4CNeaDfWkzbk9x0JMdABI69Lmtdaup2YtdjkvE5x1aXPb7+KFG34YMx5qszRhrEsbPjsTUruaFrWjjjDa8Ms0R4fZuwke6R3OvaUKShUvrx0vXa9LqcwAZ+AR7L/psRB25NH+qzN9cdIYbbiUf5uEiVuEhVcLOoskxsADVLaOD1eszU9JsRBs8LDbRhKnDculHhsVWz66LnroIAGckoZETzvOisR8dqO352VLNISTfDE4r3hc6W2Mt8Sjb1y+Hu/M/lumgLHEA7KqBe3ZhD0hbnSxV4BQ0lDK9c4IWnA7TWKDZSgraJYNf7IuLY2HHpnEyLJfn3fneiWPeUWjIy0DKbNMvt7MlclvenrBrSWpLmfd6q9KRqrxZVpD+SmrwIYK9KLPfFEzfoPx0P/GT//IvWz+sgRJoYtnG2URj86HdmeH0ERfOYKdB5luR4PrKwfD2zOMp4cClMLQ1KJCPXn3xdt3PR463eVvZZCG27CsdJe1fXFEy2+zoV4u1pvVZrXamKu+rZeBBBRNLdnmeejuEop6QyVO9+BsvHwvIgUfdac1izDIeh/YjSBFe2IWIDjvwgP4kG/DbFhFh1nXTYlaJscPlDrvy4Nj+0dzndbLBCepu5lSC3qRxijbh2sKtaB9pypZ5/jrFGM3rQmYi6S6c1pX6ohq9BzHOcYjAJAn0Tq9Zq0TYe75rP9QLK1OWkxHAFS6rotWVtLrtYQR9HYHCp8Nm/+12ulZx7NzQPPmRgdRhvNUC4RpfM38UycWNx66rwuZ5znOQx51Fda3HRb3jKCPfUnoZhgSPe+INv/ZP+qZGHqkt5l15gHVDMv9Q//848Ei3SUS58k0iPS42+udusAve5d9I+iyVDgPasFTdTe/v7NwP78/yN8z34ZlS+9zfAmgfptycwIP+ege1HmUZ6e06LAlHbakw5ZEmGyYCJOkiTBJmgiTpMmGSdJIZ5hAIBAIBAKBQCAQCAQC4Q/ADzd7Aw6Lmb07AAAAAElFTkSuQmCC"
+}

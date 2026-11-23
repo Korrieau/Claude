@@ -1,1 +1,19 @@
-{"name": "카카오엔터테인먼트", "category": "webtoon", "category_label": "웹툰·만화·출판", "country": "KR", "careers_url": "https://careers.kakaoent.com/ko/main", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": "greetinghr", "ip_focus": true, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": "greetinghr",
+ "candidate_urls": [],
+ "careers_url": "https://careers.kakaoent.com/ko/main",
+ "category": "webtoon",
+ "category_label": "웹툰·만화·출판",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "카카오엔터테인먼트",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn4+Pj29vb09PTy8vLs7Ozo6Ojh4eHb29vU1NTKysrDw8O9vb25ubm0tLSurq6pqammpqajo6OgoKCenp6Xl5eSkpKMjIyGhoaDg4N/f399fX12dnZra2tcXFxRUVFOTk5LS0tEREQ9PT08PDw6Ojo3Nzc1NTUvLy8pKSkkJCQjIyMgICAcHBwVFRUSEhIPDw8NDQ0LCwsHBwcFBQUEBAQDAwMCAgIBAQEAAABG/6ukAAACnUlEQVR42u3bXVMaMRQG4JPsChRRBPmwgLRFQCxFECggm+T8/3/VZL1ipuzSi067yfsOozjDzTNZTpKTSIQgCIIgCIIgCIIgCIJkhv9CAAYYYIABBhhggAEGGGAXExDYaKVNcCO83v/pIBcXfFi+jBq3C1ZBgO2wDqv2E6Uf4YC7VI5lNSBwT0SCPgUE/kwAAwwwwAADDDDA/xJslA4K7LaKKiCw5lVzylqHAjacNKgy0pk9AZ/A6vhIMVH7LUvsEfjIE4qFuKJWVnPPH7DmRU1IknS9ZB3ACBv1885qhbyaZHn9AWt+oIjs62v2xOQLWPHYeWPqcRLCPKz4pWz/jOhuZ3QAYM2butUKqr2yDmClZRLVcV5Zes7dS3gBVjyyM3B+wfIFrPi7nYBtweqyMgGANb/dkFtxNLbGBLAfTvS+ZZ9mKWrrS5oBxQe/89A+zUJG04uaH8UH80TaN5JGlzV7ig6e8+LaViy3wno3YYCfXYWO6H6rggDbR3roFtGSOvoicfHBR+66ohXTl0CKVmIOTbeujOU4jGlJKd64hYcQ1VnO1tCXpaXmWUm6pfTNMm+v5M3m4YnSubi+y72r5sf28Mh916CNqMV5Yj8aAEbvmh8drWGe2JsWz+rWFa6InsLoadmfrxUhrLg84zDOltK2pStctWUYfWn7Oz1ZsqV6H8TJg7s/3f4oXO2DDuFsyb7Z1intbQ34fK/HI7DrTldIEJWzupfFBfeiUhxVTy6I28IVCxlTfX7+W1xccCf9yPxkLDV/s0N8v8qoWgUF24z7g0F/sD45+zYJP9CjydomFhd8ZuQ3U/bxjoezpfnNs57djfdshN1NAPwrHsAAAwwwwAADDDDAAAMMsGdgBEEQBEEQBEEQBEGQ/yC/ABRoQ6MKNtcIAAAAAElFTkSuQmCC"
+}

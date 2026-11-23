@@ -1,1 +1,22 @@
-{"name": "Kodansha USA", "category": "webtoon", "category_label": "웹툰·만화·출판", "country": "US", "careers_url": null, "candidate_urls": ["https://kodansha.us/careers", "https://kodansha.us"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://kodansha.us/careers",
+  "https://kodansha.us"
+ ],
+ "careers_url": null,
+ "category": "webtoon",
+ "category_label": "웹툰·만화·출판",
+ "closed_count": 0,
+ "country": "US",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "name": "Kodansha USA",
+ "new_count": 0,
+ "open_count": null,
+ "verified": null,
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v5+fn39/f19fX09PTx8fHu7u7k5OTb29vY2NjU1NTQ0NDKysrExMS3t7eqqqqlpaWkpKShoaGenp6ampqUlJSQkJCLi4t7e3tzc3NwcHBtbW1ra2tnZ2dmZmZlZWViYmJcXFxTU1NJSUlAQEA8PDw6Ojo5OTk4ODg3Nzc1NTUyMjIuLi4qKiomJiYgICAbGxsVFRUQEBAPDw8NDQ0LCwsICAgEBAQDAwMCAgIBAQEAAACYaOwdAAADY0lEQVR42u2bWVciMRBGq5JGQJFNGBAVEWVXNllESOr//6tJpxGQcTnjy0w6dV/wBPscrkWSLyYBYBiGYRiGYRiGYRiGYRiGYRiGYZh/jgh+jOC/ngP1hfNKqfwjSpVzcK/GAVTox1TM4+4Jl7T6wEXrr121VkqXnBQuk37pP72nP9N6fty453GwNL6Kyo4K0+CP5muixhdPZeZhkd0VfpKBOETKG6L7o8Y9QaJFemac3RU+Gm0RQuHPhmAJ+VdN1Y43wogd0uNkzxdhAUVamxlp6IkwYqKndTfpjbCE8kapIsCTH8KIqSlRR0hfhAXUSK3y5jk/hAWezTbUAvSlwsJksM1rBoTwQ9gsJueabsyrJ8ISHkyoPENfhAXkV4qujLcnwght0tNTRE+EJRSV1tWwwF4II570SA8TYYG9EBZwsVZ0YQvsgzBi8tmESrQF9kFYwqUJlcWowB4II55OlQmVAjwRtqFykQWMg/AQ5XfCAjMLTfVdm9vCA5BS4FfCZqRqkJpnMB7C49NoWBLiM2GBuc3GhEoBcRDW63H7spCyqrbSH1QYWnbVgPEQDjeLNqv2VcFWGkWAR8ICiq+aLkFCPISVsjsn9DJpX+XTYXP9nTCKky6pXmpfYNf7cPG2t95uC6rnh1ohfU3UxITczUEXtDah8rBTOy3cB0jkS7fdl630avKs6cF6CWGyJKaGWndPDgdyx+dhYT94KlNqDRfb/V+atWpF+/WGkzBUbgrv52XXkxbK6PubypZv3qRpPWlXC0Y6bUJlJ5AQJ+EoXUgrkDivjXYnAFbjVu2e1CwDMhAYL+FoQLZW16S79efl2wGHNY3yp299OoaLBxHU7QmAbKnRXW6NyYzeub10DFdLTRs0k9mL1jTs0+FUvRjvpAMRO+E7U8poIJPZ0t3j7vzO5L5qw8kghsJRn7bvJbO/bkfzbaWXs041O4qncNSnpf0xfV5tTHbj2KuOr/BBpdO5Sn202GaTOAtH0lGlE7lq83FJKvbCB/M0JHNT8kI4kk4Y6b4/wtG/g4Z+CccwabEwC7MwC/+3wh8dEG+Kzw6I20Pi0u29pWO+uQIAbi8P//qSh/2VF1cXDz+7xhOujB29xuPZRS3vruJ5CF+nZRiGYRiGYRiGYRiGYRiGYRiGYdzmN+47GHWMgEaeAAAAAElFTkSuQmCC"
+}

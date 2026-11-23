@@ -1,0 +1,27 @@
+{
+ "name": "비에이블컴퍼니",
+ "category": "ip",
+ "category_label": "IP·엔터",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/53927",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": true,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 1,
+   "new": 1,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,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"
+}

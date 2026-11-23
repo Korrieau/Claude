@@ -1,0 +1,27 @@
+{
+ "name": "태피툰 (콘텐츠퍼스트)",
+ "category": "webtoon",
+ "category_label": "웹툰·출판",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/2651",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": true,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 2,
+ "new_count": 2,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 2,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,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"
+}

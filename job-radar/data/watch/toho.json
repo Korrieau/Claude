@@ -1,1 +1,19 @@
-{"name": "東宝 (TOHO animation)", "category": "ip", "category_label": "애니·IP·라이선스", "country": "JP", "careers_url": "https://www.toho.co.jp/recruit/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": true, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.toho.co.jp/recruit/",
+ "category": "ip",
+ "category_label": "애니·IP·라이선스",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "東宝 (TOHO animation)",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

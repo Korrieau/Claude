@@ -1,1 +1,20 @@
-{"name": "이엑스투게임즈", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": null, "candidate_urls": ["https://ex2games.career.greetinghr.com"], "method": "gamejob", "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://ex2games.career.greetinghr.com"
+ ],
+ "careers_url": "https://www.gamejob.co.kr/Company/Detail?M=51531830",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "gamejob",
+ "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
+ "name": "이엑스투게임즈",
+ "new_count": 0,
+ "open_count": null,
+ "verified": null
+}

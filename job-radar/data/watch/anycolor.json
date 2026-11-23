@@ -1,1 +1,19 @@
-{"name": "ANYCOLOR (NIJISANJI)", "category": "vtuber", "category_label": "버튜버·크리에이터", "country": "JP", "careers_url": "https://recruit.anycolor.co.jp/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": true, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://recruit.anycolor.co.jp/",
+ "category": "vtuber",
+ "category_label": "버튜버·크리에이터",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "ANYCOLOR (NIJISANJI)",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz7+/v6+vr5+fn4+Pj39/f29vb19fXx8fHw8PDv7+/t7e3q6urp6enl5eXf39/Z2dnR0dHHx8e+vr6tra2np6efn5+bm5uVlZWOjo6KioqAgIB/f393d3dycnJxcXFpaWlgYGBbW1tSUlJJSUlGRkZAQEA4ODg2NjYxMTEmJiYeHh4bGxsXFxcWFhYSEhIQEBAODg4LCwsJCQkICAgHBwcGBgYFBQUEBAQDAwMCAgIBAQEAAACgp4FvAAAD2klEQVR42u2ceXOiMBTAX0LwaqvrSa1r61Y86q1VRIHk+3+rfXKI7br7R7s7s6TvN4wDhDj9Nc9cBAAIgiAIgiAIgiAIgiCIP6L+ASRMwiRMwiRMwp8Wlp+EhCmk/ydhLKCXx6enxw+COV/UuZAzIvz9c1/0PXPCT4xz9kEw5xMJ/+/Cj8DYR78Fcz6SMAmTMAmTMAmTMAn/FWFDmIgwqIRJWAdhwcTDcDwajYcPuPsFhA2oTKOrphUw9BfmIKzNYeu628PGEniou7AJ9ZGnfIWbN6rjoe7CBljOyfdk7FjXY1ojYQa8ZivlnS7CD7vGgWkuDA9LX4UuUvnLB9BbGM+UbOXHKtJXdumasT7CgvH7uQqSKfZAze/5lbZYH2EDiqP9Mb2pcNyPilfqLW2EOTdbS3WIr0AOatkyOddWWEDVdqSflrAvHbsKQmPh1lZ6lzfKPLltaSvMmKj24jbYWa7cuC3uVcWvV2oiDNbcl1hHB3LRt1fRnj+3QFNhYOZzpOGpSbM1Dcsaj59NpmVIG8CsSaSBHQ5DDBLhicXeNU16CONQ0N55UZdy3sYu5jyqvrydzd/VW1oIcy4ac3UM+1eqXzWMWj/cxVPzhnjbFmshbMJtbxP4ofChDYYB7UMo7Aeb3u3bcbEWwnmoL8JhAw78x82TcHMcTgRgR2RRx2TdhEWlI8OBP/YsO3cF5K4THuBJ2akIzYQZh9YsOIWw9PxZJTpZmfmePIV4MGsBZ3oJG7luWEGjnjts1Oo13BpDN/wXYEI3Z2gljHVwcxSpSXVcTCfTCW7TxTE+pUZNuJjAzL4w/kJ7u2SUJNMJgMTJ3/Xgoi3OvDDDVvdFHX+/uvCoXmpGGtSZFzYh110GXrruNAhJV5B6wbKbS9vizAvnoTpL4/cKGOWzatoWZ12Y8dK9E0e09N8h45h27kvnlinrwgIaY3k5s/MrvpTjxrnayrwwbx+TPz/Ybl4v2GyDJMexzfUQxs/6QIbjBKncSb/3/OPMc68/ccO2OFByUE8m5bMtjGP77mvU6TjIhVW+Kd+dwQNrIQ9R5+O1C/FEQKaF8bM48Hf7/d51d2pcep+jNFY718XknT8sp3myKywg19kmdZPTBbMYLuGJEEUTuk6Suu8Wonor08I5uB2s1qv1er1arQcN9vaePwfWGJxSMHm9Gtzg5ZkPaeDlbwk3V1Y48Jtzcjm+W0zLljImbOYL+UKhkM8XzGslbJ5SMLmQN7Wapv1CJUzCJKyDMD2Zprvwl3vY8ms9TkvvAKB3ANA7AOg9HiRMwiRMwiRMEARBEARBEARBEAShIz8Bcg6wo8Okn7gAAAAASUVORK5CYII="
+}

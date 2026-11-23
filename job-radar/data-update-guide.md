@@ -28,10 +28,14 @@
 | reqs | 적합도 계산용 조건 목록 (아래) | |
 | needs | 지원에 필요한 스탯 (title, detail) | |
 
+| lite / raw / title_original | 자동 수집 공고 표시 / 원문 전체(번역 전) / 원래 제목. lite 공고는 duties가 비어 있고 앱이 원문을 펼쳐 보여줌 | |
+
 **reqs 한 줄**: `kind`(must 필수 / plus 우대), `text`, `status`(ok / part / no / ask), `reason`.
 내 스펙과 연결되는 조건은 `rule`을 붙이면 앱이 바로 다시 계산함:
 - 언어: `{"type":"lang","any":["ja","zh"],"min":"원어민"}`
 - 해외 출장: `{"type":"travel"}` / 해외 근무: `{"type":"overseas"}`
+- 그 외 `status:"ask"` 조건은 앱에서 "있음 / 조금 있음 / 없음" 버튼으로 답함 → `profile.answers["q:조건 텍스트"]`에 저장, 같은 텍스트 조건 전체에 반영
+- 홈 "답할 질문"에 답이 없는 조건이 공고 수 많은 순으로 뜸
 
 ### companies (회사 1개 = 문서 1개)
 name, address, size, titles, work, benefits_posting, benefits_other, sources, checked
@@ -40,7 +44,7 @@ name, address, size, titles, work, benefits_posting, benefits_other, sources, ch
 game, company, kind(CBT/베타), platform, start, end(모집 마감일), test_period, region, url, note, tone(색: job_type 값 중 하나)
 
 ### profile/me (내 스펙)
-lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니스 / 원어민), learn, travel, overseas, place, career, notes
+lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니스 / 원어민), learn, travel, overseas, place, career, notes, answers
 앱의 "내 스펙" 탭에서 바꾸면 여기에 저장됨
 
 ### status (공고별 지원 상태)
@@ -69,7 +73,8 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 |---|---|
 | name, category(game·vtuber·ip·goods·webtoon·platform), category_label, country | 기본 정보 |
 | careers_url / candidate_urls | 확인된 채용 페이지 / 확인 못 한 후보 주소 |
-| method | api(채용 시스템 데이터), page(채용 페이지 확인), page+gamejob, gamejob(게임잡으로 추적), manual(자동 접속 불가) |
+| method | api(채용 시스템 데이터), page(채용 페이지 확인), page+gamejob, gamejob(게임잡으로 추적), wanted(원티드로 추적), manual(자동 접속 불가) |
+| logo / minor | 로고 이미지(240x120 PNG data URI) / 중소 회사 표시 |
 | ip_focus | IP 사업 관련 회사 (우선 표시) |
 | open_count | 마지막 확인 때 채용 페이지의 관련 공고 수 (모르면 null) |
 | new_count / closed_count | 마지막 확인에서 새로 생긴 / 내려간 공고 수 |
@@ -78,3 +83,17 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 ### jobs 추적 필드
 - `closed: true` + `deadline: "공고 내려감 (확인 날짜)"`: 공고가 내려감. 삭제하지 않음
 - `added`: 처음 발견한 날 (3일 이내면 앱에 NEW 표시)
+
+---
+
+## 수집 경로 (자동 추적용)
+| 경로 | 방법 |
+|---|---|
+| miHoYo | jobs.mihoyo.com을 브라우저로 연 뒤 페이지 안에서 `ats.openout.mihoyo.com/ats-portal/v1/job/list`·`/job/info` POST |
+| HoYoverse | `api.ashbyhq.com/posting-api/job-board/hoyoverse` |
+| Crunchyroll·NC America·크래프톤 | `boards-api.greenhouse.io/v1/boards/{crunchyroll,ncamerica,krafton}/jobs?content=true` |
+| 텐센트 | `careers.tencent.com/tencentcareer/api/post/Query?keyword=...` / `ByPostId` (키워드: 二次元, 发行, 海外运营, IP, 周边 등) |
+| 게임잡 | `/Recruit/joblist?menucode=duty&duty=24~30&page=1~3` 목록 + 상세 페이지 meta description(경력·고용형태·마감) |
+| 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
+
+제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.

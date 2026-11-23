@@ -1,1 +1,21 @@
-{"name": "ポニーキャニオン", "category": "ip", "category_label": "애니·IP·라이선스", "country": "JP", "careers_url": null, "candidate_urls": ["https://www.ponycanyon.co.jp/recruit/"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": true, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://www.ponycanyon.co.jp/recruit/"
+ ],
+ "careers_url": null,
+ "category": "ip",
+ "category_label": "애니·IP·라이선스",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "manual",
+ "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요",
+ "name": "ポニーキャニオン",
+ "new_count": 0,
+ "open_count": null,
+ "verified": null,
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX///////7+/////v7+/v7//f39/f39/Pz8/Pz8+/v6+vr/9vj29vb57O7q6urq4uTY2dnW0tLswsfCwsK1tbX2pKytra2enp6fi46FhYXbbnh8fHxzc3NnaGhdXV1RUVHrMEVdP0FDQ0NAQEAzMzMnJycdHR0RERHpAy/mAizmASvkBhtDCA0HBwcEBAQDAwMEAgICBQQCAgIAAgICAQEBAQH1AC3mACvmACrmACjjACfjABB2ABUCAAAAAAEAAADt2RKDAAAGIUlEQVR42u2ce3OqOBiHs4dI0SKC3ES5OMpF5aBddmlV6ub7f6t9g7oq2p6e/S9pfjNSJTjTh/eaNBQhISEhISEhISEhISEhISEhISEhIaEbYdC3YZVlGR+h4R3/tCfDqqpye4JLKdSgmmG5k3A2i3zPMTQ4ISuc4lJb6m4QZ0VFjiqyOHAH1MxcpimEzCA9klYbUHl8nwbmcZQz8wJuWBBSgqqThauKfgBDh2ZzAVfRizQvI2R9duYrVWtCssmAK2KsIDMG6z7AbZDBuWOLJ7fGyE0/xD0hZx69jpf4HYF5yaeCYV/mhBh4i+oXvDSbATEXXi0jpyS/5KWlivhIwRzw6mn5Bd4mkF32czWWe3OyIV9SVWUG82EsI/ervAQunKmMTyYwGiTVl4GrcsO6U8vIexjAVVVVD4tTojGdqTHSk/sMfa5RD25FSTymTUwj+M6S9MQmTegk8c7ZyyrRGCbGSI3uoODzzDUN3bT8lLRvR1OaFIYNrKdtpJKkjnoa14O7lrMkEeMefQeU6DAgy7hZynOy1g2pSDZgtxbLKGgBVxXwds9AsnJPTIjFbBBDCMd3wDchChPlSWvaSPO0wqyBjZb9SmilbuosxoPk9pINiTCrPq0gs2gBF+1OSkb+bR6n94RdYPe2oYIMbbSAFexsSNVqtlgNYgWst7613rxtPYW6fXl7U5hd0KNJugUcdlvAUKq5AYbc0+qzKuK31yaVdmIDl2YXuDdrA0/a+QhiuLoAHw6Hl0OscQTstYHxVZYGXEL++meuSphbYIy1U29CYQl5eSkOIZzuSHwCYxl5jUNT3MPP9/c9aGoPYKjDI3DTS9PlAMDN3vevR+3yfGo/I0niC5hueDjPlg7k5f3t9XW7b7Ra7fJ6OkRI4s7Cg0lx5M32r2/7/fas1XJZ5+Nn1og/BcYDw/GTZv5/ID/3rxdaqt128VYzR/wJMB2ifyuuqoe8jZUXQMxWsv4UWIahZtUSiu8j3u32DYjZytW/BD52G+T9Ie92u9zlQ6ac+kvAh0Ox/wB4t8zHTywVp68Btwy8XF6F8QpM3OELGCrwlYF3q+V+v1xd6PMxS9X4a8A/F1c+vK+n03q/3P0HPO1zB3zl0ct8YQ/6dg5GPmq5W7Dk078LvKJZGWTn27fzqdzmGHgJdbfb6TyhaZ2fVdv8uvRuUdsdMKckDe2LBghxbeEnBqfB/z+GV+DAVFLnIs46reqlvMrSq30+Hj5za+FNsaaDxXZxIV7VTBXe3wHuxvREloTONL90k8s9p8AIdSeh77mGJiG7vjSTHAOf1Xl6mtaL3bcAlpWuIv/ooGG+W30fC9MF6HG9WH0jYKnzTIl33wYYADvjet8gfw9gcGrJzinyin3gdbE+adMcHwIj6Q80nALy24J14Li9l9JHdD/a+QnLY6tMt6jBnGE4XtQ1dFr4CaPjrjUss7V5GoAnURCEURSF56ODr2O3OZzY4dUf2uNxH50e58Gnnowx6c0DpJqhw7FnGCoyHA1ex+2FQ7tPdxhbBnzQLEtFuqk2g7plygiplqWx5dNYDQhJHOQmZO3LxoyQaBARB4XERV0JqlE9tekzXIWv6HNC5lpELBQQ00zgVE+P4JTB0vYHBU1I7BepmWWTmDgBCULi+xtH9isAhiZ6Oq5zIy1g0AxJGJLA/9uUg7UTr72EuD6JAhKp7OyQx0hNMgP566DwkFH48wT1kplXWMinm6KlcT1E9nj0p4+sjR/HvW6SRIWJJoVPJsgog1mmonmhs2NijLQk0800s7K5E5LRLO6pMB0kkZWQk4UhQ5lZaphrP56rWpJ4JHSTwk0SKyRelGnyrDBYAgYL6wE0Gx4UpNDI0p6axRDEIArcn9Z25/nJI4FJgiTpa2nWDBamC8dIj0sNZs2sARuWBfXUmriq6rm93gh+uqOopC6N+nazzO5Y+sTyPFUdjWDQDcGtTbi+O/LUnutpiKEY1lIw0INfuIlhWod/PPjaBDI1q52W6vkDrJz/dQfdxELbLEW2/MZRpeOapIyh86K5GC6AQSfQkXLsxzj9dwhcCX/Qkfz+d4SEhISEhISEhISEhISEhISEhISEhPjRv7A5Wkiif7KVAAAAAElFTkSuQmCC"
+}

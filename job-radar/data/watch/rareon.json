@@ -1,0 +1,26 @@
+{
+ "name": "레어온 (펑크비즘홀딩스)",
+ "category": "goods",
+ "category_label": "굿즈·MD",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/58661",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": true,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 1,
+   "new": 1,
+   "closed": 0
+  }
+ ]
+}

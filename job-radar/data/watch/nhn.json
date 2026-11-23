@@ -1,1 +1,19 @@
-{"name": "NHN", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": "https://careers.nhn.com/", "candidate_urls": [], "method": "page+gamejob", "method_note": "채용 페이지 + 게임잡", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://careers.nhn.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page+gamejob",
+ "method_note": "채용 페이지 + 게임잡",
+ "name": "NHN",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+/v79/f38/Pz6+vr4+Pj29vb09PTx8fHu7u7t7e3s7Ozp6enk5OTc3NzW1tbNzc24uLiurq6np6ehoaGWlpaFhYV9fX1ycnJlZWVfX19eXl5VVVVGRkZDQ0NAQEA6OjowMDAsLCwqKiokJCQgICAeHh4dHR0cHBwbGxsaGhoZGRkYGBgXFxcWFhYVFRUUFBQTExMSEhIREREPDw8ODg4NDQ0MDAwLCwsKCgoJCQkICAgHBwcGBgYEBAQCAgJ+iZ3wAAACt0lEQVR42u3aSVfiQBSG4aqCBkVGZVZoMIQMRQIRgUAk/P9/ZQVNmOyVq771PRs97t7DvVTFE8YAAAAAAAAAAAAAAAAAAADgVwTnP/2ZnxDLTeK0CRaCsXqvwYQew8xVZ627iI3KdTFnd92X/vOXfpFxKp9utTuJPHPfzwt+FfxgHjbbo2hfYkSmutKZxHPLlc6uxXLXweP51D5y/XsaweW2GyW5UjrzRf1yqFXw65sjj7yAQjBnxfHH3PpustbD+4uhphhcCqUrU9ND52KoKQbfz72sV6UvL84mksHBWbC0l0b1rJh+sLT2z+y0xhoESzs8O5u0CH7zatlQ6xAs7fWgyHUKVmucnU16BLtedjbpESztwCh/tWkSrIa6l8txjYKlvW8e15h6cHapdgKzltRRDw6cbKg3w6IQtIOd1fAlsrPnprjDiAdb0aA6XtrZ2bRoJJdqysHhiDXWfrrH1tqoqC8u0sF/C6wdZkNthf08+WBeGHxMs7Ppo8WIB/9hrDrJ1tgJ7DorEw/Os8f37Di218NCyaAdLHKsG5uztPjQLhhL0sGc8+IgstKzaeY/jd5pB6vbRl366Y3LfTMmc5d2sDp7m+HpUu176e9kg3mO9/bWzfME3WB1oXwYreybR0a6wckaB76rUbAqboWOTsFciH5saRSsflROT4o6BKuzqRF4rkbBqri9t3UKZqL4srO0Cj5/UtQhWBU/BjNXo2C1xp14qlOwUE+K27M1XpSIB6uhrpnp/zsca7O6ox6sips75ys3iF+bgsCLeCp4Id0jc3MTrNa4e5jOVO5h3LpjFKjgTbQJE6vDbTDnpdG7udga7Qq7eg3zv5V/fPrWbORvllStsR87nSSX1gvx/6TWuFtVuYReHRcnPw89Y0KTTzfdY8EAAAAAAAAAAAAAAAAAAADgNz4BG2L0Dx8RWF0AAAAASUVORK5CYII="
+}

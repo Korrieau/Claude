@@ -1,1 +1,19 @@
-{"name": "네이버 (치지직)", "category": "platform", "category_label": "플랫폼·행사", "country": "KR", "careers_url": "https://recruit.navercorp.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://recruit.navercorp.com/",
+ "category": "platform",
+ "category_label": "플랫폼·행사",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "네이버 (치지직)",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAqFBMVEX////+/v79/f38/Pz7+/v6+vrx8fHu7u7t7e3l5eXh4eHR0dHHx8fGxsbExMTDw8PCwsK/v7++vr69vb28vLy7u7u2traqqqqnp6eioqKTk5OSkpKEhISAgIBubm5tbW1fX19eXl5cXFxbW1tVVVVUVFROTk5MTExISEhDQ0MtLS0sLCwpKSkmJiYaGhoUFBQJCQkHBwcGBgYEBAQDAwMCAgIBAQEAAAAHT6bAAAACJElEQVR42u3caU/bQBCH8dm1uU8nodwlEM6W2zs73/+bsZR4vQRRVSqq0pn/IyEEa178tDbE8QgihBBCCCGEEEIIIfTbOH55PNfgKF9eBBhggAEGGGCAAQYYYIABBhhggAEGeC7A/VtUny5ErTvMFnY4BJ7WzujbboFD0AMOB9vD5lfDrd37kPc4yNX6qJmubB8EJeAovFEcsiehO6qVcbGwwRK1gAe+9tNqusyXcSuTvFD7gSJwQ747wvvFH8wd+CwveGp0gqmib2IKnMQnEiyBfbV89yY2Ak5bvPnI0RCYajqS1hLY1ws3HAyB01drr9+3A06X8WF6WW0I7Gq6SHcOdsDkaOWBnw2B00m9L08mwC7/bToXGzvsuk9Lt+n2UD248v3Ljx0+VQ921fGqd91lPLlWD/Z0PUnSN7xfPa6cevAp76SzOd85kXrwWG6X+l9cpB98JnKet9iZAD/JPlWzP6kZ/MwPK+XZrB7cslxQ7QyBE/lw9qTWDU6HrX14T0AzWALfLNTeEDh9HPUvPyyAIz9uvruMtYMlyN1yeVKrByfx93KL9YOFZVSILYDjz0XvdYIHxXPvSQdOW3xJ/YNyVQ/Ey5GHcQbHIHvFgpqRh3KopRmtX0keXuFwv7s1VDfU8m5siduZOa1W49jSX02p/e+jh/FPhxIxXAowwAADDDDAAAMMMMAAAwwwwAADDPA/ydy/iEMIIYQQQgghhBCag14AazH5Ly0jIXQAAAAASUVORK5CYII="
+}

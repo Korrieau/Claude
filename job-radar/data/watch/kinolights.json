@@ -1,0 +1,27 @@
+{
+ "name": "키노라이츠",
+ "category": "platform",
+ "category_label": "콘텐츠 플랫폼",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/21661",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": false,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 1,
+ "new_count": 1,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 1,
+   "new": 1,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAwFBMVEX////+///9//7//v7+/v7//f3+/f39/v78/v78/v36/fz+/Pv+9/f+7+/83d35ubnw+fbZ8eq25NaB0bllx6lTwKA4tpEdrIIRqHsNsIAOq3wOp3kNp3oQpnkPpnoPpnkNpnkMrn4Mq3wMqHoMp3oMp3kMp3gMpnj3lZX1g4P0bm7yWFjyTU37Q0PwQ0P9QUH5QED2QEDzPz/xQED0Pj7yPj7xPj7wPj7vQkLvQEDvPz/vPj69Vk0NpXkNpXgMpXhun+2wAAADbElEQVR42u2aW3OiQBBG26AxioKIIAQvKEtAcEUgXiAF+///1aJJpfaCMvuwD+npU1pali+nvmEu3QNAEARBEARBEARBEARBEMS/0a3efWU80adz92Wha5OxMvr4GSOtSkxRNcdxXNercN3qq64qfei1kMarqFPTscrCe8cuSssxLVUB6OHz7UF/rJvuvPR+o1xa5nTchz4+39Fk7Rh/6F5zNhxzomDL+Kk10lbG0qvFNkxdgSdMvg9XX9u7QWGsKuMHRPNVqxrP89K7jWFqoxae5akFY9O453sZ1WobsKxOXVCMme3dpVg8j/HsQHoTc+41sFxpfTQDWrHsoknYW6zHaIa0ulo0+nr28wTLWjzSZ2WzcDmbjpAIKyvLY8Baj5EIq88Fi7A9U5EIa47NIuy5OpJZWneYfL2XKZJJeuqyCXtIhHsLVmGbN2GXN+E5Z8IvOmfCrsaXcOGofAmj2VoyCv8osBweGIUX60mXJ+HCMrAcltiEl2ttxJOwPasCbvMjbBsrtY+lTMsijKoQ3yxcGGtMzaVGYfvaWsLTTGsQtuczU0PVLr0rXCwt01BHqBriN4XtoizdlTVRAFdzuFU4bh2Os15/m14utbS/2PwsCO8fj51aRGNRh6Hr6te8ttSp3gNJ9oPwnNeQnsVeLd33jVXri+2vHgFESQ7iOE6SQx2vbwKmB7SKV/LTKLlkearlkHcQ+Yow9MPopiw6YRGkTRSf7+jiEu6AFEb3dVEJX3z3Tb6IhAVhGETn04kXYQFEP9rl/Ai3Qd6l2YkfYRhs9s35YhKWdhlXwo8+U8B4hIdbJl88wnKc8SXsJ5wlHBxOfAmHR86E0xNnwkfehHPehLeMwslW4GvSSgIkwozLUp4ESM4Ofsr0FOexj0SYcWuZRRIS4erwwBBxnoYDJMLiJmYR3vtoangSw3k4z1IJsLRaWEo8WYQmYHgEad80UWfpDk/AAgz8hjJ8vvsuA57eoQANhfi3dL8ZCohaaR1BCu+U4rNdtBkCquaweG2mZbdWYGT5fhhvoqTuQc7PcewPqz8ANuOBvP27IZ5nxyiUB9ABdPxy5eHTNs+SaCtLgNG3mqs7IEp+GL0mh+sB+XhIkjiQh5+3mRAqV6+BJG+CMDseszDwZWkASOMlCIIgCIIgCIIgCIIgiP/KT+PzDIdNqmzNAAAAAElFTkSuQmCC"
+}

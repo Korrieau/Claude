@@ -1,1 +1,19 @@
-{"name": "시프트업", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": "https://shiftup.co.kr/recruit", "candidate_urls": [], "method": "page+gamejob", "method_note": "채용 페이지 + 게임잡", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://shiftup.co.kr/recruit",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page+gamejob",
+ "method_note": "채용 페이지 + 게임잡",
+ "name": "시프트업",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAAclBMVEX////0+fPq8+jp8ujv7+/g4ODf39/J38TQ0NDPz8/AwMC/2biWwIq/v7+wsLCvr6+lqqSgoKCfn5+LuX6As3JrpltrplphoE9WmkOQkJCPj4+AgIB/f39wcHBgYGBfX19QUFBAQEAwMDAgICAQEBAAAAC4LDcSAAACq0lEQVR42u2Z25raIBRGaYu02lIbezKmoYmQ93/FsjckYutERyOmn/+6GI4iK8EdyAgBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBd+Lplvr9L6uTGmFpTTmnNqVhqrajFl2VMA9TSo4YBlJKcUYrrQvNyDr4ft5FvhzplO2Lvs1XXWa7zVRXN3NevYspY0XYDRT+C6bqWR4rd+85FNi+Z3oC08KkX3v7ty6bTCnfdLpfwnr8urE7lep3TwoZa62o/rbDlKTiZSTid0DoUFi8IS9/WUGZ1Rni1IIT0f3xr7RM5IlwI1fikfIDwZlyYrscQfcaEF4fhY6sYFRbSxUs5C+EffdcyTnZ6YVr9NpPw73PCP98njvcS9tUuV9Ti35uxhOH8ouXCl7eBN0PPTTqraYVrn2Z96Bq+tWaYZBpYRfob1s8kTKGlvY9wk3FJXy7MvXZ3Ed6H7dvchGmWTg3CAzcLq8OX3x1VViMUx/ufqhvuxJgwB73lxcKqpEv8OZOwfemxFG768XZA0i6wPivMrC4VPuzPH7vxCMLtce+l6yO1F3Yrwk4ibNU8hcWuX9RjQassPOpiYWubUoqZCvMRqJo8SmekcmPCbv1PkHPhKPffCr/msTQs6uKZhGlRm6cSDqfEJxLesOpzCd90h/mpph8mvDRERU/OouK8KQ6FWp28OM3VwnU8FvXd8gu/Zmup+8V4fZTexOYqHoDzC79m49EZrX+58CrvSmF687lXQts49MyFk8PClcL8biPZbOcX5o1WPJvFjb9MZnZKuLrhBUA4cA2jPEB43Xrq/vJTIb4RV5Rvjv7NperW2jYcg9Y+ooXPGEP7T+VD3IeYJieB2Hr0M25d5+IowvfWAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA2/kD0U7qi0bzGkkAAAAASUVORK5CYII="
+}

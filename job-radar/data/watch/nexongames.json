@@ -1,1 +1,19 @@
-{"name": "넥슨게임즈", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": "https://www.nexongames.co.kr/", "candidate_urls": [], "method": "page+gamejob", "method_note": "채용 페이지 + 게임잡", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.nexongames.co.kr/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page+gamejob",
+ "method_note": "채용 페이지 + 게임잡",
+ "name": "넥슨게임즈",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

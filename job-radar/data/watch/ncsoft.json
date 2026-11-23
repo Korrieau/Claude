@@ -1,1 +1,25 @@
-{"name": "엔씨소프트", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": "https://careers.ncsoft.com/", "candidate_urls": [], "method": "page+gamejob", "method_note": "채용 페이지 + 게임잡", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://careers.ncsoft.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 4,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page+gamejob",
+ "method_note": "채용 페이지 + 게임잡",
+ "name": "엔씨소프트",
+ "new_count": 2,
+ "open_count": 4,
+ "verified": "2026-11-23"
+}

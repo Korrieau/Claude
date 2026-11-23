@@ -1,1 +1,19 @@
-{"name": "대원미디어", "category": "ip", "category_label": "애니·IP·라이선스", "country": "KR", "careers_url": "https://daewonmedia.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": true, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://daewonmedia.com/",
+ "category": "ip",
+ "category_label": "애니·IP·라이선스",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "대원미디어",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

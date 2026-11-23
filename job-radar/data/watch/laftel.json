@@ -1,1 +1,29 @@
-{"name": "라프텔", "category": "platform", "category_label": "플랫폼·행사", "country": "KR", "careers_url": null, "candidate_urls": ["https://laftel.career.greetinghr.com", "https://laftel.net"], "method": "manual", "method_note": "자동 접속 불가 (봇 차단·접속 지연) → 직접 확인 필요", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://laftel.career.greetinghr.com",
+  "https://laftel.net"
+ ],
+ "careers_url": "https://www.wanted.co.kr/company/847",
+ "category": "platform",
+ "category_label": "플랫폼·행사",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 3,
+   "new": 3,
+   "closed": 0
+  }
+ ],
+ "ip_focus": true,
+ "last_checked": "2026-11-23",
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "name": "라프텔",
+ "new_count": 3,
+ "open_count": 3,
+ "verified": null,
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAMAAAD7aI8VAAAASFBMVEX////8/Pzl5eXLy8u+vr6WlpaFbv+Ba/95YvpxXuBtU/9paWleXl5kU8ZlSv9URK1ERERdP/9EOIowKFwcHBwaFjMNDQ0BAQJ9wF4AAAAElElEQVR42u2b6XKzOgyGG8DGjsMSG8P93+mRDG0xS0NCvhk5R8+vDFM6vGixJJuvL4ZhGIZhGIZhGIZhGIZhGIZhmFTJCiGMMS1ijBDFZ4s1Xdf3/fBL33ddK7LPFDsJ9d67CfjpR92m+CzRheiCVmebRiv5Q6mrxroguhMfozkTBuWC2KpEkbKcEVSDaJRsPiOgRQu+7G2lY6WRarQ0enabvuQM5Q7ox+VfBO/2KDlxvzYYuQ3qOYAMkk3KuapDZy4PqR0lNyA5Wb/OBHiz1cflItpiwk7SrzNwZ1+p5/SWpQIj9yZBxRm4s9Pls3oh3DWsUenlrgzdWZWvAUtUl9riOybn8lXF4NZJpS5IV74qXwcXqC4hxVg5V7L83ygu9vVCStJRTq52/F5WCWWuPb1Qb1XQEs4uKGgVq+06DBUnkrkgPzdbEpQb++H5tbEddmqz6gIbJ1I+N9tFlA8dcSROhW7Y63JHcQKFNSxIdicTVU2zrLykVHh15wY79CKBhOXVfhUlp1iOru31UhDi5FN11g7Dw3bBfncUj/5QavJODQ79uOAIRXboE44UmaSdOtvJuMvQhDgPcyz7yMaQ2XvKq3ELCVceKpXHFap67NSeslMXeyvS0m5V4xxOMQ+8HHCHgrCBnT7W85ZKa3WomwKnbglnrOZoyyAPDvaw/KDaKcKS5E61SDuKPVUTi7M94a6JaVYf/8jAocMgOdQ7mqKfpyIZxZmZNz3ytK1n/wHWYoLlVjY3sHZnvVva2VAMojgjmLJ+6ybsZNVJC8+WOBxw0TNxNx9DwxM2J4d487pTWXorUxYVHdKdzNj4D1Q0+8joebSO1k5/ak2GPDXrpCj6NCzCi7XTyjMpK55zSXIFddbHAsMTv65YL0IC/l1PrOroYxfG4Yw9U00OerERQaz2MPG4+aSJ9TrnUQvidR0dTLw/kfxjsCmx6derrE0qiKFxWOUofOrK2uapCkQ11lbwrtw6i5HaaSq6VWcYNvIDT8RyM93iVtFQ0eoRQbDeCMTB3W7uCcU23OGHjUmRpiVY9MMqVkGpyPNLfjs6F8Dy4pZfLrnYGPZKWrsu8IhyvdspLgEXmVguiBP7eMfGcEzSmsibtWA33Manv9wgBQVlSqkrUl/rAPxA4LIK78EO7vKt2Ccn+MfAOVSZ1/r+kPoKFs5/TCxXozxD26X9JDic57kfww+/N61fIHHBFhNQnovbcb33xg9uSnSOtktDll4UENf7MIQVBvLP/Th4g79BYm+uKt4qJrcOR2kVY9ZOG2bP6L03U7Vi4feV8nA6rqWnFGWdvb+AdW58STXhhlhEE476/hbqaNeUVreUdfN6X71Fca1+I9iSG9SK6HAlVhinRENVouIddHJz2n7Z8KuxsIKK6hmd9XfptTgGQO9QXtFDxR9/klQu9W+zEri4FU8vUdxcAsWD/nsPfHcXST4Y2dLcEg+HhnX51i1T/GwNv/r4IgkeG3Z4uvBt4OmXgfBpvMyMX1S+jfAdJulPXAozvJcEPkcsTNu9idZ89AfkDMMwDMMwDMMwDMMwDMMwDMMwqfEfRkXe7tu9SUYAAAAASUVORK5CYII="
+}

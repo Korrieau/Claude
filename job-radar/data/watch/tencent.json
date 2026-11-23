@@ -1,1 +1,25 @@
-{"name": "텐센트 (Tencent)", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://careers.tencent.com/", "candidate_urls": [], "method": "api", "method_note": "자동 수집 (채용 시스템 데이터)", "ats": "careers.tencent", "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": "careers.tencent",
+ "candidate_urls": [],
+ "careers_url": "https://careers.tencent.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 42,
+   "new": 39,
+   "closed": 0
+  }
+ ],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "api",
+ "method_note": "자동 수집 (채용 시스템 데이터)",
+ "name": "텐센트 (Tencent)",
+ "new_count": 39,
+ "open_count": 42,
+ "verified": "2026-11-23"
+}

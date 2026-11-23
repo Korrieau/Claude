@@ -1,0 +1,27 @@
+{
+ "name": "기어세컨드",
+ "category": "game",
+ "category_label": "게임",
+ "country": "KR",
+ "careers_url": "https://www.gamejob.co.kr/Company/Detail?M=35234551",
+ "candidate_urls": [],
+ "method": "gamejob",
+ "method_note": "게임잡 회사 페이지로 추적",
+ "ip_focus": false,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 3,
+ "new_count": 3,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 3,
+   "new": 3,
+   "closed": 0
+  }
+ ],
+ "logo": "data:image/png;base64,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"
+}

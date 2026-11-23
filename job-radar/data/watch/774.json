@@ -1,1 +1,19 @@
-{"name": "774 inc.", "category": "vtuber", "category_label": "버튜버·크리에이터", "country": "JP", "careers_url": "https://www.774.ai/recruit", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.774.ai/recruit",
+ "category": "vtuber",
+ "category_label": "버튜버·크리에이터",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "774 inc.",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

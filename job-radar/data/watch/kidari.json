@@ -1,1 +1,19 @@
-{"name": "키다리스튜디오", "category": "webtoon", "category_label": "웹툰·만화·출판", "country": "KR", "careers_url": "https://www.kidaristudio.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": "greetinghr", "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": "greetinghr",
+ "candidate_urls": [],
+ "careers_url": "https://www.kidaristudio.com/",
+ "category": "webtoon",
+ "category_label": "웹툰·만화·출판",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "키다리스튜디오",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

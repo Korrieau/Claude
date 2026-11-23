@@ -1,1 +1,19 @@
-{"name": "DeNA", "category": "game", "category_label": "서브컬처 게임", "country": "JP", "careers_url": "https://dena.com/jp/recruit/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://dena.com/jp/recruit/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "JP",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "DeNA",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4BAMAAAA+mGIUAAAAJ1BMVEX////v7+/b29vAwMClpaWNjY13d3dgYGBJSUk0NDQgICAODg4AAAA7TGhUAAAE2klEQVR42u2YXWgcVRiGn9nd7CYKMi0U1KvRgLkowqq9qJjioKJoCo0gVlQwUFEqigsW7Z2bCyG1qS5YUr2pC1pp1OqqoBgSXKSFQlXmQgSplbmwIAXtuWjztzszXpwzs3/RmTiDIJwXArM5s/vM9533fOc7A1paWlpaWlpaWlpaWlpaWlr/mYwkN+24fcvlC0uxtxXevvVZJ0Nwft4CCE4eiblxd5Urdobga75VF2t3/fON38HVu5OCc5t4ttKZDb6/r5MZIACMc1bGYEpfDAyW9n8WTTHgAiWjmg046FzeMPCTea4PL4cUuMDN2YDb3f7pz2KZfPgvS4EnKWQDXlsSwMxxAE70DVowNQAuZgPmlRp4H889BFCa6h0zwY6CBxcMSz5DBmAcyMOlOwGeGQAP9UZcACYzAl+WhNYuoGj3g4udiAPlMTsjcFvFs1IDpvvBRjn65AFb1V8WYF/NICeB4X6wSmxO3WirJZ0F2FMR065Cvtw/bEd1JkuwqX5PGnUBqPTfUox+KVCpyZlpwcbs4jQgQvC6YLAuFaOIPSiAn8RdMeDtNhNyPamKXQ3zeMuhA725zkUV+5ByRBpwRXpHROAf1Lqd+ODexz5XMyFrlxEt41MZRFyWeXYjcAsME4angRvDuEa7wGU8XPIZuDpodkesDP4+AG91T3IEbuMksHUMuAE/0Q2WBh+RVhsJ90arA7bxcNODD3P2qd52QIDFPuBXYAoBzc4GJcDiT1wMKyV4bcfz9ESMC6YxBWceraua1YB7osECNHES2DpR5ervCouw/iJ15ekROckmIMiDQwD2VisLsOj9OAQfdp7mWihYYZNUABcfxhc+yijirhIqLIJatA1i1qACJviwBbYdfC9B45w4YqMH3IJcDQQCzE/hjtDyZTj2iNXXI2YVsWviweNAUzoQSmBC0G0qLyV49nRfOwsCAp6sAHUEmG2XXLkTsZzuc++kA4/Yw2Xl3gjsCAqzFWBFppoaVFV2LbiwMCMI9r8bc8KLAY/CVKXX0D5CdV4vqOR/D9skOA+/7YWddi7tOjbDnVh55TZoo86iRx1kxGtQkq7Oy3lPUEHiwA44ffukhw/QPlBHgf1m2JfkZE/vpgcvC78aOhYYsuAP2nD+2M4m5ExZWmrwMCAoyGLjxPf0cXPs339d99FtDKjRgvkGYLx+ZRGAS3KncjFlxEF8KxBrAl/Qidiog98kaPASkD9sq4SuQ64CgrIEe/En/sQFJADYDqwCbzJy4r69X9tRbyJLpggT7BHbgxQ2Ay7WgTeAZRibQS5pDPkWAnCxpPH8+IhySetkAPkvgXYDCPaogZraDVZVSbdkZhJEnBjsU5g3gbMAXJRV+qjwidpeaa5APUJm4OIDZy3AU2Xs5eNw/uk6vrLRUi/Y6S6z/3aOx/a4k1B8DYCvQrPPzYU7oUGU62jZOTblZlpw99uH9erfvJkJahV8cK2kEcenumeyntvgBCtX7Cnw5CIOW8IsG4HTzkYnWFSu29BUKWgN9GmbB/udy9XK4HCICqZYgm+ISlkj9REmumqNbzD8ahj0jwersCzUY+xeSb+cQne2Htxo9Kr7ibpaBIIJ9Zy/70r/9na8BsDPT5Cl4s+TXBy9ieCXmSNoaWlpaWlpaWlpaWlpaWlp/V/1F3rgaNBOSYetAAAAAElFTkSuQmCC"
+}

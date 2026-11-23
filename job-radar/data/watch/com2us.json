@@ -1,1 +1,28 @@
-{"name": "컴투스", "category": "game", "category_label": "서브컬처 게임", "country": "KR", "careers_url": null, "candidate_urls": ["https://com2us.career.greetinghr.com", "https://recruit.com2us.com"], "method": "gamejob", "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적", "ats": null, "ip_focus": false, "verified": null, "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [
+  "https://com2us.career.greetinghr.com",
+  "https://recruit.com2us.com"
+ ],
+ "careers_url": "https://www.gamejob.co.kr/Company/Detail?M=11526566",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "KR",
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 3,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "gamejob",
+ "method_note": "채용 페이지 접속 불가 → 게임잡 공고로 추적",
+ "name": "컴투스",
+ "new_count": 2,
+ "open_count": 3,
+ "verified": null
+}

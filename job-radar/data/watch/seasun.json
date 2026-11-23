@@ -1,1 +1,19 @@
-{"name": "西山居 (Seasun)", "category": "game", "category_label": "서브컬처 게임", "country": "CN", "careers_url": "https://www.seasungames.com/", "candidate_urls": [], "method": "page", "method_note": "채용 페이지 확인", "ats": null, "ip_focus": false, "verified": "2026-11-23", "last_checked": "2026-11-23", "open_count": null, "new_count": 0, "closed_count": 0, "history": []}
+{
+ "ats": null,
+ "candidate_urls": [],
+ "careers_url": "https://www.seasungames.com/",
+ "category": "game",
+ "category_label": "서브컬처 게임",
+ "closed_count": 0,
+ "country": "CN",
+ "history": [],
+ "ip_focus": false,
+ "last_checked": "2026-11-23",
+ "method": "page",
+ "method_note": "채용 페이지 확인",
+ "name": "西山居 (Seasun)",
+ "new_count": 0,
+ "open_count": null,
+ "verified": "2026-11-23",
+ "logo": "data:image/png;base64,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"
+}

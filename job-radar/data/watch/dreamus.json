@@ -1,0 +1,26 @@
+{
+ "name": "드림어스컴퍼니",
+ "category": "platform",
+ "category_label": "콘텐츠 플랫폼",
+ "country": "KR",
+ "careers_url": "https://www.wanted.co.kr/company/4411",
+ "candidate_urls": [],
+ "method": "wanted",
+ "method_note": "원티드 회사 페이지로 추적 (자동 수집)",
+ "ip_focus": false,
+ "minor": true,
+ "added": "2026-11-23",
+ "verified": "2026-11-23",
+ "last_checked": "2026-11-23",
+ "open_count": 2,
+ "new_count": 2,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-23",
+   "open": 2,
+   "new": 2,
+   "closed": 0
+  }
+ ]
+}
