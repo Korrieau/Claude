@@ -191,3 +191,4 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
   2. `python3 tools/art_fill.py missing_jobs.json cand.json` — 사람인 상세 이미지, 게임잡 회사 사진, 그린 재팬 사진, 원티드 회사 이미지, 그 밖은 og:image 후보를 모은다.
   3. `python3 tools/art_pick.py cand.json missing_jobs.json art/c <tmpdir>` 후 `--relax`로 한 번 더 — 로고·글자뿐인 이미지를 거르고 회사별(헤드헌팅은 공고별 `j-<id>`) 1장을 `art/c/<key>.webp`(640x360)로 저장, `art/c/_map.json` 갱신.
   4. 앱 HTML의 `const ART_X=` 를 `_map.json` 내용으로 바꾸고, 새 이미지 파일을 Artifact publish `files`(root `job-radar`, 한 번에 255개 이하)로 같이 올린다.
+  5. 그래도 없는 회사: 네이버 이미지 검색 "<회사명> 사옥"(해외는 "<name> headquarters office") 상위 3장 중 회사 건물·사무실·회사 활동 사진을 눈으로 골라 쓴다. 다른 회사 건물이거나 무관하면 쓰지 않는다. 헤드헌팅(회사명 없음)은 참고 이미지 유지.
