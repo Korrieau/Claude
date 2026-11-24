@@ -571,43 +571,65 @@ main .alert.ask,.pad .alert.ask{background:#FFFBC2;color:var(--ink)}
 .txt li{font:500 13.5px/1.7 var(--ko);color:#2B2B2B;padding-left:14px}
 .txt li::before{width:5px;height:1.5px;top:.85em;background:#888}
 
-/* ===== News-style thumbnails & cards (Endfield news page) ===== */
-.th{position:relative;aspect-ratio:16/7;overflow:hidden;background:#E6E6E6;color:var(--ink);border-bottom:1px solid var(--line)}
-.th.big{aspect-ratio:16/9}
-.th-vy{background:var(--k)}.th-vk{background:#191919;color:#fff}.th-vg{background:#E9E9E9}.th-vl{background:#CBFF40}
-.th-w{position:absolute;left:-4px;bottom:-10px;font:900 64px/0.85 var(--wide);font-stretch:125%;font-variation-settings:"wdth" 125;letter-spacing:-.02em;white-space:nowrap;opacity:.13;text-transform:uppercase}
-.th-vk .th-w{opacity:.18;color:var(--k)}
-.th.big .th-w{font-size:92px}
-.th-s{position:absolute;right:-30px;top:0;bottom:0;width:120px;background:repeating-linear-gradient(-60deg,transparent 0 8px,rgba(0,0,0,.07) 8px 10px);transform:skewX(-18deg)}
-.th-vk .th-s{background:repeating-linear-gradient(-60deg,transparent 0 8px,rgba(255,250,0,.18) 8px 10px)}
-.th-m{position:absolute;left:12px;top:10px;font:700 8.5px/1 var(--mono);letter-spacing:.14em;opacity:.7}
-.th-c{position:absolute;left:12px;top:24px;font:900 11px/1 var(--ko);background:var(--ink);color:#fff;padding:3px 6px}
-.th-vk .th-c{background:var(--k);color:var(--ink)}
-.th-l{position:absolute;right:14%;top:50%;transform:translateY(-50%);width:42%;max-width:180px;aspect-ratio:2/1;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:4px 4px 0 rgba(0,0,0,.85);padding:6px}
+/* ===== Industrial system (Endfield site study 2026-11-24) ===== */
+/* section frame: yellow vertical rail + oversized cropped display type + small label + KO heading */
+.rs{display:flex;margin:34px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+.rs-rail{flex:0 0 30px;background:var(--k);position:relative}
+.rs-rail span{position:sticky;top:70px;display:block;writing-mode:vertical-rl;font:900 15px/30px var(--wide);font-stretch:125%;letter-spacing:.04em;color:var(--ink);padding:14px 0}
+.rs-body{flex:1;min-width:0;padding:0 16px 0 14px;overflow:hidden}
+.rs-big{font:900 54px/.9 var(--wide);font-stretch:125%;font-variation-settings:"wdth" 125;letter-spacing:-.02em;white-space:nowrap;margin:2px -40px 10px 0;color:var(--ink)}
+.rs-lab{display:flex;align-items:center;gap:6px;font:600 12px/1 var(--wide);font-stretch:110%;letter-spacing:.02em}
+.rs-lab i{width:22px;height:9px;background:#CFCFCF}
+.rs-h{margin:4px 0 0;font:900 21px/1.25 var(--ko);letter-spacing:-.01em}
+.rs-micro{margin-top:5px;font:500 7px/1.2 var(--mono);letter-spacing:.12em;color:#B5B5B5;text-transform:uppercase}
+.rs-sub{margin:8px 0 0;font:500 12px/1.4 var(--ko);color:var(--mute)}
+.rs .ttabs{margin-top:14px}
+/* thumbnail: neutral technical panel, logo plate, corner ticks, cropped type */
+.th{position:relative;aspect-ratio:16/8;overflow:hidden;background:#EDEDED;color:var(--ink)}
+.th.big{aspect-ratio:16/10}
+.th-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.06) 1px,transparent 1px);background-size:22px 22px}
+.th-ring{position:absolute;right:-18%;top:-40%;width:75%;aspect-ratio:1;border-radius:50%;border:1px solid rgba(0,0,0,.12);box-shadow:0 0 0 14px rgba(0,0,0,.025),0 0 0 30px rgba(0,0,0,.02)}
+.th-w{position:absolute;left:10px;bottom:-6px;font:900 46px/.85 var(--wide);font-stretch:125%;font-variation-settings:"wdth" 125;letter-spacing:-.02em;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(0,0,0,.28);text-transform:uppercase}
+.th.big .th-w{font-size:68px}
+.th-m{position:absolute;left:12px;top:11px;font:600 7.5px/1.35 var(--mono);letter-spacing:.14em;color:#8A8A8A}
+.th-c{position:absolute;left:12px;top:36px;font:800 10.5px/1 var(--ko);background:var(--ink);color:#fff;padding:3px 6px}
+.th-l{position:absolute;right:10%;top:50%;transform:translateY(-55%);width:44%;max-width:190px;aspect-ratio:2/1;background:#fff;border:1px solid #D5D5D5;display:flex;align-items:center;justify-content:center;padding:6px}
 .th-l img{max-width:100%;max-height:100%;object-fit:contain}
-.th-l b{font:900 15px/1.1 var(--ko);color:var(--ink);text-align:center}
-.th-n{position:absolute;right:0;top:0;background:var(--ink);color:var(--k);font:800 10px/1 var(--mono);letter-spacing:.1em;padding:5px 8px}
-.th-vk .th-n{background:var(--k);color:var(--ink)}
-.card .th{margin:0}.card .hd .lt{display:none}
-.nc{display:block;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--line)}
-.nc-m{display:flex;align-items:center;gap:8px;padding:10px 10px 0}
-.nc-m .lab{background:#D9D9D9;font:700 11px/1 var(--ko);padding:4px 8px}
-.nc-m .dt{font:500 11.5px/1 var(--ko);color:var(--sub);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nc-m .sc{font:800 15px/1 var(--wide);font-stretch:125%}
-.nc-t{padding:6px 10px 0;font:700 14px/1.4 var(--ko);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.nc-c{padding:4px 10px 12px;font:500 11.5px/1.3 var(--ko);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nc.big .nc-t{font-size:18px;font-weight:800}
-.nc.big .nc-m .sc{font-size:22px}
-.hscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px 0 0;padding:0 0 4px;scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
-.ngrid .nc-m .dt{display:none}.ngrid .nc-m{justify-content:space-between}.nc-m .sc{flex-shrink:0}
-.hscroll .nc{flex:0 0 72%;scroll-snap-align:start}
-.ngrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-top:12px}
-.ngrid .th-w{font-size:44px}.ngrid .th-l{width:56%;right:8%}
-.ngrid .nc-t{font-size:13px}
-.hm-sec h2.nh{font:900 22px/1.2 var(--ko);margin:0}
-
-.hsub{margin:4px 0 10px;font:500 12px/1.4 var(--ko);color:var(--mute)}
-.hmore2{width:100%;height:42px;margin-top:12px;border:1px solid var(--ink);background:#fff;font:800 13px/1 var(--ko)}
+.th-l b{font:900 14px/1.15 var(--ko);color:var(--ink);text-align:center}
+.th-k{position:absolute;width:9px;height:9px;border-color:var(--ink);border-style:solid;border-width:0}
+.th-k.tl{left:6px;top:6px;border-left-width:2px;border-top-width:2px}.th-k.tr{right:6px;top:6px;border-right-width:2px;border-top-width:2px}
+.th-k.bl{left:6px;bottom:6px;border-left-width:2px;border-bottom-width:2px}.th-k.br{right:6px;bottom:6px;border-right-width:2px;border-bottom-width:2px}
+.th-n{position:absolute;right:20px;top:9px;background:var(--k);color:var(--ink);font:800 9px/1 var(--mono);letter-spacing:.12em;padding:4px 7px}
+.th-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--k) 0 34%,transparent 34% 36%,#191919 36% 52%,transparent 52%)}
+.th-d{background:#151515;color:#fff}.th-d .th-grid{background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)}
+.th-d .th-ring{border-color:rgba(255,255,255,.14);box-shadow:0 0 0 14px rgba(255,255,255,.03),0 0 0 30px rgba(255,255,255,.02)}
+.th-d .th-w{-webkit-text-stroke:1px rgba(255,250,0,.45)}.th-d .th-m{color:#7A7A7A}.th-d .th-c{background:var(--k);color:var(--ink)}
+.th-d .th-k{border-color:var(--k)}.th-d .th-l{border-color:#333}
+.card .th{margin:0;border-bottom:1px solid var(--line)}.card .hd .lt{display:none}
+/* news card: image with soft shadow, grey chip + date, title */
+.nc{display:block;text-decoration:none;color:var(--ink)}
+.nc .th{box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.nc-m{display:flex;align-items:center;gap:10px;margin-top:12px}
+.nc-m .lab{background:#DCDCDC;font:600 11px/1 var(--ko);padding:4px 10px}
+.nc-m .dt{font:500 12px/1 var(--ko);color:var(--sub);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc-m .sc{font:800 15px/1 var(--wide);font-stretch:125%;flex-shrink:0}
+.nc-m .sc::after{content:" FIT";font:600 8px/1 var(--mono);letter-spacing:.12em;color:var(--mute)}
+.nc-t{margin-top:7px;font:600 15px/1.45 var(--ko);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nc-c{margin-top:3px;font:500 12px/1.3 var(--ko);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc.big{margin-top:16px}.nc.big .nc-t{font:800 19px/1.4 var(--ko)}
+.nlist{display:flex;flex-direction:column;gap:26px;margin-top:16px}
+/* pager: round grey arrow buttons + fraction, Endfield style */
+.pg{display:flex;align-items:center;gap:6px;margin-top:16px}
+.rb{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.18);font:700 18px/1 var(--ko);color:var(--ink);display:flex;align-items:center;justify-content:center}
+.pc{font:600 11px/1 var(--wide);letter-spacing:.06em;min-width:46px;text-align:center;color:var(--sub)}.pc b{color:var(--ink)}
+.mbtn{margin-left:auto;display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 14px 0 12px;background:var(--ink);color:#fff;text-decoration:none;font:700 12.5px/1 var(--ko);border:0}
+.mbtn::before{content:"";width:3px;height:14px;background:var(--k)}
+.mbtn.wide{width:100%;justify-content:center;margin-top:20px}
+.hm .hm-kpi{margin-top:30px}
+.card .th-n{right:42px}
+.rs .hbars{border:0!important;padding:0!important;background:none!important}
+.rs .hbars .dot{background:var(--ink)!important;border-radius:0}
+.rs .hbars,.rs .hco,.rs .hlist,.rs .cal,.rs .qs,.rs .stat4{margin-top:14px}
 </style>
 
 
@@ -903,12 +925,21 @@ function viewInstall(){
 }
 function hsh(x){ let h=0; for(const c of String(x)) h=(h*31+c.charCodeAt(0))>>>0; return h; }
 function thumb(j,big){
-  const t=typeOf(j), v=["vy","vk","vg","vl"][hsh(j.company_id||j.company)%4];
-  const lg=logoOf(j.company_id);
-  return `<div class="th th-${v} ${big?"big":""}" aria-hidden="true"><span class="th-w">${esc(t.en)}</span><span class="th-s"></span>
-    <span class="th-m">JOB-RADAR // ${esc(j.country||"")}</span><span class="th-c">${esc(CNAME[j.country]||j.country||"")}</span>
+  const t=typeOf(j), dark=hsh(j.company_id||j.company)%3===0, lg=logoOf(j.company_id);
+  return `<div class="th ${dark?"th-d":""} ${big?"big":""}" aria-hidden="true">
+    <span class="th-grid"></span><span class="th-ring"></span>
+    <span class="th-w">${esc(t.en)}</span>
+    <span class="th-m">JOB-RADAR<br>// ${esc(j.country||"")} · ${esc((j.id||"").slice(-6).toUpperCase())}</span>
+    <span class="th-c">${esc(CNAME[j.country]||j.country||"")}</span>
     <span class="th-l">${lg?`<img src="${lg}" alt="">`:`<b>${esc(shortName(j.company))}</b>`}</span>
-    ${isNew(j)?`<span class="th-n">NEW</span>`:""}</div>`;
+    <i class="th-k tl"></i><i class="th-k tr"></i><i class="th-k bl"></i><i class="th-k br"></i>
+    ${isNew(j)?`<span class="th-n">NEW</span>`:""}<span class="th-bar"></span></div>`;
+}
+function rail(word,tag,ko,inner,cls){
+  return `<section class="rs ${cls||""}"><div class="rs-rail"><span>${word}</span></div><div class="rs-body">
+    <div class="rs-big w">// ${word}</div>
+    <div class="rs-lab"><i></i>↘ ${tag}</div><h2 class="rs-h">${ko}</h2><div class="rs-micro">SECTOR // ${word} · JOB RADAR FIELD TERMINAL</div>
+    ${inner}</div></section>`;
 }
 function newsCard(j,sc,big){
   const t=typeOf(j);
@@ -949,11 +980,11 @@ function viewHome(){
   ${secHead("Today","00","DAILY",`${t.replaceAll("-",".")} (${wd}) · 새 공고 ${nNew}건 · 전체 ${open.length}건`)}
   <main class="pad hm">
     ${stateNote()}
-    <section class="hm-sec fx"><h2 class="nh">오늘의 추천 공고:</h2><p class="hsub">적합도·마감·새 공고를 함께 따진 순서</p>
-      ${rec.length?`${newsCard(rec[0].j,rec[0].sc,true)}<div class="hscroll">${rec.slice(1).map(x=>newsCard(x.j,x.sc)).join("")}</div>`:`<p class="hempty">추천할 공고가 아직 없습니다.</p>`}</section>
-    <section class="hm-sec fx2"><h2 class="nh">${newest.length?"오늘의 새 공고":"최근 새 공고"}: <small>${newPool.length}건</small></h2>
+    ${rec.length?rail("PICKS","RECOMMEND","오늘의 추천 공고",(()=>{ const k=Math.min(S.pick||0,rec.length-1), x=rec[k];
+      return `${newsCard(x.j,x.sc,true)}<div class="pg"><button class="rb" data-pick="${(k-1+rec.length)%rec.length}" aria-label="이전">‹</button><span class="pc"><b>${k+1}</b> / ${rec.length}</span><button class="rb" data-pick="${(k+1)%rec.length}" aria-label="다음">›</button><a class="mbtn" href="#jobs" onclick="S.sort='fit'">추천 공고 더 보기</a></div>`; })()):""}
+    ${rail("NEW","NOTICE",newest.length?"오늘의 새 공고":"최근 새 공고",`<p class="rs-sub">${newPool.length}건 · 적합도 높은 순</p>
       <div class="ttabs">${[["all","전체"],...MAIN_C.map(c=>[c,CNAME[c]]),["etc","기타"]].map(([k,l])=>`<button data-htab="${k}" aria-pressed="${ht===k}">${l}</button>`).join("")}</div>
-      ${newF.length?`<div class="ngrid">${newF.slice(0,S.hlimit||6).map(x=>newsCard(x.j,x.sc)).join("")}</div>${newF.length>(S.hlimit||6)?`<button class="hmore2" id="hMore">더 보기 (${newF.length-(S.hlimit||6)}건)</button>`:""}`:`<p class="hempty">이 조건의 새 공고가 없습니다.</p>`}</section>
+      ${newF.length?`<div class="nlist">${newF.slice(0,S.hlimit||5).map(x=>newsCard(x.j,x.sc)).join("")}</div>${newF.length>(S.hlimit||5)?`<button class="mbtn wide" id="hMore">더 많은 공고 (${newF.length-(S.hlimit||5)})</button>`:""}`:`<p class="hempty">이 조건의 새 공고가 없습니다.</p>`}`)}
     <section class="hm-kpi fx">
       <a href="#jobs" class="k1" onclick="S.sort='fit'"><span>오늘 새 공고</span><b class="w">${nNew}</b><small>이번 주 ${nWeek}건</small></a>
       <a href="#jobs"><span>전체 공고</span><b class="w">${open.length}</b><small>회사 ${coRows.length}곳</small></a>
@@ -961,30 +992,30 @@ function viewHome(){
       <a href="#jobs"><span>2주 안 마감</span><b class="w">${soon.length}</b><small>마감일 있는 공고</small></a>
     </section>
 
-    <section class="hm-sec fx2"><h2>나라별 공고 <small>숫자 옆 +는 오늘 새 공고</small></h2>
-      <div class="hbars">${cRows.map(([c,v])=>bar(c==="etc"?"기타":CNAME[c],v.n,maxC,v.nw,`data-gocountry="${c}"`)).join("")}</div></section>
+    ${rail("REGION","COUNTRY","나라별 공고",`<p class="rs-sub">숫자 옆 +는 오늘 새 공고</p>
+      <div class="hbars">${cRows.map(([c,v])=>bar(c==="etc"?"기타":CNAME[c],v.n,maxC,v.nw,`data-gocountry="${c}"`)).join("")}</div>`)}
 
-    <section class="hm-sec fx2"><h2>직군별 공고</h2>
-      <div class="hbars">${tRows.map(([k,v])=>bar(`<i class="dot" style="background:${TYPES[k].k}"></i>${TYPES[k].label}`,v.n,maxT,v.nw,`data-gotype="${k}"`)).join("")}</div></section>
+    ${rail("ROLES","JOB TYPE","직군별 공고",`
+      <div class="hbars">${tRows.map(([k,v])=>bar(`<i class="dot" style="background:${TYPES[k].k}"></i>${TYPES[k].label}`,v.n,maxT,v.nw,`data-gotype="${k}"`)).join("")}</div>`)}
 
 
 
-    <section class="hm-sec"><h2>공고가 많은 회사 <small>누르면 그 회사 공고만</small></h2>
-      <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}">${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div></section>
+    ${rail("CORP","COMPANY","공고가 많은 회사",`<p class="rs-sub">누르면 그 회사 공고만</p>
+      <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}">${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div>`)}
 
-    <section class="hm-sec"><h2>지금 지원 가능 <small>적합도 높은 순</small></h2>
+    ${rail("READY","APPLY NOW","지금 지원 가능",`<p class="rs-sub">적합도 높은 순</p>
       ${now.length?`<div class="hlist">${now.slice(0,5).map(({j,sc})=>`<a href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}">${logoTile(j.company_id,j.company)}<span class="tx"><b class="co">${esc(j.company)}</b><span class="ti">${esc(j.title)}</span><span class="htg"><em>${esc(CNAME[j.country]||j.country)}</em><em>${esc(deadlineText(j))}</em></span></span><span class="sc w">${sc.total}</span></a>`).join("")}</div>`
-      :`<p class="hempty">필수 조건을 모두 채운 공고가 아직 없습니다. 아래 질문에 답하면 다시 계산됩니다.</p>`}</section>
+      :`<p class="hempty">필수 조건을 모두 채운 공고가 아직 없습니다. 아래 질문에 답하면 다시 계산됩니다.</p>`}`)}
 
-    ${qs.length?`<section class="hm-sec"><h2>답할 질문 <small>답하면 점수가 바로 바뀜</small></h2>
+    ${qs.length?`${rail("CHECK","QUESTIONS","답할 질문",`<p class="rs-sub">답하면 점수가 바로 바뀜</p>
       <div class="qs">${qs.slice(0,3).map(q=>`<div class="q"><b>${esc(q.text)}</b><small>공고 <em>${q.jobs}개</em>에 해당</small>${ansBtns(q.r)}</div>`).join("")}</div>
-      ${qs.length>3?`<p class="hempty">나머지 ${qs.length-3}개는 각 공고 화면에서 답할 수 있습니다.</p>`:""}</section>`:""}
+      ${qs.length>3?`<p class="hempty">나머지 ${qs.length-3}개는 각 공고 화면에서 답할 수 있습니다.</p>`:""}`)}`:""}
 
-    ${soon.length?`<section class="hm-sec"><h2>2주 안 마감</h2>
-      <div class="cal">${soon.slice(0,6).map(j=>{ const dd=daysLeft(j.deadline_date); return `<a class="r" href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}"><span class="dt">${pd(j.deadline_date).slice(5)}</span><span class="nm"><b>${esc(j.company)} · ${esc(j.title)}</b><i><span style="width:${Math.max(4,100-Math.min(dd,60)/60*100)}%"></span></i></span><span class="dd2 w ${dd<=7?"hot":""}">D-${dd}</span></a>`;}).join("")}</div></section>`:""}
+    ${soon.length?`${rail("DUE","DEADLINE","2주 안 마감",`
+      <div class="cal">${soon.slice(0,6).map(j=>{ const dd=daysLeft(j.deadline_date); return `<a class="r" href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}"><span class="dt">${pd(j.deadline_date).slice(5)}</span><span class="nm"><b>${esc(j.company)} · ${esc(j.title)}</b><i><span style="width:${Math.max(4,100-Math.min(dd,60)/60*100)}%"></span></i></span><span class="dd2 w ${dd<=7?"hot":""}">D-${dd}</span></a>`;}).join("")}</div>`)}`:""}
 
-    <section class="hm-sec"><h2>내 지원 현황</h2>
-      <div class="stat4">${STATUSES.map(s=>`<a href="#jobs"><b class="w">${stc(s)}</b><span>${s}</span></a>`).join("")}</div></section>
+    ${rail("TRACK","MY STATUS","내 지원 현황",`
+      <div class="stat4">${STATUSES.map(s=>`<a href="#jobs"><b class="w">${stc(s)}</b><span>${s}</span></a>`).join("")}</div>`)}
   </main>${tabbar("home")}`;
 }
 
@@ -1201,8 +1232,9 @@ document.addEventListener("click", async e=>{
   if(b.dataset.wcountry){ S.wcountry=b.dataset.wcountry; render(); return; }
   if(b.dataset.wip){ S.wip=!S.wip; render(); return; }
   if(b.id==="sortBtn"){ S.sort = S.sort==="fit"?"deadline":"fit"; render(); return; }
-  if(b.dataset.htab){ S.htab=b.dataset.htab; S.hlimit=6; render(); return; }
-  if(b.id==="hMore"){ S.hlimit=(S.hlimit||6)+6; render(); return; }
+  if(b.dataset.htab){ S.htab=b.dataset.htab; S.hlimit=5; render(); return; }
+  if(b.id==="hMore"){ S.hlimit=(S.hlimit||5)+5; render(); return; }
+  if(b.dataset.pick!==undefined){ S.pick=+b.dataset.pick; render(); return; }
   if(b.dataset.x!==undefined){ e.preventDefault(); e.stopPropagation(); openX(b.dataset.x); return; }
   if(b.dataset.xgo){ e.preventDefault(); const [k,id]=b.dataset.xgo.split("|"); closeX(); toggleHide(k,id); return; }
   if(b.id==="xClose"){ closeX(); return; }
