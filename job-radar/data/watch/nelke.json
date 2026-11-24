@@ -1,0 +1,26 @@
+{
+ "name": "넬케 플래닝 (사이버에이전트)",
+ "category": "ip",
+ "category_label": "애니·IP",
+ "country": "JP",
+ "careers_url": "https://hrmos.co/pages/cyberagent-group/jobs",
+ "method": "api",
+ "method_note": "자동 수집 (HRMOS)",
+ "ip_focus": true,
+ "minor": false,
+ "added": "2026-11-25",
+ "verified": "2026-11-25",
+ "last_checked": "2026-11-25",
+ "open_count": 2,
+ "new_count": 2,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-25",
+   "open": 2,
+   "new": 2,
+   "closed": 0
+  }
+ ],
+ "info": "2.5차원 뮤지컬 제작사."
+}

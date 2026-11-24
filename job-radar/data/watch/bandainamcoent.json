@@ -1,0 +1,26 @@
+{
+ "name": "반다이남코 엔터테인먼트 (일본)",
+ "category": "game",
+ "category_label": "게임",
+ "country": "JP",
+ "careers_url": "https://hrmos.co/pages/bandainamcoent/jobs",
+ "method": "api",
+ "method_note": "자동 수집 (HRMOS)",
+ "ip_focus": false,
+ "minor": false,
+ "added": "2026-11-25",
+ "verified": "2026-11-25",
+ "last_checked": "2026-11-25",
+ "open_count": 7,
+ "new_count": 7,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-25",
+   "open": 7,
+   "new": 7,
+   "closed": 0
+  }
+ ],
+ "info": "팩맨·철권·태고의 달인·아이돌리쉬 세븐. 일본 본사 채용은 HRMOS."
+}

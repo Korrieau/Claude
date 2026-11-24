@@ -204,3 +204,17 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 
 - watch의 careers_url이 회사 홈페이지(채용 시스템이 아님)이거나 method가 manual이면 실제로는 수집이 안 된다. 예: Lilith는 lilith.com으로 되어 있어 0건이었음 → lilithgames.jobs.feishu.cn 으로 수정.
 - 매일 실행 때 공고 0~2건 회사는 실제 ATS(GreetingHR, Feishu, Moka, HRMOS, Greenhouse, Workday 등)를 찾아 careers_url·method를 고친다.
+
+## 추가 수집 경로 (2026-11-25)
+
+| 회사 | 경로 | 비고 |
+|---|---|---|
+| 반다이남코 엔터테인먼트 (일본 본사) | https://hrmos.co/pages/bandainamcoent/jobs | 게임 프로듀스·마케팅·현지화·IP 브랜딩·홍보. 페이지의 JSON-LD(application/ld+json)에 제목·본문 있음 |
+| 사이버에이전트 그룹 (QualiArts, 아프리봇, CA Soa, 넬케 플래닝 등) | https://hrmos.co/pages/cyberagent-group/jobs | 그룹 전체라 게임·애니·IP 계열사 공고만 고른다 |
+| 애니메이트 그룹 (무빅, 프론티어웍스, 게이머즈 등) | https://hrmos.co/pages/animate-group/jobs | 굿즈 기획·이벤트·게임 프로듀스 |
+| 릴리스 게임즈 | https://lilithgames.jobs.feishu.cn/ | `/api/v1/search/job/posts` 응답 캡처. 대부분 개발·아트라 범위 내는 소수 |
+| 반다이남코코리아 | https://careerbandainamco.ninehire.site/ | 나인하이어 |
+| DeNA | https://career.dena.com/ | Green 1324와 함께 |
+| 라인게임즈 | https://recruit.line.games/ | |
+| 슈퍼크리에이티브 | https://recruit.supercreative.kr/ | |
+| SEGA of America | careers.sega.com → Paycom | |
