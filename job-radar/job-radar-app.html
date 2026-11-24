@@ -851,6 +851,31 @@ textarea,input[type=text],input:not([type]){background:rgba(255,255,255,.04);col
 .mrow{background:rgba(255,255,255,.05);color:#EEE;border-radius:12px}
 .boot{background:#080808!important;color:#EEE}
 .row-co em.cl,.dl.urg,.urg{color:#FF5A5F}
+
+/* key art backgrounds */
+.th .art,.row-th .art,.dt-top .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.art-blur{position:absolute;inset:-30%;background-size:60% auto;background-position:center;background-repeat:no-repeat;filter:blur(28px) saturate(1.6);opacity:.55;z-index:0}
+.th .th-glow{z-index:1;background:linear-gradient(180deg,rgba(8,8,8,.05) 0,rgba(8,8,8,.15) 45%,rgba(8,8,8,.88) 100%)}
+.th > :not(.art):not(.art-blur):not(.th-glow){z-index:2}
+.th-l{left:12px;top:12px;transform:none;width:auto;height:34px;max-width:42%;aspect-ratio:auto;padding:4px 8px;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.th-l img{height:100%;width:auto}
+.th-l b{font-size:12px}
+.th.big .th-l{width:auto;top:14px;height:42px}
+.th-c{left:auto;right:12px;bottom:auto;top:12px}
+.th-n{top:46px}
+.th-nm{left:12px;right:12px;bottom:10px;max-width:none;text-align:left}
+.row-th{overflow:hidden;padding:0;align-items:flex-end;justify-content:flex-start}
+.row-th img:not(.art),.row-th b{position:relative;z-index:1;max-width:70%;max-height:40%;margin:4px;padding:2px 3px}
+.row-th b{font-size:9px}
+.dt-top{position:relative}
+.dt-top .art{opacity:.42;-webkit-mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.6) 55%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.6) 55%,transparent 100%)}
+.dt-top .art-blur{opacity:.3}
+.dt-top .body{position:relative;z-index:1}
+
+.th.no-art .th-l{left:50%;top:44%;transform:translate(-50%,-50%);height:auto;width:46%;max-width:200px;aspect-ratio:2/1;padding:6px}
+.th.no-art .th-l img{width:auto;height:auto;max-width:100%;max-height:100%}
+.th.no-art .th-l b{font-size:14px}
+.th.big.no-art .th-l{width:58%;top:42%}
 </style>
 
 
@@ -1142,11 +1167,16 @@ function viewInstall(){
   </main>${tabbar("")}`;
 }
 function hsh(x){ let h=0; for(const c of String(x)) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+// Key art per game / company (files published next to the page as art/<key>.webp). Update: data-update-guide.md "키아트".
+const ART_GAME={"엔드필드": "endfield", "Endfield": "endfield", "명조": "wuwa", "워더링": "wuwa", "아난타": "ananta", "ANANTA": "ananta", "명일방주": "endfield", "마블 라이벌즈": "marvelrivals", "연운": "wwm", "LOST ARK": "lostark", "로스트아크": "lostark", "퍼니싱": "pgr", "이터널 리턴": "eternalreturn", "트릭컬": "trickcal", "서머너즈": "summoners", "AION2": "aion2", "아이온2": "aion2", "아우터플레인": "outerplane", "블루 아카이브": "bluearchive", "블루아카": "bluearchive", "메이플": "maple", "니케": "nikke", "NIKKE": "nikke", "소녀전선": "gfl2", "인피니티 니키": "infinitynikki", "신더시티": "cindercity", "호라이즌 워커": "horizonwalker", "호라이즌워커": "horizonwalker", "에픽세븐": "epic7", "벽람항로": "azurcw", "Azur Lane": "azurcw", "그랜드체이스": "grandchase", "GrandChase": "grandchase", "몬스터 스트라이크": "monstrike", "주술회전": "jjk", "발더스": "bg3"};
+const ART_CO={"netease": "ananta", "hypergryph": "endfield", "bilibili": "uma", "kuro": "wuwa", "papergames": "infinitynikki", "levelinfinite": "nikke", "sunborn": "gfl2", "smilegate": "epic7", "sega": "pjsekai", "cygames": "uma", "squareenix": "ff7", "ncsoft": "aion2", "kadokawa": "nightreign", "2k": "borderlands", "kakaogames": "eternalreturn", "yostarcn": "stellasora", "yostarjp": "stellasora", "nexon": "bluearchive", "nexonjp": "bluearchive", "nexonamerica": "tfd", "com2us": "summoners", "neowiz": "liesofp", "c-a6eb0891": "persona", "klab": "bleach", "sonymusic": "fgo", "krafton": "inzoi", "c-f5a29c45": "tales", "epid": "trickcal", "c-epid": "trickcal", "hasbro": "bg3", "toho": "jjk", "manjuu": "azurcw", "c-8c3156ff": "grandchase", "mixi": "monstrike", "cover": "idolshowdown", "riotgames": "lol2"};
+function artOf(j){ const g=(j.game||"")+" "+(j.title||""); for(const k in ART_GAME) if(g.includes(k)) return "art/"+ART_GAME[k]+".webp"; const c=ART_CO[j.company_id]; return c?"art/"+c+".webp":null; }
+function artBg(j){ const a=artOf(j); if(a) return `<img class="art" src="${a}" alt="" loading="lazy" decoding="async">`; return ""; }
 function thumb(j,big){
   const t=typeOf(j), v=hsh(j.company_id||j.company)%4, lg=logoOf(j.company_id);
-  return `<div class="th th-v${v} ${big?"big":""}" aria-hidden="true">
-    <span class="th-glow"></span>
-    <span class="th-w">${esc(t.en)}</span>
+  return `<div class="th th-v${v} ${big?"big":""} ${artOf(j)?"has-art":"no-art"}" aria-hidden="true">
+    ${artBg(j)}<span class="th-glow"></span>
+    ${artOf(j)?"":`<span class="th-w">${esc(t.en)}</span>`}
     <span class="th-c">${esc(CNAME[j.country]||j.country||"")}</span>
     <span class="th-l">${lg?`<img src="${lg}" alt="">`:`<b>${esc(shortName(j.company))}</b>`}</span>
     <span class="th-nm">${esc(shortName(j.company))}</span>
@@ -1265,7 +1295,7 @@ function viewJobs(){
     <div class="jrows fx3">
     ${list.slice(0,S.limit||40).map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
       return `<a class="row ${j.closed?"closed":""}" href="#job-${esc(j.id)}">
-        <span class="row-th">${logoOf(j.company_id)?`<img src="${logoOf(j.company_id)}" alt="">`:`<b>${esc(shortName(j.company)).slice(0,6)}</b>`}<i></i></span>
+        <span class="row-th">${artBg(j)}${logoOf(j.company_id)?`<img src="${logoOf(j.company_id)}" alt="">`:`<b>${esc(shortName(j.company)).slice(0,6)}</b>`}<i></i></span>
         <span class="row-b"><span class="row-co">${esc(j.company)}<em>${esc(CNAME[j.country]||j.country)}</em>${isNew(j)?`<em class="nw">NEW</em>`:""}${j.closed?`<em class="cl">${j.expired?"마감됨":"내려감"}</em>`:""}</span>
           <span class="row-t">${esc(j.title)}</span>
           <span class="row-m"><span class="lab">${esc(t.label)}</span><span class="dl">${esc(deadlineText(j))}</span>${st?`<span class="st on">${esc(st)}</span>`:""}</span></span>
@@ -1290,7 +1320,7 @@ function viewJob(){
   const list = a=>`<ul>${(a||[]).map(x=>String(x).replace(/^[\s·ㆍ•∙\-\*\u2022\u30fb■□◆◇○●▪]+/,"")).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
   return `<div style="${kvars(t)}">
   <header class="top"><a class="back" href="#jobs"><span class="arr">‹</span>공고 목록</a><button class="gbtn xg" data-x="${esc(j.id)}" aria-label="이 공고나 회사 제외">✕ 제외</button><button class="gbtn" id="saveBtn" aria-label="관심 공고로 저장">${ICON.save}${st?"SAVED":"SAVE"}</button></header>
-  <section class="dt-top hatch fx"><div class="strip"><span>${t.en} // ${esc(j.country)}</span></div><div class="body">
+  <section class="dt-top hatch fx">${artBg(j)}<div class="strip"><span>${t.en} // ${esc(j.country)}</span></div><div class="body">
     <div class="cap">▪ JOB-RADAR: ${t.en}</div>
     <div class="co-row">${logoTile(j.company_id,j.company)}<div class="co"><span>[ </span>${esc(j.company)}<span> ]</span></div></div>
     <div class="gm">${esc(j.game||"")}</div>

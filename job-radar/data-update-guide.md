@@ -174,3 +174,11 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 매주: `python3 tools/trprep.py IN.json` → 우선순위 순 최대 60건(한국 관련 → IP·굿즈 → 최근 8일 사업 직군)의 업무·자격·우대 줄만 뽑은 압축 입력.
 - 번역 결과는 `{"id":{"s":요약,"d":[업무],"q":[자격],"p":[우대]}}` 형식, 줄당 짧게 (업무 ≤5, 자격 ≤4). → `python3 tools/trpack.py OUT.json` → 새 `data/trpacks/tNNN.json` → ArtifactData set (trpacks).
 - 이미 번역된 id는 trprep가 자동으로 건너뜀. 나머지 공고는 앱의 "한국어로 번역하기" 버튼으로 필요할 때 번역.
+
+## 키아트 (카드 배경 이미지)
+
+- 파일: `art/<key>.webp` (960x540, webp q68). 앱과 함께 Artifact `files`로 게시 (`{"art/x.webp":"art/x.webp"}`).
+- 연결: 앱 HTML의 `ART_GAME`(공고 game·제목에 들어간 게임 이름 → key)과 `ART_CO`(company_id → 회사 대표 게임 key).
+- 우선순위: 공고의 게임 → 회사 대표 게임 → 없으면 다크 패널 + 로고.
+- 출처: Steam `IStoreBrowseService/GetItems` 의 `library_hero` (글자 없는 키아트) → 없으면 공식 사이트 og:image.
+- 로고만 있는 이미지·이벤트 배너·다른 게임 콜라보 이미지는 쓰지 않음. 새로 넣을 땐 시트로 한 번 눈으로 확인.
