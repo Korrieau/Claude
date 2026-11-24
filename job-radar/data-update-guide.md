@@ -218,3 +218,8 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 라인게임즈 | https://recruit.line.games/ | |
 | 슈퍼크리에이티브 | https://recruit.supercreative.kr/ | |
 | SEGA of America | careers.sega.com → Paycom | |
+| 부시로드 | https://hrmos.co/pages/bushiroad/jobs | TCG·굿즈·출판·음악·애니. 아르바이트(PART_TIME)·법무·경리·SE·디자이너 제외 |
+| 포켓몬센터 | https://hrmos.co/pages/pokemoncenter/jobs | 해외 사업·EC 마케팅·글로벌 종합직. 매장 계약직·점장 제외 |
+| Cygames 전체 | https://recruit.cygames.co.jp/career/ (→ hrmos cygames) | 프로모션·현지화(일영·일한 코디네이터)·GM 등이 빠져 있었음. 목록 전체를 범위 기준으로 다시 확인 |
+| 프로젝트문 | 사람인·게임잡·잡코리아 검색 "프로젝트문" | 자체 채용 페이지 없음 |
+| 일본 게임업계 구인 | https://career.famitsu.com/ | 캡콤·코나미·코에이테크모 등. 목록이 JS 렌더링 |

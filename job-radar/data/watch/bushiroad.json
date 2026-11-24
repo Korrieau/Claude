@@ -1,0 +1,26 @@
+{
+ "name": "부시로드 (Bushiroad)",
+ "category": "ip",
+ "category_label": "애니·IP",
+ "country": "JP",
+ "careers_url": "https://hrmos.co/pages/bushiroad/jobs",
+ "method": "api",
+ "method_note": "자동 수집 (HRMOS)",
+ "ip_focus": true,
+ "minor": false,
+ "added": "2026-11-25",
+ "verified": "2026-11-25",
+ "last_checked": "2026-11-25",
+ "open_count": 27,
+ "new_count": 27,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-25",
+   "open": 27,
+   "new": 27,
+   "closed": 0
+  }
+ ],
+ "info": "TCG(뱅가드·바이스슈발츠), 뱅드림, 굿즈(부시로드 크리에이티브), 출판(부시로드 웍스), 음악."
+}
