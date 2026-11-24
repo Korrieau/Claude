@@ -182,3 +182,12 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 우선순위: 공고의 게임 → 회사 대표 게임 → 없으면 다크 패널 + 로고.
 - 출처: Steam `IStoreBrowseService/GetItems` 의 `library_hero` (글자 없는 키아트) → 없으면 공식 사이트 og:image.
 - 로고만 있는 이미지·이벤트 배너·다른 게임 콜라보 이미지는 쓰지 않음. 새로 넣을 땐 시트로 한 번 눈으로 확인.
+
+### 관련 이미지 (키아트가 없는 회사·공고)
+
+- 순서: 공고의 게임 키아트(`ART_GAME`) → 회사 대표작(`ART_CO`, 여러 개면 공고마다 돌아가며) → 공고/회사 관련 이미지(`ART_X`) → 장르 참고 이미지(`ART_KW`/`ART_POOL`, 카드에 "참고 이미지" 표시).
+- `ART_X` 채우기 (새 회사·새 공고가 생길 때):
+  1. 키아트 없는 열린 공고를 JSON 목록(missing_jobs.json: id,url,company_id)으로 만든다.
+  2. `python3 tools/art_fill.py missing_jobs.json cand.json` — 사람인 상세 이미지, 게임잡 회사 사진, 그린 재팬 사진, 원티드 회사 이미지, 그 밖은 og:image 후보를 모은다.
+  3. `python3 tools/art_pick.py cand.json missing_jobs.json art/c <tmpdir>` 후 `--relax`로 한 번 더 — 로고·글자뿐인 이미지를 거르고 회사별(헤드헌팅은 공고별 `j-<id>`) 1장을 `art/c/<key>.webp`(640x360)로 저장, `art/c/_map.json` 갱신.
+  4. 앱 HTML의 `const ART_X=` 를 `_map.json` 내용으로 바꾸고, 새 이미지 파일을 Artifact publish `files`(root `job-radar`, 한 번에 255개 이하)로 같이 올린다.
