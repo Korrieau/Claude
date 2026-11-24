@@ -160,3 +160,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸 (게임잡 등으로 수집).
 - 넷이즈(hr.163.com)·넥슨(career.nexon.com): 해외 접속 차단. 서산쥐·만쥬: 공식 채용 사이트 없음(위챗). 엔씨: 목록 불안정·직접 호출 차단. 774 inc.·코단샤 USA·Aniplex USA·스튜디오비사이드·스텔라이브: 공개 공고 목록 없음.
 - 애니메이트·코토부키야·무빅·세가 아메리카·Square Enix US(Workable): 사이트가 막혀 있거나 오류. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
+
+## 숨긴 회사·공고
+- `profile/me`의 `hidden_cos`(회사 id 목록), `hidden_jobs`(공고 id 목록). 앱에서 사용자가 "이 회사 숨기기/이 공고 숨기기"로 저장.
+- 매일 추적 때 `hidden_cos` 회사는 새 공고를 수집·추가하지 않고, 보고와 소식(news)에도 넣지 않음. `hidden_jobs`는 소식·보고에서 제외.

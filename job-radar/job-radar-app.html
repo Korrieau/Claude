@@ -490,6 +490,10 @@ body{background-color:var(--bg);background-image:repeating-linear-gradient(45deg
 .trbox p{margin:0 0 10px;font:700 13px/1.5 var(--ko)}
 .trbox small{display:block;margin-top:8px;font:600 11.5px/1.4 var(--ko);color:#9AA3B2}
 .trnote{margin:0 0 8px;font:700 11px/1 var(--mono);color:var(--k)}
+.hidebar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}.hidebar .alert{width:100%;margin:0}.hidebar .btn,.hrow .btn{margin:0;height:36px}
+.btn.ghost{background:transparent;color:var(--ink,#222);border:1px solid var(--line,#ccc)}
+.hidebtn{margin-top:8px;border:0;background:none;padding:4px 0;color:var(--mute);font:700 12px/1 var(--ko);cursor:pointer;text-decoration:underline}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#ddd)}.hrow span{font-size:14px;line-height:1.4}.hrow .btn{flex:none}
 </style>
 
 
@@ -592,17 +596,17 @@ async function boot(){
   const expire=list=>list.map(j=>{ const d=daysLeft(j.deadline_date); return (!j.closed&&d!==null&&d<0)?{...j,closed:true,expired:true}:j; });
   const done = k => { seen[k]=true; bootProgress(Object.values(seen).filter(Boolean).length/Object.keys(seen).length); if(Object.values(seen).every(Boolean)){ S.ready=true; S.failed=false; clearTimeout(timer); bootEnd(); } render(); };
   const onErr = e => { S.failed = e?.code||"error"; clearTimeout(timer); bootEnd(); render(); };
-  db.collection("jobs").onSnapshot(s=>{ R.jobs=s.docs.map(d=>({id:d.id,...d.data()})); S.jobs=expire(flat(R.jobs,R.jobpacks)); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
+  db.collection("jobs").onSnapshot(s=>{ R.jobs=s.docs.map(d=>({id:d.id,...d.data()})); S.allJobs=expire(flat(R.jobs,R.jobpacks)); applyHide(); if(!s.metadata.fromCache) done("jobs"); else render(); }, onErr);
   db.collection("companies").onSnapshot(s=>{ S.companies=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("companies"); else render(); }, onErr);
-  db.collection("watch").onSnapshot(s=>{ R.watch=s.docs.map(d=>({id:d.id,...d.data()})); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watch"); else render(); }, onErr);
-  db.collection("jobpacks").onSnapshot(s=>{ R.jobpacks=s.docs.map(d=>d.data()); S.jobs=expire(flat(R.jobs,R.jobpacks)); if(!s.metadata.fromCache) done("jobpacks"); else render(); }, onErr);
-  db.collection("watchpacks").onSnapshot(s=>{ R.watchpacks=s.docs.map(d=>d.data()); S.watch=flat(R.watch,R.watchpacks); if(!s.metadata.fromCache) done("watchpacks"); else render(); }, onErr);
+  db.collection("watch").onSnapshot(s=>{ R.watch=s.docs.map(d=>({id:d.id,...d.data()})); S.allWatch=flat(R.watch,R.watchpacks); applyHide(); if(!s.metadata.fromCache) done("watch"); else render(); }, onErr);
+  db.collection("jobpacks").onSnapshot(s=>{ R.jobpacks=s.docs.map(d=>d.data()); S.allJobs=expire(flat(R.jobs,R.jobpacks)); applyHide(); if(!s.metadata.fromCache) done("jobpacks"); else render(); }, onErr);
+  db.collection("watchpacks").onSnapshot(s=>{ R.watchpacks=s.docs.map(d=>d.data()); S.allWatch=flat(R.watch,R.watchpacks); applyHide(); if(!s.metadata.fromCache) done("watchpacks"); else render(); }, onErr);
   db.collection("bodypacks").onSnapshot(s=>{ const m={}; s.docs.forEach(d=>Object.assign(m,d.data().items||{})); S.bodies=m; if(!s.metadata.fromCache) done("bodies"); else render(); }, onErr);
   db.collection("tr").onSnapshot(s=>{ S.tr=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("tr"); else render(); }, onErr);
   db.collection("news").onSnapshot(s=>{ S.news=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("news"); else render(); }, onErr);
   db.collection("tests").onSnapshot(s=>{ S.tests=s.docs.map(d=>({id:d.id,...d.data()})); if(!s.metadata.fromCache) done("tests"); else render(); }, onErr);
   db.collection("status").onSnapshot(s=>{ S.status=Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); if(!s.metadata.fromCache) done("status"); else render(); }, onErr);
-  db.doc("profile/me").onSnapshot(d=>{ S.profile = d.exists ? {...DEFAULT_PROFILE,...d.data()} : null; if(!d.metadata.fromCache) done("profile"); else render(); }, onErr);
+  db.doc("profile/me").onSnapshot(d=>{ S.profile = d.exists ? {...DEFAULT_PROFILE,...d.data()} : null; applyHide(); if(!d.metadata.fromCache) done("profile"); else render(); }, onErr);
 }
 let writing = Promise.resolve();
 function write(fn){ writing = writing.then(fn).catch(e=>{ toast(e?.code==="invalid_argument"?"저장 권한이 없습니다":"저장하지 못했습니다. 다시 시도해 주세요"); }); return writing; }
@@ -618,11 +622,33 @@ function saveProfile(patch){
   clearTimeout(saveProfile._t); saveProfile._t = setTimeout(()=>write(()=>S.db.doc("profile/me").set(body)), 400);
 }
 
+function applyHide(){
+  const p=prof(), hj=new Set(p.hidden_jobs||[]), hc=new Set(p.hidden_cos||[]);
+  S.jobs=(S.allJobs||[]).filter(j=>!hj.has(j.id)&&!hc.has(j.company_id));
+  S.watch=(S.allWatch||[]).filter(w=>!hc.has(w.id));
+}
+function toggleHide(kind,id){
+  const key=kind==="co"?"hidden_cos":"hidden_jobs", cur=new Set(prof()[key]||[]), on=!cur.has(id);
+  on?cur.add(id):cur.delete(id); saveProfile({[key]:[...cur]}); applyHide(); render();
+  toast(on?(kind==="co"?"이 회사의 공고를 모두 숨겼습니다. 메뉴 > 숨긴 항목에서 되돌릴 수 있습니다":"이 공고를 숨겼습니다. 메뉴 > 숨긴 항목에서 되돌릴 수 있습니다"):"다시 보이게 했습니다");
+}
+function viewHidden(){
+  const p=prof(), hj=p.hidden_jobs||[], hc=p.hidden_cos||[];
+  const jobName=id=>{const j=(S.allJobs||[]).find(x=>x.id===id);return j?`${esc(j.company)} · ${esc(j.title)}`:esc(id)};
+  const coName=id=>{const w=(S.allWatch||[]).find(x=>x.id===id)||(S.allJobs||[]).find(x=>x.company_id===id);return esc(w?(w.name||w.company):id)};
+  const row=(label,kind,id)=>`<div class="hrow"><span>${label}</span><button class="btn" data-hide="${kind}" data-hid="${esc(id)}">다시 보기</button></div>`;
+  return `${topbar()}<main class="pad"><section class="blk"><div class="blk-h"><span class="n">// H</span><h2>숨긴 회사 ${hc.length}</h2><small>COMPANIES</small></div>
+    ${hc.length?hc.map(id=>row(coName(id),"co",id)).join(""):`<p class="calc">숨긴 회사가 없습니다.</p>`}</section>
+    <section class="blk"><div class="blk-h"><span class="n">// H</span><h2>숨긴 공고 ${hj.length}</h2><small>JOBS</small></div>
+    ${hj.length?hj.map(id=>row(jobName(id),"job",id)).join(""):`<p class="calc">숨긴 공고가 없습니다.</p>`}</section>
+    <p class="calc">숨긴 회사·공고는 목록, 홈 숫자, 회사 목록에서 빠지고 매일 업데이트에서도 새 공고로 알리지 않습니다.</p></main>${tabbar("")}`;
+}
+
 /* ---------- routing ---------- */
 function readHash(){
   const h = location.hash.replace("#","");
   if(h.startsWith("job-")){ S.route="job"; S.param=h.slice(4); }
-  else if(["home","jobs","companies","spec","tests","install"].includes(h)){ S.route=h; S.param=null; }
+  else if(["home","jobs","companies","spec","tests","install","hidden"].includes(h)){ S.route=h; S.param=null; }
   else { S.route="home"; S.param=null; }
 }
 window.addEventListener("hashchange",()=>{ readHash(); closeMenu(); render(); window.scrollTo(0,0); });
@@ -652,6 +678,7 @@ function menuHtml(){
   <div class="lnk"><span>공고 ${S.jobs.length}</span><span>기업 ${S.companies.length}</span><span>소식 ${S.news.length}</span></div>
   ${NAV.map(([id,l,n])=>`<a class="mrow" href="#${id}" ${cur===id?'aria-current="page"':""}><span class="ic">${ICON[id]}</span><span class="t">${l}</span><span class="n">// ${n}</span></a>`).join("")}
   <a class="mrow" href="#install"><span class="ic">${ICON.dl}</span><span class="t">홈 화면에 바로가기 만들기</span><span class="n">// APP</span></a>
+  <a class="mrow" href="#hidden"><span class="ic">${ICON.dl}</span><span class="t">숨긴 회사·공고 (${(prof().hidden_cos||[]).length+(prof().hidden_jobs||[]).length})</span><span class="n">// HIDE</span></a>
   <button class="mrow" id="menuCsv" style="width:100%"><span class="ic">${ICON.dl}</span><span class="t">CSV 내보내기 (구글 시트용)</span><span class="n">// EX</span></button>
   <div class="mfoot">JOB RADAR · FIELD TERMINAL<br>DATA: CLAUDE · SOURCES ON EACH CARD</div>`;
 }
@@ -853,7 +880,8 @@ function viewJobs(){
 }
 
 function viewJob(){
-  const j = S.jobs.find(x=>x.id===S.param);
+  const j = (S.allJobs||S.jobs).find(x=>x.id===S.param);
+  const hidJ=(prof().hidden_jobs||[]).includes(S.param), hidC=j&&(prof().hidden_cos||[]).includes(j.company_id);
   if(!j) return `${topbar()}<main class="pad">${stateNote()}${S.ready?`<div class="empty"><h3>공고를 찾을 수 없습니다</h3><p><a href="#jobs">공고 목록으로 돌아가기</a></p></div>`:""}</main>${tabbar("jobs")}`;
   const bd=(S.bodies||{})[j.id]||{}; const J0={...j,raw:bd.raw||j.raw,raw_ocr:bd.ocr||j.raw_ocr,duties:(j.duties||[]).length?j.duties:(bd.duties||[]),quals:(j.quals||[]).length?j.quals:(bd.quals||[]),prefs:(j.prefs||[]).length?j.prefs:(bd.prefs||[])};
   const tr=(S.tr||{})[j.id]; const needTr=!!J0.raw && !(J0.duties||[]).length && j.lang_original_label!=="한국어";
@@ -889,6 +917,9 @@ function viewJob(){
         ${!(J2.duties||[]).length?`<p class="calc">${esc(J2.summary||"")}</p>`:""}</div>
       ${J0.raw?`<details class="raw" open><summary>공고 원문 전체 (${esc(j.lang_original_label||"원문")}${j.title_original?` · ${esc(j.title_original)}`:""})</summary><pre>${esc(J0.raw)}</pre>${J0.raw_ocr?`<p class="trnote" style="padding:0 12px 10px">이미지 공고를 글자 인식(OCR)으로 읽은 내용이라 오타가 있을 수 있습니다.</p>`:""}</details>`:""}</section>
     ${(()=>{ const w=S.watch.find(x=>x.id===j.company_id); const body=c?companyCard(c):(w&&w.info)?infoCard(w):""; return body?`<section class="blk"><div class="blk-h"><span class="n">// 04</span><h2>기업 정보</h2><small>COMPANY <span class="arrowbox">↘</span></small></div>${body}</section>`:""; })()}
+    <div class="hidebar">${hidJ||hidC?`<p class="alert ask">숨긴 ${hidC?"회사":"공고"}입니다.</p>`:""}
+      <button class="btn ghost" data-hide="job" data-hid="${esc(j.id)}">${hidJ?"이 공고 다시 보기":"이 공고 숨기기"}</button>
+      <button class="btn ghost" data-hide="co" data-hid="${esc(j.company_id)}">${hidC?"이 회사 다시 보기":"이 회사 공고 전부 숨기기"}</button></div>
     <p class="src">공고 출처: ${esc(j.source||"")} · 확인 ${esc(j.checked||"")}</p>
   </main>
   <div class="cta"><div class="in"><a class="p" href="${esc(j.url)}" target="_blank" rel="noopener">원문 보기</a>${j.apply_url?`<a class="s" href="${esc(j.apply_url)}" target="_blank" rel="noopener">회사 지원 페이지</a>`:""}</div></div></div>`;
@@ -928,6 +959,7 @@ function viewCompanies(){
           ${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:`<a href="https://www.google.com/search?q=${encodeURIComponent(w.name+" 채용")}" target="_blank" rel="noopener">채용 검색 ›</a>`}</div>
         ${js.length?`<div class="co-jobs">${js.slice(0,5).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}${js.length>5?`<button class="re" style="border:0;background:none;padding:6px 0;color:var(--k);font:800 12.5px/1 var(--ko);text-align:left;cursor:pointer" data-cof="${esc(w.id)}">외 ${js.length-5}개 전체 보기 ›</button>`:""}</div>`:""}
         ${c?`<details><summary>기업 정보</summary>${companyCard(c)}</details>`:w.info?`<details><summary>기업 정보</summary>${infoCard(w)}</details>`:""}
+        <button class="hidebtn" data-hide="co" data-hid="${esc(w.id)}">이 회사 숨기기</button>
       </article>`;}).join("")}
     ${S.ready&&!list.length?`<div class="empty"><h3>조건에 맞는 회사가 없습니다</h3><p>분야·국가 필터를 바꿔 보세요.</p></div>`:""}</div>
   </main>${tabbar("companies")}`;
@@ -982,7 +1014,7 @@ function render(){
   const app = $("#app"), key = S.route+":"+(S.param||"");
   if(key!==S.lastRoute){ S.lastRoute=key; S.animUntil=Date.now()+650; }
   app.className = "app" + (Date.now()<S.animUntil ? " anim" : "");
-  app.innerHTML = S.route==="job"?viewJob():S.route==="companies"?viewCompanies():S.route==="spec"?viewSpec():S.route==="tests"?viewTests():S.route==="jobs"?viewJobs():S.route==="install"?viewInstall():viewHome();
+  app.innerHTML = S.route==="job"?viewJob():S.route==="companies"?viewCompanies():S.route==="spec"?viewSpec():S.route==="tests"?viewTests():S.route==="jobs"?viewJobs():S.route==="install"?viewInstall():S.route==="hidden"?viewHidden():viewHome();
   const br=$("#brief"); if(br){ br.onscroll=()=>{ const i=Math.round(br.scrollLeft/br.clientWidth); const t=$("#briefIdx"); if(t) t.textContent=`${i+1} / ${br.children.length}`; }; }
 }
 /* loading overlay */
@@ -1019,6 +1051,7 @@ document.addEventListener("click", async e=>{
   if(b.dataset.wcountry){ S.wcountry=b.dataset.wcountry; render(); return; }
   if(b.dataset.wip){ S.wip=!S.wip; render(); return; }
   if(b.id==="sortBtn"){ S.sort = S.sort==="fit"?"deadline":"fit"; render(); return; }
+  if(b.dataset.hide){ toggleHide(b.dataset.hide,b.dataset.hid); return; }
   if(b.dataset.status){ const cur=S.status[S.param]?.status; setStatus(S.param, cur===b.dataset.status?"관심":b.dataset.status); return; }
   if(b.id==="saveBtn"){ if(!S.status[S.param]) setStatus(S.param,"관심"); else toast("이미 관심 공고에 있습니다"); return; }
   if(b.dataset.cycle){
