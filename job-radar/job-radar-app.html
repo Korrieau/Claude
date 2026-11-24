@@ -1,6 +1,6 @@
 <title>Job Radar</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wdth,wght@100..125,500..900&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wdth,wght@100..125,500..900&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap">
 <style>
 /* Theme: Ananta-style dark (see "Ananta theme" block at the end, which overrides the older light passes).
    Layout: one mobile column (max 480px). Older notes:
@@ -895,6 +895,43 @@ textarea,input[type=text],input:not([type]){background:rgba(255,255,255,.04);col
 .hco.hs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;scrollbar-width:none;margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)))}
 .hco.hs::-webkit-scrollbar{display:none}
 .hco.hs button{flex:0 0 78%;scroll-snap-align:start;min-height:72px}
+
+/* ===== Ananta type: MiSans (Latin/digits) + Noto Sans KR (Hangul) + Bebas Neue (display), heavier weights ===== */
+@font-face{font-family:"MiSans";font-weight:400;font-display:swap;src:url("fonts/MiSansLatin-Regular.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+@font-face{font-family:"MiSans";font-weight:500;font-display:swap;src:url("fonts/MiSansLatin-Medium.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+@font-face{font-family:"MiSans";font-weight:600;font-display:swap;src:url("fonts/MiSansLatin-Semibold.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+@font-face{font-family:"MiSans";font-weight:700 800;font-display:swap;src:url("fonts/MiSansLatin-Bold.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+@font-face{font-family:"MiSans";font-weight:900;font-display:swap;src:url("fonts/MiSansLatin-Heavy.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+:root{--ko:"MiSans","Noto Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif;--mono:"MiSans","Noto Sans KR",sans-serif;--wide:"Bebas Neue","MiSans","Noto Sans KR",sans-serif}
+body{font-weight:500}
+/* Bebas has one weight: thicken it with a stroke in the text colour */
+.an-h,.jh-t b,.row-s b,.nc-m .sc,.th-nm,.wr2-n b,.bchips b,.hm-kpi b,.pc,.dt-top .score b,.fit b,.hb b,.stat4 b,.logo b,.w{-webkit-text-stroke:.7px currentColor;paint-order:stroke fill}
+.an-h{-webkit-text-stroke-width:1.2px}
+.rs-big,.an-out,.th-w{-webkit-text-stroke-width:1.4px}
+.rs-big{-webkit-text-stroke-color:rgba(255,255,255,.4)}
+/* heavier Korean */
+.rs-h{font-weight:900;font-size:21px}
+.rs-lab,.an-cap,.bl{font-weight:700}
+.an-hero .sub,.rs-sub{font-weight:600}
+.row-t{font-weight:800}
+.row-co{font-weight:700}
+.row-m .lab,.nc-m .lab,.th-c,.tchips button,.chips button,.bchips button,.ttabs button{font-weight:700}
+.row-m .dl,.nc-m .dt{font-weight:600}
+.nc-t{font-weight:800}
+.nc.big .nc-t{font-weight:900}
+.nc-c,.wr2-b small,.hlist .ti{font-weight:600}
+.th-nm{font-weight:900}
+.wr2-b b,.hco b{font-weight:900}
+.mbtn,.gbtn,.btn,.cta a,.xs-b{font-weight:800}
+.txt h3{font-weight:900}
+.txt li,.txt p{font-weight:500}
+.tabbar a{font-weight:700}
+.qs .q b,.cal .nm b{font-weight:800}
+.hm-kpi a span,.hm-kpi a small{font-weight:700}
+.dt-top h1,.dt-top .ttl{font-weight:900}
+
+.th-nm{font-family:"Bebas Neue","Noto Sans KR",sans-serif;font-weight:900;letter-spacing:.01em}
+.an-h,.jh-t b,.wr2-n b,.row-s b,.nc-m .sc{font-family:"Bebas Neue","MiSans","Noto Sans KR",sans-serif}
 </style>
 
 
