@@ -222,4 +222,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 포켓몬센터 | https://hrmos.co/pages/pokemoncenter/jobs | 해외 사업·EC 마케팅·글로벌 종합직. 매장 계약직·점장 제외 |
 | Cygames 전체 | https://recruit.cygames.co.jp/career/ (→ hrmos cygames) | 프로모션·현지화(일영·일한 코디네이터)·GM 등이 빠져 있었음. 목록 전체를 범위 기준으로 다시 확인 |
 | 프로젝트문 | 사람인·게임잡·잡코리아 검색 "프로젝트문" | 자체 채용 페이지 없음 |
-| 일본 게임업계 구인 | https://career.famitsu.com/ | 캡콤·코나미·코에이테크모 등. 목록이 JS 렌더링 |
+| 일본 게임업계 구인 (파미통 커리어) | API `https://syscareer.famitsu.com/api/job_search?page_number=N&count=100` (Referer career.famitsu.com/job-search), 상세 `https://career.famitsu.com/job-detail/<id>` | 약 1,800건. 제목 기준으로 범위 내만. 캡콤·코나미·코에이테크모·EXNOA·플래티넘·TMS 등 |
+| XD (심동) | https://xd-legacy.jobs.feishu.cn/ | Feishu |
+| 히어로게임즈 | https://careers.hero.com/ | |
+| Moonton | https://en.moonton.com/join/index.html | |
