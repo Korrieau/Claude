@@ -118,6 +118,10 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | KAMITSUBAKI (THINKR) | Wantedly `wantedly.com/companies/thinkr/projects` |
 | 레벨 인피니트 | `levelinfinite.com/careers/` 목록(`a.career-item[data-index]`, 66건 전부 DOM에 있음)을 JS로 클릭해 팝업 본문 수집 |
 | 스퀘어 에닉스 유럽 | Workable `POST apply.workable.com/api/v3/accounts/square-enix/jobs` |
+| 넷이즈 게임즈 | `hr.163.com/job-list.html`을 열고 페이지 안에서 `POST /api/hr163/position/queryPage` {currentPage,pageSize:100} (전체 약 2,600건). productName이 网易游戏（互娱）·网易游戏（雷火）·网易元气·星间/烈酷工作室, firstPostTypeName이 市场·运营·产品·内容·项目管理·客服인 것만 |
+| 엔씨소프트 | careers.ncsoft.com/apply/list 를 열어 첫 `/interface/apply/list` 요청의 헤더·본문을 잡은 뒤 page=2,3..로 같은 요청 반복 (pagesize 20 고정, 50으로 바꾸면 거부). 상세 `/apply/view/{jopenId}?companyId={regOpId}` (자주 빈 화면 → 재시도) |
+| 만쥬 (벽람항로) | Feishu `ooia5293gn.jobs.feishu.cn/index/position/list` (career.manjuu.com 연결) |
+| 넥슨 그룹 | careers.nexon.com은 Cloudflare 봇 차단 → 게임잡 전체 목록의 넥슨·넥슨게임즈·네오플·민트로켓·엔엑스쓰리 공고로 수집. "라이브(서비스) 기획자", "UX 분석가"는 포함 |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.
@@ -158,7 +162,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 
 ## 확인 못 하는 곳 (회사 사이트에서 직접 확인)
 - 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸 (게임잡 등으로 수집).
-- 넷이즈(hr.163.com)·넥슨(career.nexon.com): 해외 접속 차단. 서산쥐·만쥬: 공식 채용 사이트 없음(위챗). 엔씨: 목록 불안정·직접 호출 차단. 774 inc.·코단샤 USA·Aniplex USA·스튜디오비사이드·스텔라이브: 공개 공고 목록 없음.
+- 넥슨 careers.nexon.com·CareerCross(만쥬 재팬): Cloudflare 봇 차단. 서산쥐: 공식 채용 사이트 없음(위챗). 774 inc.·코단샤 USA·Aniplex USA·스튜디오비사이드·스텔라이브: 공개 공고 목록 없음.
 - 애니메이트·코토부키야·무빅·세가 아메리카·Square Enix US(Workable): 사이트가 막혀 있거나 오류. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
 
 ## 숨긴 회사·공고
