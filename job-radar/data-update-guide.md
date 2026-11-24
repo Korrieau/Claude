@@ -168,3 +168,9 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 ## 숨긴 회사·공고
 - `profile/me`의 `hidden_cos`(회사 id 목록), `hidden_jobs`(공고 id 목록). 앱에서 사용자가 "이 회사 숨기기/이 공고 숨기기"로 저장.
 - 매일 추적 때 `hidden_cos` 회사는 새 공고를 수집·추가하지 않고, 보고와 소식(news)에도 넣지 않음. `hidden_jobs`는 소식·보고에서 제외.
+
+## 번역 묶음 (trpacks) — 매주
+- `trpacks/tNNN` = `{items:{<job id>:{summary,duties,quals,prefs,at,by}}}`. 앱은 trpacks + tr(앱 번역 버튼 결과)를 합쳐 공고 화면에 한국어로 보여줌 (tr가 우선).
+- 매주: `python3 tools/trprep.py IN.json` → 우선순위 순 최대 60건(한국 관련 → IP·굿즈 → 최근 8일 사업 직군)의 업무·자격·우대 줄만 뽑은 압축 입력.
+- 번역 결과는 `{"id":{"s":요약,"d":[업무],"q":[자격],"p":[우대]}}` 형식, 줄당 짧게 (업무 ≤5, 자격 ≤4). → `python3 tools/trpack.py OUT.json` → 새 `data/trpacks/tNNN.json` → ArtifactData set (trpacks).
+- 이미 번역된 id는 trprep가 자동으로 건너뜀. 나머지 공고는 앱의 "한국어로 번역하기" 버튼으로 필요할 때 번역.
