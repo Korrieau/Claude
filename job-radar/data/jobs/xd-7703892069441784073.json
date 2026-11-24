@@ -1,0 +1,70 @@
+{
+ "id": "xd-7703892069441784073",
+ "added": "2026-11-25",
+ "checked": "2026-11-25",
+ "company": "XD (심동)",
+ "company_id": "xd",
+ "country": "CN",
+ "location": "중국 상하이",
+ "title": "게임 운영 (해외 소셜미디어)",
+ "title_original": "游戏运营（海外社交媒体方向）",
+ "game": "",
+ "job_type": "service",
+ "career_req": "연차 미기재",
+ "min_years_months": 0,
+ "deadline": "채용시 마감",
+ "deadline_date": null,
+ "url": "https://xd-legacy.jobs.feishu.cn/index/position/7703892069441784073/detail",
+ "lite": true,
+ "lang_original_label": "중국어",
+ "summary": "XD(심동·TapTap) 게임의 해외 SNS 운영.",
+ "duties": [],
+ "quals": [],
+ "prefs": [],
+ "reqs": [
+  {
+   "kind": "must",
+   "reason": "",
+   "rule": {
+    "any": [
+     "zh"
+    ],
+    "min": "비즈니스",
+    "type": "lang"
+   },
+   "status": "no",
+   "text": "중국어 비즈니스"
+  },
+  {
+   "kind": "must",
+   "reason": "",
+   "rule": {
+    "type": "overseas"
+   },
+   "status": "ask",
+   "text": "현지 근무 가능 (이주·근무 자격)"
+  },
+  {
+   "kind": "plus",
+   "reason": "",
+   "rule": {
+    "any": [
+     "en"
+    ],
+    "min": "비즈니스",
+    "type": "lang"
+   },
+   "status": "ok",
+   "text": "영어 비즈니스"
+  },
+  {
+   "kind": "plus",
+   "reason": "",
+   "status": "part",
+   "text": "SNS·커뮤니티 운영"
+  }
+ ],
+ "raw": "投递时请附带： 归属于个人的社交媒体账号主页链接，任意一个即可\n工作内容：运营游戏项目的海外社交媒体账号，致力于用户增长\n\n职位描述：\n1. 负责游戏项目的海外社交媒体运营；\n2. 共同参与海外游戏项目的品牌构建。\n\n1.英语水平优秀，具有海外游戏或产品的运营经验；\n2.X、Instagram、YouTube、TikTok、Reddit，其中不少于三个产品的重度用户；\n3.擅长视频制作、剪辑，具有 Image2 和 Seedance 2.0 的使用经验；\n\n加分项：\n1. 具有海外生活的经历；\n2. 熟练使用 Codex 或 Claude Code；\n3. 海外休闲/超休闲手机游戏的重度玩家。",
+ "needs": [],
+ "conditions": []
+}
