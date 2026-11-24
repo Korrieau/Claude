@@ -876,6 +876,11 @@ textarea,input[type=text],input:not([type]){background:rgba(255,255,255,.04);col
 .th.no-art .th-l img{width:auto;height:auto;max-width:100%;max-height:100%}
 .th.no-art .th-l b{font-size:14px}
 .th.big.no-art .th-l{width:58%;top:42%}
+
+.th.no-art .th-glow{background:radial-gradient(85% 75% at 50% 40%,var(--g1,#2A2D36) 0,transparent 75%),linear-gradient(180deg,transparent 50%,rgba(0,0,0,.85) 100%)}
+
+.has-coart{position:relative;background-image:linear-gradient(90deg,#111113 38%,rgba(17,17,19,.55) 70%,rgba(17,17,19,.35)),var(--coart)!important;background-size:cover!important;background-position:center right!important}
+.wr2>summary.has-coart{padding-left:10px;padding-right:10px;margin:4px 0}
 </style>
 
 
@@ -1168,13 +1173,14 @@ function viewInstall(){
 }
 function hsh(x){ let h=0; for(const c of String(x)) h=(h*31+c.charCodeAt(0))>>>0; return h; }
 // Key art per game / company (files published next to the page as art/<key>.webp). Update: data-update-guide.md "키아트".
-const ART_GAME={"엔드필드": "endfield", "Endfield": "endfield", "명조": "wuwa", "워더링": "wuwa", "아난타": "ananta", "ANANTA": "ananta", "명일방주": "endfield", "마블 라이벌즈": "marvelrivals", "연운": "wwm", "LOST ARK": "lostark", "로스트아크": "lostark", "퍼니싱": "pgr", "이터널 리턴": "eternalreturn", "트릭컬": "trickcal", "서머너즈": "summoners", "AION2": "aion2", "아이온2": "aion2", "아우터플레인": "outerplane", "블루 아카이브": "bluearchive", "블루아카": "bluearchive", "메이플": "maple", "니케": "nikke", "NIKKE": "nikke", "소녀전선": "gfl2", "인피니티 니키": "infinitynikki", "신더시티": "cindercity", "호라이즌 워커": "horizonwalker", "호라이즌워커": "horizonwalker", "에픽세븐": "epic7", "벽람항로": "azurcw", "Azur Lane": "azurcw", "그랜드체이스": "grandchase", "GrandChase": "grandchase", "몬스터 스트라이크": "monstrike", "주술회전": "jjk", "발더스": "bg3"};
-const ART_CO={"netease": "ananta", "hypergryph": "endfield", "bilibili": "uma", "kuro": "wuwa", "papergames": "infinitynikki", "levelinfinite": "nikke", "sunborn": "gfl2", "smilegate": "epic7", "sega": "pjsekai", "cygames": "uma", "squareenix": "ff7", "ncsoft": "aion2", "kadokawa": "nightreign", "2k": "borderlands", "kakaogames": "eternalreturn", "yostarcn": "stellasora", "yostarjp": "stellasora", "nexon": "bluearchive", "nexonjp": "bluearchive", "nexonamerica": "tfd", "com2us": "summoners", "neowiz": "liesofp", "c-a6eb0891": "persona", "klab": "bleach", "sonymusic": "fgo", "krafton": "inzoi", "c-f5a29c45": "tales", "epid": "trickcal", "c-epid": "trickcal", "hasbro": "bg3", "toho": "jjk", "manjuu": "azurcw", "c-8c3156ff": "grandchase", "mixi": "monstrike", "cover": "idolshowdown", "riotgames": "lol2"};
-function artOf(j){ const g=(j.game||"")+" "+(j.title||""); for(const k in ART_GAME) if(g.includes(k)) return "art/"+ART_GAME[k]+".webp"; const c=ART_CO[j.company_id]; return c?"art/"+c+".webp":null; }
+const ART_GAME={"엔드필드": "endfield", "Endfield": "endfield", "명조": "wuwa", "워더링": "wuwa", "아난타": "ananta", "ANANTA": "ananta", "명일방주": "endfield", "마블 라이벌즈": "marvelrivals", "연운": "wwm", "LOST ARK": "lostark", "로스트아크": "lostark", "퍼니싱": "pgr", "이터널 리턴": "eternalreturn", "트릭컬": "trickcal", "서머너즈": "summoners", "AION2": "aion2", "아이온2": "aion2", "아우터플레인": "outerplane", "블루 아카이브": "bluearchive", "블루아카": "bluearchive", "메이플": "maple", "니케": "nikke", "NIKKE": "nikke", "소녀전선": "gfl2", "인피니티 니키": "infinitynikki", "신더시티": "cindercity", "호라이즌 워커": "horizonwalker", "호라이즌워커": "horizonwalker", "에픽세븐": "epic7", "벽람항로": "azurcw", "Azur Lane": "azurcw", "그랜드체이스": "grandchase", "GrandChase": "grandchase", "몬스터 스트라이크": "monstrike", "주술회전": "jjk", "발더스": "bg3", "원신": "genshin", "Genshin": "genshin", "原神": "genshin", "스타레일": "hsr", "Star Rail": "hsr", "星穹铁道": "hsr", "スターレイル": "hsr", "붕괴3rd": "hi3", "Honkai Impact": "hi3", "崩坏3": "hi3", "델타포스": "deltaforce", "Delta Force": "deltaforce", "三角洲": "deltaforce", "왕자영요": "hok", "Honor of Kings": "hok", "王者荣耀": "hok", "아레나 브레이크아웃": "arenabreakout", "Arena Breakout": "arenabreakout", "暗区突围": "arenabreakout", "던전앤파이터": "dfo", "던파": "dfo", "DNF": "dfo", "地下城": "dfo", "카잔": "khazan", "Khazan": "khazan", "붉은사막": "crimson", "Crimson Desert": "crimson", "검은사막": "bdo", "Black Desert": "bdo", "배틀캣": "battlecats", "にゃんこ": "battlecats", "Battle Cats": "battlecats", "레전드 오브 이미르": "ymir", "Ymir": "ymir", "이환": "nte", "Neverness": "nte", "异环": "nte", "타워 오브 판타지": "tof", "Tower of Fantasy": "tof", "幻塔": "tof", "나라카": "naraka", "NARAKA": "naraka", "永劫无间": "naraka", "Once Human": "oncehuman", "七日世界": "oncehuman", "Path of Exile": "poe", "패스 오브 엑자일": "poe", "Stumble Guys": "stumble", "鸣潮": "wuwa", "Wuthering": "wuwa", "明日方舟": "endfield", "アークナイツ": "endfield", "Arknights": "endfield", "终末地": "endfield", "无限暖暖": "infinitynikki", "Infinity Nikki": "infinitynikki", "インフィニティニキ": "infinitynikki", "少女前线": "gfl2", "Girls' Frontline": "gfl2", "碧蓝航线": "azurcw", "アズールレーン": "azurcw", "战双": "pgr", "Punishing": "pgr", "无限大": "ananta", "燕云": "wwm", "Where Winds Meet": "wwm", "Marvel Rivals": "marvelrivals", "漫威争锋": "marvelrivals", "ブルアカ": "bluearchive", "Blue Archive": "bluearchive", "ブルーアーカイブ": "bluearchive", "우마무스메": "uma", "ウマ娘": "uma", "Umamusume": "uma", "프로세카": "pjsekai", "プロセカ": "pjsekai", "Project SEKAI": "pjsekai", "グラブル": "granblue", "Granblue": "granblue", "그랑블루": "granblue", "니지산지": "nijisanji", "にじさんじ": "nijisanji", "NIJISANJI": "nijisanji", "홀로라이브": "idolshowdown", "ホロライブ": "idolshowdown", "hololive": "idolshowdown", "Epic Seven": "epic7", "勝利の女神": "nikke", "MapleStory": "maple", "메이플스토리": "maple", "ペルソナ": "persona", "Persona": "persona", "페르소나": "persona", "ソニック": "sonic", "Sonic": "sonic", "FINAL FANTASY": "ff7", "ファイナルファンタジー": "ff7", "FGO": "fgo", "Fate/Grand Order": "fgo", "モンスト": "monstrike"};
+const ART_CO={"netease": ["ananta", "marvelrivals", "wwm", "naraka", "oncehuman"], "hypergryph": ["endfield"], "bilibili": ["uma", "gfl2", "azurcw"], "anycolor": ["nijisanji"], "kuro": ["wuwa", "pgr"], "cover": ["idolshowdown"], "brave": ["bravevtuber"], "papergames": ["infinitynikki"], "levelinfinite": ["nikke", "tof", "arenabreakout", "deltaforce", "hok"], "sunborn": ["gfl2"], "riotgames": ["lol2"], "smilegate": ["epic7", "lostark"], "scopely": ["stumble"], "sega": ["pjsekai", "sonic", "persona"], "cygames": ["uma", "granblue"], "squareenix": ["ff7"], "ncsoft": ["aion2", "throne", "cindercity", "horizonwalker"], "ncamerica": ["throne", "aion2"], "kadokawa": ["nightreign"], "hasbro": ["bg3"], "2k": ["borderlands"], "kakaogames": ["eternalreturn"], "yostarcn": ["stellasora", "azurcw"], "yostarjp": ["stellasora", "azurcw", "bluearchive"], "nexon": ["bluearchive", "maple", "khazan", "dfo"], "nexonjp": ["bluearchive", "maple"], "nexonamerica": ["tfd", "maple"], "neople": ["dfo", "khazan", "neople2"], "com2us": ["summoners"], "neowiz": ["liesofp"], "manjuu": ["azurcw"], "c-a6eb0891": ["persona"], "klab": ["bleach"], "sonymusic": ["fgo"], "krafton": ["inzoi"], "c-8c3156ff": ["grandchase"], "c-f5a29c45": ["tales"], "epid": ["trickcal"], "toho": ["jjk"], "mixi": ["monstrike"], "mihoyo": ["genshin", "hsr", "hi3"], "hoyoverse": ["genshin", "hsr", "hi3"], "tencent": ["deltaforce", "hok", "arenabreakout", "nikke", "poe"], "c-4aaac943": ["crimson", "bdo"], "wemade": ["ymir"], "wemadeconnect": ["ymir"], "c-735b5efc": ["battlecats"], "c-93f0258b": ["pjsekai"]};
+function artOf(j){ const g=(j.game||"")+" "+(j.title||"")+" "+(j.title_original||""); for(const k in ART_GAME) if(g.includes(k)) return "art/"+ART_GAME[k]+".webp"; const c=ART_CO[j.company_id]; return c&&c.length?"art/"+c[hsh(j.id||j.title||"")%c.length]+".webp":null; }
+function coArtStyle(id){ const c=ART_CO[id]; return c&&c.length?`class="has-coart" style="--coart:url('art/${c[0]}.webp')"`:""; }
 function artBg(j){ const a=artOf(j); if(a) return `<img class="art" src="${a}" alt="" loading="lazy" decoding="async">`; return ""; }
 function thumb(j,big){
   const t=typeOf(j), v=hsh(j.company_id||j.company)%4, lg=logoOf(j.company_id);
-  return `<div class="th th-v${v} ${big?"big":""} ${artOf(j)?"has-art":"no-art"}" aria-hidden="true">
+  return `<div class="th th-v${v} ${big?"big":""} ${artOf(j)?"has-art":"no-art"}" data-co="${esc(j.company_id||"")}" aria-hidden="true">
     ${artBg(j)}<span class="th-glow"></span>
     ${artOf(j)?"":`<span class="th-w">${esc(t.en)}</span>`}
     <span class="th-c">${esc(CNAME[j.country]||j.country||"")}</span>
@@ -1219,7 +1225,7 @@ function viewHome(){
   const d = new Date(), wd = ["일","월","화","수","목","금","토"][d.getDay()];
   const qs = openQuestions();
   const statusOf=j=>S.status[j.id]?.status;
-  const rec = all.filter(x=>statusOf(x.j)!=="종료").map(x=>{ const dl=daysLeft(x.j.deadline_date); const fresh=(x.j.added||"")>=weekAgo?6:0; const urg=dl!==null&&dl>=0&&dl<=14?4:0; const ok=x.sc.mustNo===0?8:0; return {...x,r:x.sc.total+fresh+urg+ok}; }).sort((a,b)=>b.r-a.r).slice(0,7);
+  const rec = all.filter(x=>statusOf(x.j)!=="종료").map(x=>{ const dl=daysLeft(x.j.deadline_date); const fresh=(x.j.added||"")>=weekAgo?6:0; const urg=dl!==null&&dl>=0&&dl<=14?4:0; const ok=x.sc.mustNo===0?8:0; return {...x,r:x.sc.total+fresh+urg+ok+(artOf(x.j)?.5:0)}; }).sort((a,b)=>b.r-a.r).slice(0,7);
   const ht=S.htab||"all"; const newPool=(newest.length?newest:all.filter(x=>(x.j.added||"")>=weekAgo).sort((a,b)=>(b.j.added||"").localeCompare(a.j.added||"")||b.sc.total-a.sc.total));
   const newF=newPool.filter(x=>ht==="all"||(ht==="etc"?!MAIN_C.includes(x.j.country):x.j.country===ht));
   const bar=(label,v,max,nw,attr)=>`<button class="hb" ${attr}><span class="hl">${label}</span><span class="ht"><i style="width:${Math.max(3,v/max*100)}%"></i></span><b class="w">${v}</b>${nw?`<em>+${nw}</em>`:`<em class="z"></em>`}</button>`;
@@ -1248,7 +1254,7 @@ function viewHome(){
 
 
     ${rail("CORP","COMPANY","공고가 많은 회사",`<p class="rs-sub">누르면 그 회사 공고만</p>
-      <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}">${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div>`)}
+      <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}" ${coArtStyle(o.id)}>${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div>`)}
 
     ${rail("READY","APPLY NOW","지금 지원 가능",`<p class="rs-sub">적합도 높은 순</p>
       ${now.length?`<div class="hlist">${now.slice(0,5).map(({j,sc})=>`<a href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}">${logoTile(j.company_id,j.company)}<span class="tx"><b class="co">${esc(j.company)}</b><span class="ti">${esc(j.title)}</span><span class="htg"><em>${esc(CNAME[j.country]||j.country)}</em><em>${esc(deadlineText(j))}</em></span></span><span class="sc w">${sc.total}</span></a>`).join("")}</div>`
@@ -1381,7 +1387,7 @@ function viewCompanies(){
     <div class="chips" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-wcountry="${c}" aria-pressed="${S.wcountry===c}">${l}</button>`).join("")}<button data-wip="1" aria-pressed="${!!S.wip}">IP 사업</button></div>
     <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.watch.length).padStart(3,"0")}</span><span>확인 ${pd(checked)}</span></div>
     <div class="wl2 fx3">${list.slice(0,S.wlimit||60).map(w=>{ const js=jobsOf(w.id), c=S.companies.find(x=>x.id===w.id), m=WMETHOD[w.method]||["?",w.method];
-      return `<details class="wr2"><summary>${logoTile(w.id,w.name)}<span class="wr2-b"><b>${esc(w.name)}</b><small>${esc(CNAME[w.country]||w.country)} · ${esc(w.category_label||"")}${w.ip_focus?" · IP":""}</small></span><span class="wr2-n"><b class="w">${js.length}</b><small>공고</small></span></summary>
+      return `<details class="wr2"><summary ${coArtStyle(w.id)}>${logoTile(w.id,w.name)}<span class="wr2-b"><b>${esc(w.name)}</b><small>${esc(CNAME[w.country]||w.country)} · ${esc(w.category_label||"")}${w.ip_focus?" · IP":""}</small></span><span class="wr2-n"><b class="w">${js.length}</b><small>공고</small></span></summary>
         <div class="wr2-in">
           ${js.length?`<div class="co-jobs">${js.slice(0,8).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title)}</a>`).join("")}${js.length>8?`<button class="re" data-cof="${esc(w.id)}">외 ${js.length-8}개 전체 보기 ›</button>`:""}</div>`:`<p class="hempty">지금 앱에 있는 공고가 없습니다.</p>`}
           <div class="wbot"><span>${esc(w.method_note||m[1])}</span>${w.careers_url?`<a href="${esc(w.careers_url)}" target="_blank" rel="noopener">채용 페이지 ›</a>`:""}</div>
@@ -1442,8 +1448,18 @@ function render(){
   if(key!==S.lastRoute){ S.lastRoute=key; S.animUntil=Date.now()+650; }
   app.className = "app" + (Date.now()<S.animUntil ? " anim" : "");
   app.innerHTML = S.route==="job"?viewJob():S.route==="companies"?viewCompanies():S.route==="spec"?viewSpec():S.route==="tests"?viewTests():S.route==="jobs"?viewJobs():S.route==="install"?viewInstall():S.route==="hidden"?viewHidden():viewHome();
+  tintNoArt();
   const br=$("#brief"); if(br){ br.onscroll=()=>{ const i=Math.round(br.scrollLeft/br.clientWidth); const t=$("#briefIdx"); if(t) t.textContent=`${i+1} / ${br.children.length}`; }; }
 }
+
+/* no-art panels: tint with the logo's main colour (computed once per company) */
+const TINT={};
+function logoTint(id,cb){ if(id in TINT) return cb(TINT[id]); const src=logoOf(id); if(!src){ TINT[id]=null; return cb(null); }
+  const im=new Image(); im.onload=()=>{ try{ const c=document.createElement("canvas"); c.width=c.height=24; const x=c.getContext("2d"); x.drawImage(im,0,0,24,24);
+    const d=x.getImageData(0,0,24,24).data; let r=0,g=0,b=0,n=0;
+    for(let i=0;i<d.length;i+=4){ const R=d[i],G=d[i+1],B=d[i+2],A=d[i+3], mx=Math.max(R,G,B), mn=Math.min(R,G,B); if(A<128||mx-mn<40||mx<50) continue; r+=R;g+=G;b+=B;n++; }
+    TINT[id]=n>8?[r/n|0,g/n|0,b/n|0]:null; }catch(_){ TINT[id]=null; } cb(TINT[id]); }; im.onerror=()=>{ TINT[id]=null; cb(null); }; im.src=src; }
+function tintNoArt(){ document.querySelectorAll(".th.no-art[data-co]").forEach(el=>{ logoTint(el.dataset.co,c=>{ if(c) el.style.setProperty("--g1",`rgba(${c[0]},${c[1]},${c[2]},.55)`); }); }); }
 /* loading overlay */
 let bootShown=Date.now(), bootClosed=false;
 function bootProgress(f){ const p=Math.round(f*100); const b=$("#bootPct"), bar=$("#bootBar"); if(b) b.textContent=p; if(bar) bar.style.transform=`scaleX(${f})`; }
