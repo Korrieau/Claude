@@ -192,3 +192,15 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
   3. `python3 tools/art_pick.py cand.json missing_jobs.json art/c <tmpdir>` 후 `--relax`로 한 번 더 — 로고·글자뿐인 이미지를 거르고 회사별(헤드헌팅은 공고별 `j-<id>`) 1장을 `art/c/<key>.webp`(640x360)로 저장, `art/c/_map.json` 갱신.
   4. 앱 HTML의 `const ART_X=` 를 `_map.json` 내용으로 바꾸고, 새 이미지 파일을 Artifact publish `files`(root `job-radar`, 한 번에 255개 이하)로 같이 올린다.
   5. 그래도 없는 회사: 네이버 이미지 검색 "<회사명> 사옥"(해외는 "<name> headquarters office") 상위 3장 중 회사 건물·사무실·회사 활동 사진을 눈으로 골라 쓴다. 다른 회사 건물이거나 무관하면 쓰지 않는다. 헤드헌팅(회사명 없음)은 참고 이미지 유지.
+
+## 범위 밖 공고·중복 (앱에서 자동 처리)
+
+- 앱의 `OUT_RE`에 걸리는 공고는 화면에 안 나온다: UA·퍼포먼스 마케터, 컨셉·배경·시네마틱 아티스트, 디자이너, 엔지니어·개발자·QA, 급여, 시스템·전투 기획, 레벨 디자인. (엔터 업계 "아티스트"=가수는 범위 안이라 걸지 않음)
+- 인턴(`INTERN_RE`)은 기본으로 숨기고, 공고 탭 "인턴 포함" 버튼으로 볼 수 있다.
+- 같은 회사의 같은 공고(괄호·대괄호 태그 제거 후 제목 일치)가 다른 채용 사이트에 또 있으면 하나만 남긴다: 공식 채용 사이트 > 게임잡·잡코리아·사람인. 같은 사이트 안의 같은 제목은 다른 공고로 보고 둔다. 헤드헌팅은 헤드헌팅 회사 이름 단위.
+- 수집 단계에서도 위 직군은 넣지 않는다. 앱 필터는 안전망이다.
+
+## 관심 회사 채용 주소 점검
+
+- watch의 careers_url이 회사 홈페이지(채용 시스템이 아님)이거나 method가 manual이면 실제로는 수집이 안 된다. 예: Lilith는 lilith.com으로 되어 있어 0건이었음 → lilithgames.jobs.feishu.cn 으로 수정.
+- 매일 실행 때 공고 0~2건 회사는 실제 ATS(GreetingHR, Feishu, Moka, HRMOS, Greenhouse, Workday 등)를 찾아 careers_url·method를 고친다.
