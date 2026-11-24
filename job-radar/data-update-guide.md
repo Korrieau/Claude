@@ -108,6 +108,11 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 스마일게이트 | careers.smilegate.com/apply/announce를 연 뒤 페이지 안에서 `POST /api/apply/announce/guest` (pageIndex, pageSize 50). 상세 `/apply/announce/view?seq=ID` |
 | 쿠로게임즈 · 릴리스 (Feishu) | `https://kurogame.jobs.feishu.cn/index/position/list?current=N&limit=100`을 페이지마다 열고 `/api/v1/search/job/posts` 응답 수집 (요청 서명 때문에 직접 호출 불가). 상세 `/index/position/{id}/detail`. lilithgames도 같은 방식 |
 | 하이퍼그리프 (Moka) | `https://jobs.hypergryph.com/apply/hypergryph/26325/#/jobs`를 Playwright로 열고 `button[data-page=N]`을 눌러 페이지마다 `a[href*="#/job/"]` 수집 (약 330건, API 응답은 암호화돼서 화면에서 읽음). 상세 `#/job/{id}` 본문의 "职位描述" ~ "申请职位" 구간 |
+| HRMOS (일본) | `https://hrmos.co/pages/{회사}/jobs?page=N` curl로 목록 (`<a href=".../jobs/ID"> ... <h2>제목</h2>`), 상세도 curl. 회사: cover-corp, bravegroup, cygames, sega, square-enix, colopl, klab, gungho, sumzap, yostar, nexon(재팬), gree. ANYCOLOR는 recruit.anycolor.co.jp/career/ 에 있는 hrmos 링크로 수집 |
+| axol (일본) | 목록 `job.axol.jp/{x}/c/{회사}/job/list` (도호는 `/public/job/list`), 상세 `/job/detail/ID`. 회사: toho(bx), sonymusic(hy, 애니플렉스 모회사), kadokawa(jn). "【社員紹介】" 붙은 공고는 중복이라 제외 |
+| HERP / jobcan (일본) | 굿스마일 `herp.careers/v1/goodsmile`, Donuts `recruit.jobcan.jp/donuts/list/all/all/N` (게임사업부·ANYLAND만) |
+| 페이퍼게임즈·빌리빌리·요스타(상하이) | 페이퍼게임즈 Feishu `papergames.jobs.feishu.cn/social/position/list?current=N&limit=100` (응답 수집), 빌리빌리 jobs.bilibili.com 페이지 안에서 `POST /api/srs/position/positionList` (pageSize 100, workTypeList ["3"]), 요스타 Moka `app.mokahr.com/social-recruitment/yostar/145292#/jobs` |
+| NHN·SOOP·넥슨 아메리카·반다이남코 미국 | NHN `careers.nhn.com/v1/job-postings?page=0&size=200`, SOOP `recruit.sooplive.com/recruit_list.php`, 넥슨 아메리카 `careers.jobscore.com/careers/nexonamericainc`, 반다이남코 미국 Greenhouse `bandainamco` |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.
@@ -141,5 +146,12 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 날짜가 정말 없을 때만 `deadline`에 "상시채용" 또는 "채용시 마감".
 - 앱은 `deadline_date`가 지난 공고를 자동으로 "마감됨" 처리해서 지원 가능 목록에서 뺌. 매일 추적 때는 마감·내려간 공고를 `closed:true`로 기록하고, 마감일이 바뀐 공고는 새 날짜로 고침.
 
+## 회사별 점검 원칙
+- 관심 회사(watch)마다 실제 채용 사이트(ATS)를 찾아 직접 수집. 채용 사이트를 모르면 홈페이지의 recruit/career/採用/招聘 링크를 따라가 ATS 주소를 찾음 (HRMOS, axol, HERP, jobcan, GreetingHR, Moka, Feishu, Greenhouse, Lever, Ashby, JobScore 등).
+- 회사 공고가 0~2건이면 수집이 빠졌을 가능성부터 의심하고 회사 사이트를 확인.
+- 카카오엔터테인먼트·데브시스터즈: GreetingHR 사이트 확인 결과 2026-11-24 기준 공개 공고 없음.
+
 ## 확인 못 하는 곳 (회사 사이트에서 직접 확인)
-- 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
+- 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸 (게임잡 등으로 수집).
+- 넷이즈·서산쥐·만쥬·산바오(소녀전선)·DeNA·MIXI·KAMITSUBAKI·774·넥슨코리아 careers.nexon.com·네이버·네이버웹툰·스튜디오비사이드·대원씨아이·스텔라이브·Level Infinite·코단샤 USA·Aniplex USA: 채용 목록을 자동으로 읽을 방법을 아직 못 찾음.
+- 애니메이트·코토부키야·무빅·세가 아메리카·Square Enix US(Workable): 사이트가 막혀 있거나 오류. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
