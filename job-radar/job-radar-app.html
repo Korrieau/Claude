@@ -885,6 +885,16 @@ textarea,input[type=text],input:not([type]){background:rgba(255,255,255,.04);col
 .art-ref{position:absolute;left:12px;bottom:46px;z-index:3;font:600 9.5px/1 var(--ko);letter-spacing:.04em;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 8px}
 .th.big .art-ref{bottom:64px}
 .row-th .art-ref,.dt-top .art-ref{display:none}
+
+/* home: browse block */
+.bl{margin:16px 0 8px;font:600 10px/1 var(--ko);letter-spacing:.3em;color:var(--mute)}
+.bchips{display:flex;flex-wrap:wrap;gap:6px}
+.bchips button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.16);border-radius:999px;font:600 12.5px/1 var(--ko);color:#DDD;background:transparent}
+.bchips button b{font:400 17px/1 "Bebas Neue",sans-serif;color:#fff}
+.bchips button em{font:600 10px/1 var(--ko);font-style:normal;color:#FF6B6F}
+.hco.hs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;scrollbar-width:none;margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)))}
+.hco.hs::-webkit-scrollbar{display:none}
+.hco.hs button{flex:0 0 78%;scroll-snap-align:start;min-height:72px}
 </style>
 
 
@@ -928,7 +938,7 @@ const today = () => new Date().toISOString().slice(0,10);
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
 const prof = () => S.profile || DEFAULT_PROFILE;
 const months = () => (prof().career||[]).filter(c=>c.game!==false).reduce((a,c)=>a+(+c.months||0),0);
-function daysLeft(d){ if(!d) return null; const ms=new Date(d+"T23:59:59")-new Date(); return Math.ceil(ms/864e5); }
+function daysLeft(d){ if(!d) return null; const t0=new Date(); t0.setHours(0,0,0,0); const x=new Date(d+"T00:00:00"); if(isNaN(x)) return null; return Math.round((x-t0)/864e5); }
 
 /* ---------- scoring ----------
    Each requirement: {kind:"must"|"plus", text, status, reason, rule?}
@@ -1269,27 +1279,17 @@ function viewHome(){
       <a href="#jobs"><span>2주 안 마감</span><b class="w">${soon.length}</b><small>마감일 있는 공고</small></a>
     </section>
 
-    ${rail("REGION","COUNTRY","나라별 공고",`<p class="rs-sub">숫자 옆 +는 오늘 새 공고</p>
-      <div class="hbars">${cRows.map(([c,v])=>bar(c==="etc"?"기타":CNAME[c],v.n,maxC,v.nw,`data-gocountry="${c}"`)).join("")}</div>`)}
-
-    ${rail("ROLES","JOB TYPE","직군별 공고",`
-      <div class="hbars">${tRows.map(([k,v])=>bar(`<i class="dot" style="background:${TYPES[k].k}"></i>${TYPES[k].label}`,v.n,maxT,v.nw,`data-gotype="${k}"`)).join("")}</div>`)}
-
-
-
-    ${rail("CORP","COMPANY","공고가 많은 회사",`<p class="rs-sub">누르면 그 회사 공고만</p>
-      <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}" ${coArtStyle(o.id)}>${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div>`)}
-
-    ${rail("READY","APPLY NOW","지금 지원 가능",`<p class="rs-sub">적합도 높은 순</p>
-      ${now.length?`<div class="hlist">${now.slice(0,5).map(({j,sc})=>`<a href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}">${logoTile(j.company_id,j.company)}<span class="tx"><b class="co">${esc(j.company)}</b><span class="ti">${esc(j.title)}</span><span class="htg"><em>${esc(CNAME[j.country]||j.country)}</em><em>${esc(deadlineText(j))}</em></span></span><span class="sc w">${sc.total}</span></a>`).join("")}</div>`
-      :`<p class="hempty">필수 조건을 모두 채운 공고가 아직 없습니다. 아래 질문에 답하면 다시 계산됩니다.</p>`}`)}
-
     ${qs.length?`${rail("CHECK","QUESTIONS","답할 질문",`<p class="rs-sub">답하면 점수가 바로 바뀜</p>
       <div class="qs">${qs.slice(0,3).map(q=>`<div class="q"><b>${esc(q.text)}</b><small>공고 <em>${q.jobs}개</em>에 해당</small>${ansBtns(q.r)}</div>`).join("")}</div>
       ${qs.length>3?`<p class="hempty">나머지 ${qs.length-3}개는 각 공고 화면에서 답할 수 있습니다.</p>`:""}`)}`:""}
 
     ${soon.length?`${rail("DUE","DEADLINE","2주 안 마감",`
       <div class="cal">${soon.slice(0,6).map(j=>{ const dd=daysLeft(j.deadline_date); return `<a class="r" href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}"><span class="dt">${pd(j.deadline_date).slice(5)}</span><span class="nm"><b>${esc(j.company)} · ${esc(j.title)}</b><i><span style="width:${Math.max(4,100-Math.min(dd,60)/60*100)}%"></span></i></span><span class="dd2 w ${dd<=7?"hot":""}">D-${dd}</span></a>`;}).join("")}</div>`)}`:""}
+
+    ${rail("BROWSE","EXPLORE","둘러보기",`<p class="rs-sub">누르면 그 조건의 공고만 · +는 오늘 새 공고</p>
+      <div class="bl">나라</div><div class="bchips">${cRows.map(([c,v])=>`<button data-gocountry="${c}">${c==="etc"?"기타":CNAME[c]}<b class="w">${v.n}</b>${v.nw?`<em>+${v.nw}</em>`:""}</button>`).join("")}</div>
+      <div class="bl">직군</div><div class="bchips">${tRows.map(([k,v])=>`<button data-gotype="${k}">${TYPES[k].label}<b class="w">${v.n}</b>${v.nw?`<em>+${v.nw}</em>`:""}</button>`).join("")}</div>
+      <div class="bl">공고가 많은 회사</div><div class="hco hs">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}" ${coArtStyle(o.id)}>${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div>`)}
 
     ${rail("TRACK","MY STATUS","내 지원 현황",`
       <div class="stat4">${STATUSES.map(s=>`<a href="#jobs"><b class="w">${stc(s)}</b><span>${s}</span></a>`).join("")}</div>`)}
