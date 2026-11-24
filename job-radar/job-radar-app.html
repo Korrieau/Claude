@@ -570,6 +570,44 @@ main .alert.ask,.pad .alert.ask{background:#FFFBC2;color:var(--ink)}
 .txt h3{font:800 14px/1.2 var(--ko);margin:18px 0 8px}
 .txt li{font:500 13.5px/1.7 var(--ko);color:#2B2B2B;padding-left:14px}
 .txt li::before{width:5px;height:1.5px;top:.85em;background:#888}
+
+/* ===== News-style thumbnails & cards (Endfield news page) ===== */
+.th{position:relative;aspect-ratio:16/7;overflow:hidden;background:#E6E6E6;color:var(--ink);border-bottom:1px solid var(--line)}
+.th.big{aspect-ratio:16/9}
+.th-vy{background:var(--k)}.th-vk{background:#191919;color:#fff}.th-vg{background:#E9E9E9}.th-vl{background:#CBFF40}
+.th-w{position:absolute;left:-4px;bottom:-10px;font:900 64px/0.85 var(--wide);font-stretch:125%;font-variation-settings:"wdth" 125;letter-spacing:-.02em;white-space:nowrap;opacity:.13;text-transform:uppercase}
+.th-vk .th-w{opacity:.18;color:var(--k)}
+.th.big .th-w{font-size:92px}
+.th-s{position:absolute;right:-30px;top:0;bottom:0;width:120px;background:repeating-linear-gradient(-60deg,transparent 0 8px,rgba(0,0,0,.07) 8px 10px);transform:skewX(-18deg)}
+.th-vk .th-s{background:repeating-linear-gradient(-60deg,transparent 0 8px,rgba(255,250,0,.18) 8px 10px)}
+.th-m{position:absolute;left:12px;top:10px;font:700 8.5px/1 var(--mono);letter-spacing:.14em;opacity:.7}
+.th-c{position:absolute;left:12px;top:24px;font:900 11px/1 var(--ko);background:var(--ink);color:#fff;padding:3px 6px}
+.th-vk .th-c{background:var(--k);color:var(--ink)}
+.th-l{position:absolute;right:14%;top:50%;transform:translateY(-50%);width:42%;max-width:180px;aspect-ratio:2/1;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:4px 4px 0 rgba(0,0,0,.85);padding:6px}
+.th-l img{max-width:100%;max-height:100%;object-fit:contain}
+.th-l b{font:900 15px/1.1 var(--ko);color:var(--ink);text-align:center}
+.th-n{position:absolute;right:0;top:0;background:var(--ink);color:var(--k);font:800 10px/1 var(--mono);letter-spacing:.1em;padding:5px 8px}
+.th-vk .th-n{background:var(--k);color:var(--ink)}
+.card .th{margin:0}.card .hd .lt{display:none}
+.nc{display:block;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--line)}
+.nc-m{display:flex;align-items:center;gap:8px;padding:10px 10px 0}
+.nc-m .lab{background:#D9D9D9;font:700 11px/1 var(--ko);padding:4px 8px}
+.nc-m .dt{font:500 11.5px/1 var(--ko);color:var(--sub);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc-m .sc{font:800 15px/1 var(--wide);font-stretch:125%}
+.nc-t{padding:6px 10px 0;font:700 14px/1.4 var(--ko);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nc-c{padding:4px 10px 12px;font:500 11.5px/1.3 var(--ko);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc.big .nc-t{font-size:18px;font-weight:800}
+.nc.big .nc-m .sc{font-size:22px}
+.hscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px 0 0;padding:0 0 4px;scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+.ngrid .nc-m .dt{display:none}.ngrid .nc-m{justify-content:space-between}.nc-m .sc{flex-shrink:0}
+.hscroll .nc{flex:0 0 72%;scroll-snap-align:start}
+.ngrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-top:12px}
+.ngrid .th-w{font-size:44px}.ngrid .th-l{width:56%;right:8%}
+.ngrid .nc-t{font-size:13px}
+.hm-sec h2.nh{font:900 22px/1.2 var(--ko);margin:0}
+
+.hsub{margin:4px 0 10px;font:500 12px/1.4 var(--ko);color:var(--mute)}
+.hmore2{width:100%;height:42px;margin-top:12px;border:1px solid var(--ink);background:#fff;font:800 13px/1 var(--ko)}
 </style>
 
 
@@ -863,6 +901,21 @@ function viewInstall(){
     <p class="hempty">바로가기는 claude.ai 로그인 상태에서 열립니다. 상단의 claude.ai 표시줄은 페이지에서 지울 수 없습니다.</p>
   </main>${tabbar("")}`;
 }
+function hsh(x){ let h=0; for(const c of String(x)) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+function thumb(j,big){
+  const t=typeOf(j), v=["vy","vk","vg","vl"][hsh(j.company_id||j.company)%4];
+  const lg=logoOf(j.company_id);
+  return `<div class="th th-${v} ${big?"big":""}" aria-hidden="true"><span class="th-w">${esc(t.en)}</span><span class="th-s"></span>
+    <span class="th-m">JOB-RADAR // ${esc(j.country||"")}</span><span class="th-c">${esc(CNAME[j.country]||j.country||"")}</span>
+    <span class="th-l">${lg?`<img src="${lg}" alt="">`:`<b>${esc(shortName(j.company))}</b>`}</span>
+    ${isNew(j)?`<span class="th-n">NEW</span>`:""}</div>`;
+}
+function newsCard(j,sc,big){
+  const t=typeOf(j);
+  return `<a class="nc ${big?"big":""}" href="#job-${esc(j.id)}">${thumb(j,big)}
+    <div class="nc-m"><span class="lab">${esc(t.label)}</span><span class="dt">${esc(j.deadline_date?deadlineText(j):(j.posted?pd(j.posted):(j.added||"").replaceAll("-",".")))}</span><span class="sc w">${sc.total}</span></div>
+    <div class="nc-t">${esc(j.title)}</div><div class="nc-c">${esc(j.company)}${j.game?` · ${esc(j.game)}`:""}</div></a>`;
+}
 function viewHome(){
   const open = S.jobs.filter(j=>!j.closed);
   const all = open.map(j=>({j,sc:score(j)}));
@@ -887,11 +940,20 @@ function viewHome(){
   const stc = s=>Object.values(S.status).filter(x=>x.status===s).length;
   const d = new Date(), wd = ["일","월","화","수","목","금","토"][d.getDay()];
   const qs = openQuestions();
+  const statusOf=j=>S.status[j.id]?.status;
+  const rec = all.filter(x=>statusOf(x.j)!=="종료").map(x=>{ const dl=daysLeft(x.j.deadline_date); const fresh=(x.j.added||"")>=weekAgo?6:0; const urg=dl!==null&&dl>=0&&dl<=14?4:0; const ok=x.sc.mustNo===0?8:0; return {...x,r:x.sc.total+fresh+urg+ok}; }).sort((a,b)=>b.r-a.r).slice(0,7);
+  const ht=S.htab||"all"; const newPool=(newest.length?newest:all.filter(x=>(x.j.added||"")>=weekAgo).sort((a,b)=>(b.j.added||"").localeCompare(a.j.added||"")||b.sc.total-a.sc.total));
+  const newF=newPool.filter(x=>ht==="all"||(ht==="etc"?!MAIN_C.includes(x.j.country):x.j.country===ht));
   const bar=(label,v,max,nw,attr)=>`<button class="hb" ${attr}><span class="hl">${label}</span><span class="ht"><i style="width:${Math.max(3,v/max*100)}%"></i></span><b class="w">${v}</b>${nw?`<em>+${nw}</em>`:`<em class="z"></em>`}</button>`;
   return `${topbar(`<button class="gbtn" id="exportBtn" aria-label="시트용 파일 내보내기">${ICON.dl}CSV</button>`)}
+  ${secHead("Today","00","DAILY",`${t.replaceAll("-",".")} (${wd}) · 새 공고 ${nNew}건 · 전체 ${open.length}건`)}
   <main class="pad hm">
     ${stateNote()}
-    <div class="hm-date">${t.replaceAll("-",".")} (${wd}) 기준</div>
+    <section class="hm-sec fx"><h2 class="nh">오늘의 추천 공고:</h2><p class="hsub">적합도·마감·새 공고를 함께 따진 순서</p>
+      ${rec.length?`${newsCard(rec[0].j,rec[0].sc,true)}<div class="hscroll">${rec.slice(1).map(x=>newsCard(x.j,x.sc)).join("")}</div>`:`<p class="hempty">추천할 공고가 아직 없습니다.</p>`}</section>
+    <section class="hm-sec fx2"><h2 class="nh">${newest.length?"오늘의 새 공고":"최근 새 공고"}: <small>${newPool.length}건</small></h2>
+      <div class="ttabs">${[["all","전체"],...MAIN_C.map(c=>[c,CNAME[c]]),["etc","기타"]].map(([k,l])=>`<button data-htab="${k}" aria-pressed="${ht===k}">${l}</button>`).join("")}</div>
+      ${newF.length?`<div class="ngrid">${newF.slice(0,S.hlimit||6).map(x=>newsCard(x.j,x.sc)).join("")}</div>${newF.length>(S.hlimit||6)?`<button class="hmore2" id="hMore">더 보기 (${newF.length-(S.hlimit||6)}건)</button>`:""}`:`<p class="hempty">이 조건의 새 공고가 없습니다.</p>`}</section>
     <section class="hm-kpi fx">
       <a href="#jobs" class="k1" onclick="S.sort='fit'"><span>오늘 새 공고</span><b class="w">${nNew}</b><small>이번 주 ${nWeek}건</small></a>
       <a href="#jobs"><span>전체 공고</span><b class="w">${open.length}</b><small>회사 ${coRows.length}곳</small></a>
@@ -905,9 +967,7 @@ function viewHome(){
     <section class="hm-sec fx2"><h2>직군별 공고</h2>
       <div class="hbars">${tRows.map(([k,v])=>bar(`<i class="dot" style="background:${TYPES[k].k}"></i>${TYPES[k].label}`,v.n,maxT,v.nw,`data-gotype="${k}"`)).join("")}</div></section>
 
-    <section class="hm-sec fx3"><h2>오늘 새로 들어온 공고 <small>${newest.length}건 · 적합도 높은 순</small></h2>
-      ${newest.length?`<div class="hlist">${newest.slice(0,8).map(({j,sc})=>`<a href="#job-${esc(j.id)}" style="${kvars(typeOf(j))}">${logoTile(j.company_id,j.company)}<span class="tx"><b class="co">${esc(j.company)}</b><span class="ti">${esc(j.title)}</span><span class="htg"><em>${esc(CNAME[j.country]||j.country)}</em><em>${typeOf(j).label}</em></span></span><span class="sc w">${sc.total}</span></a>`).join("")}</div>
-      ${newest.length>8?`<a class="hmore" href="#jobs">새 공고 ${newest.length}건 모두 보기 ›</a>`:""}`:`<p class="hempty">오늘 새로 들어온 공고가 없습니다.</p>`}</section>
+
 
     <section class="hm-sec"><h2>공고가 많은 회사 <small>누르면 그 회사 공고만</small></h2>
       <div class="hco">${coRows.slice(0,12).map(o=>`<button data-cof="${esc(o.id||"")}">${logoTile(o.id,o.name)}<span><b>${esc(o.name)}</b><small>${[...o.cs].map(c=>CNAME[c]||c).join("·")}${o.nw?` · 오늘 +${o.nw}`:""}</small></span><em class="w">${o.n}</em></button>`).join("")}</div></section>
@@ -953,7 +1013,7 @@ function viewJobs(){
     <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.jobs.length).padStart(3,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
     <div class="cards fx3">
     ${list.slice(0,S.limit||40).map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
-      return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><button class="xbtn" data-x="${esc(j.id)}" aria-label="이 공고 제외">✕</button><div class="in">${j.closed?`<span class="gone">${j.expired?"마감됨":"공고 내려감"}</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
+      return `<a class="card ${j.closed?"closed":""}" href="#job-${esc(j.id)}" style="${kvars(t)}"><button class="xbtn" data-x="${esc(j.id)}" aria-label="이 공고 제외">✕</button>${thumb(j)}<div class="in">${j.closed?`<span class="gone">${j.expired?"마감됨":"공고 내려감"}</span>`:""}${isNew(j)?`<span class="newb">NEW</span>`:""}
         <div class="hd">${logoTile(j.company_id,j.company)}
           <div class="who"><div class="co">${esc(j.company)}</div><div class="gm">${esc(j.game||"")}</div></div>
           <div class="fit"><b class="w">${sc.total}<span>/100</span></b><small>FIT SCORE</small>${flagHtml(sc)}</div></div>
@@ -1141,6 +1201,8 @@ document.addEventListener("click", async e=>{
   if(b.dataset.wcountry){ S.wcountry=b.dataset.wcountry; render(); return; }
   if(b.dataset.wip){ S.wip=!S.wip; render(); return; }
   if(b.id==="sortBtn"){ S.sort = S.sort==="fit"?"deadline":"fit"; render(); return; }
+  if(b.dataset.htab){ S.htab=b.dataset.htab; S.hlimit=6; render(); return; }
+  if(b.id==="hMore"){ S.hlimit=(S.hlimit||6)+6; render(); return; }
   if(b.dataset.x!==undefined){ e.preventDefault(); e.stopPropagation(); openX(b.dataset.x); return; }
   if(b.dataset.xgo){ e.preventDefault(); const [k,id]=b.dataset.xgo.split("|"); closeX(); toggleHide(k,id); return; }
   if(b.id==="xClose"){ closeX(); return; }
