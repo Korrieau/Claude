@@ -113,6 +113,11 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | HERP / jobcan (일본) | 굿스마일 `herp.careers/v1/goodsmile`, Donuts `recruit.jobcan.jp/donuts/list/all/all/N` (게임사업부·ANYLAND만) |
 | 페이퍼게임즈·빌리빌리·요스타(상하이) | 페이퍼게임즈 Feishu `papergames.jobs.feishu.cn/social/position/list?current=N&limit=100` (응답 수집), 빌리빌리 jobs.bilibili.com 페이지 안에서 `POST /api/srs/position/positionList` (pageSize 100, workTypeList ["3"]), 요스타 Moka `app.mokahr.com/social-recruitment/yostar/145292#/jobs` |
 | NHN·SOOP·넥슨 아메리카·반다이남코 미국 | NHN `careers.nhn.com/v1/job-postings?page=0&size=200`, SOOP `recruit.sooplive.com/recruit_list.php`, 넥슨 아메리카 `careers.jobscore.com/careers/nexonamericainc`, 반다이남코 미국 Greenhouse `bandainamco` |
+| 산바오 (Moka) | `jobs.sunborngame.com/social-recruitment/micateam/142158/#/` 홈에서 직무 분류(市场运营类·商务类·项目管理类·本地化类·产品策划类·质量管理类)를 하나씩 눌러 목록 수집 (페이지 넘김만으로는 일부 누락) |
+| MIXI / DeNA | MIXI HERP `herp.careers/v1/mixigroup`, DeNA Green `green-japan.com/company/1324`, DeNA Games Tokyo HERP `herp.careers/v1/dgtrecruit` |
+| KAMITSUBAKI (THINKR) | Wantedly `wantedly.com/companies/thinkr/projects` |
+| 레벨 인피니트 | `levelinfinite.com/careers/` 목록(`a.career-item[data-index]`, 66건 전부 DOM에 있음)을 JS로 클릭해 팝업 본문 수집 |
+| 스퀘어 에닉스 유럽 | Workable `POST apply.workable.com/api/v3/accounts/square-enix/jobs` |
 | 원티드 | 브라우저로 wanted.co.kr을 연 뒤 페이지 안에서 `/api/chaos/search/v1/position?query=...` 검색, `/api/v4/jobs/{id}` 상세 (curl은 차단됨) |
 
 제외: 넷마블 계열, 디자인·아트·개발·QA·재무·인사 직군. 언어 때문에 거르지 않음.
@@ -153,5 +158,5 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 
 ## 확인 못 하는 곳 (회사 사이트에서 직접 확인)
 - 엔씨소프트 careers.ncsoft.com: 목록이 불안정하게 뜸 (게임잡 등으로 수집).
-- 넷이즈·서산쥐·만쥬·산바오(소녀전선)·DeNA·MIXI·KAMITSUBAKI·774·넥슨코리아 careers.nexon.com·네이버·네이버웹툰·스튜디오비사이드·대원씨아이·스텔라이브·Level Infinite·코단샤 USA·Aniplex USA: 채용 목록을 자동으로 읽을 방법을 아직 못 찾음.
+- 넷이즈(hr.163.com)·넥슨(career.nexon.com): 해외 접속 차단. 서산쥐·만쥬: 공식 채용 사이트 없음(위챗). 엔씨: 목록 불안정·직접 호출 차단. 774 inc.·코단샤 USA·Aniplex USA·스튜디오비사이드·스텔라이브: 공개 공고 목록 없음.
 - 애니메이트·코토부키야·무빅·세가 아메리카·Square Enix US(Workable): 사이트가 막혀 있거나 오류. 넥슨 career.nexon.com, 세가, KADOKAWA: 프록시에서 접속 차단. Cygames, 반다이남코: 403.
