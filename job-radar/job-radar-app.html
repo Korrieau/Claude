@@ -1006,6 +1006,9 @@ main .alert,.pad .alert,.hidebar .alert,main .alert.ask,.pad .alert.ask,.dt-top 
 .prio li button{background:transparent!important;color:#EEE!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:none!important;font-size:11px}
 .prio li button:not(:disabled):active{background:rgba(5,165,255,.18)!important;border-color:#05A5FF!important}
 .prio li button:disabled{opacity:.18}
+
+.svhead{display:flex;flex-direction:column;gap:3px;margin:10px 0 4px;padding:10px 12px;border-left:3px solid #FFD54A;background:rgba(255,213,74,.08)}
+.svhead b{font:800 15px/1.2 var(--ko);color:#FFE27A}.svhead span{font:500 11.5px/1.3 var(--ko);color:var(--sub)}
 </style>
 
 
@@ -1372,6 +1375,7 @@ function menuHtml(){
   return `<div class="mh"><div class="logo"><small>SUBCULTURE · GAME PM</small><b class="w"><i></i>JOB RADAR</b></div><button class="x" id="menuClose" aria-label="메뉴 닫기">✕</button></div>
   <div class="lnk"><span>공고 ${S.jobs.length}</span><span>기업 ${S.companies.length}</span><span>소식 ${S.news.length}</span></div>
   ${NAV.map(([id,l,n])=>`<a class="mrow" href="#${id}" ${cur===id?'aria-current="page"':""}><span class="ic">${ICON[id]}</span><span class="t">${l}</span><span class="n">// ${n}</span></a>`).join("")}
+  <button class="mrow" id="menuSaved" style="width:100%"><span class="ic">${ICON.save}</span><span class="t">관심 공고 보기 (${S.jobs.filter(j=>S.status[j.id]).length})</span><span class="n">// SAVED</span></button>
   <a class="mrow" href="#install"><span class="ic">${ICON.dl}</span><span class="t">홈 화면에 바로가기 만들기</span><span class="n">// APP</span></a>
   <a class="mrow" href="#hidden"><span class="ic">${ICON.dl}</span><span class="t">제외한 회사·공고 (${(prof().hidden_cos||[]).length+(prof().hidden_jobs||[]).length})</span><span class="n">// HIDE</span></a>
   <button class="mrow" id="menuCsv" style="width:100%"><span class="ic">${ICON.dl}</span><span class="t">CSV 내보내기 (구글 시트용)</span><span class="n">// EX</span></button>
@@ -1602,15 +1606,18 @@ function viewHome(){
 }
 
 function viewJobs(){
-  let list = S.jobs.map(j=>({j, sc:score(j)}));
+  // Saved view: every saved posting, whatever the other filters (subculture/intern/country/closed) say.
+  const savedMode = S.reach==="saved";
+  const savedAll = (S.allJobs||[]).filter(j=>S.status[j.id]);
+  let list = (savedMode ? savedAll : S.jobs).map(j=>({j, sc:score(j)}));
   const q=(S.q||"").trim().toLowerCase();
   if(q) list = list.filter(x=>[x.j.title,x.j.title_original,x.j.company,x.j.game,x.j.location].join(" ").toLowerCase().includes(q));
-  if(S.cof) list = list.filter(x=>x.j.company_id===S.cof);
-  if(S.jtype) list = list.filter(x=>(TYPES[x.j.job_type]?x.j.job_type:"service")===S.jtype);
-  if(S.country==="etc") list = list.filter(x=>!MAIN_C.includes(x.j.country));
+  if(S.cof&&!savedMode) list = list.filter(x=>x.j.company_id===S.cof);
+  if(S.jtype&&!savedMode) list = list.filter(x=>(TYPES[x.j.job_type]?x.j.job_type:"service")===S.jtype);
+  if(savedMode){} else if(S.country==="etc") list = list.filter(x=>!MAIN_C.includes(x.j.country));
   else if(S.country!=="all") list = list.filter(x=>x.j.country===S.country);
   const reachOf = x => (!x.j.closed && x.sc.mustNo===0 && x.sc.career.status==="ok") ? "now" : "goal";
-  const nNow = list.filter(x=>reachOf(x)==="now").length, nGoal = list.length-nNow, nSaved = list.filter(x=>S.status[x.j.id]).length;
+  const nNow = list.filter(x=>reachOf(x)==="now").length, nGoal = list.length-nNow, nSaved = savedAll.length;
   if(S.reach==="saved") list = list.filter(x=>S.status[x.j.id]);
   else if(S.reach!=="all") list = list.filter(x=>reachOf(x)===S.reach);
   list.sort(S.sort==="fit" ? (a,b)=>(!!a.j.closed-!!b.j.closed)||(b.sc.total-a.sc.total) : (a,b)=>(!!a.j.closed-!!b.j.closed)||(a.j.deadline_date||"9999").localeCompare(b.j.deadline_date||"9999"));
@@ -1627,6 +1634,7 @@ function viewJobs(){
     <div class="ttabs fx2" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}</div>
     ${S.cof||S.jtype?`<div class="chips">${S.cof?`<button data-cof="" aria-pressed="true">회사: ${esc((S.watch.find(w=>w.id===S.cof)||S.jobs.find(j=>j.company_id===S.cof)&&{name:S.jobs.find(j=>j.company_id===S.cof).company}||{}).name||S.cof)} ✕</button>`:""}${S.jtype?`<button data-gotype="" aria-pressed="true">직군: ${TYPES[S.jtype].label} ✕</button>`:""}</div>`:""}
     <div class="chips" role="group" aria-label="지원 가능 여부">${[["all","전체"],["saved",`★ 저장 ${nSaved}`],["now",`지금 지원 가능 ${nNow}`],["goal",`목표 ${nGoal}`]].map(([k,l])=>`<button data-reach="${k}" aria-pressed="${S.reach===k}">${l}</button>`).join("")}</div>
+    ${savedMode?`<div class="svhead"><b>★ 관심 공고 ${savedAll.length}</b><span>다른 필터와 상관없이 저장한 공고를 모두 보여줍니다</span></div>`:""}
     <div class="row-sort"><span>${String(list.length).padStart(3,"0")} / ${String(S.jobs.length).padStart(3,"0")}</span><button id="sortBtn">${S.sort==="fit"?"적합도 높은 순":"마감 빠른 순"}</button></div>
     <div class="jrows fx3">
     ${list.slice(0,S.limit||40).map(({j,sc})=>{ const t=typeOf(j), st=S.status[j.id]?.status;
@@ -1847,6 +1855,7 @@ document.addEventListener("click", async e=>{
     try{ const blob=await (await fetch(APP_ICON)).blob(); await dl.save({filename:"job-radar-icon.png",data:blob}); toast("아이콘을 저장했습니다"); }catch(err){ if(err?.code!=="declined") toast("저장하지 못했습니다. 아이콘을 길게 눌러 저장하세요"); } return; }
   if(b.id==="urlCopy"){ try{ await navigator.clipboard.writeText(APP_URL); toast("주소를 복사했습니다"); }catch(_){ const r=document.createRange(); r.selectNodeContents($("#appUrl")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("주소를 길게 눌러 복사하세요"); } return; }
   if(b.id==="menuBtn"){ openMenu(); return; }
+  if(b.id==="menuSaved"){ delete ROUTE_UI["#jobs"]; delete SCROLL["#jobs"]; S.reach="saved"; S.limit=40; S.country="all"; S.cof=null; S.jtype=null; S.q=""; closeMenu(); if(S.route==="jobs"){ render(); window.scrollTo(0,0); } else location.hash="jobs"; return; }
   if(b.id==="menuClose"){ closeMenu(); return; }
   if(b.dataset.brief){ const br=$("#brief"); if(br) br.scrollBy({left:(+b.dataset.brief)*br.clientWidth,behavior:"smooth"}); return; }
   if(b.id==="menuCsv"){ closeMenu(); exportCsv(); return; }
