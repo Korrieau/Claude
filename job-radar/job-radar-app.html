@@ -1113,9 +1113,9 @@ function needMonths(j){
 }
 /* Company priority: subculture game companies first, then other game companies, then VTuber/anime/goods, then webtoon/publishing/other.
    The order and the weight can be changed on the spec screen (profile.pref). */
-const PREF_GROUPS={subgame:"서브컬처 게임사",game:"일반 게임사",ipvt:"버튜버·애니·IP·굿즈",webtoon:"웹툰·출판·플랫폼·기타"};
-const PREF_DEFAULT={order:["subgame","game","ipvt","webtoon"],w:0.4};
-const PREF_PTS=[85,55,35,15];
+const PREF_GROUPS={subgame:"서브컬처 게임사",game:"일반 게임사",ipvt:"서브컬처 IP (버튜버·애니·굿즈)",webtoon:"기타"};
+const PREF_DEFAULT={order:["subgame","ipvt","game","webtoon"],w:0.5};
+const PREF_PTS=[90,50,35,10];
 const BIG_BONUS=10, TRACK_BONUS=5;
 const BIG_CO=new Set(["nexon","nexonjp","nexonamerica","nexongames","neople","ncsoft","ncamerica","netease","tencent","levelinfinite","hoyoverse","mihoyo","krafton","smilegate","kakaogames","bilibili","lilith","hypergryph","kuro","papergames","perfectworld","seasun","xd","shiftup","com2us","nhn","wemade","wemadeconnect","c-4aaac943","neowiz","webzen","gravity","devsisters","cygames","sega","segaamerica","c-a6eb0891","squareenix","squareenixus","bandainamcoent","bandainamcokr","bnea","bnol","bnfw","capcom","konami","koeitecmo","fromsoftware","gamefreak","pokemoncenter","pokemonkr","marioclub","hallab","dena","mixi","colopl","gree","applibot","qualiarts","cyberagent","kadokawa","toho","sonymusic","aniplex","aniplexusa","bushiroad","riotgames","riotmusic","2k","epicgames","exnoa","crunchyroll","kakaoent","naver","yostarjp","yostarcn","cover","anycolor","animate","goodsmile","lasengle","c-93f0258b"]);
 const SUBGAME_CO=new Set(["hoyoverse", "mihoyo", "hypergryph", "kuro", "papergames", "sunborn", "manjuu", "yostarcn", "yostarjp", "yostar", "bilibili", "levelinfinite", "netease", "nexon", "nexonjp", "nexongames", "neople", "cygames", "sega", "segaamerica", "c-a6eb0891", "colopl", "klab", "happyelements", "donuts", "drecom", "coly", "exnoa", "c-93f0258b", "lasengle", "applibot", "qualiarts", "epid", "shiftup", "projectmoon", "supercreative", "studiobside", "bandainamcoent", "bnea", "bandainamcokr", "akatsuki", "sumzap", "mixi", "lilith", "gamefreak", "wfs", "aniplex", "aniplexusa", "c-735b5efc", "squareenix", "seasun", "perfectworld", "xd", "spikechunsoft", "koeitecmo", "c-f5a29c45", "pokemonkr", "pokemoncenter"]);
@@ -1736,7 +1736,7 @@ function viewSpec(){
     ${hit?`<div class="impact">언어가 <b>필수 조건</b>인 공고 <b>${hit}개</b>에서 점수가 깎이고 있습니다. 수준을 올리면 바로 다시 계산됩니다.</div>`:""}
     <section class="grp"><div class="gh"><b class="w">PRIORITY</b><span>// 회사 우선순위</span></div>
       ${(()=>{ const P={...PREF_DEFAULT,...(p.pref||{})}; return `<ol class="prio">${P.order.map((g,i)=>`<li><b class="w">${i+1}</b><span>${PREF_GROUPS[g]}<small>회사 점수 ${PREF_PTS[i]}</small></span><button data-prio="${g}" data-dir="-1" ${i===0?"disabled":""} aria-label="위로">▲</button><button data-prio="${g}" data-dir="1" ${i===P.order.length-1?"disabled":""} aria-label="아래로">▼</button></li>`).join("")}</ol>
-      <div class="prio-w"><span>회사 우선순위 반영</span>${[[0,"끄기"],[0.25,"약하게"],[0.4,"보통"],[0.6,"강하게"]].map(([v,l])=>`<button data-prw="${v}" aria-pressed="${+P.w===v}">${l}</button>`).join("")}</div>
+      <div class="prio-w"><span>회사 우선순위 반영</span>${[[0,"끄기"],[0.3,"약하게"],[0.5,"보통"],[0.65,"강하게"]].map(([v,l])=>`<button data-prw="${v}" aria-pressed="${+P.w===v}">${l}</button>`).join("")}</div>
       <div class="prio-w"><span>가산점</span><button data-prb="big" aria-pressed="${P.big!==false}">대기업 +${BIG_BONUS}</button><button data-prb="tracked" aria-pressed="${P.tracked!==false}">추적 회사 +${TRACK_BONUS}</button></div>
       <p class="calc">회사 점수 = 순위 점수 + 가산점(최대 100). 최종 점수 = 조건 점수와 회사 점수를 위 비율로 섞은 값. 필수 언어가 안 되면 요구 수준별 상한(원어민급 20 · 업무 45 · 회화 55 · 기초 65, 한국어도 함께 요구하면 +15), 경력이 모자라면 부족한 만큼 상한(75·55·40·25)이 걸립니다.</p>`; })()}
     </section>
