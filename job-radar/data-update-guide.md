@@ -108,6 +108,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 해외 중견 Greenhouse | riotgames, epicgames, scopely, 2k, roblox, twitch, neteasegames, hasbro, vizmedia, bungie / Lever: neowiz |
 | 잡코리아 | `https://www.jobkorea.co.kr/Search/?stext=KW&tabType=recruit&Page_No=N` curl 가능. 카드 `[data-sentry-component=CardJob]`, 본문 `/Recruit/GI_Read_Comt_Ifrm?Gno=ID`, 로고 `imgs.jobkorea.co.kr` (Referer 필요) |
 | GreetingHR 회사 페이지 | Playwright로 사이트를 열고 응답·`__NEXT_DATA__` 안의 `openingId`·`title`·`dueDate` 수집. 상세 `https://{사이트}/ko/o/{openingId}` 본문 텍스트. 사이트: careers.hybecorp.com, recruit.kakaogames.com, supercent / 111percent / antstudio / kstd-lezhin / epidgames `.career.greetinghr.com` |
+| 시프트업 | `https://shiftup.co.kr/recruit/recruit.php?searchkey=&category=0` curl 한 번에 전체(약 200건). `<div class="recruit_list">` 블록마다 `status ing/end`, `<h4>` 제목, `<li>` 직무·연차·고용형태, `recruit_desc` 본문. career.shiftup.co.kr은 빈 페이지(사용하지 않음) |
 | 스마일게이트 | careers.smilegate.com/apply/announce를 연 뒤 페이지 안에서 `POST /api/apply/announce/guest` (pageIndex, pageSize 50). 상세 `/apply/announce/view?seq=ID` |
 | 쿠로게임즈 · 릴리스 (Feishu) | `https://kurogame.jobs.feishu.cn/index/position/list?current=N&limit=100`을 페이지마다 열고 `/api/v1/search/job/posts` 응답 수집 (요청 서명 때문에 직접 호출 불가). 상세 `/index/position/{id}/detail`. lilithgames도 같은 방식 |
 | 하이퍼그리프 (Moka) | `https://jobs.hypergryph.com/apply/hypergryph/26325/#/jobs`를 Playwright로 열고 `button[data-page=N]`을 눌러 페이지마다 `a[href*="#/job/"]` 수집 (약 330건, API 응답은 암호화돼서 화면에서 읽음). 상세 `#/job/{id}` 본문의 "职位描述" ~ "申请职位" 구간 |
@@ -243,6 +244,9 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 라센글 HRMOS `hrmos.co/pages/lasengle/jobs?page=N`, 네오위즈 Lever API `api.lever.co/v0/postings/neowiz?mode=json`, 굿스마일 HERP는 Playwright로 열어야 목록이 보임, Donuts jobcan은 게임·ANYLAND·VR/VTuber 사업부만.
 
 ## 수집 메모 (2026-11-25)
+- 넥슨 통합 채용(careers.nexon.com)은 보안 검사(봇 차단) 화면 → 우회하지 않음. 넥슨·넥슨게임즈·네오플 공고는 게임잡·잡코리아 경로.
+- 아카츠키 게임즈: `storage.googleapis.com/hr-ats-public-hr-jinji-prd/games/jobs/index.html` (2026-11-25 기준 QA 1건뿐).
+- 스튜디오비사이드 `studiobside.com/recruit/lists/ct/kr`, 프로젝트문·클로버게임즈: 공개 공고 없음 / 접속 불가.
 - 원티드: CloudFront가 자동 접속을 403으로 막음. 우회하지 않고 건너뜀.
 - 엔씨소프트 careers: /interface/apply/list 재현 실패 (새 페이지에서 요청을 못 잡음). 게임잡·잡코리아로 대체.
 - 수동 수집 묶음은 p100~ / b100~ 번호를 씀 (자동 수집 p047~와 겹치지 않게).
