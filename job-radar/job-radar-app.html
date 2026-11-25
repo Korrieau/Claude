@@ -1009,6 +1009,39 @@ main .alert,.pad .alert,.hidebar .alert,main .alert.ask,.pad .alert.ask,.dt-top 
 
 .svhead{display:flex;flex-direction:column;gap:3px;margin:10px 0 4px;padding:10px 12px;border-left:3px solid #FFD54A;background:rgba(255,213,74,.08)}
 .svhead b{font:800 15px/1.2 var(--ko);color:#FFE27A}.svhead span{font:500 11.5px/1.3 var(--ko);color:var(--sub)}
+
+/* ===== Clean pass (Ananta-style: fewer boxes, quieter meta) ===== */
+.rq,.rq.yr,.rq.no,.rq.soft,.rq.ok{background:none!important;box-shadow:none!important;height:auto;padding:0;border-radius:0;font:700 11.5px/1.35 var(--ko)}
+.rq{color:#C8C8C8}.rq.no,.rq.yr.no{color:#FF6B70}.rq.soft{color:#8A8A8A}
+.rq + .rq::before{content:"·";margin:0 6px;color:#555;font-weight:400}
+.row-rq,.nc-rq{gap:0!important}
+.row-m .lab,.nc-m .lab{border:0!important;padding:0!important;background:none!important;color:#9A9A9A!important;font:600 11.5px/1 var(--ko)!important}
+.row-m .dl,.nc-m .dt{color:#8A8A8A;font-size:11.5px}
+.row-m .lab + .dl::before{content:"·";margin-right:8px;color:#555}
+.row-co em{font-style:normal;color:#8A8A8A;font-weight:600}
+.row-co em.nw,.newb{background:none!important;color:#05A5FF!important;padding:0!important;font:800 10px/1 var(--ko)!important;letter-spacing:.08em}
+.row-co em.sv{background:none!important;color:#FFD54A!important;padding:0!important;margin-left:2px}
+.th-n{background:rgba(0,0,0,.55)!important;color:#5CC8FF!important;border:1px solid rgba(5,165,255,.6)}
+.row{padding-top:16px;padding-bottom:16px}
+.row-b{gap:5px}
+.row-t{font-size:15.5px;line-height:1.35}
+.row-s small,.nc-m .sc small{opacity:.5}
+/* filter area: one strong row (country), the rest quiet */
+.tchips button{border:0!important;background:rgba(255,255,255,.06)!important;color:#AAA!important;height:30px;font-size:12px}
+.tchips button[aria-pressed="true"]{background:#F2F2F2!important;color:#111!important}
+.chips button{height:30px;font-size:12px;padding:0 12px!important;min-width:auto;border-radius:999px!important;white-space:nowrap}
+/* detail header: no brackets, calc collapsed */
+.dt-top .co{font-weight:800}
+.calc-d{margin:4px 0 14px;border-top:1px solid var(--line)}
+.calc-d summary{list-style:none;cursor:pointer;padding:10px 0;font:600 12px/1 var(--ko);color:#8A8A8A}
+.calc-d summary::-webkit-details-marker{display:none}
+.calc-d summary::after{content:" ›";color:#05A5FF}
+.calc-d[open] summary::after{content:" ⌄"}
+.calc-d .calc{margin:0}
+/* deadline list: thin bars */
+.cal .nm i{height:2px;margin-top:6px;background:rgba(255,255,255,.08)}
+.cal .nm i span{background:#05A5FF!important;opacity:.7}
+.cal .dd2{font-size:13px}
 </style>
 
 
@@ -1665,8 +1698,7 @@ function viewJob(){
   return `<div style="${kvars(t)}">
   <header class="top"><a class="back" href="#jobs"><span class="arr">‹</span>공고 목록</a><button class="gbtn xg" data-x="${esc(j.id)}" aria-label="이 공고나 회사 제외">✕ 제외</button><button class="gbtn" id="saveBtn" aria-label="관심 공고로 저장">${ICON.save}${st?"SAVED":"SAVE"}</button></header>
   <section class="dt-top hatch fx">${artBg(j)}<div class="strip"><span>${t.en} // ${esc(j.country)}</span></div><div class="body">
-    <div class="cap">▪ JOB-RADAR: ${t.en}</div>
-    <div class="co-row">${logoTile(j.company_id,j.company)}<div class="co"><span>[ </span>${esc(j.company)}<span> ]</span></div></div>
+    <div class="co-row">${logoTile(j.company_id,j.company)}<div class="co">${esc(j.company)}</div></div>
     <div class="gm">${esc(j.game||"")}</div>
     <h1>${esc(j.title)}</h1>
     <div class="dt-rq">${reqTags(j,6)}</div>
@@ -1680,7 +1712,7 @@ function viewJob(){
     <div class="status fx2" role="group" aria-label="지원 상태">${STATUSES.map(s=>`<button data-status="${s}" aria-pressed="${st===s}">${s}</button>`).join("")}</div>
     <section class="blk"><div class="blk-h"><span class="n">// 01</span><h2>적합도 근거</h2><small>WHY <span class="arrowbox">↘</span></small></div>
       <div class="rows">${sc.reqs.filter(r=>r.kind==="must").map(reqRow).join("")}${sc.reqs.filter(r=>r.kind==="plus").map(reqRow).join("")}${reqRow(sc.career)}</div>
-      ${sc.thin?`<div class="alert ask" style="margin:0 0 10px">이 공고는 지원 자격이 목록에 없어 점수를 최대 70점으로 제한했습니다. 원문에서 자격을 확인하세요.</div>`:""}<p class="calc">${sc.pref?`회사 점수 ${sc.pref.pts} = ${esc(sc.pref.label)} ${sc.pref.base}${sc.pref.big?` + 대기업 ${BIG_BONUS}`:""}${sc.pref.tracked?` + 추적 회사 ${TRACK_BONUS}`:""}. 점수 = 조건 점수 ${sc.fit} × ${Math.round((1-sc.pref.w)*100)}% + 회사 점수 × ${Math.round(sc.pref.w*100)}%${sc.cap!=null?`, 상한 ${sc.cap}점`:""}. 언어 필수 미충족 상한: 원어민급 20 · 업무 45 · 회화 55 · 기초 65 (한국어도 함께 요구하면 +15).${sc.koWanted&&sc.langNo?" 이 공고는 한국어도 요구해서 상한을 올렸습니다.":""} `:""}필수 조건 60점 + 우대 조건 30점 + 경력 조건 10점.${sc.conf<1?` 이 공고는 판단할 조건이 ${sc.reqs.length}개뿐이라, 조건 점수를 중간값 쪽으로 보정했습니다(조건 4개 이상이면 보정 없음).`:""} 충족은 만점, 일부는 절반. 회사 우선순위는 내 스펙 화면에서 바꿀 수 있습니다.</p></section>
+      ${sc.thin?`<div class="alert ask" style="margin:0 0 10px">이 공고는 지원 자격이 목록에 없어 점수를 최대 70점으로 제한했습니다. 원문에서 자격을 확인하세요.</div>`:""}<details class="calc-d" data-k="calc"><summary>점수 계산 방식</summary><p class="calc">${sc.pref?`회사 점수 ${sc.pref.pts} = ${esc(sc.pref.label)} ${sc.pref.base}${sc.pref.big?` + 대기업 ${BIG_BONUS}`:""}${sc.pref.tracked?` + 추적 회사 ${TRACK_BONUS}`:""}. 점수 = 조건 점수 ${sc.fit} × ${Math.round((1-sc.pref.w)*100)}% + 회사 점수 × ${Math.round(sc.pref.w*100)}%${sc.cap!=null?`, 상한 ${sc.cap}점`:""}. 언어 필수 미충족 상한: 원어민급 20 · 업무 45 · 회화 55 · 기초 65 (한국어도 함께 요구하면 +15).${sc.koWanted&&sc.langNo?" 이 공고는 한국어도 요구해서 상한을 올렸습니다.":""} `:""}필수 조건 60점 + 우대 조건 30점 + 경력 조건 10점.${sc.conf<1?` 이 공고는 판단할 조건이 ${sc.reqs.length}개뿐이라, 조건 점수를 중간값 쪽으로 보정했습니다(조건 4개 이상이면 보정 없음).`:""} 충족은 만점, 일부는 절반. 회사 우선순위는 내 스펙 화면에서 바꿀 수 있습니다.</p></details></section>
     ${(j.needs||[]).length?`<section class="blk"><div class="blk-h"><span class="n">// 02</span><h2>지원에 필요한 스탯</h2><small>STATS <span class="arrowbox">↘</span></small></div>
       <ol class="need">${j.needs.map((n,i)=>`<li><b class="w">${String(i+1).padStart(2,"0")}</b><span>${esc(n.title)}<small>${esc(n.detail)}</small></span></li>`).join("")}</ol></section>`:""}
     <section class="blk"><div class="blk-h"><span class="n">// 03</span><h2>공고 내용</h2><small>${esc(j.lang_original_label||"한국어")}</small></div>
