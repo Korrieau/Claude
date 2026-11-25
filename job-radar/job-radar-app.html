@@ -1307,13 +1307,20 @@ const isWebtoon=j=>{ if(SUB_CO.has(j.company_id)&&!/웹툰|webtoon/i.test(j.comp
 const KPOP_CO=new Set(["hybe","jyp","c-6cc14a85","c-a02e9224","c-86678d2a","c-5c9bc588","a2o","c-c608510f","c-88a4382f","c-b3202602","c-7ab4581a","c-3c4029bb","c-23ee9c7d","c-d31ea92d","c-cbc8ee2b","c-275f008f","c-ec406999","c-5c17d65d","c-82221db0","c-eb32a605","hello82","c-db9b9ece","c-59af630f","c-4c2f4864","c-d6bfe75f"]);
 const KPOP_RE=/K-?POP|케이팝|케이 팝/i, VT_RE=/버추얼|버튜버|VTuber|Vtuber|ブイチューバー|virtual/i;
 const isKpop=j=>{ const t=[j.company,j.title,j.title_original,j.summary,(j.raw||"").slice(0,1500)].join(" "); if(VT_RE.test(t)) return false; return KPOP_CO.has(j.company_id)||KPOP_RE.test((j.title||"")+" "+(j.title_original||"")); };
+function isMinorCo(j){
+  if(BIG_CO.has(j.company_id)||SUBGAME_CO.has(j.company_id)||GAME_CO.has(j.company_id)||SUB_CO.has(j.company_id)) return false;
+  const w=coW(j.company_id); if(w&&!w.minor) return false;
+  const g=prefOf(j).g; return g!=="subgame"&&g!=="game";
+}
 function applyHide(){
   const p=prof(), hj=new Set(p.hidden_jobs||[]), hc=new Set(p.hidden_cos||[]);
   const base0=(S.allJobs||[]).filter(j=>!hj.has(j.id)&&!hc.has(j.company_id)&&!isOut(j)&&!isKpop(j)&&!isWebtoon(j));
   S.nonSubCount=base0.filter(j=>!j.closed&&!isSub(j)).length;
   const base=base0.filter(j=>S.showNonSub||isSub(j));
   S.internCount=base.filter(j=>!j.closed&&isIntern(j)).length;
-  S.jobs=dedupe(base.filter(j=>S.showIntern||!isIntern(j)));
+  // Very small non-game companies (goods shops, MCNs, small IP firms) are hidden by default; small game studios stay.
+  S.minorCount=base.filter(j=>!j.closed&&isMinorCo(j)).length;
+  S.jobs=dedupe(base.filter(j=>(S.showIntern||!isIntern(j))&&(S.showMinor||!isMinorCo(j))));
   const visCo=new Set(S.jobs.map(j=>j.company_id));
   S.watch=(S.allWatch||[]).filter(w=>!hc.has(w.id)&&!KPOP_CO.has(w.id)&&w.category!=="webtoon"&&!WEBTOON_CO_RE.test(w.name||"")&&(S.showNonSub||SUB_CO.has(w.id)||visCo.has(w.id)));
 }
@@ -1663,7 +1670,7 @@ function viewJobs(){
     <label class="srch"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2"/></svg><input id="qInput" type="search" placeholder="회사·게임·제목 검색" value="${esc(S.q||"")}" autocomplete="off">${S.q?`<button id="qClear" aria-label="검색어 지우기">✕</button>`:""}</label></div>
   <main class="pad">
     ${stateNote()}
-    <div class="tchips">${S.nonSubCount?`<button data-nonsub aria-pressed="${!!S.showNonSub}">서브컬처 외 포함 ${S.nonSubCount}</button>`:""}${S.internCount?`<button data-intern aria-pressed="${!!S.showIntern}">인턴 포함 ${S.internCount}</button>`:""}${[["","전체 직군"],...Object.entries(TYPES).filter(([k])=>k!=="design").map(([k,v])=>[k,v.label])].map(([k,l])=>`<button data-gotype="${k}" aria-pressed="${(S.jtype||"")===k}">${l}</button>`).join("")}</div>
+    <div class="tchips">${S.nonSubCount?`<button data-nonsub aria-pressed="${!!S.showNonSub}">서브컬처 외 포함 ${S.nonSubCount}</button>`:""}${S.internCount?`<button data-intern aria-pressed="${!!S.showIntern}">인턴 포함 ${S.internCount}</button>`:""}${S.minorCount?`<button data-minor aria-pressed="${!!S.showMinor}">소규모 회사 포함 ${S.minorCount}</button>`:""}${[["","전체 직군"],...Object.entries(TYPES).filter(([k])=>k!=="design").map(([k,v])=>[k,v.label])].map(([k,l])=>`<button data-gotype="${k}" aria-pressed="${(S.jtype||"")===k}">${l}</button>`).join("")}</div>
     <div class="ttabs fx2" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}</div>
     ${S.cof||S.jtype?`<div class="chips">${S.cof?`<button data-cof="" aria-pressed="true">회사: ${esc((S.watch.find(w=>w.id===S.cof)||S.jobs.find(j=>j.company_id===S.cof)&&{name:S.jobs.find(j=>j.company_id===S.cof).company}||{}).name||S.cof)} ✕</button>`:""}${S.jtype?`<button data-gotype="" aria-pressed="true">직군: ${TYPES[S.jtype].label} ✕</button>`:""}</div>`:""}
     <div class="chips" role="group" aria-label="지원 가능 여부">${[["all","전체"],["saved",`★ 저장 ${nSaved}`],["now",`지금 지원 가능 ${nNow}`],["goal",`목표 ${nGoal}`]].map(([k,l])=>`<button data-reach="${k}" aria-pressed="${S.reach===k}">${l}</button>`).join("")}</div>
@@ -1894,6 +1901,7 @@ document.addEventListener("click", async e=>{
   if(b.dataset.cof!==undefined){ S.cof=b.dataset.cof||null; S.limit=40; if(S.cof) location.hash="jobs"; else render(); return; }
   if(b.dataset.gocountry!==undefined){ S.country=b.dataset.gocountry; S.jtype=null; S.cof=null; S.limit=40; location.hash="jobs"; return; }
   if(b.dataset.nonsub!==undefined){ S.showNonSub=!S.showNonSub; applyHide(); render(); return; }
+  if(b.dataset.minor!==undefined){ S.showMinor=!S.showMinor; applyHide(); render(); return; }
   if(b.dataset.intern!==undefined){ S.showIntern=!S.showIntern; applyHide(); render(); return; }
   if(b.dataset.gotype!==undefined){ S.jtype=b.dataset.gotype||null; S.limit=40; if(S.jtype&&S.route!=="jobs"){ S.cof=null; S.country="all"; location.hash="jobs"; } else render(); return; }
   if(b.dataset.prio){ const P={...PREF_DEFAULT,...(prof().pref||{})}, o=[...P.order], i=o.indexOf(b.dataset.prio), k=i+(+b.dataset.dir); if(k<0||k>=o.length) return; [o[i],o[k]]=[o[k],o[i]]; saveProfile({pref:{...P,order:o}}); return; }
