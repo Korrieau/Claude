@@ -268,3 +268,8 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 새 서브컬처 회사를 넣으면 `SUB_CO`에 id를 추가한다.
 
 - K-POP은 범위 밖: `KPOP_CO` 회사와 제목에 K-POP·케이팝이 있는 공고는 숨긴다. 단 버추얼·VTuber·버튜버가 언급되면 남긴다. 수집 때도 K-POP 기획사 공고는 넣지 않는다 (VTuber 사무소는 넣는다).
+
+### HRMOS 전체 페이지 확인 (2026-11-25 추가)
+- HRMOS는 1페이지에 최대 100건만 보임. `hrmos.co/pages/{org}/jobs?page=N`으로 끝까지 넘길 것 (cygames 357건, bravegroup 100건+).
+- 추가 확인된 org slug: capcom, pokemon, hal, aiming, klab, gree, enish, pokemoncenter, animate-group.
+- Aiming(c-aiming, 『陰の実力者になりたくて!』 운영)은 서브컬처 게임사로 분류.
