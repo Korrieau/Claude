@@ -950,6 +950,37 @@ body{font-weight:500}
 
 .lt b,.lt-t b{color:#1A1A1A!important;font-weight:900}
 .th-l b{color:#1A1A1A!important}
+
+/* Ananta site pass (2026-11): #111 base, blue-cyan accent, |NAME bars, solid NEWS-style section words */
+:root{--ac:#05A5FF;--ac2:#02DEE8;--acg:linear-gradient(90deg,#05A5FF 0%,#02DEE8 100%);--bg:#111111;--paper:#141414;--soft:#181818}
+body,body::before,.boot{background:#111!important}
+.top,.tabbar,.cta,.jh{background:rgba(17,17,17,.88)!important}
+.an-hero{background:radial-gradient(120% 90% at 80% 0%,#1E2228 0,#111 70%)!important}
+.dt-top,.dt-top.hatch{background-image:radial-gradient(110% 80% at 85% 0%,#1E242C 0,#111 72%)!important}
+.card,.bcard,.co-wrap,.mini a,.sum div,.hm-kpi a,.hb,.cal,.qs,.stat4 > *,.hlist a,.hco a{background:#171717!important}
+/* primary actions: PRE-REGISTER style */
+.cta .p,.btn:not(.ghost),.mbtn,.cbtn{background:var(--acg)!important;color:#fff!important;border:0!important;border-radius:2px!important;letter-spacing:.04em}
+.cbtn{height:30px;padding:0 16px;font:700 12px/1 var(--ko)}
+.cbtn[aria-busy]{background:#2A2A2A!important;color:#9BE7FF!important}
+.cta a{border-radius:2px}
+/* NEW badges */
+.th-n,.newb,.row-co em.nw{background:var(--acg)!important;color:#fff!important;border-radius:2px!important}
+/* gauges, bars, tab marks */
+.bar i,.hb .ht i,.cal .nm i span,.gauge .gc i.on,.dt-top .gauge .gc i.on,.rs .hbars .dot{background:var(--ac)!important}
+.tabs button[aria-pressed="true"]::after,.status button[aria-pressed="true"]::after,.tabbar a[aria-current="page"]::before{background:var(--acg)!important}
+.tabbar a[aria-current="page"] svg{stroke:#fff}
+main .alert,.pad .alert,.hidebar .alert,main .alert.ask,.pad .alert.ask,.dt-top .alert,.dt-top .alert.ask{border-left:3px solid var(--ac)!important}
+.txt h3::before{background:var(--acg)!important;width:3px!important}
+.tg[aria-checked="true"]{background:var(--ac)}.tg[aria-checked="true"]::after{background:#fff}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+/* |CAPTAIN name bar on image panels */
+.th-nm{padding-left:13px}
+.th-nm::before{content:"";position:absolute;left:0;top:10%;bottom:16%;width:4px;background:linear-gradient(180deg,#05A5FF,#02DEE8)}
+/* section word: solid heavy like NEWS */
+.rs-big{color:#F2F2F2!important;-webkit-text-stroke:0!important;font:900 54px/.86 "MiSans","Noto Sans KR",sans-serif!important;letter-spacing:-.055em!important;margin-bottom:6px}
+.rs-lab{color:#CFCFCF;letter-spacing:.06em;font:500 15px/1 var(--ko);text-transform:uppercase}
+/* page titles: blue tick */
+.jh-t b::after{content:"";display:inline-block;width:6px;height:6px;margin-left:6px;background:var(--ac2);vertical-align:.5em}
 </style>
 
 
