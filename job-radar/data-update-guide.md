@@ -225,4 +225,8 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 일본 게임업계 구인 (파미통 커리어) | API `https://syscareer.famitsu.com/api/job_search?page_number=N&count=100` (Referer career.famitsu.com/job-search), 상세 `https://career.famitsu.com/job-detail/<id>` | 약 1,800건. 제목 기준으로 범위 내만. 캡콤·코나미·코에이테크모·EXNOA·플래티넘·TMS 등 |
 | XD (심동) | https://xd-legacy.jobs.feishu.cn/ | Feishu |
 | 히어로게임즈 | https://careers.hero.com/ | |
-| Moonton | https://en.moonton.com/join/index.html | |
+
+
+## 수집 우선순위
+
+- 서브컬처 게임·IP 회사가 우선이다. 서브컬처가 아닌 캐주얼·전략·SLG 위주 회사(Century Games, FunPlus, Moonton 등)는 새로 찾지 않는다.
