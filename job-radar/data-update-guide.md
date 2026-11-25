@@ -224,6 +224,7 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 | 프로젝트문 | 사람인·게임잡·잡코리아 검색 "프로젝트문" | 자체 채용 페이지 없음 |
 | 일본 게임업계 구인 (파미통 커리어) | API `https://syscareer.famitsu.com/api/job_search?page_number=N&count=100` (Referer career.famitsu.com/job-search), 상세 `https://career.famitsu.com/job-detail/<id>` | 약 1,800건. 제목 기준으로 범위 내만. 캡콤·코나미·코에이테크모·EXNOA·플래티넘·TMS 등 |
 | XD (심동) | https://xd-legacy.jobs.feishu.cn/ | Feishu |
+| 퍼펙트월드 게임즈 | https://app.mokahr.com/social-recruitment/pwrd/142341 (게임 필터) | Moka DOM 페이징. jobs.games.wanmei.com 은 응답 없음. 서브컬처(이환·타워 오브 판타지 등) 관련 공고만 |
 | 히어로게임즈 | https://careers.hero.com/ | |
 
 

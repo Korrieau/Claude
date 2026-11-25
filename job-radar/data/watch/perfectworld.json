@@ -1,0 +1,26 @@
+{
+ "name": "퍼펙트월드 게임즈 (Perfect World)",
+ "category": "game",
+ "category_label": "게임",
+ "country": "CN",
+ "careers_url": "https://app.mokahr.com/social-recruitment/pwrd/142341",
+ "method": "api",
+ "method_note": "Moka (게임 부문 필터)",
+ "ip_focus": false,
+ "minor": false,
+ "added": "2026-11-25",
+ "verified": "2026-11-25",
+ "last_checked": "2026-11-25",
+ "open_count": 0,
+ "new_count": 0,
+ "closed_count": 0,
+ "history": [
+  {
+   "date": "2026-11-25",
+   "open": 0,
+   "new": 0,
+   "closed": 0
+  }
+ ],
+ "info": "이환(NTE)·타워 오브 판타지는 자회사 Hotta Studio. 2026-11-25 기준 범위 내 서브컬처 공고 없음 (MMO·SLG 위주)."
+}
