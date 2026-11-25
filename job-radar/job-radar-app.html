@@ -1051,16 +1051,49 @@ function evalReq(r){
   }
   return {status:r.status, reason:r.reason};
 }
+/* Implied requirements: the posting's own language and seniority count even when the data has no explicit rule. */
+function impliedLang(j){
+  if(j._il!==undefined) return j._il;
+  const has=c=>(j.reqs||[]).some(r=>r.rule&&r.rule.type==="lang"&&(r.rule.any||[]).includes(c));
+  const t=[j.title_original||"",(j.raw||"").slice(0,1800),(S.bodies?.[j.id]?.raw||"").slice(0,1800)].join(" ");
+  const kana=(t.match(/[\u3040-\u30ff]/g)||[]).length, han=(t.match(/[\u4e00-\u9fff]/g)||[]).length, hangul=(t.match(/[\uac00-\ud7a3]/g)||[]).length;
+  let c=null;
+  if(hangul>40) c=null;
+  else if(kana>15||(j.country==="JP"&&kana>3)) c="ja";
+  else if(han>40||((j.country==="CN"||j.country==="TW")&&han>10)) c="zh";
+  const v = (c&&!has(c)) ? {kind:"must",implied:true,text:`${LANG_NAMES[c]} 업무 수준 (공고가 ${LANG_NAMES[c]}로 작성됨)`,rule:{type:"lang",any:[c],min:"비즈니스"}} : null;
+  if(S.bodies) j._il=v;
+  return v;
+}
+function needMonths(j){
+  if(j._nm!==undefined) return j._nm;
+  let m=+j.min_years_months||0, src=m?"data":"";
+  if(!m){
+    const t=[j.career_req||"",j.title||"",j.title_original||"",(j.quals||[]).join(" "),(j.raw||"").slice(0,2500)].join(" ");
+    const re=/(?:경력|経験|实务|工作经验|experience)[^\d]{0,14}(\d{1,2})\s*(?:년|年|\+?\s*years?)|(\d{1,2})\s*(?:년|年)\s*(?:이상|以上)|(\d{1,2})\+?\s*years?(?:\s+of)?(?:\s+\w+){0,4}\s+experience/gi;
+    const v=[...t.matchAll(re)].filter(x=>!/우대|歓迎|尚可|优先|加分|preferred|\bplus\b|nice to have/i.test(t.slice(x.index,x.index+x[0].length+14))).map(x=>+(x[1]||x[2]||x[3])).filter(n=>n>=1&&n<=15);
+    if(v.length){ m=Math.min(...v)*12; src="text"; }
+    else if(!(!j.career_req||/명시 없음|미기재/.test(j.career_req))){ /* explicit "무관/신입" etc: trust it */ }
+    else{
+      const tt=(j.title_original||"")+" "+(j.title||"");
+      if(/principal|director|head of|总监|负责人|部長|本部長|팀장|실장|디렉터/i.test(tt)){ m=84; src="title"; }
+      else if(/senior|\bsr\.?\b|\blead\b|シニア|リード|高级|资深|主管|시니어|리드/i.test(tt)){ m=48; src="title"; }
+    }
+  }
+  return j._nm={m,src};
+}
 function score(j){
-  const reqs = (j.reqs||[]).map(r=>({...r, ...evalReq(r)}));
+  const il=impliedLang(j);
+  const reqs = [...(il?[il]:[]),...(j.reqs||[])].map(r=>({...r, ...evalReq(r)}));
   const musts = reqs.filter(r=>r.kind==="must"), pluses = reqs.filter(r=>r.kind==="plus");
   const M = musts.length?(pluses.length?60:90):0, P = pluses.length?(musts.length?30:90):0;
   const mw = musts.length?M/musts.length:0, pw = pluses.length?P/pluses.length:0;
   const pts = (r,w)=> r.status==="ok"?w : r.status==="part"?w/2 : 0;
   reqs.forEach(r=>{ const w=r.kind==="must"?mw:pw; r.max=Math.round(w); r.pts=Math.round(pts(r,w)); });
-  const minM = +j.min_years_months||0, careerOk = months()>=minM;
-  const career = {kind:"career", text:`경력 조건: ${j.career_req||"무관"}`, status:careerOk?"ok":"no",
-    reason: careerOk ? (minM?`내 게임 경력 ${months()}개월`:"신입 지원 가능") : `필요 ${minM}개월, 내 게임 경력 ${months()}개월`, max:10, pts:careerOk?10:0};
+  const nm=needMonths(j), minM=nm.m, my=months(), careerOk = my>=minM;
+  const srcTxt = nm.src==="title"?" (직급으로 추정)":nm.src==="text"?" (본문 기준)":"";
+  const career = {kind:"career", text:`경력 조건: ${j.career_req||(minM?`${Math.round(minM/12)}년 이상${srcTxt}`:"무관")}`, status:careerOk?"ok":"no",
+    reason: careerOk ? (minM?`내 게임 경력 ${my}개월`:"신입 지원 가능") : `필요 약 ${Math.round(minM/12)}년${srcTxt}, 내 게임 경력 ${my}개월`, max:10, pts:careerOk?10:0};
   // Evidence shrink: with few requirements a single match should not mean 100. conf = n/4 (max 1); the rest is pulled toward 55%.
   const nReq = reqs.length, conf = Math.min(1, nReq/4), base = nReq?90:0;
   const shrink = v => nReq ? conf*v + (1-conf)*base*0.55 : 0;
@@ -1068,9 +1101,17 @@ function score(j){
   let total = shrink(rawReq) + career.pts;
   const thin = !!j.lite && !musts.length && !(j.quals||[]).length;
   if(thin){ total=Math.min(total,70); }
+  // Hard gates: an unmet must-have language or a large experience gap caps the score.
+  const langNo = musts.some(r=>r.rule&&r.rule.type==="lang"&&r.status==="no");
+  const gap = Math.max(0,minM-my);
+  let cap = 100;
+  if(langNo) cap=Math.min(cap,30);
+  if(gap>0) cap=Math.min(cap, gap<=6?75: gap<=18?55: gap<=30?40: 25);
+  if(langNo&&gap>0) cap-=5;
+  const capped = total>cap; total=Math.min(total,cap);
   const askGain = conf*reqs.filter(r=>r.status==="ask").reduce((a,r)=>a+(r.kind==="must"?mw:pw),0);
   const mustNo = musts.filter(r=>r.status==="no").length, ask = reqs.filter(r=>r.status==="ask").length;
-  return {reqs, career, conf, total:Math.round(total), max:Math.round(thin?Math.min(70,total+askGain):total+askGain), mustNo, ask, thin};
+  return {reqs, career, conf, total:Math.round(total), max:Math.round(Math.min(cap,thin?Math.min(70,total+askGain):total+askGain)), mustNo, ask, thin, cap:capped?cap:null, langNo, gap};
 }
 
 /* ---------- db ---------- */
@@ -1355,7 +1396,7 @@ function coArtStyle(id){ const c=ART_CO[id], u=c&&c.length?`art/${c[0]}.webp`:(i
 /* Requirement chips: language + years, shown up front. Red when my profile does not meet it. */
 function reqTags(j,max){
   const out=[];
-  (j.reqs||[]).filter(r=>r.rule&&r.rule.type==="lang").sort((a,b)=>(a.kind==="must"?0:1)-(b.kind==="must"?0:1)).forEach(r=>{
+  [...(impliedLang(j)?[impliedLang(j)]:[]),...(j.reqs||[])].filter(r=>r.rule&&r.rule.type==="lang").sort((a,b)=>(a.kind==="must"?0:1)-(b.kind==="must"?0:1)).forEach(r=>{
     const e=evalReq(r), names=(r.rule.any||[]).map(c=>LANG_NAMES[c]||c).join("·"), lv=r.rule.min||"비즈니스";
     const lab = r.kind==="must" ? `${names} ${lv==="원어민"?"원어민":"필수"}` : `${names} 우대`;
     out.push(`<span class="rq ${e.status==="ok"?"ok":(r.kind==="must"?"no":"soft")}" title="${esc(names+" "+lv+(r.kind==="must"?" (필수)":" (우대)"))}">${lab}</span>`);
@@ -1365,7 +1406,9 @@ function reqTags(j,max){
   const senior=/principal|director|head of|\blead\b|senior|\bsr\.?\b|シニア|リード|高级|资深|总监|负责人|主管|팀장|리드|시니어/i.test(tt);
   const unknown=!cr||/명시 없음|미기재/.test(cr);
   let yl, cls;
+  const nm=needMonths(j);
   if(m>0){ yl=m%12===0?`${m/12}년+`:`${m}개월+`; cls=months()<m?"no":"ok"; }
+  else if(nm.m>0&&nm.src==="text"){ yl=`${nm.m/12}년+`; cls=months()<nm.m?"no":"ok"; }
   else if(/신입/.test(cr)){ yl="신입 가능"; cls="ok"; }
   else if(unknown&&senior){ yl="시니어급"; cls=months()<36?"no":"ok"; }
   else if(unknown){ yl="연차 미기재"; cls="soft"; }
@@ -1521,7 +1564,7 @@ function viewJob(){
     <div class="crumb"><span class="tag">${t.label}</span><span class="tag">${esc(j.location||j.country)}</span>${j.posted?`<span class="date">${pd(j.posted)}</span>`:""}</div>
     <div class="score"><b class="w">${sc.total}<span>/100</span></b><div><em>FIT SCORE · 참고용</em>${sc.max>sc.total?`질문에 "있음·가능"으로 답하면 <strong>최대 ${sc.max}</strong>`:"현재 기준 최종 점수"}</div></div>
     ${gauge(sc.total,sc.max,true)}
-    ${sc.mustNo?`<div class="alert">필수 조건 ${sc.mustNo}개 부족: ${esc(sc.reqs.filter(r=>r.kind==="must"&&r.status==="no").map(r=>r.text).join(", "))}. 지금은 목표 공고입니다.</div>`
+    ${(sc.mustNo||sc.gap>0)?`<div class="alert">${[sc.mustNo?`필수 조건 ${sc.mustNo}개 부족: ${esc(sc.reqs.filter(r=>r.kind==="must"&&r.status==="no").map(r=>r.text).join(", "))}`:"",sc.gap>0?`경력 약 ${Math.ceil(sc.gap/12)}년 부족`:""].filter(Boolean).join(" · ")}.${sc.cap!=null?` 점수 상한 ${sc.cap}점.`:""} 지금은 목표 공고입니다.</div>`
       : sc.ask?`<div class="alert ask">답할 질문 ${sc.ask}개. 아래 "적합도 근거"에서 버튼으로 답하면 점수가 바로 바뀌고, 같은 질문이 있는 다른 공고에도 함께 반영됩니다.</div>`:""}
   </div></section><div class="tri"></div>
   <main class="pad">
