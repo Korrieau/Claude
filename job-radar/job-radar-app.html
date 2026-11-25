@@ -1093,12 +1093,20 @@ function dedupe(list){ const best=new Map(); const rank=j=>(BOARD.test(j.url||""
   const host=j=>{ try{ return new URL(j.url).host; }catch(_){ return ""; } };
   const drop=new Set(); list.forEach(j=>{ const b=best.get((j.company_id==="headhunt"?j.company:(j.company_id||j.company))+"|"+normTitle(j.title)); if(b&&b.id!==j.id&&host(b)!==host(j)) drop.add(j.id); });
   S.dupCount=drop.size; return list.filter(j=>!drop.has(j.id)); }
+
+/* Subculture focus: core subculture companies keep everything; others only when the posting shows subculture signals. */
+const SUB_CO=new Set(["hoyoverse","mihoyo","hypergryph","kuro","papergames","sunborn","manjuu","yostarcn","yostarjp","yostar","bilibili","levelinfinite","netease","nexon","nexonjp","nexonamerica","nexongames","neople","ncsoft","ncamerica","cygames","sega","c-a6eb0891","anycolor","cover","brave","kamitsubaki","bushiroad","pokemoncenter","goodsmile","kadokawa","sonymusic","toho","crunchyroll","viz","colopl","klab","happyelements","donuts","drecom","coly","exnoa","c-93f0258b","lasengle","applibot","qualiarts","casoa","nelke","frontierworks","movic","animate","epid","shiftup","smilegate","kakaogames","projectmoon","supercreative","studiobside","bandainamcoent","bandainamcokr","bnea","tms","spikechunsoft","koeitecmo","c-735b5efc","lezhin","c-09192761","kidari","ridi","webtoon","tappytoon","laftel","daewonmedia","daewonci","haksan","smc","dnc","stellive","phaseconnect","vshojo","774","riotmusic","gravity","lilith","gamefreak","wfs","aniplex","aniplexusa","yenpress","kodansha","kotobukiya","ponycanyon","bnfw","bnol","akatsuki","sumzap","mixi","c-f5a29c45","squareenix","squareenixus","nimble"]);
+const SUB_RE=/서브컬처|서브컬쳐|애니|미소녀|수집형|2차원|이차원|二次元|アニメ|キャラクター|캐릭터|\bIP\b|굿즈|グッズ|버튜버|버추얼|VTuber|ブイチューバー|웹툰|만화|マンガ|漫画|라이트노벨|ノベル|코믹|コミック|가챠|gacha|anime|manga|webtoon|美少女|动漫|动画|声优|성우|声優|アイドル|팬덤|TCG|カード|피규어|フィギュア|코스프레|コスプレ|otome|乙女|女性向け|여성향|라이선스|ライセンス|版権|원신|명조|니케|블루 아카이브|명일방주|우마|붕괴|스타레일|에픽세븐|트릭컬|소녀전선|벽람|프로젝트 세카이|프로세카|Fate|FGO/i;
+const isSub=j=>SUB_CO.has(j.company_id)||SUB_RE.test([j.company,j.title,j.title_original,j.game,j.summary,(j.raw||"").slice(0,1500)].join(" "));
 function applyHide(){
   const p=prof(), hj=new Set(p.hidden_jobs||[]), hc=new Set(p.hidden_cos||[]);
-  const base=(S.allJobs||[]).filter(j=>!hj.has(j.id)&&!hc.has(j.company_id)&&!isOut(j));
+  const base0=(S.allJobs||[]).filter(j=>!hj.has(j.id)&&!hc.has(j.company_id)&&!isOut(j));
+  S.nonSubCount=base0.filter(j=>!j.closed&&!isSub(j)).length;
+  const base=base0.filter(j=>S.showNonSub||isSub(j));
   S.internCount=base.filter(j=>!j.closed&&isIntern(j)).length;
   S.jobs=dedupe(base.filter(j=>S.showIntern||!isIntern(j)));
-  S.watch=(S.allWatch||[]).filter(w=>!hc.has(w.id));
+  const visCo=new Set(S.jobs.map(j=>j.company_id));
+  S.watch=(S.allWatch||[]).filter(w=>!hc.has(w.id)&&(S.showNonSub||SUB_CO.has(w.id)||visCo.has(w.id)));
 }
 function toggleHide(kind,id){
   const key=kind==="co"?"hidden_cos":"hidden_jobs", cur=new Set(prof()[key]||[]), on=!cur.has(id);
@@ -1405,7 +1413,7 @@ function viewJobs(){
     <label class="srch"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2"/></svg><input id="qInput" type="search" placeholder="회사·게임·제목 검색" value="${esc(S.q||"")}" autocomplete="off">${S.q?`<button id="qClear" aria-label="검색어 지우기">✕</button>`:""}</label></div>
   <main class="pad">
     ${stateNote()}
-    <div class="tchips">${S.internCount?`<button data-intern aria-pressed="${!!S.showIntern}">인턴 포함 ${S.internCount}</button>`:""}${[["","전체 직군"],...Object.entries(TYPES).filter(([k])=>k!=="design").map(([k,v])=>[k,v.label])].map(([k,l])=>`<button data-gotype="${k}" aria-pressed="${(S.jtype||"")===k}">${l}</button>`).join("")}</div>
+    <div class="tchips">${S.nonSubCount?`<button data-nonsub aria-pressed="${!!S.showNonSub}">서브컬처 외 포함 ${S.nonSubCount}</button>`:""}${S.internCount?`<button data-intern aria-pressed="${!!S.showIntern}">인턴 포함 ${S.internCount}</button>`:""}${[["","전체 직군"],...Object.entries(TYPES).filter(([k])=>k!=="design").map(([k,v])=>[k,v.label])].map(([k,l])=>`<button data-gotype="${k}" aria-pressed="${(S.jtype||"")===k}">${l}</button>`).join("")}</div>
     <div class="ttabs fx2" role="group" aria-label="국가">${COUNTRIES.map(([c,l])=>`<button data-country="${c}" aria-pressed="${S.country===c}">${l}</button>`).join("")}</div>
     ${S.cof||S.jtype?`<div class="chips">${S.cof?`<button data-cof="" aria-pressed="true">회사: ${esc((S.watch.find(w=>w.id===S.cof)||S.jobs.find(j=>j.company_id===S.cof)&&{name:S.jobs.find(j=>j.company_id===S.cof).company}||{}).name||S.cof)} ✕</button>`:""}${S.jtype?`<button data-gotype="" aria-pressed="true">직군: ${TYPES[S.jtype].label} ✕</button>`:""}</div>`:""}
     <div class="chips" role="group" aria-label="지원 가능 여부">${[["all","전체"],["now",`지금 지원 가능 ${nNow}`],["goal",`목표 ${nGoal}`]].map(([k,l])=>`<button data-reach="${k}" aria-pressed="${S.reach===k}">${l}</button>`).join("")}</div>
@@ -1601,6 +1609,7 @@ document.addEventListener("click", async e=>{
   if(b.id==="menuCsv"){ closeMenu(); exportCsv(); return; }
   if(b.dataset.cof!==undefined){ S.cof=b.dataset.cof||null; S.limit=40; if(S.cof) location.hash="jobs"; else render(); return; }
   if(b.dataset.gocountry!==undefined){ S.country=b.dataset.gocountry; S.jtype=null; S.cof=null; S.limit=40; location.hash="jobs"; return; }
+  if(b.dataset.nonsub!==undefined){ S.showNonSub=!S.showNonSub; applyHide(); render(); return; }
   if(b.dataset.intern!==undefined){ S.showIntern=!S.showIntern; applyHide(); render(); return; }
   if(b.dataset.gotype!==undefined){ S.jtype=b.dataset.gotype||null; S.limit=40; if(S.jtype&&S.route!=="jobs"){ S.cof=null; S.country="all"; location.hash="jobs"; } else render(); return; }
   if(b.id==="moreBtn"){ S.limit=(S.limit||40)+40; render(); return; }
