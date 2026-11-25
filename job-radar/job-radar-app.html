@@ -559,7 +559,7 @@ main .alert.ask,.pad .alert.ask{background:#FFFBC2;color:var(--ink)}
 .xbtn{left:auto;right:0;top:0;border-left:1px solid var(--line);border-right:0;border-bottom:1px solid var(--line);background:#fff;color:var(--mute)}
 .card .newb,.card .gone{right:40px;top:8px}
 
-.top > .gbtn:not(#saveBtn):not(.xg){display:none}
+.top > .gbtn:not(#saveBtn):not(.xg):not(.cbtn){display:none}
 .blk-h small,.blk-h .n{display:none}
 .blk-h h2{font:900 18px/1.2 var(--ko)}
 .blk-h h2::after{content:":";margin-left:2px}
@@ -712,7 +712,7 @@ body::before{background:#080808}
 .menubtn i{background:#EEE!important}
 .back,.back .arr{color:#EEE}.back .arr{background:rgba(255,255,255,.08);box-shadow:none}
 .gbtn{background:#F6F6F6;color:#080808;border-radius:999px;height:32px;padding:0 14px;font:700 11px/1 var(--ko);letter-spacing:.06em}
-.gbtn::before{display:none}.gbtn svg{stroke:#080808}
+.cbtn{background:#DD353A;color:#fff}.cbtn[aria-busy]{background:#333;color:#EEE}.cbtn:disabled{opacity:.6}.gbtn::before{display:none}.gbtn svg{stroke:#080808}
 .gbtn.xg{background:rgba(255,255,255,.06);color:#EEE;border:1px solid rgba(255,255,255,.22)}
 /* hero band */
 .an-hero{position:relative;overflow:hidden;min-height:0!important;padding:34px max(16px,env(safe-area-inset-left,0px)) 26px!important;background:radial-gradient(120% 90% at 80% 0%,#1B1B1F 0,#080808 70%)!important;border-bottom:1px solid var(--line)}
@@ -1172,6 +1172,27 @@ function tabbar(cur){
   return `<nav class="tabbar" aria-label="메뉴"><div class="in">${t.map(([id,l,n])=>`<a href="#${id}" ${cur===id?'aria-current="page"':""}>${ICON[id]}${l}<span class="n">// ${n}</span></a>`).join("")}</div></nav>`;
 }
 function fsBtn(){ try{ if(!document.fullscreenEnabled||document.fullscreenElement) return ""; }catch(_){ return ""; } return `<button class="gbtn" id="fsBtn" aria-label="전체 화면">전체화면</button>`; }
+const COLLECT_TRIG="trig_01JbYvM7kkXKmzULs67YEmco";
+function collectAt(){ try{ return +localStorage.getItem("jr_collect_at")||0; }catch(_){ return 0; } }
+function collectBtn(){ const t=collectAt(), run=t&&Date.now()-t<70*60e3;
+  return `<button class="gbtn cbtn" id="collectBtn" ${run?'aria-busy="true"':""} aria-label="공고 수집 실행">${run?`수집 중 · ${new Date(t).toTimeString().slice(0,5)}`:"수집"}</button>`; }
+async function runCollect(b){
+  const t=collectAt();
+  if(t&&Date.now()-t<70*60e3){ toast("이미 수집 중입니다. 끝나면 '오늘의 변화'에 올라옵니다"); return; }
+  if(!confirm("공고 수집을 시작할까요?\n40분~1시간 걸리고, 끝나면 휴대폰 알림이 옵니다.")) return;
+  let mcp=null; try{ mcp=await window.claude?.use?.("mcp"); }catch(_){}
+  if(!mcp){ toast("이 화면에서는 수집을 시작할 수 없습니다. claude.ai에서 열어 주세요"); return; }
+  b.disabled=true; b.textContent="시작 중…";
+  try{
+    await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:COLLECT_TRIG,text:"On-demand run started from the app's collect button. Treat it like the daily run for today's date."},{cache:false});
+    try{ localStorage.setItem("jr_collect_at",String(Date.now())); }catch(_){}
+    toast("수집을 시작했습니다 (40분~1시간)");
+  }catch(e){
+    const c=e&&e.code;
+    toast(c==="server_not_connected"?"claude.ai 설정 → 커넥터에서 Claude Code Remote를 켜 주세요":c==="not_in_manifest"||c==="approval_required"?"수집 권한이 허용되지 않았습니다":"수집 시작 실패 — 잠시 후 다시 눌러 주세요");
+  }
+  render();
+}
 function topbar(btn){
   return `<header class="top"><a class="logo" href="#home"><small>SUBCULTURE · GAME PM</small><b class="w"><i></i>JOB RADAR</b></a>${fsBtn()}${btn||""}<button class="menubtn" id="menuBtn" aria-label="전체 메뉴 열기"><i></i><i></i><i></i></button></header>`;
 }
@@ -1373,7 +1394,7 @@ function viewHome(){
   const ht=S.htab||"all"; const newPool=(newest.length?newest:all.filter(x=>(x.j.added||"")>=weekAgo).sort((a,b)=>(b.j.added||"").localeCompare(a.j.added||"")||b.sc.total-a.sc.total));
   const newF=newPool.filter(x=>ht==="all"||(ht==="etc"?!MAIN_C.includes(x.j.country):x.j.country===ht));
   const bar=(label,v,max,nw,attr)=>`<button class="hb" ${attr}><span class="hl">${label}</span><span class="ht"><i style="width:${Math.max(3,v/max*100)}%"></i></span><b class="w">${v}</b>${nw?`<em>+${nw}</em>`:`<em class="z"></em>`}</button>`;
-  return `${topbar(`<button class="gbtn" id="exportBtn" aria-label="시트용 파일 내보내기">${ICON.dl}CSV</button>`)}
+  return `${topbar(`${collectBtn()}<button class="gbtn" id="exportBtn" aria-label="시트용 파일 내보내기">${ICON.dl}CSV</button>`)}
   ${secHead("Today","00","DAILY",`${t.replaceAll("-",".")} (${wd}) · 새 공고 ${nNew}건 · 전체 ${open.length}건`)}
   <main class="pad hm">
     ${stateNote()}
@@ -1611,6 +1632,7 @@ document.addEventListener("input", e=>{ if(e.target.id==="wqInput"){ S.wq=e.targ
 document.addEventListener("scroll", e=>{ const el=e.target; if(el&&el.id==="pk"){ const i=Math.round(el.scrollLeft/el.clientWidth)+1, c=document.getElementById("pkc"); if(c) c.innerHTML=`<b>${i}</b> / ${el.children.length}`; } }, true);
 document.addEventListener("click", async e=>{
   const b = e.target.closest("button"); if(!b) return;
+  if(b.id==="collectBtn"){ runCollect(b); return; }
   if(b.id==="fsBtn"){ document.documentElement.requestFullscreen?.().then(()=>render()).catch(()=>toast("이 화면에서는 전체 화면을 쓸 수 없습니다")); return; }
   if(b.id==="trBtn"){ translateJob(b.dataset.id); return; }
   if(b.id==="iconSave"){ let dl=null; try{ dl=await window.claude?.use?.("downloads"); }catch(_){}
