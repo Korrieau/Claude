@@ -1024,7 +1024,7 @@ const COUNTRIES = [["all","전체"],["KR","한국"],["JP","일본"],["CN","중�
 const MAIN_C = ["KR","JP","CN","US"];
 const STATUSES = ["관심","지원함","결과 대기","종료"];
 const LANG_LV = ["못 함","학습 중","기초","일상 회화","비즈니스","원어민"];
-const LANG_NAMES = {en:"영어",ko:"한국어",ja:"일본어",zh:"중국어"};
+const LANG_NAMES = {en:"영어",ko:"한국어",ja:"일본어",zh:"중국어",xx:"해당 언어"};
 const PLACES = ["미입력","서울","판교·성남","도쿄","상하이","해외 어디든","원격","무관"];
 const DEFAULT_PROFILE = {lang:{en:"원어민",ko:"원어민",ja:"못 함",zh:"못 함"},learn:["ja","zh"],travel:null,overseas:null,place:"미입력",
   career:[{org:"넷마블",role:"게임사업PM (SQC팀)",months:8,note:"공채 인턴십 합격",game:true},{org:"호주 국립해양박물관",role:"인턴",months:4,note:"대학 시절",game:false}],notes:""};
@@ -1084,6 +1084,13 @@ function impliedLang(j){
   if(S.bodies) j._il=v;
   return v;
 }
+// Roles built around a language the user does not speak (e.g. Portuguese localization) need that language at native level.
+const OTHER_LANG_RE=/포르투갈어|프랑스어|스페인어|독일어|이탈리아어|러시아어|태국어|베트남어|인도네시아어|아랍어|터키어|폴란드어|힌디어|말레이어|ポルトガル語|フランス語|スペイン語|ドイツ語|タイ語|ベトナム語|インドネシア語|葡萄牙语|法语|西班牙语|德语|泰语|越南语|印尼语|俄语|阿拉伯语|Portuguese|French|Spanish|German|Italian|Russian|Thai|Vietnamese|Indonesian|Arabic|Turkish/i;
+function otherLang(j){ const t=[j.title,j.title_original].join(" "); const m=t.match(OTHER_LANG_RE); return m&&/현지화|번역|검수|로컬|localiz|translat|翻訳|ローカライズ|本地化|翻译|커뮤니티|community|CS|고객|サポート|客服|운영|ops|マーケ|marketing|마케팅/i.test(t)?m[0]:null; }
+// Role fit for a business/live-ops PM: production, writing, engineering and translation-only roles rank lower.
+const ROLE_CORE_RE=/사업|PM\b|퍼블리싱|퍼블리셔|라이브|운영|서비스 ?기획|매니저|마케팅|커뮤니티|IP|라이선스|제휴|BD|사업개발|프로덕트|product|operation|business|publishing|live ?ops|community|marketing|partnership|運営|事業|プロデュース|マーケ|运营|发行|商务|市场|产品|社区|UX ?분석|유저 ?리서치|user research|검증/i;
+const ROLE_WEAK_RE=/애니메이션 ?(제작|PD)|제작 ?(PD|진행)|라인 ?프로듀서|영상 ?(제작|PD|편집)|작가|시나리오|웹 ?서비스 ?기획|프로그래밍|아트 ?전분야|번역 ?\/ ?검수|번역가|translator|editor|편집|AI ?콘텐츠|콘텐츠 ?작가|단말기|설치|셔틀|line producer|animation producer/i;
+function roleAdj(j){ const t=[j.title,j.title_original].join(" "); if(ROLE_WEAK_RE.test(t)) return -12; if(ROLE_CORE_RE.test(t)) return 4; return 0; }
 function needMonths(j){
   if(j._nm!==undefined) return j._nm;
   let m=+j.min_years_months||0, src=m?"data":"";
@@ -1137,8 +1144,9 @@ function prefOf(j){
   return {g,label:PREF_GROUPS[g],rank:rank+1,base:PREF_PTS[rank]??15,big,tracked,pts,w:+P.w};
 }
 function score(j){
-  const il=impliedLang(j);
-  const reqs = [...(il?[il]:[]),...(j.reqs||[])].map(r=>({...r, ...evalReq(r)}));
+  const il=impliedLang(j), ol=otherLang(j);
+  const olReq = ol ? {kind:"must",implied:true,text:`${ol} 원어민급 (직무 언어)`,rule:{type:"lang",any:["xx"],min:"원어민",label:ol}} : null;
+  const reqs = [...(il?[il]:[]),...(olReq?[olReq]:[]),...(j.reqs||[])].map(r=>({...r, ...evalReq(r)}));
   const musts = reqs.filter(r=>r.kind==="must"), pluses = reqs.filter(r=>r.kind==="plus");
   const M = musts.length?(pluses.length?60:90):0, P = pluses.length?(musts.length?30:90):0;
   const mw = musts.length?M/musts.length:0, pw = pluses.length?P/pluses.length:0;
@@ -1165,18 +1173,20 @@ function score(j){
   // Korean also wanted (Korea-market / Korean localization roles at foreign companies): a good match for a native Korean speaker.
   const koWanted = reqs.some(r=>r.rule&&r.rule.type==="lang"&&(r.rule.any||[]).includes("ko")) ||
     /韩语|韓国語|韓国向け|韓国市場|韩国市场|韩服|Korean|한국어|한국 ?시장|한국 ?지역|한국향|Korea(?:n)? market|K-?market/i.test([j.title,j.title_original,(j.raw||"").slice(0,2500),(S.bodies?.[j.id]?.raw||"").slice(0,2500)].join(" "));
-  const KO_LIFT=15;
-  langMiss.forEach(r=>{ cap=Math.min(cap, (LANG_CAP[r.rule.min||"원어민"]??45)+(koWanted?KO_LIFT:0)); });
+  const koTitle = /한국|韩国|韩语|韓国|Korea|Korean|\(韩\)|韩服/i.test([j.title,j.title_original].join(" "));
+  const KO_LIFT = koTitle ? 25 : 15;
+  langMiss.forEach(r=>{ const other=(r.rule.any||[]).includes("xx"); cap=Math.min(cap, (LANG_CAP[r.rule.min||"원어민"]??45)+(koWanted&&!other?KO_LIFT:0)); });
   if(gap>0) cap=Math.min(cap, gap<=6?75: gap<=18?55: gap<=30?40: 25);
   if(langNo&&gap>0) cap-=5;
   if(koWanted&&langNo) total+=5;
+  const radj=roleAdj(j); total=Math.max(0,total+radj);
   const capped = total>cap; total=Math.min(total,cap);
   const askGain = conf*reqs.filter(r=>r.status==="ask").reduce((a,r)=>a+(r.kind==="must"?mw:pw),0);
   const mustNo = musts.filter(r=>r.status==="no").length, ask = reqs.filter(r=>r.status==="ask").length;
   const pref=prefOf(j), fit=Math.round(total);
   const mix=v=>Math.min(cap,(1-pref.w)*v+pref.w*pref.pts);
   const maxFit=thin?Math.min(70,total+askGain):total+askGain;
-  return {reqs, career, conf, fit, pref, total:Math.round(mix(total)), max:Math.round(Math.max(mix(total),mix(maxFit))), mustNo, ask, thin, cap:capped?cap:null, langNo, gap, koWanted};
+  return {reqs, career, conf, fit, pref, total:Math.round(mix(total)), max:Math.round(Math.max(mix(total),mix(maxFit))), mustNo, ask, thin, cap:capped?cap:null, langNo, gap, koWanted, radj};
 }
 
 /* ---------- db ---------- */
@@ -1474,8 +1484,8 @@ function coArtStyle(id){ const c=ART_CO[id], u=c&&c.length?`art/${c[0]}.webp`:(i
 /* Requirement chips: language + years, shown up front. Red when my profile does not meet it. */
 function reqTags(j,max){
   const out=[];
-  [...(impliedLang(j)?[impliedLang(j)]:[]),...(j.reqs||[])].filter(r=>r.rule&&r.rule.type==="lang").sort((a,b)=>(a.kind==="must"?0:1)-(b.kind==="must"?0:1)).forEach(r=>{
-    const e=evalReq(r), names=(r.rule.any||[]).map(c=>LANG_NAMES[c]||c).join("·"), lv=r.rule.min||"비즈니스";
+  [...(impliedLang(j)?[impliedLang(j)]:[]),...(otherLang(j)?[{kind:"must",rule:{type:"lang",any:["xx"],min:"원어민",label:otherLang(j)}}]:[]),...(j.reqs||[])].filter(r=>r.rule&&r.rule.type==="lang").sort((a,b)=>(a.kind==="must"?0:1)-(b.kind==="must"?0:1)).forEach(r=>{
+    const e=evalReq(r), names=r.rule.label||(r.rule.any||[]).map(c=>LANG_NAMES[c]||c).join("·"), lv=r.rule.min||"비즈니스";
     const lab = r.kind==="must" ? `${names} ${lv==="원어민"?"원어민":"필수"}` : `${names} 우대`;
     out.push(`<span class="rq ${e.status==="ok"?"ok":(r.kind==="must"?"no":"soft")}" title="${esc(names+" "+lv+(r.kind==="must"?" (필수)":" (우대)"))}">${lab}</span>`);
   });
