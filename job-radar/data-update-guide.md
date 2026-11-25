@@ -246,6 +246,10 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 라센글 HRMOS `hrmos.co/pages/lasengle/jobs?page=N`, 네오위즈 Lever API `api.lever.co/v0/postings/neowiz?mode=json`, 굿스마일 HERP는 Playwright로 열어야 목록이 보임, Donuts jobcan은 게임·ANYLAND·VR/VTuber 사업부만.
 
 ## 수집 메모 (2026-11-25)
+- 아틀라스: SONAR `atlus-recruit.snar.jp/index.aspx?id=OxnbAIS-2P8`(중도 비개발직) curl 한 번에 전체 본문.
+- 코에이테크모: `koeitecmo.co.jp/recruit/career/` 직무별 정적 페이지 (`system/ip*.html` = IP 비즈니스, `system/post-2x.html` = 비즈니스 개발·스토어).
+- 반다이남코 스튜디오: HRMOS `bandainamcostudios`. DeNA: HERP `denacareer`(게임 그룹은 개발 위주), IRIAM(버튜버 앱): HRMOS `iriam`.
+- 캡콤·포켓몬 컴퍼니: 채용 페이지가 자동 접속에서 비어 있음(확인 불가).
 - 넥슨 통합 채용(careers.nexon.com)은 보안 검사(봇 차단) 화면 → 우회하지 않음. 넥슨·넥슨게임즈·네오플 공고는 게임잡·잡코리아 경로.
 - 아카츠키 게임즈: `storage.googleapis.com/hr-ats-public-hr-jinji-prd/games/jobs/index.html` (2026-11-25 기준 QA 1건뿐).
 - 스튜디오비사이드 `studiobside.com/recruit/lists/ct/kr`, 프로젝트문·클로버게임즈: 공개 공고 없음 / 접속 불가.
