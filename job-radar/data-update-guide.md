@@ -287,3 +287,5 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 데브시스터즈는 수집 제외.
 - 넥슨·넥슨게임즈 공식 채용(careers.nexon.com)은 403 차단 → 잡코리아 검색(`jobkorea.co.kr/Search/?stext=넥슨&tabType=recruit`)으로 확인. 본문은 `/Recruit/GI_Read_Comt_Ifrm?Gno=`.
 - 디나미스원(c-dynamisone)은 게임잡 기업 페이지 M=44438003으로 추적. 릴리스·데브시스터즈는 제외 (앱 EXCL_CO).
+- 신생 서브컬처 스튜디오 추적: 컨트롤나인(c-control9, 게임잡 M=41909341), 빅게임스튜디오(c-biggame), 슈퍼크리에이티브(c-supercreative), 디나미스원, 라이온하트(lionheart.ninehire.site), 엔픽셀(npixel.ninehire.site). 대부분 게임잡·나인하이어에 개발직만 올림 → 사업직 나오면 수집.
+- 리멤버(career.rememberapp.co.kr)는 Cloudflare 차단.
