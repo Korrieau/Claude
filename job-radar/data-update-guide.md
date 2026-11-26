@@ -289,3 +289,13 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 디나미스원(c-dynamisone)은 게임잡 기업 페이지 M=44438003으로 추적. 릴리스·데브시스터즈는 제외 (앱 EXCL_CO).
 - 신생 서브컬처 스튜디오 추적: 컨트롤나인(c-control9, 게임잡 M=41909341), 빅게임스튜디오(c-biggame), 슈퍼크리에이티브(c-supercreative), 디나미스원, 라이온하트(lionheart.ninehire.site), 엔픽셀(npixel.ninehire.site). 대부분 게임잡·나인하이어에 개발직만 올림 → 사업직 나오면 수집.
 - 리멤버(career.rememberapp.co.kr)는 Cloudflare 차단.
+
+## 수집 도구 (tools/collect) — 토큰 절약용
+매번 사이트 접근법을 새로 찾지 말고 이 도구부터 돌릴 것.
+1. DB 내보내기: ArtifactData list → jobs, jobpacks, profile (limit 1000, out_dir=<scratch>/export).
+2. `python3 job-radar/tools/collect/run.py --export <scratch>/export --out <scratch>/cand.json`
+   - 소스: HRMOS 전체 org·전체 페이지, NetEase·Tencent 한국어 키워드, Famitsu(韓国 포함), HoYoverse Ashby, GameJob 전체, JobKorea 검색(넥슨·신생 스튜디오 등), Moka(퍼펙트월드·요스타·하이퍼그리프)·Feishu(쿠로·페이퍼·XD) 韩语/韩国 검색.
+   - `--only hrmos,netease` 로 일부만 실행 가능.
+   - 범위 필터(직군·웹툰·성우 제외), 숨긴 회사·공고, 제외 회사(EXCL_CO), 기존 공고(url·제목 유사도), `data/skip.json`(검토 후 제외한 공고)를 모두 걸러서 한 줄 목록만 출력.
+3. 후보만 상세 확인(sources.hrmos_detail / jobkorea_detail, `node pw.js page <url>`) → 번역·팩 작성.
+4. 검토 후 넣지 않은 공고는 `data/skip.json`에 url을 추가 → 다음 수집 때 다시 안 나옴.
