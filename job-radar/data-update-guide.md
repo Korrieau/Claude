@@ -285,3 +285,5 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - 가챠 매출 순위(eog.gg/revenue)로 빠진 회사 확인. revenue.ennead.cc는 Cloudflare 차단이라 사용 안 함.
 - 새로 추가: 레벨5(c-level5, 공식 사이트), 블루포치(c-bluepoch, Moka blueinteractive/38433), 퍼펙트월드(c-pwrd).
 - 데브시스터즈는 수집 제외.
+- 넥슨·넥슨게임즈 공식 채용(careers.nexon.com)은 403 차단 → 잡코리아 검색(`jobkorea.co.kr/Search/?stext=넥슨&tabType=recruit`)으로 확인. 본문은 `/Recruit/GI_Read_Comt_Ifrm?Gno=`.
+- 디나미스원(c-dynamisone)은 게임잡 기업 페이지 M=44438003으로 추적. 릴리스·데브시스터즈는 제외 (앱 EXCL_CO).

@@ -1307,7 +1307,8 @@ const isWebtoon=j=>{ if(SUB_CO.has(j.company_id)&&!/웹툰|webtoon/i.test(j.comp
 const KPOP_CO=new Set(["hybe","jyp","c-6cc14a85","c-a02e9224","c-86678d2a","c-5c9bc588","a2o","c-c608510f","c-88a4382f","c-b3202602","c-7ab4581a","c-3c4029bb","c-23ee9c7d","c-d31ea92d","c-cbc8ee2b","c-275f008f","c-ec406999","c-5c17d65d","c-82221db0","c-eb32a605","hello82","c-db9b9ece","c-59af630f","c-4c2f4864","c-d6bfe75f"]);
 const KPOP_RE=/K-?POP|케이팝|케이 팝/i, VT_RE=/버추얼|버튜버|VTuber|Vtuber|ブイチューバー|virtual/i;
 const VOICE_RE=/성우|보이스 ?(디자이너|액터|녹음)|voice ?(actor|designer|director)|声优|配音|语音设计|語音|音效|サウンド|音声収録|사운드 ?디자이너|audio designer/i;
-const isVoice=j=>VOICE_RE.test((j.title||"")+" "+(j.title_original||""));
+const EXCL_CO=new Set(["lilith","devsisters"]);
+const isVoice=j=>EXCL_CO.has(j.company_id)||VOICE_RE.test((j.title||"")+" "+(j.title_original||""));
 const isKpop=j=>{ const t=[j.company,j.title,j.title_original,j.summary,(j.raw||"").slice(0,1500)].join(" "); if(VT_RE.test(t)) return false; return KPOP_CO.has(j.company_id)||KPOP_RE.test((j.title||"")+" "+(j.title_original||"")); };
 function isMinorCo(j){
   if(BIG_CO.has(j.company_id)||SUBGAME_CO.has(j.company_id)||GAME_CO.has(j.company_id)||SUB_CO.has(j.company_id)) return false;
