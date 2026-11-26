@@ -273,3 +273,15 @@ lang(en, ko, ja, zh: 못 함 / 학습 중 / 기초 / 일상 회화 / 비즈니�
 - HRMOS는 1페이지에 최대 100건만 보임. `hrmos.co/pages/{org}/jobs?page=N`으로 끝까지 넘길 것 (cygames 357건, bravegroup 100건+).
 - 추가 확인된 org slug: capcom, pokemon, hal, aiming, klab, gree, enish, pokemoncenter, animate-group.
 - Aiming(c-aiming, 『陰の実力者になりたくて!』 운영)은 서브컬처 게임사로 분류.
+
+### 한국어 공고 우선 수집 (2026-11-26 추가)
+- 메이저 서브컬처사는 채용 사이트에서 `韩语` / `韩国` / `韓国` / `Korean` 키워드로 따로 검색해 빠진 공고를 확인할 것.
+  - NetEase: `POST hr.163.com/api/hr163/position/queryPage {"currentPage":1,"pageSize":100,"keyword":"韩语"}`
+  - Tencent: `careers.tencent.com/tencentcareer/api/post/Query?keyword=韩语&pageIndex=1&pageSize=100`
+  - Moka(퍼펙트월드 pwrd/142341, 요스타, 하이퍼그리프): `#/jobs?keyword=韩国`
+  - Feishu(쿠로): `/index/position/list?keywords=韩语`
+- 한국 시장 마케팅·운영·현지화 인턴은 무조건 포함 (예: 아난타 한국 마케팅 인턴).
+- 성우·보이스·사운드 공고는 제외 (앱에서도 자동 숨김: VOICE_RE).
+- 가챠 매출 순위(eog.gg/revenue)로 빠진 회사 확인. revenue.ennead.cc는 Cloudflare 차단이라 사용 안 함.
+- 새로 추가: 레벨5(c-level5, 공식 사이트), 블루포치(c-bluepoch, Moka blueinteractive/38433), 퍼펙트월드(c-pwrd).
+- 데브시스터즈는 수집 제외.
